@@ -37,7 +37,7 @@ public class GethController {
         //funcArguments must be comma separated values
         //first generate json to execute function
         //request need method name, method arguments and id. jsonrpc defaults to version 2.0
-        RequestModel request = new RequestModel("2,0", funcName, funcArguments.split(","), "id");
+        RequestModel request = new RequestModel("2.0", funcName, funcArguments.split(","), "id");
         Gson gson = new Gson();
         String response = gethService.executeGethCall(gson.toJson(request));
         return response;
