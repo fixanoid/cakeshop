@@ -7,6 +7,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
  */
 
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
+import org.junit.Ignore;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ public class GethHttpUnitTest {
 
 
     @Test
-    //@Ignore
+    @Ignore
     public void test() {
         //Change to whatever url your local tomcat  is set
         String url = "http://localhost:8090/ethereum-enterperise/submit_func";        
