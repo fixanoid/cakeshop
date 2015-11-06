@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class GethHttpServiceImpl implements GethHttpService {
     
-    //TODO: make it readable from properties
     @Value("${geth.url}")
     private String url;
 
