@@ -6,8 +6,8 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterperise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
-import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import static org.springframework.http.HttpMethod.POST;
@@ -24,7 +24,8 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class GethHttpServiceImpl implements GethHttpService {
     
-    @Value("${geth.url}")
+    //@Value("${geth.url:'http://localhost:8102'}")
+    @Value("${geth.url:'http://localhost:8102'}")
     private String url;
 
     //TODO: Method to add coinbase upon start of the app. @PostCreate
