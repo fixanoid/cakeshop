@@ -11,6 +11,10 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.service;
  */
 public interface GethHttpService {
     
+    public static final String startXCommand = "/Users/I629630/workspace/go/eth-develop/jpm-goethereum/build/bin/geth";
+    public static final String startWinCommand = "";
+    
     public String executeGethCall(String json);
+    public void startGeth();
     
 }

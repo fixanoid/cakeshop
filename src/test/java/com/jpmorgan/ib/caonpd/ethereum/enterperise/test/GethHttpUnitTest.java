@@ -74,5 +74,11 @@ public class GethHttpUnitTest {
         String response = service.executeGethCall(gson.toJson(request));
         System.out.println("Geth func call response :" + response);
     }
+    
+    @Test
+    @Ignore
+    public void testStart () {
+        service.startGeth();
+    }
 
 }
