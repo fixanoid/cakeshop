@@ -16,6 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,6 +35,9 @@ public class GethHttpUnitTest {
 
     @Autowired
     private GethHttpService service;
+    
+    @Value("${geth.genesis}")
+    private String genesis;
 
     @BeforeClass
     public static void setEnv() {
@@ -65,7 +69,7 @@ public class GethHttpUnitTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testService() {
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -78,7 +82,9 @@ public class GethHttpUnitTest {
     @Test
     @Ignore
     public void testStart () {
-        service.startGeth();
+        String genesisDir =  System.getProperty("user.dir") + "/geth-resources" + genesis;
+        String command = System.getProperty("user.dir") + "/geth-resources" + "/bin/geth";
+        service.startGeth(command, genesisDir);
     }
 
 }

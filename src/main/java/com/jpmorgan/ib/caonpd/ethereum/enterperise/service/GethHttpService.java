@@ -11,10 +11,10 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.service;
  */
 public interface GethHttpService {
     
-    public static final String startXCommand = "/Users/I629630/workspace/go/eth-develop/jpm-goethereum/build/bin/geth";
-    public static final String startWinCommand = "";
+    public static final String startXCommand = System.getProperty("user.dir") + "/bin/geth";
+    public static final String startWinCommand = System.getProperty("user.dir") + "/bin/geth.exe";
     
     public String executeGethCall(String json);
-    public void startGeth();
+    public void startGeth(String command, String genesisDir);
     
 }

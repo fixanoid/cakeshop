@@ -37,6 +37,19 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Value("${geth.url}")
     private String url;
+    @Value("${geth.networkid}")
+    private String networkid;
+    @Value("${geth.datadir}")
+    private String datadir;
+    @Value("${geth.genesis}")
+    private String genesis;
+    @Value("${geth.rpcport}")
+    private String rpcport;
+    @Value("${geth.rpcapi.list}")
+    private String rpcApiList;
+    @Value("${geth.log}")
+    private String logdir;
+    
 
     //TODO: Method to add coinbase upon start of the app. @PostCreate
     @Override
@@ -50,20 +63,21 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public void startGeth() {
+    public void startGeth(String command, String genesisDir) {
+        String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
-            startProcess(startWinCommand, "/Users/I629630/.ethereum_test");
+            startProcess(command, eth_datadir, genesisDir);
         } else {
             //start *nix geth
-            startProcess(startXCommand, "/Users/I629630/.ethereum_test");
+            startProcess(command, eth_datadir, genesisDir);
             LOG.info("Starting *nix");
         }
     }
 
-    private void startProcess(String command, String dataDir) {
-        String commands[] = {command, "--datadir", dataDir, "--networkid", "1006", "--genesis", "/Users/I629630/genesis/genesis_block.json",
-            "--rpc", "--rpcport", "8102", "--rpcapi", "admin,db,eth,debug,miner,net,shh,txpool,personal,web3", "--logfile", "/Users/I629630/log/geth.log"};
+    private void startProcess(String command, String dataDir, String genesisDir) {
+        String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", 
+            rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
         try {
             Process process = builder.start();
