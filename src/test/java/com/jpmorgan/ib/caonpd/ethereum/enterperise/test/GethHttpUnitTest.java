@@ -69,7 +69,7 @@ public class GethHttpUnitTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testService() {
         String funcName = "admin_peers";
         String funcArgs = " ";
