@@ -8,8 +8,13 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.controller;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -24,8 +29,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class GethController {
     
+    private static final Logger LOG = LoggerFactory.getLogger(GethController.class);
+    
     @Autowired
     private GethHttpService gethService;    
+    
+    @Value("${geth.genesis}")
+    private String genesis;
     
     @RequestMapping("/index")
     protected @ResponseBody String getIndex () {
@@ -41,6 +51,15 @@ public class GethController {
         Gson gson = new Gson();
         String response = gethService.executeGethCall(gson.toJson(request));
         return response;
+    }
+    
+    @RequestMapping(value = "/start_geth", method = POST)
+    protected @ResponseBody String startGeth(HttpServletRequest request) {
+        String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
+        LOG.info("Genesis " + genesisDir);
+        String command = request.getServletContext().getRealPath("/");
+        gethService.startGeth(command, genesisDir);
+        return "";
     }
     
     

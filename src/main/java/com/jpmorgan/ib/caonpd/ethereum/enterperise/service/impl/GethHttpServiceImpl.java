@@ -41,8 +41,6 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String networkid;
     @Value("${geth.datadir}")
     private String datadir;
-    @Value("${geth.genesis}")
-    private String genesis;
     @Value("${geth.rpcport}")
     private String rpcport;
     @Value("${geth.rpcapi.list}")
@@ -63,22 +61,29 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public void startGeth(String command, String genesisDir) {
+    public void startGeth(String commandPrefix, String genesisDir) {
         String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
-            startProcess(command, eth_datadir, genesisDir);
-        } else {
+            startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir);
+        } else if (SystemUtils.IS_OS_LINUX){
             //start *nix geth
-            startProcess(command, eth_datadir, genesisDir);
+            startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir);
+            LOG.info("Starting *nix");
+        } else {
+            //Default to Mac
+            startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir);
             LOG.info("Starting *nix");
         }
     }
 
     private void startProcess(String command, String dataDir, String genesisDir) {
-        String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", 
-            rpcport, "--rpcapi", rpcApiList};
+        String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
+        File file = new File(command);
+        if(!file.canExecute()) {
+            file.setExecutable(true);
+        }
         try {
             Process process = builder.start();
             process.waitFor(3, TimeUnit.SECONDS);

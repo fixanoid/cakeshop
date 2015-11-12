@@ -11,8 +11,9 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.service;
  */
 public interface GethHttpService {
     
-    public static final String startXCommand = System.getProperty("user.dir") + "/bin/geth";
-    public static final String startWinCommand = System.getProperty("user.dir") + "/bin/geth.exe";
+    public static final String startXCommand = "bin/linux/geth";
+    public static final String startWinCommand = "bin/win/geth.exe";
+    public static final String startMacCommand = "bin/mac/geth";
     
     public String executeGethCall(String json);
     public void startGeth(String command, String genesisDir);

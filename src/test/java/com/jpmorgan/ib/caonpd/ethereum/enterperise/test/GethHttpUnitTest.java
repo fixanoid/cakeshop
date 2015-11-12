@@ -53,6 +53,7 @@ public class GethHttpUnitTest {
     @Ignore
     public void testPost() {
         //Change to whatever url your local tomcat  is set
+        //Webapp must be up and running to execute this test
         String url = "http://localhost:8090/ethereum-enterperise/submit_func";
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -69,7 +70,7 @@ public class GethHttpUnitTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testService() {
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -83,8 +84,22 @@ public class GethHttpUnitTest {
     @Ignore
     public void testStart () {
         String genesisDir =  System.getProperty("user.dir") + "/geth-resources" + genesis;
-        String command = System.getProperty("user.dir") + "/geth-resources" + "/bin/geth";
+        String command = System.getProperty("user.dir") + "/geth-resources";
         service.startGeth(command, genesisDir);
+    }
+    
+    @Test
+    @Ignore
+    public void testStartRest() {
+        //Change to whatever url your local tomcat  is set
+        //Webapp must be up and running to execute this test
+        String url = "http://localhost:8090/ethereum-enterperise/start_geth";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MULTIPART_FORM_DATA);
+        String result = restTemplate.postForObject(url, null, String.class);
+        System.out.println("Geth func call response :" + result);
     }
 
 }
