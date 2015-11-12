@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class GethController {
     
-    private static final Logger LOG = LoggerFactory.getLogger(GethController.class);
-    
     @Autowired
     private GethHttpService gethService;    
     
@@ -54,11 +52,11 @@ public class GethController {
     }
     
     @RequestMapping(value = "/start_geth", method = POST)
-    protected @ResponseBody String startGeth(HttpServletRequest request) {
+    protected @ResponseBody Boolean startGeth(HttpServletRequest request) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
         String command = request.getServletContext().getRealPath("/");
-        gethService.startGeth(command, genesisDir);
-        return "";
+        Boolean started = gethService.startGeth(command, genesisDir);
+        return started;
     }
     
     

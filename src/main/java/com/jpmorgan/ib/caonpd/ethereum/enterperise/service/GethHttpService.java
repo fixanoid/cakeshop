@@ -16,6 +16,8 @@ public interface GethHttpService {
     public static final String startMacCommand = "bin/mac/geth";
     
     public String executeGethCall(String json);
-    public void startGeth(String command, String genesisDir);
+    public Boolean startGeth(String command, String genesisDir);
+    public Boolean stopGeth ();
+    public Boolean deletEthDatabase();
     
 }

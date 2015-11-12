@@ -6,14 +6,18 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
  * and open the template in the editor.
  */
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-import org.junit.Test;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,25 +25,28 @@ import org.springframework.http.HttpHeaders;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author I629630
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {WebConfigTest.class})
-public class GethHttpUnitTest {
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(classes = {WebConfigTest.class})
+@ContextConfiguration(classes = WebConfigTest.class ,loader = AnnotationConfigContextLoader.class)
+
+public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 
     @Autowired
     private GethHttpService service;
     
-    @Value("${geth.genesis}")
-    private String genesis;
-
-    @BeforeClass
+    @BeforeTest
     public static void setEnv() {
         System.setProperty("eth.environment", "local");
     }
@@ -49,28 +56,16 @@ public class GethHttpUnitTest {
         System.clearProperty("eth.environment");
     }
 
-    @Test
-    @Ignore
-    public void testPost() {
-        //Change to whatever url your local tomcat  is set
-        //Webapp must be up and running to execute this test
-        String url = "http://localhost:8090/ethereum-enterperise/submit_func";
-        String funcName = "admin_peers";
-        String funcArgs = " ";
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MULTIPART_FORM_DATA);
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("func_name", funcName);
-        body.add("func_args", funcArgs);
-        String result = restTemplate.postForObject(url, body, String.class);
-        System.out.println("Geth func call response :" + result);
-
-    }
-
-    @Test
-    //@Ignore
+    @Test(priority=0)
+    public void testStart () {
+        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
+        String command = System.getProperty("user.dir") + "/geth-resources/";
+        Boolean started = service.startGeth(command, genesisDir);
+        assertEquals(started, true);
+        System.out.println("Server started :" + started);
+    }  
+    
+    @Test(dependsOnMethods = "testStart")
     public void testService() {
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -80,26 +75,17 @@ public class GethHttpUnitTest {
         System.out.println("Geth func call response :" + response);
     }
     
-    @Test
-    @Ignore
-    public void testStart () {
-        String genesisDir =  System.getProperty("user.dir") + "/geth-resources" + genesis;
-        String command = System.getProperty("user.dir") + "/geth-resources";
-        service.startGeth(command, genesisDir);
+    @Test(dependsOnMethods = "testService")
+    public void testStop() {
+        Boolean stopped = service.stopGeth();
+        assertEquals(stopped, true);
+        System.out.println("Server stopped :" + stopped);
     }
     
-    @Test
-    @Ignore
-    public void testStartRest() {
-        //Change to whatever url your local tomcat  is set
-        //Webapp must be up and running to execute this test
-        String url = "http://localhost:8090/ethereum-enterperise/start_geth";
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MULTIPART_FORM_DATA);
-        String result = restTemplate.postForObject(url, null, String.class);
-        System.out.println("Geth func call response :" + result);
+    @Test(dependsOnMethods = "testStop")
+    public void testDdeleteEthDatabase() {
+        Boolean deleted = service.deletEthDatabase();
+        assertEquals(deleted, true);
+        System.out.println("Database deleted :" + deleted);
     }
-
 }
