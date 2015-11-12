@@ -56,7 +56,6 @@ public class GethController {
     @RequestMapping(value = "/start_geth", method = POST)
     protected @ResponseBody String startGeth(HttpServletRequest request) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
-        LOG.info("Genesis " + genesisDir);
         String command = request.getServletContext().getRealPath("/");
         gethService.startGeth(command, genesisDir);
         return "";
