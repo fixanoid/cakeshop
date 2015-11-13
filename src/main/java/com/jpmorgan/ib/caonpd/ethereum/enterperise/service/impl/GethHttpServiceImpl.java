@@ -118,8 +118,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
         Process process;
         try {
-            process = builder.start();
-//            
+            process = builder.start();            
             File dataDirectory = new File(dataDir);
             if (!dataDirectory.exists()) {
                 try (Scanner scanner = new Scanner(process.getInputStream())) {
