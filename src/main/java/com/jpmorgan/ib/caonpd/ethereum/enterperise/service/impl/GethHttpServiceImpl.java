@@ -15,6 +15,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +78,9 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
     
     @Override
-    public Boolean deletEthDatabase() {
-        String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
+    public Boolean deletEthDatabase(String eth_datadir) {
+        if (StringUtils.isEmpty(eth_datadir))
+            eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         try {     
             FileUtils.deleteDirectory(new File(eth_datadir));
             return true;
@@ -90,9 +92,10 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
     
     @Override
-    public Boolean startGeth(String commandPrefix, String genesisDir) {
-        Boolean started;        
-        String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
+    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir) {
+        Boolean started; 
+        if (StringUtils.isEmpty(eth_datadir))           
+            eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
             started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir);

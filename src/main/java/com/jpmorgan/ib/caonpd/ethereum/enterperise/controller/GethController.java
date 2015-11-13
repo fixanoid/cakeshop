@@ -53,7 +53,7 @@ public class GethController {
     protected @ResponseBody Boolean startGeth(HttpServletRequest request) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
         String command = request.getServletContext().getRealPath("/");
-        Boolean started = gethService.startGeth(command, genesisDir);
+        Boolean started = gethService.startGeth(command, genesisDir, null);
         return started;
     }
     

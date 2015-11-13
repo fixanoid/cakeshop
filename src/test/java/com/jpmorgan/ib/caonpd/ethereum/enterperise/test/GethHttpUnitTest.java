@@ -13,6 +13,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
 
 import static org.junit.Assert.assertEquals;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -42,12 +43,17 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     public static void afterClass() {
         System.clearProperty("eth.environment");
     }
+    
+    @Value("${geth.datadir}")
+    private String datadir;
+
 
     @Test(priority=0)
     public void testStart () {
         String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
-        Boolean started = service.startGeth(command, genesisDir);
+        String eth_datadir = System.getProperty("user.home") + datadir + "-test";
+        Boolean started = service.startGeth(command, genesisDir, eth_datadir);
         assertEquals(started, true);
         System.out.println("Server started :" + started);
     }  
@@ -71,7 +77,8 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     
     @Test(dependsOnMethods = "testStop")
     public void testDdeleteEthDatabase() {
-        Boolean deleted = service.deletEthDatabase();
+        String eth_datadir = System.getProperty("user.home") + datadir + "-test";
+        Boolean deleted = service.deletEthDatabase(eth_datadir);
         assertEquals(deleted, true);
         System.out.println("Database deleted :" + deleted);
     }
