@@ -51,7 +51,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String rpcApiList;
     @Value("${geth.log}")
     private String logdir;
-    
+
     @Override
     public String executeGethCall(String json) {
         RestTemplate restTemplate = new RestTemplate();
@@ -61,9 +61,9 @@ public class GethHttpServiceImpl implements GethHttpService {
         ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
         return response.getBody();
     }
-    
+
     @Override
-    public Boolean stopGeth () {
+    public Boolean stopGeth() {
         if (SystemUtils.IS_OS_WINDOWS) {
             throw new IllegalArgumentException("Windows shutdows is not yet implemented");
         } else {
@@ -73,33 +73,35 @@ public class GethHttpServiceImpl implements GethHttpService {
             } catch (IOException | InterruptedException ex) {
                 LOG.error("Cannot shutdown process " + ex.getMessage());
                 return false;
-            }                         
+            }
         }
     }
-    
+
     @Override
     public Boolean deletEthDatabase(String eth_datadir) {
-        if (StringUtils.isEmpty(eth_datadir))
+        if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
-        try {     
+        }
+        try {
             FileUtils.deleteDirectory(new File(eth_datadir));
             return true;
         } catch (IOException ex) {
             LOG.error("Cannot delete directory " + ex.getMessage());
             return false;
-            
+
         }
     }
-    
+
     @Override
     public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir) {
-        Boolean started; 
-        if (StringUtils.isEmpty(eth_datadir))           
+        Boolean started;
+        if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
+        }
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
             started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir);
-        } else if (SystemUtils.IS_OS_LINUX){
+        } else if (SystemUtils.IS_OS_LINUX) {
             //start *nix geth
             started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir);
             LOG.info("Starting *nix");
@@ -115,12 +117,12 @@ public class GethHttpServiceImpl implements GethHttpService {
         String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
-        if(!file.canExecute()) {
+        if (!file.canExecute()) {
             file.setExecutable(true);
         }
         Process process;
         try {
-            process = builder.start();            
+            process = builder.start();
             File dataDirectory = new File(dataDir);
             if (!dataDirectory.exists()) {
                 try (Scanner scanner = new Scanner(process.getInputStream())) {
@@ -150,7 +152,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
         return true;
     }
-    
+
     private void setUnixPID(Process process) {
         if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
             try {
@@ -160,10 +162,10 @@ public class GethHttpServiceImpl implements GethHttpService {
                 Object pidObject = field.get(process);
                 gethpid = (Integer) pidObject;
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
-                 LOG.error("Cannot get UNIX pid" + ex.getMessage());
+                LOG.error("Cannot get UNIX pid" + ex.getMessage());
             }
         } else {
-            throw new IllegalArgumentException("Needs to be a UNIXProcess");            
+            throw new IllegalArgumentException("Needs to be a UNIXProcess");
         }
-    }    
+    }
 }
