@@ -145,7 +145,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 }
             }
             setUnixPID(process);
-            process.waitFor(3, TimeUnit.SECONDS);
+            TimeUnit.SECONDS.sleep(3);
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             return false;
