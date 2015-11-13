@@ -9,12 +9,14 @@ import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
-import org.junit.AfterClass;
+
+
 import static org.junit.Assert.assertEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
