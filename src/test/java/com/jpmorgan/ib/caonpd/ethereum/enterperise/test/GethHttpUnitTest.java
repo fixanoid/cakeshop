@@ -6,30 +6,15 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
  * and open the template in the editor.
  */
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-
-
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
