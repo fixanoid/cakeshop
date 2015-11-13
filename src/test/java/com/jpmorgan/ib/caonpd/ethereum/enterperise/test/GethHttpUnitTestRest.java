@@ -6,7 +6,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
-import org.junit.AfterClass;
+
 import static org.junit.Assert.assertEquals;
 import org.springframework.http.HttpHeaders;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
@@ -16,6 +16,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
