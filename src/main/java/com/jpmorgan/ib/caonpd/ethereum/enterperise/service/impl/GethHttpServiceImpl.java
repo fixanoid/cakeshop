@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.testng.collections.Lists;
 
 /**
  *
@@ -93,28 +95,33 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir) {
+    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir, List <String> additionalParams) {
         Boolean started;
         if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         }
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
-            started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir);
+            started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir, additionalParams);
         } else if (SystemUtils.IS_OS_LINUX) {
             //start *nix geth
-            started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir);
+            started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir, additionalParams);
             LOG.info("Starting *nix");
         } else {
             //Default to Mac
-            started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir);
-            LOG.info("Starting *nix");
+            started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir, additionalParams);
+            LOG.info("Starting *Mac");
         }
         return started;
     }
 
-    private Boolean startProcess(String command, String dataDir, String genesisDir) {
-        String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
+    private Boolean startProcess(String command, String dataDir, String genesisDir, List <String> additionalParams) {
+        List commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis", 
+                genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList);
+        if (null != additionalParams && !additionalParams.isEmpty()) {
+            commands.addAll(additionalParams);
+        }
+        //String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
         if (!file.canExecute()) {

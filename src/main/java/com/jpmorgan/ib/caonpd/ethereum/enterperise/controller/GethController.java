@@ -5,9 +5,11 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterperise.controller;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -50,10 +52,11 @@ public class GethController {
     }
     
     @RequestMapping(value = "/start_geth", method = POST)
-    protected @ResponseBody Boolean startGeth(HttpServletRequest request) {
+    protected @ResponseBody Boolean startGeth(HttpServletRequest request, String [] startupParams) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
         String command = request.getServletContext().getRealPath("/");
-        Boolean started = gethService.startGeth(command, genesisDir, null);
+        List<String> params = Lists.newArrayList(startupParams);
+        Boolean started = gethService.startGeth(command, genesisDir, null, params);
         return started;
     }
     

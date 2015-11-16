@@ -5,6 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterperise.service;
 
+import java.util.List;
+
 /**
  *
  * @author I629630
@@ -16,7 +18,7 @@ public interface GethHttpService {
     public static final String startMacCommand = "bin/mac/geth";
     
     public String executeGethCall(String json);
-    public Boolean startGeth(String command, String genesisDir, String eth_datadir);
+    public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();
     public Boolean deletEthDatabase(String eth_datadir);
     
