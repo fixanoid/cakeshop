@@ -5,7 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterperise.controller;
 
-import com.beust.jcommander.internal.Lists;
+
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
