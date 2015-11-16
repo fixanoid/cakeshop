@@ -116,7 +116,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List <String> additionalParams) {
-        List commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis", 
+        List <String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis", 
                 genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList);
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
