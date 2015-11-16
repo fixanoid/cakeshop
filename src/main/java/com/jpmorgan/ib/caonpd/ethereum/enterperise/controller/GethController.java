@@ -52,7 +52,7 @@ public class GethController {
     }
     
     @RequestMapping(value = "/start_geth", method = POST)
-    protected @ResponseBody Boolean startGeth(HttpServletRequest request, String [] startupParams) {
+    protected @ResponseBody Boolean startGeth(HttpServletRequest request,  @RequestParam ("start_params") String [] startupParams) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
         String command = request.getServletContext().getRealPath("/");
         List<String> params = Lists.newArrayList(startupParams);
