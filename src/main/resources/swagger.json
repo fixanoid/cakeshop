@@ -1,0 +1,783 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Ethereum Enterprise API",
+        "version": "1.0.0",
+        "title": "Ethereum Enterprise",
+        "contact": {}
+    },
+    "host": "api.ethereum.org:443",
+    "tags": [
+        {
+            "name": "contract"
+        },
+        {
+            "name": "block"
+        },
+        {
+            "name": "transaction"
+        }
+    ],
+    "schemes": [
+        "https"
+    ],
+    "paths": {
+        "/block": {
+            "post": {
+                "tags": [
+                    "block"
+                ],
+                "description": "Retrieve a block by it's number or hash",
+                "operationId": "postBlock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "number": {
+                                    "description": "Block number to retrieve",
+                                    "type": "integer",
+                                    "required": false
+                                },
+                                "hash": {
+                                    "description": "Block hash to retrieve",
+                                    "type": "string",
+                                    "required": false
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Block"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/create": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "Create a new Contract",
+                "operationId": "postContractCreate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                },
+                                "keys": {
+                                    "type": "array",
+                                    "description": "Pubkeys that can access contract.",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "abi": {
+                                    "type": "string",
+                                    "description": "Contract ABI"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "description": "Contract source code"
+                                },
+                                "code_type": {
+                                    "type": "string",
+                                    "description": "Type of code being submitted",
+                                    "default": "solidity",
+                                    "enum": [
+                                        "solidity",
+                                        "binary",
+                                        "llvm",
+                                        "serpent"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction ID hash. Use /transaction/get to get the resulting contract ID",
+                        "schema": {
+                            "$ref": "#/definitions/TransactionResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/delete": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "Delete a contract by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "ID (address) of contract to delete",
+                                    "example": "0x01f999deef030a0f3c55cec46e6693c06c6b01f8"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction ID for delete operation",
+                        "schema": {
+                            "$ref": "#/definitions/TransactionResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/get": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "operationId": "postContractGet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "ID (address) of Contract to retrieve",
+                                    "example": "0x01f999deef030a0f3c55cec46e6693c06c6b01f8"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Contract"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/list": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "operationId": "postContractList",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey. Endpoint will only return contracts visible to sender."
+                                },
+                                "key": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "Filter contracts by those visible to this key"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Contract"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/migrate": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "TODO migrate a contract to a new address (redeploy the code)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/contract/read": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "Execute a non-transactional method of a contract, usually to read some data (synchronously)",
+                "operationId": "postContractRead",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Contract ID (address) to read from",
+                                    "example": ""
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Method name to call"
+                                },
+                                "args": {
+                                    "type": "array",
+                                    "required": false,
+                                    "description": "Method arguments (if needed)",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "TODO run the given code direclty in the EVM"
+                                },
+                                "code_type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "solidity",
+                                        "binary",
+                                        "llvm",
+                                        "serpent"
+                                    ]
+                                },
+                                "from": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "the address for the sending account",
+                                    "default": "TODO server coinbase?"
+                                },
+                                "gas": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "the amount of gas to use for the transaction",
+                                    "default": 3141592
+                                },
+                                "gasPrice": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "the price of gas for this transaction in wei, defaults to the mean network gas price"
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "amount of Ether to transfer to contract"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/transact": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "Execute a transactional method of a contract (asynchronously)",
+                "operationId": "postContractTransact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Contract ID (address) to read from",
+                                    "example": ""
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Method name to call"
+                                },
+                                "args": {
+                                    "type": "array",
+                                    "required": false,
+                                    "description": "Method arguments (if needed)",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "TODO run the given code direclty in the EVM"
+                                },
+                                "code_type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "solidity",
+                                        "binary",
+                                        "llvm",
+                                        "serpent"
+                                    ]
+                                },
+                                "from": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "the address for the sending account",
+                                    "default": "TODO server coinbase?"
+                                },
+                                "gas": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "the amount of gas to use for the transaction",
+                                    "default": 3141592
+                                },
+                                "gasPrice": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "the price of gas for this transaction in wei, defaults to the mean network gas price"
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "amount of Ether to transfer to contract"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction ID",
+                        "schema": {
+                            "$ref": "#/definitions/TransactionResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/get": {
+            "post": {
+                "tags": [
+                    "transaction"
+                ],
+                "description": "Retrieve a transaction by txid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Transaction ID (address) to retrieve",
+                                    "example": ""
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Transaction"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/list": {
+            "post": {
+                "tags": [
+                    "transaction"
+                ],
+                "description": "Query for transactions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                },
+                                "block_number": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "Block number"
+                                },
+                                "block_hash": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "Block hash (address)"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Transaction"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/pending": {
+            "post": {
+                "tags": [
+                    "transaction"
+                ],
+                "description": "Query for pending transactions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "sender": {
+                                    "type": "string",
+                                    "required": true,
+                                    "description": "Request sender pubkey"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Transaction"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Contract": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Contract unique identifier. In Ethereum this is the contract address."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Pubkey of sender on original create."
+                },
+                "keys": {
+                    "type": "array",
+                    "description": "Pubkeys that can access contract.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "abi": {
+                    "type": "string",
+                    "description": "Contract ABI"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "Contract source code"
+                },
+                "code_type": {
+                    "type": "string",
+                    "description": "Type of code being submitted",
+                    "default": "solidity",
+                    "enum": [
+                        "solidity",
+                        "binary",
+                        "llvm",
+                        "serpent"
+                    ]
+                }
+            }
+        },
+        "TransactionResult": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "ID of the newly created transaction"
+                }
+            }
+        },
+        "Transaction": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "blockHash": {
+                    "type": "string"
+                },
+                "blockNumber": {
+                    "type": "integer"
+                },
+                "transactionIndex": {
+                    "type": "integer",
+                    "description": "integer of the transaction's index position in the block"
+                },
+                "from": {
+                    "type": "string",
+                    "description": "address of the sender"
+                },
+                "to": {
+                    "type": "string",
+                    "description": "address of the receiver. null when it is a contract creation transaction."
+                },
+                "cumulativeGasUsed": {
+                    "type": "integer",
+                    "description": "the total amount of gas used when this transaction was executed in the block."
+                },
+                "gasUsed": {
+                    "type": "integer",
+                    "description": "the amount of gas used by this specific transaction alone."
+                },
+                "contractAddress": {
+                    "type": "string",
+                    "description": "the contract address created, if this transaction was a contract creation, otherwise null."
+                },
+                "logs": {
+                    "type": "array",
+                    "description": "TODO add Log type",
+                    "items": {
+                        "type": "object"
+                    }
+                }
+            }
+        },
+        "Block": {
+            "properties": {
+                "number": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Block number"
+                },
+                "hash": {
+                    "type": "string",
+                    "description": "hash of the block"
+                },
+                "parentHash": {
+                    "type": "string",
+                    "description": "hash of the parent block"
+                },
+                "nonce": {
+                    "type": "string",
+                    "description": "hash of the generated proof-of-work (if avail)"
+                },
+                "sha3Uncles": {
+                    "type": "string",
+                    "description": "SHA3 of the uncles data in the block (32 bytes)"
+                },
+                "logsBloom": {
+                    "type": "string",
+                    "description": "the bloom filter for the logs of the block (256 bytes)"
+                },
+                "transactionsRoot": {
+                    "type": "string",
+                    "description": "the root of the transaction trie of the block (32 bytes)"
+                },
+                "stateRoot": {
+                    "type": "string",
+                    "description": "the root of the final state trie of the block (32 bytes)"
+                },
+                "miner": {
+                    "type": "string",
+                    "description": "the address of the beneficiary to whom the mining rewards were given (20 bytes)"
+                },
+                "difficulty": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "integer of the difficulty of this block"
+                },
+                "totalDifficulty": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "integer of the total difficulty of the chain until this block"
+                },
+                "extraData": {
+                    "type": "string",
+                    "description": "the \"extra data\" field for this block"
+                },
+                "gasLimit": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "the maximum gas allowed in this block"
+                },
+                "gasUsed": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "the total gas used by all transactions in this block"
+                },
+                "timestamp": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "the unix timestamp for when the block was collated"
+                },
+                "transactions": {
+                    "type": "array",
+                    "description": "Array of transaction hashes",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "uncles": {
+                    "type": "array",
+                    "description": "Array of uncle hashes",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
