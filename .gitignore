@@ -1,3 +1,11 @@
+
+
+# IDE-specific files and folders
+.classpath
+.idea/
+.project
+.settings/
+
 /target/
 meth.log
 .DS_Store
