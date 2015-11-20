@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.config;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,7 +17,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 
 @Configuration
-@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterperise.service")
+@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterprise.service")
 public class WebConfigTest {
     
     private static final String ENV = System.getProperty("eth.environment");

@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.controller;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;

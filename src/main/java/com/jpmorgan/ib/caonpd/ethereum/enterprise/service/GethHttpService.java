@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.service;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
 import java.util.List;
 

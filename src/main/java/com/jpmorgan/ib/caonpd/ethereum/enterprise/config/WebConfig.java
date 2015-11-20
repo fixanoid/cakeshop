@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.config;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterperise")
+@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterprise")
 public class WebConfig extends WebMvcConfigurerAdapter {
     
     private static final String ENV = System.getProperty("eth.environment");

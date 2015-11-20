@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.service.impl;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.google.common.collect.Lists;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;

@@ -3,9 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.junit.Assert.assertEquals;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
 
 /**
  *
@@ -44,7 +44,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public void testPost() {        
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
-        String url = "http://localhost:8090/ethereum-enterperise/submit_func";
+        String url = "http://localhost:8090/ethereum-enterprise/submit_func";
         String funcName = "admin_peers";
         String funcArgs = " ";
         RestTemplate restTemplate = new RestTemplate();
@@ -64,7 +64,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public void testStartRest() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
-        String url = "http://localhost:8090/ethereum-enterperise/start_geth";
+        String url = "http://localhost:8090/ethereum-enterprise/start_geth";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();

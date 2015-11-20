@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -6,10 +6,9 @@ package com.jpmorgan.ib.caonpd.ethereum.enterperise.test;
  * and open the template in the editor.
  */
 import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.config.WebConfigTest;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterperise.service.GethHttpService;
-
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 import static org.junit.Assert.assertEquals;
 import org.springframework.beans.factory.annotation.Autowired;

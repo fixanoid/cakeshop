@@ -2,9 +2,11 @@
 
 # IDE-specific files and folders
 .classpath
-.idea/
+.tomcatplugin
 .project
 .settings/
+.idea/
+./*.iml
 
 /target/
 meth.log
