@@ -53,10 +53,13 @@ public class GethController {
     }
     
     @RequestMapping(value = "/start_geth", method = POST)
-    protected @ResponseBody Boolean startGeth(HttpServletRequest request,  @RequestParam ("start_params") String [] startupParams) {
+    protected @ResponseBody Boolean startGeth(HttpServletRequest request,  @RequestParam (value = "start_params", required = false) String [] startupParams) {
         String genesisDir =  request.getServletContext().getRealPath("/")  + genesis;
         String command = request.getServletContext().getRealPath("/");
-        List<String> params = Lists.newArrayList(startupParams);
+        List<String> params = null;
+        if (null != startupParams) {
+           params = Lists.newArrayList(startupParams);
+        }
         Boolean started = gethService.startGeth(command, genesisDir, null, params);
         return started;
     }
