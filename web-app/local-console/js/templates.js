@@ -52,7 +52,7 @@ Tower.TEMPLATES.widget = function(title, size) {
 			break;
 	}
 
-	return {,
+	return {
 		id: opts.id,
 		tpl: Tower.TEMPLATES._widget(opts)
 	};

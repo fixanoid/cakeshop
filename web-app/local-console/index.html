@@ -78,13 +78,13 @@
 	<aside>
 		<nav class="rad-sidebar">
 			<ul>
-				<li>
+				<li id="console">
 					<a href="#" class="inbox">
 						<i class="fa fa-dashboard"><span class="icon-bg rad-bg-success"></span></i>
 						<span class="rad-sidebar-item">Console</span>
 					</a>
 				</li>
-				<li>
+				<li id="peers">
 					<a href="#">
 						<i class="fa fa-users">
 						<span class="icon-bg rad-bg-danger"></span>
@@ -92,19 +92,19 @@
 						<span class="rad-sidebar-item">Peers</span>
 					</a>
 				</li>
-				<li>
+				<li id="api">
 					<a href="#" class="snooz">
 						<i class="fa fa-database"><span class="icon-bg rad-bg-primary"></span></i>
 						<span class="rad-sidebar-item">API</span>
 					</a>
 				</li>
-				<li>
+				<li id="contracts">
 					<a href="#" class="done">
 						<i class="fa fa-code"><span class="icon-bg rad-bg-warning"></span></i>
 						<span class="rad-sidebar-item">Contracts</span>
 					</a>
 				</li>
-				<li>
+				<li id="explorer">
 					<a href="#">
 						<i class="fa fa-cubes"><span class="icon-bg rad-bg-violet"></span></i>
 						<span class="rad-sidebar-item">Block Explorer</span>
@@ -129,8 +129,8 @@
 							<div class="rad-info-box rad-txt-success">
 								<i class="fa fa-play"></i>
 								<span class="heading">Node Status</span>
-								<span class="value">
-									<span>Running</span>
+								<span class="value" id="default-node-status">
+									<span></span>
 								</span>
 							</div>
 						</div>
@@ -139,8 +139,8 @@
 							<div class="rad-info-box">
 								<i class="fa fa-users"></i>
 								<span class="heading">Peers</span>
-								<span class="value">
-									<span>2</span>
+								<span class="value" id="default-peers">
+									<span></span>
 								</span>
 							</div>
 						</div>
@@ -149,8 +149,8 @@
 							<div class="rad-info-box rad-txt-primary">
 								<i class="fa fa-cubes"></i>
 								<span class="heading">Blocks</span>
-								<span class="value">
-									<span>8721</span>
+								<span class="value" id="default-blocks">
+									<span></span>
 								</span>
 							</div>
 						</div>
@@ -159,16 +159,16 @@
 							<div class="rad-info-box rad-txt-danger">
 								<i class="fa fa-exchange"></i>
 								<span class="heading">Queued Transactions</span>
-								<span class="value">
-									<span>0</span>
+								<span class="value" id="default-txn">
+									<span></span>
 								</span>
 							</div>
 						</div>
 
 					</div>
 
-					<div class="row">
-
+					<div class="row" id="grounds">
+<!--
 						<div class="col-lg-3 col-md-4 col-xs-12">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -202,6 +202,7 @@
 								</div>
 							</div>
 						</div>
+
 						<div class="col-lg-6 col-md-12 col-xs-12">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -219,8 +220,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
-					<div class="row">
+
 						<div class="col-md-6 col-lg-12">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -252,18 +252,9 @@
 								</div>
 								<div class="panel-body">
 								</div>
-<!--
-								<div class="panel-footer">
-									<div class="input-group">
-										<input type="text" id="rad-chat-txt" placeholder="Type a message" class="form-control" />
-										<span class="input-group-btn">
-											<button id="rad-chat-send" class="btn btn-info">Send</button>
-										</span>
-									</div>
-								</div>
--->
 							</div>
 						</div>
+
 						<div class="col-md-6 col-lg-4">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -280,7 +271,8 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
+
 				</div>
 			</div>
 		</section>
@@ -289,7 +281,9 @@
 	<script src="js/vendor/jquery-1.11.3.min.js"></script>
 	<script src="js/vendor/jquery.slimscroll.min.js"></script>
 	<script src="js/vendor/underscore.min.js"></script>
+	<script src="js/utils.js"></script>
 	<script src="js/index.js"></script>
+	<script src="js/templates.js"></script>
 
 </body>
 
