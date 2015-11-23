@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jpmorgan.ib.caonpd</groupId>
-      <artifactId>ethereum-enterprise</artifactId>
+    <artifactId>ethereum-enterprise</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
