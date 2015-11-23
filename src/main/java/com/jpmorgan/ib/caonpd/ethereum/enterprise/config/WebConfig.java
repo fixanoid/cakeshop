@@ -5,6 +5,7 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +31,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
         return propertySourcesPlaceholderConfigurer;
     }
-    
+    @Bean
+    public static AdminBean adminBean(){
+        return new AdminBean();
+    }
 }
