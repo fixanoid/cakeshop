@@ -52,7 +52,7 @@ public class GethController {
         if (StringUtils.isNotEmpty(funcArguments)) {
             args = funcArguments.split(",");
         } 
-        RequestModel request = new RequestModel("2.0", funcName, args, "id");
+        RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
         Gson gson = new Gson();
         String response = gethService.executeGethCall(gson.toJson(request));
         return response;
