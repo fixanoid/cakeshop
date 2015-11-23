@@ -49,10 +49,10 @@ public class GethController {
         //first generate json to execute function
         //request need method name, method arguments and id. jsonrpc defaults to version 2.0
         String args [] = null;
-        if (StringUtils.isNoneEmpty(funcArguments)) {
+        if (StringUtils.isNotEmpty(funcArguments)) {
             args = funcArguments.split(",");
         } 
-        RequestModel request = new RequestModel("2.0", funcName, args, "id");
+        RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
         Gson gson = new Gson();
         String response = gethService.executeGethCall(gson.toJson(request));
         return response;

@@ -16,6 +16,9 @@ public interface GethHttpService {
     public static final String startXCommand = "bin/linux/geth";
     public static final String startWinCommand = "bin/win/geth.exe";
     public static final String startMacCommand = "bin/mac/geth";
+    public static final String GETH_API_VERSION = "2.0";
+    public static final String USER_ID = "enterprise-ethereum";
+    
     
     public String executeGethCall(String json);
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
