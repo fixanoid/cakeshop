@@ -5,8 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
-import com.google.common.collect.Lists;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.MediaType.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,15 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 
 /**
@@ -118,48 +118,73 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List <String> additionalParams) {
-        List <String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis", 
+
+        List <String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis",
                 genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList);
+
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
         }
+
         //String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
         if (!file.canExecute()) {
             file.setExecutable(true);
         }
+
+        //builder.inheritIO();
+
         Process process;
         try {
             process = builder.start();
             File dataDirectory = new File(dataDir);
+
+            /*
             if (!dataDirectory.exists()) {
-                try (Scanner scanner = new Scanner(process.getInputStream())) {
-                    boolean flag = scanner.hasNext();
-                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-                        while (flag) {
-                            String readline = scanner.next();
-                            if (readline.isEmpty()) {
-                                continue;
-                            }
-                            if (readline.contains("[y/N]")) {
-                                writer.write("y");
-                                writer.flush();
-                                writer.newLine();
-                                writer.flush();
-                                flag = false;
-                            }
-                        }
-                    }
-                }
+                answerLegalese(process);
             }
+            */
+
             setUnixPID(process);
             TimeUnit.SECONDS.sleep(3);
+
+            // FIXME add a watcher thread to make sure it doesn't die..
+
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             return false;
         }
         return true;
+    }
+
+    /**
+     * Answer "YES" to the GPL agreement prompt on Geth init
+     *
+     * NOTE: In our "meth" build, this prompt is complete disabled
+     *
+     * @param process
+     * @throws IOException
+     */
+    private void answerLegalese(Process process) throws IOException {
+        try (Scanner scanner = new Scanner(process.getInputStream())) {
+            boolean flag = scanner.hasNext();
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+                while (flag) {
+                    String readline = scanner.next();
+                    if (readline.isEmpty()) {
+                        continue;
+                    }
+                    if (readline.contains("[y/N]")) {
+                        writer.write("y");
+                        writer.flush();
+                        writer.newLine();
+                        writer.flush();
+                        flag = false;
+                    }
+                }
+            }
+        }
     }
 
     private void setUnixPID(Process process) {
