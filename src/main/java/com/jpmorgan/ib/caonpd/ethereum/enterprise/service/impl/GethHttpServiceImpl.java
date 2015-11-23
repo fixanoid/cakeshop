@@ -68,16 +68,17 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Boolean stopGeth() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            throw new IllegalArgumentException("Windows shutdows is not yet implemented");
-        } else {
-            try {
+        try {
+            if (SystemUtils.IS_OS_WINDOWS) {
+                Runtime.getRuntime().exec("taskkill /F /IM geth.exe").waitFor();
+                return true;
+            } else {
                 Runtime.getRuntime().exec("kill -9 " + gethpid).waitFor();
                 return true;
-            } catch (IOException | InterruptedException ex) {
-                LOG.error("Cannot shutdown process " + ex.getMessage());
-                return false;
             }
+        } catch (IOException | InterruptedException ex) {
+            LOG.error("Cannot shutdown process " + ex.getMessage());
+            return false;
         }
     }
 
@@ -173,8 +174,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
                 LOG.error("Cannot get UNIX pid" + ex.getMessage());
             }
-        } else {
-            throw new IllegalArgumentException("Needs to be a UNIXProcess");
-        }
+        } 
     }
 }
