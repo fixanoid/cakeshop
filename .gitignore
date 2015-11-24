@@ -9,5 +9,7 @@
 *.iml
 
 /target/
+/test-output/
+/test.json
 meth.log
 .DS_Store
