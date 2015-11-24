@@ -5,8 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 
@@ -64,6 +66,18 @@ public class GethHttpServiceImpl implements GethHttpService {
         HttpEntity<String> httpEntity = new HttpEntity(json, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
         return response.getBody();
+    }
+
+    @Override
+    public Object executeGethCall(String funcName, Object[] args) {
+
+        RequestModel request = new RequestModel("2.0", funcName, args, "id");
+
+        Gson gson = new Gson();
+        String req = gson.toJson(request);
+        String response = executeGethCall(req);
+
+        return response;
     }
 
     @Override

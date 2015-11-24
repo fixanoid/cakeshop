@@ -12,14 +12,16 @@ import java.util.List;
  * @author I629630
  */
 public interface GethHttpService {
-    
+
     public static final String startXCommand = "bin/linux/geth";
     public static final String startWinCommand = "bin/win/geth.exe";
     public static final String startMacCommand = "bin/mac/geth";
-    
+
     public String executeGethCall(String json);
+    public Object executeGethCall(String funcName, Object[] args);
+
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();
     public Boolean deletEthDatabase(String eth_datadir);
-    
+
 }
