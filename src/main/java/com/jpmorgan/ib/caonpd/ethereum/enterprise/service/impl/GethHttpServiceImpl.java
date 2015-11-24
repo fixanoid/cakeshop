@@ -7,15 +7,24 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
+import java.io.BufferedReader;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +41,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-
 /**
  *
  * @author I629630
@@ -41,7 +49,6 @@ import org.springframework.web.client.RestTemplate;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private Integer gethpid;
 
     @Value("${geth.url}")
     private String url;
@@ -53,6 +60,10 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String rpcport;
     @Value("${geth.rpcapi.list}")
     private String rpcApiList;
+    @Value("${geth.auto.start:true}")
+    private Boolean autoStart;
+    @Value("${geth.genesis}")
+    private String genesis;
     @Value("${geth.log}")
     private String logdir;
 
@@ -73,7 +84,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 Runtime.getRuntime().exec("taskkill /F /IM geth.exe").waitFor();
                 return true;
             } else {
-                Runtime.getRuntime().exec("kill -9 " + gethpid).waitFor();
+                Runtime.getRuntime().exec("kill -9 " + getProcessId()).waitFor();
                 return true;
             }
         } catch (IOException | InterruptedException ex) {
@@ -97,30 +108,60 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
+    @PostConstruct
+    public void autoStart() {
+        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        String genesisDir = root + genesis;
+        Boolean isStarted;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            isStarted = isProcessRunningWin(getProcessId());
+        } else {
+            isStarted = isProcessRunningNix(getProcessId());
+        }
+        if (!isStarted && autoStart) {
+            isStarted = startGeth(root + "/", genesisDir, null, null);
+            if (!isStarted) {
+                LOG.error("Ethereum has NOT beed started...");
+            } else {
+                LOG.info("Ethereum started ...");
+            }
+        } else {
+            LOG.info("Ethereum was already running");
+        }        
+    }
+
     @Override
-    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir, List <String> additionalParams) {
+    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir, List<String> additionalParams) {
         Boolean started;
         if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         }
         if (SystemUtils.IS_OS_WINDOWS) {
             //start Windows geth
-            started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir, additionalParams);
+            started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir, additionalParams, true);
         } else if (SystemUtils.IS_OS_LINUX) {
             //start *nix geth
-            started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir, additionalParams);
+            started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir, additionalParams, false);
             LOG.info("Starting *nix");
         } else {
             //Default to Mac
-            started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir, additionalParams);
-            LOG.info("Starting *Mac");
+            started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir, additionalParams, false);
+            LOG.info("Starting Mac");
         }
         return started;
     }
 
-    private Boolean startProcess(String command, String dataDir, String genesisDir, List <String> additionalParams) {
-        List <String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis", 
+    @Override
+    public void deletePid() {
+        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        File pidFile = new File(root + "../logs/meth.pid");
+        pidFile.delete();
+    }
+
+    private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
+        List<String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis",
                 genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList);
+
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
         }
@@ -132,6 +173,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
         Process process;
         try {
+
             process = builder.start();
             File dataDirectory = new File(dataDir);
             if (!dataDirectory.exists()) {
@@ -154,7 +196,11 @@ public class GethHttpServiceImpl implements GethHttpService {
                     }
                 }
             }
-            setUnixPID(process);
+            if (!isWindows) {
+                setUnixPID(process);
+            } else {
+                setWinPID(process);
+            }
             TimeUnit.SECONDS.sleep(3);
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
@@ -163,17 +209,109 @@ public class GethHttpServiceImpl implements GethHttpService {
         return true;
     }
 
-    private void setUnixPID(Process process) {
+    private void setUnixPID(Process process) throws IOException {
         if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
             try {
                 Class cl = process.getClass();
                 Field field = cl.getDeclaredField("pid");
                 field.setAccessible(true);
                 Object pidObject = field.get(process);
-                gethpid = (Integer) pidObject;
+                Integer gethpid = (Integer) pidObject;
+                writePidToFile(gethpid);
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
                 LOG.error("Cannot get UNIX pid" + ex.getMessage());
             }
-        } 
+        }
+    }
+
+    private void setWinPID(Process proc) throws IOException {
+        if (proc.getClass().getName().equals("java.lang.Win32Process")
+                || proc.getClass().getName().equals("java.lang.ProcessImpl")) {
+            try {
+                Field f = proc.getClass().getDeclaredField("handle");
+                f.setAccessible(true);
+                long handl = f.getLong(proc);
+                Kernel32 kernel = Kernel32.INSTANCE;
+                WinNT.HANDLE handle = new WinNT.HANDLE();
+                handle.setPointer(Pointer.createConstant(handl));
+                Integer pid = kernel.GetProcessId(handle);
+                writePidToFile(pid);
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                LOG.error(e.getMessage());
+            }
+        }
+    }
+
+    private String getProcessId() {
+        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        File pidFile = new File(root + File.separator + ".." + File.separator + "logs" + File.separator + "/meth.pid");
+        String pid = null;
+        try {
+            FileReader reader = new FileReader(pidFile);
+            BufferedReader br = new BufferedReader(reader);
+            String s;
+            while ((s = br.readLine()) != null) {
+                pid = s;
+                break;
+            }
+        } catch (IOException ex) {
+            LOG.error(ex.getMessage());
+        }
+        return pid;
+    }
+
+    private Boolean isProcessRunningNix(String pid) {
+        Boolean isRunning = false;
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[]{"ps", "-ef", "| grep " + pid});
+            InputStream stream = proc.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            //Parsing the input stream.
+            while ((reader.readLine()) != null) {
+                isRunning = true;
+                break;
+            }
+        } catch (IOException ex) {
+            LOG.error(ex.getMessage());
+        }
+
+        return isRunning;
+
+    }
+    
+    private Boolean isProcessRunningWin(String pid) {
+        Boolean isRunning = false;
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "tasklist /FI \"PID eq " + pid + "\""});
+            InputStream stream = proc.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            //Parsing the input stream.
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(" " + pid + " ")) {
+                    isRunning = true;
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            LOG.error(ex.getMessage());
+        }
+        return isRunning;
+    }
+
+    private void writePidToFile(Integer pid) throws IOException {
+        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        File directory = new File(root + File.separator + ".." + File.separator + "logs" + File.separator);
+        File pidFile = new File(root + File.separator + ".." + File.separator + "logs" + File.separator + "/meth.pid");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        if (!pidFile.exists()) {
+            pidFile.createNewFile();
+        }
+        try (FileWriter writer = new FileWriter(pidFile)) {
+            writer.write(String.valueOf(pid));
+            writer.flush();
+        }
     }
 }

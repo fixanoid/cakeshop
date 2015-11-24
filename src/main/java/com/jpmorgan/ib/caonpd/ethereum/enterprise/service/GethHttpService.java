@@ -24,5 +24,6 @@ public interface GethHttpService {
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();
     public Boolean deletEthDatabase(String eth_datadir);
+    public void deletePid();
     
 }
