@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
@@ -63,13 +67,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(APPLICATION_JSON);
-        HttpEntity<String> httpEntity = new HttpEntity(json, headers);
+        HttpEntity<String> httpEntity = new HttpEntity<String>(json, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
         return response.getBody();
     }
 
     @Override
-    public Object executeGethCall(String funcName, Object[] args) {
+    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws JsonParseException, JsonMappingException, IOException {
 
         RequestModel request = new RequestModel("2.0", funcName, args, "id");
 
@@ -77,7 +81,9 @@ public class GethHttpServiceImpl implements GethHttpService {
         String req = gson.toJson(request);
         String response = executeGethCall(req);
 
-        return response;
+				ObjectMapper mapper = new ObjectMapper();
+				Map<String, Object> data = mapper.readValue(response, Map.class);
+				return (Map<String, Object>) data.get("result");
     }
 
     @Override
@@ -147,7 +153,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             file.setExecutable(true);
         }
 
-        //builder.inheritIO();
+        builder.inheritIO();
 
         Process process;
         try {
@@ -204,7 +210,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     private void setUnixPID(Process process) {
         if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
             try {
-                Class cl = process.getClass();
+                Class<? extends Process> cl = process.getClass();
                 Field field = cl.getDeclaredField("pid");
                 field.setAccessible(true);
                 Object pidObject = field.get(process);

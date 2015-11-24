@@ -5,7 +5,12 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  *
@@ -18,7 +23,7 @@ public interface GethHttpService {
     public static final String startMacCommand = "bin/mac/geth";
 
     public String executeGethCall(String json);
-    public Object executeGethCall(String funcName, Object[] args);
+    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws JsonParseException, JsonMappingException, IOException;
 
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();
