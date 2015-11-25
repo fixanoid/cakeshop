@@ -13,17 +13,17 @@ public class RequestModel {
 
     private String jsonrpc;
     private String method;
-    private String[] params;
+    private Object[] params;
     private String id;
-    
+
     public RequestModel(){}
-    
-    public RequestModel(String jsonrpc, String method, String[] params, String id) {
+
+    public RequestModel(String jsonrpc, String method, Object[] params, String id) {
         this.jsonrpc = jsonrpc;
         this.method = method;
         this.params = params;
         this.id = id;
-    
+
     }
 
     /**
@@ -57,14 +57,14 @@ public class RequestModel {
     /**
      * @return the params
      */
-    public String[] getParams() {
+    public Object[] getParams() {
         return params;
     }
 
     /**
      * @param params the params to set
      */
-    public void setParams(String[] params) {
+    public void setParams(Object[] params) {
         this.params = params;
     }
 

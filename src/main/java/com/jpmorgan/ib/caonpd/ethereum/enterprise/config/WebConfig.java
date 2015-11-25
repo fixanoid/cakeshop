@@ -8,31 +8,64 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.annotation.Profile;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 /**
  *
  * @author I629630
  */
 @Configuration
+@Profile("container")
 @EnableWebMvc
-@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterprise")
 public class WebConfig extends WebMvcConfigurerAdapter {
-    
-    private static final String ENV = System.getProperty("eth.environment");
-    
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
-        return propertySourcesPlaceholderConfigurer;
+
+    private @Inject RequestMappingHandlerAdapter adapter;
+
+    @PostConstruct
+    public void prioritizeCustomArgumentMethodHandlers() {
+
+        // existing resolvers
+        List<HandlerMethodArgumentResolver> argumentResolvers =
+                new ArrayList<>(adapter.getArgumentResolvers());
+
+        // add our resolvers at pos 0
+        List<HandlerMethodArgumentResolver> customResolvers =
+                adapter.getCustomArgumentResolvers();
+
+        // empty and re-add our custom list
+        argumentResolvers.removeAll(customResolvers);
+        argumentResolvers.addAll(0, customResolvers);
+
+        adapter.setArgumentResolvers(argumentResolvers);
     }
+
+    /*
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        List<HandlerMethodArgumentResolver> customResolvers = new ArrayList<HandlerMethodArgumentResolver>();
+        customResolvers.add(new JsonMethodArgumentResolver());
+        customResolvers.addAll(argumentResolvers);
+
+        // empty and re-add our custom list
+        argumentResolvers.clear();
+        argumentResolvers.addAll(0, customResolvers);
+    }
+    */
+
     @Bean
     public static AdminBean adminBean(){
         return new AdminBean();
     }
+
 }

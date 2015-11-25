@@ -18,14 +18,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 
 /**
  *
  * @author I629630
  */
 
-@ContextConfiguration(classes = WebConfigTest.class ,loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
 
 public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     

@@ -6,7 +6,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
  * and open the template in the editor.
  */
 import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
  */
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = {WebConfigTest.class})
-@ContextConfiguration(classes = WebConfigTest.class ,loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
 
 public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 
