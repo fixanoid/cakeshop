@@ -11,11 +11,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -26,20 +23,11 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author I629630
  */
 @Configuration
+@Profile("container")
 @EnableWebMvc
-@ComponentScan("com.jpmorgan.ib.caonpd.ethereum.enterprise")
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-    private static final String ENV = System.getProperty("eth.environment");
     private @Inject RequestMappingHandlerAdapter adapter;
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
-        return propertySourcesPlaceholderConfigurer;
-    }
-
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
@@ -59,10 +47,17 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         adapter.setArgumentResolvers(argumentResolvers);
     }
 
+    /*
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        JsonMethodArgumentResolver jsonResolver = new JsonMethodArgumentResolver();
-        argumentResolvers.add(jsonResolver);
+        List<HandlerMethodArgumentResolver> customResolvers = new ArrayList<HandlerMethodArgumentResolver>();
+        customResolvers.add(new JsonMethodArgumentResolver());
+        customResolvers.addAll(argumentResolvers);
+
+        // empty and re-add our custom list
+        argumentResolvers.clear();
+        argumentResolvers.addAll(0, customResolvers);
     }
+    */
 
 }
