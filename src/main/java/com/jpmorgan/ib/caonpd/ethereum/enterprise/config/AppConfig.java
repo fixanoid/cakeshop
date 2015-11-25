@@ -7,6 +7,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+
 @Configuration
 public class AppConfig {
 
@@ -20,6 +22,11 @@ public class AppConfig {
         PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
         propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
         return propertySourcesPlaceholderConfigurer;
+    }
+
+    @Bean
+    public static AdminBean adminBean(){
+        return new AdminBean();
     }
 
 }

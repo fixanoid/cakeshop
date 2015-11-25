@@ -5,9 +5,6 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +59,5 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         argumentResolvers.addAll(0, customResolvers);
     }
     */
-
-    @Bean
-    public static AdminBean adminBean(){
-        return new AdminBean();
-    }
 
 }

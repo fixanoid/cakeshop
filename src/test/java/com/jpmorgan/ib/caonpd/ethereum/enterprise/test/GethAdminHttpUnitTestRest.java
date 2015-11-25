@@ -5,10 +5,9 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import static org.junit.Assert.assertEquals;
+import static org.springframework.http.MediaType.*;
+
 import org.springframework.http.HttpHeaders;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -19,17 +18,17 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 
 /**
  *
  * @author N631539
  */
 
-@ContextConfiguration(classes = WebConfigTest.class ,loader = AnnotationConfigContextLoader.class)
-
+@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
 public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests {
-    
+
     @BeforeTest
     public static void setEnv() {
         System.setProperty("eth.environment", "local");
@@ -39,11 +38,11 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
     public static void afterClass() {
         System.clearProperty("eth.environment");
     }
-    
-    
+
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testNodeInfo() {        
+    public void testNodeInfo() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8080/ethereum-enterprise/node/"+AdminBean.ADMIN_NODE_INFO_KEY;
@@ -60,11 +59,11 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Geth func call response :" + result);
 
     }
-    
-    
+
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testNodePeers() {        
+    public void testNodePeers() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8080/ethereum-enterprise/node/"+AdminBean.ADMIN_PEERS_KEY;
@@ -80,10 +79,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Geth func call response :" + result);
 
     }
-    
+
     @Test(enabled = true)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testNodeVerbosity() {        
+    public void testNodeVerbosity() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8080/ethereum-enterprise/node/"+AdminBean.ADMIN_VERBOSITY_KEY;
@@ -99,10 +98,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Geth func call response :" + result);
 
     }
-    
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testNodeDatadir() {        
+    public void testNodeDatadir() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8080/ethereum-enterprise/node/"+AdminBean.ADMIN_DATADIR_KEY;
@@ -118,5 +117,5 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Geth func call response :" + result);
 
     }
-    
+
 }
