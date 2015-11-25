@@ -37,11 +37,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
@@ -86,17 +85,28 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws JsonParseException, JsonMappingException, IOException {
+    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
         RequestModel request = new RequestModel("2.0", funcName, args, "id");
 
         Gson gson = new Gson();
         String req = gson.toJson(request);
         String response = executeGethCall(req);
+        System.out.println(response);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> data = mapper.readValue(response, Map.class);
+        Map<String, Object> data;
+        try {
+            data = mapper.readValue(response, Map.class);
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
 
-        // FIXME rpc error handling
+        /*
+        if (data.containsKey("error") && data.get("error") != null) {
+            throw new APIException();
+        }
+        */
+
         return (Map<String, Object>) data.get("result");
     }
 
@@ -144,7 +154,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         if (!isStarted && autoStart) {
             isStarted = startGeth(root + "/", genesisDir, null, null);
             if (!isStarted) {
-                LOG.error("Ethereum has NOT beed started...");
+                LOG.error("Ethereum has NOT been started...");
             } else {
                 LOG.info("Ethereum started ...");
             }

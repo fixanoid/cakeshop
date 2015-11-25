@@ -5,12 +5,10 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 
 /**
  *
@@ -26,7 +24,7 @@ public interface GethHttpService {
 
 
     public String executeGethCall(String json);
-    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws JsonParseException, JsonMappingException, IOException;
+    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException;
 
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();

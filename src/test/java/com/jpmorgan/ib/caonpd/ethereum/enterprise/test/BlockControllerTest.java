@@ -24,9 +24,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.controller.BlockController;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 
-@ContextConfiguration(classes = {TestWebConfig.class, TestWebConfig.class})
+@ContextConfiguration(classes = {TestWebConfig.class})
 @WebAppConfiguration
-//@ActiveProfiles("integration-test")
 public class BlockControllerTest extends AbstractTestNGSpringContextTests {
 
     static {
@@ -55,11 +54,11 @@ public class BlockControllerTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void startGeth() {
-			String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
-			String command = System.getProperty("user.dir") + "/geth-resources/";
-			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
-			Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
-			assertTrue(started);
+        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
+        String command = System.getProperty("user.dir") + "/geth-resources/";
+        String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
+        Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+        assertTrue(started);
     }
 
     @AfterClass
