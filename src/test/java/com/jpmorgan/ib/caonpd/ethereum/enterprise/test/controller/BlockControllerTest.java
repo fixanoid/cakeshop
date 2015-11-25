@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.controller;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
