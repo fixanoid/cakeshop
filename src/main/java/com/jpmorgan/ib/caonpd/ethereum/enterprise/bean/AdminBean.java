@@ -24,7 +24,13 @@ public class AdminBean {
     public static final String ADMIN_VERBOSITY = "admin_verbosity";
     public static final String ADMIN_DATADIR_KEY = "datadir";
     public static final String ADMIN_DATADIR = "admin_datadir";
-    
+    public static final String ADMIN_MINER_START_KEY = "start";
+    public static final String ADMIN_MINER_START = "miner_start";
+    public static final String ADMIN_MINER_STOP_KEY = "stop";
+    public static final String ADMIN_MINER_STOP = "miner_stop";
+    public static final String ADMIN_MINER_MINING_KEY = "status";
+    public static final String ADMIN_MINER_MINING = "eth_mining"; 
+       
     private Map<String,String> functionNames = new HashMap();
     
     public AdminBean(){
@@ -33,6 +39,9 @@ public class AdminBean {
         functionNames.put(ADMIN_NODE_INFO_KEY,ADMIN_NODE_INFO);
         functionNames.put(ADMIN_VERBOSITY_KEY,ADMIN_VERBOSITY);
         functionNames.put(ADMIN_DATADIR_KEY,ADMIN_DATADIR);
+        functionNames.put(ADMIN_MINER_START_KEY,ADMIN_MINER_START);
+        functionNames.put(ADMIN_MINER_STOP_KEY,ADMIN_MINER_STOP);
+        functionNames.put(ADMIN_MINER_MINING_KEY,ADMIN_MINER_MINING);
     }
 
     /**

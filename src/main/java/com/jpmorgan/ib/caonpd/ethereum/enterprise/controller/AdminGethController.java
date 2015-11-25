@@ -36,7 +36,7 @@ public class AdminGethController {
     @Autowired
     private AdminBean adminBean;
     
-    @RequestMapping(value = "/node/{funcName}", method = POST)
+    @RequestMapping(value = {"/node/{funcName}","/miner/{funcName}"}, method = POST)
     protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @RequestParam (value = "func_args", required = false) String funcArguments) {
         //funcArguments must be comma separated values
         //first generate json to execute function
