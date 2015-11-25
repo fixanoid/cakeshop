@@ -244,15 +244,15 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private String getProcessId() {
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(root + File.separator + ".." + File.separator + "logs" + File.separator + "/meth.pid");
+        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
         String pid = null;
         try {
-            FileReader reader = new FileReader(pidFile);
-            BufferedReader br = new BufferedReader(reader);
-            String s;
-            while ((s = br.readLine()) != null) {
-                pid = s;
-                break;
+            try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
+                String s;
+                while ((s = br.readLine()) != null) {
+                    pid = s;
+                    break;
+                }
             }
         } catch (IOException ex) {
             LOG.error(ex.getMessage());
@@ -265,12 +265,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         if (StringUtils.isNotEmpty(pid)) {
             try {
                 Process proc = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "ps aux | grep " + pid});
-                InputStream stream = proc.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                //Parsing the input stream.
-                while ((reader.readLine()) != null) {
-                    isRunning = true;
-                    break;
+                try (InputStream stream = proc.getInputStream()) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                    //Parsing the input stream.
+                    while ((reader.readLine()) != null) {
+                        isRunning = true;
+                        break;
+                    }
                 }
             } catch (IOException ex) {
                 LOG.error(ex.getMessage());
@@ -285,14 +286,15 @@ public class GethHttpServiceImpl implements GethHttpService {
         Boolean isRunning = false;
         try {
             Process proc = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "tasklist /FI \"PID eq " + pid + "\""});
-            InputStream stream = proc.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            //Parsing the input stream.
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains(" " + pid + " ")) {
-                    isRunning = true;
-                    break;
+            try (InputStream stream = proc.getInputStream()) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                //Parsing the input stream.
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains(" " + pid + " ")) {
+                        isRunning = true;
+                        break;
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -303,8 +305,8 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private void writePidToFile(Integer pid) throws IOException {
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File directory = new File(root + File.separator + ".." + File.separator + "logs" + File.separator);
-        File pidFile = new File(root + File.separator + ".." + File.separator + "logs" + File.separator + "/meth.pid");
+        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
+        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
         if (!directory.exists()) {
             directory.mkdirs();
         }
