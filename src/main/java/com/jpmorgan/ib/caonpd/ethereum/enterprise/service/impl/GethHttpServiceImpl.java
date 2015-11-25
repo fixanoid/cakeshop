@@ -60,7 +60,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String rpcport;
     @Value("${geth.rpcapi.list}")
     private String rpcApiList;
-    @Value("${geth.auto.start:true}")
+    @Value("${geth.auto.start:false}")
     private Boolean autoStart;
     @Value("${geth.genesis}")
     private String genesis;
@@ -125,7 +125,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             } else {
                 LOG.info("Ethereum started ...");
             }
-        } else {
+        } else if(isStarted){
             LOG.info("Ethereum was already running");
         }        
     }
