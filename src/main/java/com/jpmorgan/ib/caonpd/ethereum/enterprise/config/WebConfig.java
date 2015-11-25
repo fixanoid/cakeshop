@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -27,7 +27,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-    private @Inject RequestMappingHandlerAdapter adapter;
+    @Autowired
+    private RequestMappingHandlerAdapter adapter;
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
