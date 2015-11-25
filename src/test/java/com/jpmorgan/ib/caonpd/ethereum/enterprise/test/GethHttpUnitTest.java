@@ -35,7 +35,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     
     @BeforeTest
     public static void setEnv() {
-        System.setProperty("eth.environment", "local");
+        System.setProperty("eth.environment", "test");
     }
 
     @AfterClass
@@ -47,7 +47,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     private String datadir;
 
 
-    @Test(priority=0)
+    //@Test(priority=0)
     public void testStart () {
         String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
@@ -57,7 +57,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
         System.out.println("Server started :" + started);
     }  
     
-    @Test(dependsOnMethods = "testStart")
+    //@Test(dependsOnMethods = "testStart")
     public void testService() {
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -67,14 +67,14 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
         System.out.println("Geth func call response :" + response);
     }
     
-    @Test(dependsOnMethods = "testService")
+    //@Test(dependsOnMethods = "testService")
     public void testStop() {
         Boolean stopped = service.stopGeth();
         assertEquals(stopped, true);
         System.out.println("Server stopped :" + stopped);
     }
     
-    @Test(dependsOnMethods = "testStop")
+    //@Test(dependsOnMethods = "testStop")
     public void testDdeleteEthDatabase() {
         String eth_datadir = System.getProperty("user.home") + datadir + "-test";
         Boolean deleted = service.deletEthDatabase(eth_datadir);

@@ -262,17 +262,19 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private Boolean isProcessRunningNix(String pid) {
         Boolean isRunning = false;
-        try {
-            Process proc = Runtime.getRuntime().exec(new String[]{"ps", "-ef", "| grep " + pid});
-            InputStream stream = proc.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            //Parsing the input stream.
-            while ((reader.readLine()) != null) {
-                isRunning = true;
-                break;
+        if (StringUtils.isNotEmpty(pid)) {
+            try {
+                Process proc = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "ps aux | grep " + pid});
+                InputStream stream = proc.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                //Parsing the input stream.
+                while ((reader.readLine()) != null) {
+                    isRunning = true;
+                    break;
+                }
+            } catch (IOException ex) {
+                LOG.error(ex.getMessage());
             }
-        } catch (IOException ex) {
-            LOG.error(ex.getMessage());
         }
 
         return isRunning;
