@@ -268,9 +268,13 @@ public class GethHttpServiceImpl implements GethHttpService {
                 try (InputStream stream = proc.getInputStream()) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                     //Parsing the input stream.
-                    while ((reader.readLine()) != null) {
-                        isRunning = true;
-                        break;
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        LOG.info(line);
+                        if (line.contains("genesis_block.json")) {
+                            isRunning = true;
+                            break;
+                        }
                     }
                 }
             } catch (IOException ex) {
