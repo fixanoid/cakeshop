@@ -1,4 +1,9 @@
-var Tower = {};
+var Tower = {
+	current: null,
+	status: null,
+
+	screenManager: screenManager
+};
 
 
 Tower.section = {
@@ -10,15 +15,17 @@ Tower.section = {
 			).done(function(status) {
 				// TODO: replace before flight
 
+				Tower.status = status;
+
 				if (status.status === 'running') {
 					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
 					// TODO: change the icon according to the condition?
 				}
 
-				$('#default-peers').html( $('<span>', { html: status.peers + Math.ceil(Math.random() * 10) }) );
-				$('#default-blocks').html( $('<span>', { html: status.latestBlock + Math.ceil(Math.random() * 10) }) );
-				$('#default-txn').html( $('<span>', { html: status.queuedTxn + Math.ceil(Math.random() * 10) }) );
+				utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
+				utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + Math.ceil(Math.random() * 10), $('#default-blocks'));
+				utils.prettyUpdate(Tower.status.queuedTxn, status.queuedTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
 			});
 		};
 
@@ -27,6 +34,8 @@ Tower.section = {
 	},
 	'console': function() {
 		// reset screen, load widgets
+		Tower.screenManager.show('node-control');
+		Tower.screenManager.show('node-settings');
 	}
 }
 

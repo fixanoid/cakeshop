@@ -729,6 +729,7 @@ a:active {
 .panel-body {
   position: relative;
   -webkit-transition: all .2s linear;
+	height: 250px;
 }
 
 .panel-heading {
@@ -1406,4 +1407,13 @@ a:active {
 .flat-theme.twitter.sticky .rad-toggle-btn:hover {
   background: #55acee !important;
   color: #fff !important;
+}
+
+.default {
+	transition: opacity .5s ease-in-out;
+}
+
+.widget-node-control button {
+	width: 100%;
+	margin: 2px;
 }
