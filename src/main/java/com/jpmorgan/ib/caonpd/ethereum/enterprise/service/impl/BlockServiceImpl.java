@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class BlockServiceImpl implements BlockService {
         }
 
         Map<String, Object> blockData =
-                gethService.executeGethCall(method, new Object[]{ input, false });
+                gethService.executeGethCall(method, new Object[]{ input, true });
 
         // Convert to model
         Block block = new Block();
@@ -44,6 +45,15 @@ public class BlockServiceImpl implements BlockService {
         // add addresses directly
         block.setHash((String)blockData.get("hash"));
         block.setParentHash((String)blockData.get("parentHash"));
+        block.setNonce((String)blockData.get("nonce"));
+        block.setSha3Uncles((String)blockData.get("sha3Uncles"));
+        block.setLogsBloom((String)blockData.get("logsBloom"));
+        block.setTransactionsRoot((String)blockData.get("transactionsRoot"));
+        block.setStateRoot((String)blockData.get("stateRoot"));
+        block.setMiner((String)blockData.get("miner"));
+        block.setExtraData((String)blockData.get("extraData"));
+        block.setTransactions((List<String>) blockData.get("transactions"));
+        block.setUncles((List<String>) blockData.get("uncles"));
 
         // convert longs
         block.setNumber(toLong("number", blockData));
