@@ -32,7 +32,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
-
         // existing resolvers
         List<HandlerMethodArgumentResolver> argumentResolvers =
                 new ArrayList<>(adapter.getArgumentResolvers());
@@ -48,17 +47,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         adapter.setArgumentResolvers(argumentResolvers);
     }
 
-    /*
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        List<HandlerMethodArgumentResolver> customResolvers = new ArrayList<HandlerMethodArgumentResolver>();
-        customResolvers.add(new JsonMethodArgumentResolver());
-        customResolvers.addAll(argumentResolvers);
-
-        // empty and re-add our custom list
-        argumentResolvers.clear();
-        argumentResolvers.addAll(0, customResolvers);
+        super.addArgumentResolvers(argumentResolvers);
+        argumentResolvers.add(new JsonMethodArgumentResolver());
     }
-    */
 
 }
