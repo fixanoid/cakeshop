@@ -53,7 +53,7 @@ public class AdminGethController {
         
         String gethFunctionName = functionNames.get(funcName); 
         if(StringUtils.isNotEmpty(gethFunctionName)){
-            request = new RequestModel("2.0", gethFunctionName, args, "id");
+            request = new RequestModel(GethHttpService.GETH_API_VERSION, gethFunctionName, args, GethHttpService.USER_ID);
         } 
         Gson gson = new Gson();
         if (request != null)
