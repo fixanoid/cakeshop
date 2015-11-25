@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Block  {
 
-  private Integer number = null;
+  private Long number = null;
   private String hash = null;
   private String parentHash = null;
   private String nonce = null;
@@ -17,9 +17,9 @@ public class Block  {
   private Long difficulty = null;
   private Long totalDifficulty = null;
   private String extraData = null;
-  private Integer gasLimit = null;
-  private Integer gasUsed = null;
-  private Integer timestamp = null;
+  private Long gasLimit = null;
+  private Long gasUsed = null;
+  private Long timestamp = null;
   private List<String> transactions = new ArrayList<String>();
   private List<String> uncles = new ArrayList<String>();
 
@@ -27,10 +27,10 @@ public class Block  {
   /**
    * Block number
    **/
-  public Integer getNumber() {
+  public Long getNumber() {
     return number;
   }
-  public void setNumber(Integer number) {
+  public void setNumber(Long number) {
     this.number = number;
   }
 
@@ -159,10 +159,10 @@ public class Block  {
   /**
    * the maximum gas allowed in this block
    **/
-  public Integer getGasLimit() {
+  public Long getGasLimit() {
     return gasLimit;
   }
-  public void setGasLimit(Integer gasLimit) {
+  public void setGasLimit(Long gasLimit) {
     this.gasLimit = gasLimit;
   }
 
@@ -170,10 +170,10 @@ public class Block  {
   /**
    * the total gas used by all transactions in this block
    **/
-  public Integer getGasUsed() {
+  public Long getGasUsed() {
     return gasUsed;
   }
-  public void setGasUsed(Integer gasUsed) {
+  public void setGasUsed(Long gasUsed) {
     this.gasUsed = gasUsed;
   }
 
@@ -181,10 +181,10 @@ public class Block  {
   /**
    * the unix timestamp for when the block was collated
    **/
-  public Integer getTimestamp() {
+  public Long getTimestamp() {
     return timestamp;
   }
-  public void setTimestamp(Integer timestamp) {
+  public void setTimestamp(Long timestamp) {
     this.timestamp = timestamp;
   }
 

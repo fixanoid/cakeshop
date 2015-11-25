@@ -5,8 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.MediaType.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,16 +74,17 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws JsonParseException, JsonMappingException, IOException {
-
         RequestModel request = new RequestModel("2.0", funcName, args, "id");
 
         Gson gson = new Gson();
         String req = gson.toJson(request);
         String response = executeGethCall(req);
 
-				ObjectMapper mapper = new ObjectMapper();
-				Map<String, Object> data = mapper.readValue(response, Map.class);
-				return (Map<String, Object>) data.get("result");
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> data = mapper.readValue(response, Map.class);
+
+        // FIXME rpc error handling
+        return (Map<String, Object>) data.get("result");
     }
 
     @Override

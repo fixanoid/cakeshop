@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -18,10 +18,10 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfigTest;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
-@ContextConfiguration(classes = WebConfigTest.class ,loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
 public class GethRpcTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
@@ -39,6 +39,7 @@ public class GethRpcTest extends AbstractTestNGSpringContextTests {
 			String command = System.getProperty("user.dir") + "/geth-resources/";
 			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
 			Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+			assertTrue(started);
     }
 
     @AfterClass
