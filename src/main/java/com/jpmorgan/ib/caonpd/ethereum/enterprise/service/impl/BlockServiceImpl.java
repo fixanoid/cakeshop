@@ -35,9 +35,6 @@ public class BlockServiceImpl implements BlockService {
             input = tag;
         }
 
-        // uncomment to test error scenario (not currently handled)
-        //method = null;
-
         Map<String, Object> blockData =
                 gethService.executeGethCall(method, new Object[]{ input, false });
 

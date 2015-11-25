@@ -101,11 +101,16 @@ public class GethHttpServiceImpl implements GethHttpService {
             throw new APIException("RPC call failed", e);
         }
 
-        /*
         if (data.containsKey("error") && data.get("error") != null) {
-            throw new APIException();
+            String message = null;
+            Map<String, String> error = (Map<String, String>) data.get("error");
+            if (error.containsKey("message")) {
+                message = error.get("message");
+            } else {
+                message = "RPC call failed";
+            }
+            throw new APIException(message);
         }
-        */
 
         return (Map<String, Object>) data.get("result");
     }
