@@ -5,15 +5,10 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
-import com.google.common.collect.Lists;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinNT;
-import java.io.BufferedReader;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -27,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
@@ -48,6 +44,9 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
 
 
 /**
@@ -183,14 +182,16 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
-        List<String> commands = Lists.newArrayList(command, "--datadir", dataDir, "--networkid", networkid, "--genesis",
-                genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList);
+        List<String> commands = Lists.newArrayList(command,
+                "--datadir", dataDir, "--networkid", networkid,"--genesis", genesisDir,
+                // "--verbosity", "6",
+                "--nat", "none", "--nodiscover",
+                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList);
 
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
         }
 
-        //String commands[] = {command, "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir, "--rpc", "--rpcport", rpcport, "--rpcapi", rpcApiList};
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
         if (!file.canExecute()) {
@@ -256,7 +257,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
         }
     }
-    
+
     private void setUnixPID(Process process) throws IOException {
         if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
             try {
