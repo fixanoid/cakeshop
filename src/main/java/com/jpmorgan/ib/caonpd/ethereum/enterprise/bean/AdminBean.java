@@ -30,6 +30,8 @@ public class AdminBean {
     public static final String ADMIN_MINER_STOP = "miner_stop";
     public static final String ADMIN_MINER_MINING_KEY = "status";
     public static final String ADMIN_MINER_MINING = "eth_mining"; 
+    public static final String ADMIN_PEER_ADD="admin_addPeer";
+    public static final String ADMIN_PEER_ADD_KEY="add_peer";
        
     private Map<String,String> functionNames = new HashMap();
     
@@ -42,6 +44,7 @@ public class AdminBean {
         functionNames.put(ADMIN_MINER_START_KEY,ADMIN_MINER_START);
         functionNames.put(ADMIN_MINER_STOP_KEY,ADMIN_MINER_STOP);
         functionNames.put(ADMIN_MINER_MINING_KEY,ADMIN_MINER_MINING);
+        functionNames.put(ADMIN_ADD_PEER_KEY,ADMIN_ADD_PEER);
     }
 
     /**

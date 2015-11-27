@@ -43,6 +43,9 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
     @Value("${geth.genesis}")
     private String genesis;
     
+    @Value("${geth.peer.addr}")
+    private String peerAddress;
+    
     private static JsonParser jsonParser;
     
 
@@ -58,8 +61,8 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         jsonParser = null;
     }
 
-
-    @Test(enabled = true)
+    
+    @Test(enabled = false)
     public void testNodeInfo() {
         String url = NODE_URL+AdminBean.ADMIN_NODE_INFO_KEY;
         String funcArgs = " ";
@@ -180,7 +183,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         
     }
     
-    @Test(enabled = false)
+    @Test(enabled=false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testMinerStatus() {        
 
@@ -197,6 +200,27 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Miner func call miner status :" + result);
         JsonObject jsonResult = jsonParser.parse(result).getAsJsonObject();
         Assert.notNull(jsonResult.get("result"));
+    }
+    
+     @Test(enabled = false)
+    //To run test - comment out (enabled = false) from Test annotation
+    public void testAddPeer() {        
+        Assert.notNull(peerAddress);
+        String url = MINER_URL+AdminBean.ADMIN_ADD_PEER_KEY;
+        //This has to be updated to have a valid peer
+        String funcArgs = peerAddress;
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MULTIPART_FORM_DATA);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("func_args", funcArgs);
+        String result = restTemplate.postForObject(url, body, String.class);
+        Assert.notNull(result);
+        System.out.println("Geth func call add a peer :" + result);
+        JsonObject jsonResult = jsonParser.parse(result).getAsJsonObject();
+        Assert.notNull(jsonResult.get("result"));
+        Assert.isTrue(Boolean.parseBoolean(jsonResult.get("result").toString()));
     }
 
 }
