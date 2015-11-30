@@ -107,15 +107,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>5.2.2.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.1.Final</version>
+            <groupId>org.apache.bval</groupId>
+            <artifactId>org.apache.bval.bundle</artifactId>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -139,7 +133,6 @@
             <version>6.0</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
