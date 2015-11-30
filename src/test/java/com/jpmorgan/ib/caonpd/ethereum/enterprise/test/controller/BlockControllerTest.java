@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.controller;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -24,9 +24,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.controller.BlockController;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 
-@ContextConfiguration(classes = {TestWebConfig.class, TestWebConfig.class})
+@ContextConfiguration(classes = {TestWebConfig.class})
 @WebAppConfiguration
-//@ActiveProfiles("integration-test")
 public class BlockControllerTest extends AbstractTestNGSpringContextTests {
 
     static {
@@ -55,11 +54,11 @@ public class BlockControllerTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void startGeth() {
-			String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
-			String command = System.getProperty("user.dir") + "/geth-resources/";
-			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
-			Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
-			assertTrue(started);
+        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
+        String command = System.getProperty("user.dir") + "/geth-resources/";
+        String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
+        Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+        assertTrue(started);
     }
 
     @AfterClass
@@ -74,15 +73,26 @@ public class BlockControllerTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testGetBlockByNumber() throws Exception {
-       assertNotNull(mockMvc);
+        assertNotNull(mockMvc);
+        commonTest("{\"number\":0}");
+    }
 
-       String body = "{\"number\":0}";
-       System.out.println(body);
+    @Test
+    public void testGetBlockByHash() throws Exception {
+        commonTest("{\"hash\":\"0xb067233bfb768b2d5b7c190b13601f5eb8628e8daf02bb21dd091369c330c25a\"}");
+    }
+
+    @Test
+    public void testGetBlockByTag() throws Exception {
+        commonTest("{\"tag\":\"latest\"}");
+    }
+
+    private void commonTest(String body) throws Exception {
         mockMvc.perform(post("/block/get")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(body))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(content().string(containsString("{\"number\":0")));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().string(containsString("{\"number\":0")));
 
     }
 
