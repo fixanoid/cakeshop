@@ -134,6 +134,17 @@ public class GethHttpServiceImpl implements GethHttpService {
                 return true;
             } else {
                 Runtime.getRuntime().exec("kill -9 " + getProcessId()).waitFor();
+
+                // wait for process to actually stop
+                while (true) {
+                	Process exec = Runtime.getRuntime().exec("kill -0 " + getProcessId());
+                	exec.waitFor();
+                	if (exec.exitValue() != 0) {
+                		break;
+                	}
+                	TimeUnit.MILLISECONDS.sleep(5);
+                }
+
                 return true;
             }
         } catch (IOException | InterruptedException ex) {
@@ -159,6 +170,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @PostConstruct
     public void autoStart() {
+    		LOG.info("Autostarting geth node");
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         String genesisDir = root + genesis;
         Boolean isStarted;
