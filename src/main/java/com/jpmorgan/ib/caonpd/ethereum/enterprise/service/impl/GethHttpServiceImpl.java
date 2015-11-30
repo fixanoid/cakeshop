@@ -207,10 +207,18 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.addAll(additionalParams);
         }
 
+
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
         if (!file.canExecute()) {
             file.setExecutable(true);
+        }
+
+
+        // need to modify PATH so it can locate compilers correctly
+        final Map<String, String> env = builder.environment();
+        if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
+        	env.put("PATH", "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
         }
 
         builder.inheritIO();
