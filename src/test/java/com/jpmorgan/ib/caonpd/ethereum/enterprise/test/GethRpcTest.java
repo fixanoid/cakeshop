@@ -17,7 +17,7 @@ public class GethRpcTest extends BaseGethRpcTest {
         Object input = new BigInteger("0");
         System.out.println(input);
 
-        String hash = "0xb067233bfb768b2d5b7c190b13601f5eb8628e8daf02bb21dd091369c330c25a";
+        String hash = "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c";
         Map<String, Object> data = service.executeGethCall(method, new Object[]{ "latest", false });
         assertEquals(data.get("hash"), hash);
 
