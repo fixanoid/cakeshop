@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -26,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -110,6 +114,13 @@ public class GethHttpServiceImpl implements GethHttpService {
                 message = "RPC call failed";
             }
             throw new APIException(message);
+        }
+
+        if (data.get("result") instanceof String) {
+        	// Handle a special case where only a txid is returned in the result, not a full object
+        	Map<String, Object> result = new HashMap<>();
+        	result.put("id", data.get("result"));
+        	return result;
         }
 
         return (Map<String, Object>) data.get("result");
@@ -197,10 +208,13 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
+    		String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
+
         List<String> commands = Lists.newArrayList(command,
                 "--datadir", dataDir, "--networkid", networkid,"--genesis", genesisDir,
                 // "--verbosity", "6",
                 "--nat", "none", "--nodiscover",
+                "--unlock", "0 1 2", "--password", passwordFile,
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList);
 
         if (null != additionalParams && !additionalParams.isEmpty()) {
@@ -226,8 +240,16 @@ public class GethHttpServiceImpl implements GethHttpService {
         Process process;
         try {
 
+
+            File keystoreDir = new File(dataDir + File.separator + "keystore");
+            if (!keystoreDir.exists()) {
+            	String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
+            	FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
+            	Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
+            	System.out.println(files);
+            }
+
             process = builder.start();
-            File dataDirectory = new File(dataDir);
 
             /*
             if (!dataDirectory.exists()) {

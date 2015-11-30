@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
 
     @Autowired
-    private GethHttpService service;
+    protected GethHttpService service;
 
     @Value("${geth.genesis}")
     private String genesis;
@@ -45,6 +46,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         String command = System.getProperty("user.dir") + "/geth-resources/";
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
         new File(eth_datadir).mkdirs();
+
         Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
         assertTrue(started);
     }
@@ -61,5 +63,17 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 			}
     }
 
+    /**
+     * Read the given test resource file
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    protected String readTestFile(String path) throws IOException {
+    	URL url = this.getClass().getClassLoader().getResource(path);
+    	File file = FileUtils.toFile(url);
+    	return FileUtils.readFileToString(file);
+    }
 
 }
