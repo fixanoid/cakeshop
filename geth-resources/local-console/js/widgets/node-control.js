@@ -19,7 +19,7 @@
 			widget.render();
 		},
 
-		url: 'web-app/node/control',
+		url: '../node-control',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
@@ -42,7 +42,7 @@
 			$(this).attr('disabled', 'disabled');
 
 			$.when(
-				utils.load({ method: 'GET', url: widget.url + '/' + action })
+				utils.load({ url: widget.url + '/' + action })
 			).done(function() {
 				_this.removeAttr('disabled');
 			}).fail(function() {
