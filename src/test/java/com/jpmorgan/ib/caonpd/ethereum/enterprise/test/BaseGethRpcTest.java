@@ -41,7 +41,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void startGeth() {
-    		LOG.debug("Starting Ethereum at test startup");
+    		LOG.info("Starting Ethereum at test startup");
         String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
@@ -53,7 +53,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @AfterClass
     public void stopGeth() {
-    	LOG.debug("Stopping Ethereum at test teardown");
+    	LOG.info("Stopping Ethereum at test teardown");
     	service.stopGeth();
 			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
 			try {
