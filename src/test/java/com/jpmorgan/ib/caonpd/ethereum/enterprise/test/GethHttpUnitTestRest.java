@@ -74,4 +74,34 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
         System.out.println("Server started :" + result);
     }
     
+    @Test(enabled = false)
+    //To run test - comment out (enabled = false) from Test annotation
+    public void testStopRest() {
+        //Change to whatever url your local tomcat  is set
+        //Webapp must be up and running to execute this test!!!
+        String url = "http://localhost:8090/ethereum-enterprise/stop_geth";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MULTIPART_FORM_DATA);
+        Boolean result = restTemplate.postForObject(url, null, Boolean.class);
+        assertEquals(result, true);
+        System.out.println("Server started :" + result);
+    }
+    
+    @Test//(enabled = false)
+    //To run test - comment out (enabled = false) from Test annotation
+    public void testStopRestart() {
+        //Change to whatever url your local tomcat  is set
+        //Webapp must be up and running to execute this test!!!
+        String url = "http://localhost:8090/ethereum-enterprise/restart_geth";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MULTIPART_FORM_DATA);
+        Boolean result = restTemplate.postForObject(url, null, Boolean.class);
+        assertEquals(result, true);
+        System.out.println("Server started :" + result);
+    }
+    
 }
