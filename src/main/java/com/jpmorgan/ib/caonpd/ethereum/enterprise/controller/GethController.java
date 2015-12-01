@@ -84,9 +84,9 @@ public class GethController {
     protected @ResponseBody
     Boolean restartGeth(HttpServletRequest request) {
         Boolean stopped = gethService.stopGeth();
-        gethService.deletePid();
+        Boolean deleted = gethService.deletePid();
         Boolean restarted = false;
-        if (stopped) {
+        if (stopped && deleted) {
             String genesisDir = request.getServletContext().getRealPath("/") + genesis;
             String command = request.getServletContext().getRealPath("/");
             restarted = gethService.startGeth(command, genesisDir, null, null);
