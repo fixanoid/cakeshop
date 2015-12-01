@@ -1,7 +1,7 @@
 Tower.TEMPLATES = {};
 
 Tower.TEMPLATES._widget = function(opts) {
-	return '<div class="col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + '">\n'+
+	return '<div class="col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + '" id="widget-shell-' + opts.id + '">\n'+
 			'	<div class="panel panel-default">\n'+
 			'		<div class="panel-heading">\n'+
 			'			<h3 class="panel-title">' + opts.title + '\n'+

@@ -1,43 +1,46 @@
+var demo = true;
+
 var Tower = {
 	current: null,
 	status: null,
 
-	screenManager: screenManager
-};
+	screenManager: screenManager,
 
+	section: {
+		'default': function() {
+			// these are perma-widgets
+			var def = function() {
+				$.when(
+						utils.load({ url: 'json/status.json', method: 'GET' })
+				).done(function(status) {
+					// TODO: replace before flight
 
-Tower.section = {
-	'default': function() {
-		// these are perma-widgets
-		var def = function() {
-			$.when(
-					utils.load({ url: 'json/status.json', method: 'GET' })
-			).done(function(status) {
-				// TODO: replace before flight
+					Tower.status = status;
 
-				Tower.status = status;
+					if (status.status === 'running') {
+						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
-				if (status.status === 'running') {
-					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
+						// TODO: change the icon according to the condition?
+					}
 
-					// TODO: change the icon according to the condition?
-				}
+					utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
+					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + Math.ceil(Math.random() * 10), $('#default-blocks'));
+					utils.prettyUpdate(Tower.status.queuedTxn, status.queuedTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
+				});
+			};
 
-				utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
-				utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + Math.ceil(Math.random() * 10), $('#default-blocks'));
-				utils.prettyUpdate(Tower.status.queuedTxn, status.queuedTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
-			});
-		};
+			def();
+			setInterval(def, 5000);
+		},
+		'console': function() {
+			// reset screen, load widgets
+			Tower.screenManager.clear();
 
-		def();
-		setInterval(def, 5000);
-	},
-	'console': function() {
-		// reset screen, load widgets
-		Tower.screenManager.show('node-control');
-		Tower.screenManager.show('node-settings');
+			Tower.screenManager.show({ widgetId: 'node-control', section: 'console' });
+			Tower.screenManager.show({ widgetId: 'node-settings', section: 'console' });
+		}
 	}
-}
+};
 
 $(function() {
 	$(window).on('scroll', function(e) {
@@ -52,15 +55,12 @@ $(function() {
 		e.preventDefault();
 
 		var $item = $('.rad-dropmenu-item');
+
 		if ($item.hasClass('active')) {
 			$item.removeClass('active');
 		}
 	});
 
-	// $('.rad-chat-body').slimScroll({
-	// 	height: '450px',
-	// 	color: '#c6c6c6'
-	// });
 
 
 	// Menu (burger) handler

@@ -25,31 +25,67 @@ var utils = {
 
 
 var screenManager = {
+	// DOM anchor for the widget field
 	grounds: $('#grounds'),
-	loadedWidgets: {},
+
+	// section to widget mapping
+	sectionMap: {},
+
+	// widgets that have been loaded
+	loaded: {},
+
 
 	addWidget: function(widget) {
 		// shared injects
 		widget.init();
 
+		// set section widget belongs to
+		widget.section = _.invert(this.sectionMap)[widget.name];
+
 		// to overwrite when the widget starts if we don't want it to render right away.
 		// widget.ready = function() { widget.render(); };
 
-		this.loadedWidgets[widget.name] = widget;
+		this.loaded[widget.name] = widget;
 	},
 
-	show: function(widgetId) {
-		if (!widgetId) {
+
+	show: function(opts) {
+		if ( (!opts) || (!opts.widgetId) ) {
 			return;
 		}
 
-		if (this.loadedWidgets[widgetId]) {
+		if (this.loaded[opts.widgetId]) {
 			// been loaded, execute?
+			if ( $('#widget-shell-' + this.loaded[opts.widgetId].shell.id ).css('display') === 'none' ) {
+				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id ).css( { 'display': 'block' } );
+			}
 		} else {
 			// load widget and then run its payload
-			$.getScript('js/widgets/' + widgetId + '.js').fail(function( jqxhr, settings, e ) {
-				console.log( widgetId + ' loading failed with: ' +  e);
+			$.getScript('js/widgets/' + opts.widgetId + '.js').then(function( jqxhr, settings, e ) {
+				screenManager.sectionMap[opts.section] = opts.widgetId;
+			}).fail(function( jqxhr, settings, e ) {
+				delete screenManager.sectionMap[opts.section];
+				console.log( opts.widgetId + ' loading failed with: ' +  e);
 			});
 		}
+	},
+
+
+	hide: function(widget) {
+		if ( $('#widget-shell-' + widget.shell.id ).css('display') !== 'none' ) {
+			$('#widget-shell-' + widget.shell.id ).css( { 'display': 'none' } );
+		}
+	},
+
+
+	// clear the grounds of any displayed widgets
+	// TODO: using show/hide CSS fuckery. Could be easier in the long run to remove from DOM
+	clear: function() {
+		var _this = this;
+
+		_.each(this.loaded, function(val, key) {
+			// TODO: limit the scan to the currently visible section only?
+			_this.hide( val );
+		})
 	}
 }
