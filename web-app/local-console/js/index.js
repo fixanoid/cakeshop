@@ -20,7 +20,11 @@ var Tower = {
 					if (status.status === 'running') {
 						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
-						// TODO: change the icon according to the condition?
+						$('#default-node-status').parent().find('.fa').removeClass('fa-pause').addClass('fa-play');
+					} else {
+						$('#default-node-status').html( $('<span>', { html: utils.capitalize(status.status) }) );
+
+						$('#default-node-status').parent().find('.fa').removeClass('fa-play').addClass('fa-pause');
 					}
 
 					utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
