@@ -64,7 +64,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public void testStartRest() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
-        String url = "http://localhost:8090/ethereum-enterprise/start_geth";
+        String url = "http://localhost:8090/ethereum-enterprise/node-control/start";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -79,7 +79,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public void testStopRest() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
-        String url = "http://localhost:8090/ethereum-enterprise/stop_geth";
+        String url = "http://localhost:8090/ethereum-enterprise/node-control/stop";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -94,7 +94,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public void testStopRestart() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
-        String url = "http://localhost:8090/ethereum-enterprise/restart_geth";
+        String url = "http://localhost:8090/ethereum-enterprise/node-control/restart";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
