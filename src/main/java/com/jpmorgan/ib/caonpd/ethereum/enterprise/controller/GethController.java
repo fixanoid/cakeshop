@@ -59,7 +59,7 @@ public class GethController {
         return response;
     }
 
-    @RequestMapping(value = "/start_geth", method = POST)
+    @RequestMapping(value = "/node-control/start", method = POST)
     protected @ResponseBody
     Boolean startGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
         String genesisDir = request.getServletContext().getRealPath("/") + genesis;
@@ -72,7 +72,7 @@ public class GethController {
         return started;
     }
 
-    @RequestMapping(value = "/stop_geth", method = POST)
+    @RequestMapping(value = "/node-control/stop", method = POST)
     protected @ResponseBody
     Boolean stopGeth() {
         Boolean stopped = gethService.stopGeth();
@@ -80,7 +80,7 @@ public class GethController {
         return stopped;
     }
 
-    @RequestMapping(value = "/restart_geth", method = POST)
+    @RequestMapping(value = "/node-control/restart", method = POST)
     protected @ResponseBody
     Boolean restartGeth(HttpServletRequest request) {
         Boolean stopped = gethService.stopGeth();
@@ -94,7 +94,7 @@ public class GethController {
         return restarted;
     }
     
-    @RequestMapping(value = "/reset_geth", method = POST)
+    @RequestMapping(value = "/node-control/reset", method = POST)
     protected @ResponseBody
     Boolean resetGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
         String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
