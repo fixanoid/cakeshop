@@ -51,7 +51,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
 
-
 /**
  *
  * @author I629630
@@ -83,7 +82,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(APPLICATION_JSON);
-        HttpEntity<String> httpEntity = new HttpEntity<String>(json, headers);
+        HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
         return response.getBody();
     }
@@ -117,10 +116,10 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
 
         if (data.get("result") instanceof String) {
-        	// Handle a special case where only a txid is returned in the result, not a full object
-        	Map<String, Object> result = new HashMap<>();
-        	result.put("id", data.get("result"));
-        	return result;
+            // Handle a special case where only a txid is returned in the result, not a full object
+            Map<String, Object> result = new HashMap<>();
+            result.put("id", data.get("result"));
+            return result;
         }
 
         return (Map<String, Object>) data.get("result");
@@ -137,12 +136,12 @@ public class GethHttpServiceImpl implements GethHttpService {
 
                 // wait for process to actually stop
                 while (true) {
-                	Process exec = Runtime.getRuntime().exec("kill -0 " + getProcessId());
-                	exec.waitFor();
-                	if (exec.exitValue() != 0) {
-                		break;
-                	}
-                	TimeUnit.MILLISECONDS.sleep(5);
+                    Process exec = Runtime.getRuntime().exec("kill -0 " + getProcessId());
+                    exec.waitFor();
+                    if (exec.exitValue() != 0) {
+                        break;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(5);
                 }
 
                 return true;
@@ -170,7 +169,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @PostConstruct
     public void autoStart() {
-    		LOG.info("Autostarting geth node");
+        LOG.info("Autostarting geth node");
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         String genesisDir = root + genesis;
         Boolean isStarted;
@@ -186,7 +185,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             } else {
                 LOG.info("Ethereum started ...");
             }
-        } else if(isStarted){
+        } else if (isStarted) {
             LOG.info("Ethereum was already running");
         }
     }
@@ -213,17 +212,18 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public void deletePid() {
+    public Boolean deletePid() {
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         File pidFile = new File(root + "../logs/meth.pid");
-        pidFile.delete();
+        Boolean deleted = pidFile.delete();
+        return deleted;
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
-    		String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
+        String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
 
         List<String> commands = Lists.newArrayList(command,
-                "--datadir", dataDir, "--networkid", networkid,"--genesis", genesisDir,
+                "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 // "--verbosity", "6",
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", passwordFile,
@@ -233,18 +233,16 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.addAll(additionalParams);
         }
 
-
         ProcessBuilder builder = new ProcessBuilder(commands);
         File file = new File(command);
         if (!file.canExecute()) {
             file.setExecutable(true);
         }
 
-
         // need to modify PATH so it can locate compilers correctly
         final Map<String, String> env = builder.environment();
         if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
-        	env.put("PATH", "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
+            env.put("PATH", "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
         }
 
         builder.inheritIO();
@@ -252,23 +250,21 @@ public class GethHttpServiceImpl implements GethHttpService {
         Process process;
         try {
 
-
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
-            	String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
-            	FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
-            	Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
-            	System.out.println(files);
+                String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
+                FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
+                Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
+                System.out.println(files);
             }
 
             process = builder.start();
 
             /*
-            if (!dataDirectory.exists()) {
-                answerLegalese(process);
-            }
-            */
-
+             if (!dataDirectory.exists()) {
+             answerLegalese(process);
+             }
+             */
             if (!isWindows) {
                 setUnixPID(process);
             } else {
@@ -278,7 +274,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             TimeUnit.SECONDS.sleep(3);
 
             // FIXME add a watcher thread to make sure it doesn't die..
-
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             return false;

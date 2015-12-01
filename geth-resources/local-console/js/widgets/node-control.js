@@ -19,7 +19,7 @@
 			widget.render();
 		},
 
-		url: 'TBD',
+		url: '../node-control',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
@@ -36,10 +36,18 @@
 		},
 
 		_handler: function(ev) {
-			var action = $(this).attr('id');
+			var _this = $(this),
+			 action = $(this).attr('id');
 
-			// TODO: figure this part out
-			utils.load({ method: 'GET', url: widget.url });
+			$(this).attr('disabled', 'disabled');
+
+			$.when(
+				utils.load({ url: widget.url + '/' + action })
+			).done(function() {
+				_this.removeAttr('disabled');
+			}).fail(function() {
+				// TODO: fill in
+			});
 		}
 	};
 
