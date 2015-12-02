@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import java.io.BufferedReader;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -62,11 +63,18 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
         if (!mavContainer.getModel().containsAttribute("_json_data")) {
             ObjectMapper mapper = new ObjectMapper();
             BufferedReader postReader = ((HttpServletRequest)webRequest.getNativeRequest()).getReader();
-            Map<String,Object> data = mapper.readValue(postReader, Map.class);
+            Map<String,Object> data = null;
+            try{
+                data = mapper.readValue(postReader, Map.class);
+            }catch(JsonMappingException ex){
+            }
             mavContainer.addAttribute("_json_data", data);
         }
         Map<String,Object> data = (Map<String, Object>) mavContainer.getModel().get("_json_data");
-
+        if(data == null){
+            return null;
+        }
+        
         JsonBodyParam jsonParam = parameter.getParameterAnnotation(JsonBodyParam.class);
         String param = jsonParam.value();
         if (param == null || param.isEmpty() || param.equals(jsonParam.defaultValue())) {
