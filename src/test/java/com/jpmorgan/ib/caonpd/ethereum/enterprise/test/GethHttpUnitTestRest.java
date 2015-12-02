@@ -91,7 +91,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     
     @Test//(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testStopRestart() {
+    public void testRestart() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8090/ethereum-enterprise/node-control/restart";
