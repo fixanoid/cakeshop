@@ -20,7 +20,7 @@
 		},
 
 		url: '../node-control',
-
+		
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
 

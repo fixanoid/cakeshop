@@ -6,8 +6,8 @@
 
 		initialized: false,
 
-		template: _.template('<table style="width:100%;table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
-		templateRow: _.template('<tr><td style="width:75px"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
+		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
+		templateRow: _.template('<tr><td style="width: 75px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -22,10 +22,8 @@
 			this.ready();
 		},
 
-		render: function() {
+		fetch: function() {
 			var _this = this;
-
-			Tower.screenManager.grounds.append(this.shell.tpl);
 
 			$.when(
 				utils.load({ url: this.url })
@@ -34,22 +32,18 @@
 
 				_.each(info.result, function(val, key) {
 					rows.push( _this.templateRow({ key: key, value: val }) );
-				})
+				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 			});
-	
-			$('#widget-' + this.shell.id)
-			.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' })
-			//.html( this.template({}) );
-			// .slimScroll({
-			// 		height: '240px',
-			// 		color: '#c6c6c6'
-			// 	});
-
 		},
+		
+		render: function() {
+			Tower.screenManager.grounds.append(this.shell.tpl);
 
-		_handler: function(ev) {
+			this.fetch();
+
+			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
 
 		}
 	};
