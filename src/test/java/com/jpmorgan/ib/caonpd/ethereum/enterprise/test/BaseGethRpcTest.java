@@ -17,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
@@ -41,26 +42,26 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void startGeth() {
-    		LOG.info("Starting Ethereum at test startup");
-        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
+        LOG.info("Starting Ethereum at test startup");
+        String genesisDir = System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
         new File(eth_datadir).mkdirs();
 
-        Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+        Boolean started = service.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest"));
         assertTrue(started);
     }
 
     @AfterClass
     public void stopGeth() {
-    	LOG.info("Stopping Ethereum at test teardown");
-    	service.stopGeth();
-			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
-			try {
-				FileUtils.deleteDirectory(new File(eth_datadir));
-			} catch (IOException e) {
-				logger.warn(e);
-			}
+        LOG.info("Stopping Ethereum at test teardown");
+        service.stopGeth();
+        String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
+        try {
+            FileUtils.deleteDirectory(new File(eth_datadir));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
     }
 
     /**
