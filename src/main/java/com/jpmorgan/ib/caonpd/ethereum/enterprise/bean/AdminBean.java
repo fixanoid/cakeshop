@@ -32,6 +32,9 @@ public class AdminBean {
     public static final String ADMIN_MINER_MINING = "eth_mining"; 
     public static final String ADMIN_PEER_ADD="admin_addPeer";
     public static final String ADMIN_PEER_ADD_KEY="add_peer";
+    public static final String ADMIN_NET_PEER_COUNT="net_peerCount";
+    public static final String ADMIN_ETH_BLOCK_NUMBER="eth_blockNumber";
+    public static final String ADMIN_TXPOOL_STATUS = "txpool_status";
        
     private Map<String,String> functionNames = new HashMap();
     

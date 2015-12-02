@@ -8,13 +8,16 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,24 +37,32 @@ public class AdminGethController {
     private GethHttpService gethService;    
     
     @Autowired
+    private NodeService nodeService;
+    
+    @Autowired
     private AdminBean adminBean;
     
-    @RequestMapping(value = {"/node/{funcName}","/miner/{funcName}"}, method = POST)
+    @RequestMapping(value = {"/node/{funcName}","/miner/{funcName}"}, method = POST,produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @RequestParam (value = "func_args", required = false) String funcArguments) {
-        //funcArguments must be comma separated values
-        //first generate json to execute function
-        //request need method name, method arguments and id. jsonrpc defaults to version 2.0
+        
         String args [] = null;
         String response = null;
         RequestModel request = null;
+        Node node = null;
         
-        if (StringUtils.isNoneEmpty(funcArguments)) {
+        if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
+            node = nodeService.get();
+            response = (node==null?new Node().toString():node.toString());
+            return response;
+        }
+        
+        if (StringUtils.isNotEmpty(funcArguments)) {
             args = funcArguments.split(",");  
         }
         
         Map<String,String> functionNames = adminBean.getFunctionNames();
-        
         String gethFunctionName = functionNames.get(funcName); 
+        
         if(StringUtils.isNotEmpty(gethFunctionName)){
             request = new RequestModel(GethHttpService.GETH_API_VERSION, gethFunctionName, args, GethHttpService.USER_ID);
         } 
