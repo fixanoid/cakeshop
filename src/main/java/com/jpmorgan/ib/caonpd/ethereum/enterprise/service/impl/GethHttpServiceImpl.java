@@ -81,13 +81,20 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String logdir;
 
     @Override
-    public String executeGethCall(String json) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(APPLICATION_JSON);
-        HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
-        return response.getBody();
+    public String executeGethCall(String json) throws APIException {
+        try {
+            if (this.checkConnection()) {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(APPLICATION_JSON);
+                HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
+                ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
+                return response.getBody();
+            }
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
+        return null;
     }
 
     @Override
@@ -97,36 +104,40 @@ public class GethHttpServiceImpl implements GethHttpService {
         Gson gson = new Gson();
         String req = gson.toJson(request);
         String response = executeGethCall(req);
-        LOG.info(response.trim());
+        if (StringUtils.isNotEmpty(response)) {
+            LOG.info(response.trim());
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> data;
-        try {
-            data = mapper.readValue(response, Map.class);
-        } catch (IOException e) {
-            throw new APIException("RPC call failed", e);
-        }
-
-        if (data.containsKey("error") && data.get("error") != null) {
-            String message = null;
-            Map<String, String> error = (Map<String, String>) data.get("error");
-            if (error.containsKey("message")) {
-                message = error.get("message");
-            } else {
-                message = "RPC call failed";
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> data;
+            try {
+                data = mapper.readValue(response, Map.class);
+            } catch (IOException e) {
+                throw new APIException("RPC call failed", e);
             }
-            throw new APIException(message);
+
+            if (data.containsKey("error") && data.get("error") != null) {
+                String message = null;
+                Map<String, String> error = (Map<String, String>) data.get("error");
+                if (error.containsKey("message")) {
+                    message = error.get("message");
+                } else {
+                    message = "RPC call failed";
+                }
+                throw new APIException(message);
+            }
+
+            if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer)) {
+
+                // Handle a special case where only a txid is returned in the result, not a full object
+                Map<String, Object> result = new HashMap<>();
+                result.put("id", data.get("result"));
+                return result;
+            }
+
+            return (Map<String, Object>) data.get("result");
+        } else {
+            return null;
         }
-
-        if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer )  ) {
-
-            // Handle a special case where only a txid is returned in the result, not a full object
-            Map<String, Object> result = new HashMap<>();
-            result.put("id", data.get("result"));
-            return result;
-        }
-
-        return (Map<String, Object>) data.get("result");
     }
 
     @Override
@@ -173,9 +184,9 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @PostConstruct
     public void autoStart() {
-    		if (!autoStart) {
-    			return;
-    		}
+        if (!autoStart) {
+            return;
+        }
         LOG.info("Autostarting geth node");
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         String genesisDir = root + genesis;
@@ -434,39 +445,47 @@ public class GethHttpServiceImpl implements GethHttpService {
         long timeStart = System.currentTimeMillis();
         Boolean started = false;
 
-        try {
-            URL urlConn = new URL(url);
-            while (true) {
+        while (true) {
+            try {
+                if (checkConnection()) {
+                    LOG.info("Geth started up successfully");
+                    started = true;
+                    break;
+                }
+            } catch (IOException ex) {
+                LOG.debug(ex.getMessage());
+                if (System.currentTimeMillis() - timeStart >= 10000) {
+                    // Something went wrong and RPC did not start within 10
+                    // sec
+                    LOG.error("Geth did not start within 10 seconds");
+                    break;
+                }
                 try {
-                    HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.connect();
-                    if (conn.getResponseCode() == 200) {
-                        LOG.info("Geth started up successfully");
-                        conn.disconnect();
-                        started = true;
-                        break;
-                    }
-                } catch (IOException ex) {
-                    LOG.debug(ex.getMessage());
-                    if (System.currentTimeMillis() - timeStart >= 10000) {
-                        // Something went wrong and RPC did not start within 10
-                        // sec
-                        LOG.error("Geth did not start within 10 seconds");
-                        break;
-                    }
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(50);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    break;
                 }
             }
-
-        } catch (MalformedURLException ex) {
-            LOG.error(ex.getMessage());
         }
 
         return started;
+    }
+
+    private Boolean checkConnection() throws IOException {
+        Boolean connected = false;
+        try {
+            URL urlConn = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
+            conn.setRequestMethod("GET");
+            conn.connect();
+            if (conn.getResponseCode() == 200) {
+                conn.disconnect();
+                connected = true;
+            }
+            conn.disconnect();
+        } catch (MalformedURLException ex) {
+            LOG.error(ex.getMessage());
+        }
+        return connected;
     }
 }

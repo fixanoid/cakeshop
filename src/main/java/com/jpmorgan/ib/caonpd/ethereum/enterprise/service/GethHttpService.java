@@ -23,7 +23,7 @@ public interface GethHttpService {
     public static final String USER_ID = "enterprise-ethereum";
 
 
-    public String executeGethCall(String json);
+    public String executeGethCall(String json) throws APIException;
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException;
 
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
