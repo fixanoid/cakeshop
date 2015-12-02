@@ -35,6 +35,9 @@ var screenManager = {
 	// section to widget mapping
 	sectionMap: {},
 
+	// widget id to widget mapping
+	idMap: {},
+
 	// widgets that have been loaded
 	loaded: {},
 
@@ -50,6 +53,7 @@ var screenManager = {
 		// widget.ready = function() { widget.render(); };
 
 		this.loaded[widget.name] = widget;
+		this.idMap[widget.shell.id] = widget;
 	},
 
 
@@ -61,6 +65,9 @@ var screenManager = {
 		if (this.loaded[opts.widgetId]) {
 			// been loaded, execute?
 			if ( $('#widget-shell-' + this.loaded[opts.widgetId].shell.id ).css('display') === 'none' ) {
+				// Remove .panel-close
+				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id ).children().removeClass('panel-close');
+
 				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id ).css( { 'display': 'block' } );
 			}
 		} else {

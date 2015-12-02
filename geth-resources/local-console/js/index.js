@@ -1,5 +1,5 @@
 var demo = {
-	on: true,
+	on: false,
 
 	add: function() {
 		if (!this.on) {
@@ -28,16 +28,18 @@ var Tower = {
 				$.when(
 					utils.load({ url: '../node/status' })
 				).done(function(status) {
-					// TODO: replace before flight
-
 					if (status.status === 'running') {
 						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
-						$('#default-node-status').parent().find('.fa').removeClass('fa-pause').addClass('fa-play');
+						$('#default-node-status').parent().find('.fa')
+						 .removeClass('fa-pause rad-txt-danger')
+						 .addClass('fa-play rad-txt-success');
 					} else {
 						$('#default-node-status').html( $('<span>', { html: utils.capitalize(status.status) }) );
 
-						$('#default-node-status').parent().find('.fa').removeClass('fa-play').addClass('fa-pause');
+						$('#default-node-status').parent().find('.fa')
+						 .removeClass('fa-play rad-txt-success')
+						 .addClass('fa-pause rad-txt-danger');
 					}
 
 					utils.prettyUpdate(Tower.status.peers, status.peers + demo.add(), $('#default-peers'));
@@ -51,6 +53,7 @@ var Tower = {
 			def();
 			setInterval(def, 5000);
 		},
+
 		'console': function() {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
@@ -58,6 +61,26 @@ var Tower = {
 			Tower.screenManager.show({ widgetId: 'node-info', section: 'console' });
 			Tower.screenManager.show({ widgetId: 'node-control', section: 'console' });
 			Tower.screenManager.show({ widgetId: 'node-settings', section: 'console' });
+		},
+
+		'peers': function() {
+			// reset screen, load widgets
+			Tower.screenManager.clear();
+		},
+
+		'api': function() {
+			// reset screen, load widgets
+			Tower.screenManager.clear();
+		},
+		
+		'contracts': function() {
+			// reset screen, load widgets
+			Tower.screenManager.clear();
+		},
+
+		'explorer': function() {
+			// reset screen, load widgets
+			Tower.screenManager.clear();
 		}
 	}
 };
@@ -103,43 +126,56 @@ $(function() {
 		$(this).next('.rad-dropmenu-item').toggleClass('active');
 	});
 
-	// Widget collapse / expand handler
-	$('.fa-chevron-down').on('click', function() {
-		var $ele = $(this).parents('.panel-heading');
-		$ele.siblings('.panel-footer').toggleClass('rad-collapse');
-		$ele.siblings('.panel-body').toggleClass('rad-collapse', function() {
-			setTimeout(function() {
+	
+	$(document).on('click', function(e) {
+		var el = $(e.target);
 
-			}, 200);
-		});
+		if ( el.parent().parent().hasClass('rad-panel-action') ) {
+
+			// Widget collapse / expand handler
+			if ( el.hasClass('fa-chevron-down') ) {
+				var $ele = el.parents('.panel-heading');
+
+				$ele.siblings('.panel-footer').toggleClass('rad-collapse');
+				$ele.siblings('.panel-body').toggleClass('rad-collapse', function() {
+					setTimeout(function() {
+
+					}, 200);
+				});
+
+			// Widget close handler
+			} else if ( el.hasClass('fa-close') ) {
+				var $ele = el.parents('.panel');
+				$ele.addClass('panel-close');
+
+				setTimeout(function() {
+					$ele.parent().css({ 'display': 'none'});
+				}, 210);
+
+			// Widget refresh handler
+			} else if ( el.hasClass('fa-rotate-right') ) {
+				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
+				 $ele = el.parents('.panel-heading').siblings('.panel-body');
+				
+				$ele.append('<div class="overlay"><div class="overlay-content"><i class="fa fa-refresh fa-2x fa-spin"></i></div></div>');
+
+				setTimeout(function() {
+					$ele.find('.overlay').remove();
+
+					(Tower.screenManager.idMap[wid].fetch && Tower.screenManager.idMap[wid].fetch());
+				}, 2000);
+			}
+		}
 	});
 
-	// Widget close handler
-	$('.fa-close').on('click', function() {
-		var $ele = $(this).parents('.panel');
-		$ele.addClass('panel-close');
 
-		setTimeout(function() {
-			$ele.parent().remove();
-		}, 210);
-	});
-
-	// Widget refresh handler
-	$('.fa-rotate-right').on('click', function() {
-		var $ele = $(this).parents('.panel-heading').siblings('.panel-body');
-		$ele.append('<div class="overlay"><div class="overlay-content"><i class="fa fa-refresh fa-2x fa-spin"></i></div></div>');
-		setTimeout(function() {
-			$ele.find('.overlay').remove();
-		}, 2000);
-	});
-
-	// Widget collapse / expand handler
+	// Settings collapse / expand handler
 	$('.rad-chk-pin input[type=checkbox]').change(function(e) {
 		$('body').toggleClass('flat-theme');
 		$('#rad-color-opts').toggleClass('hide');
 	});
 
-	// Checkbox handlers
+	// Theme checkbox handlers
 	$('.rad-color-swatch input[type=radio]').change(function(e) {
 		if ($('.rad-chk-pin input[type=checkbox]').is(':checked')){
 			$('body').removeClass().addClass('flat-theme').addClass(this.value);
@@ -151,10 +187,6 @@ $(function() {
 		}
 	});
 
-	$('.rad-notification-item').on('click', function(e) {
-		e.stopPropagation();
-	});
-
 
 	// Navigation menu handler
 	$('.rad-sidebar li').click(function() {
@@ -164,14 +196,10 @@ $(function() {
 		$(this).addClass('active');
 
 		Tower.section[Tower.current]();
+
+		$('.rad-page-title').html( $('<span>', { html: $(this).find('.rad-sidebar-item').html() }) );
 	});
 
-	// Resize handler
-	$(window).resize(function() {
-		setTimeout(function() {
-
-		}, 200);
-	});
 
 
 
