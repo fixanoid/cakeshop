@@ -5,9 +5,10 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.springframework.http.MediaType.*;
+import static org.testng.Assert.*;
+
 import org.springframework.http.HttpHeaders;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -28,7 +29,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 @ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
 
 public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
-    
+
     @BeforeTest
     public static void setEnv() {
         System.setProperty("eth.environment", "local");
@@ -38,10 +39,10 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
     public static void afterClass() {
         System.clearProperty("eth.environment");
     }
-    
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testPost() {        
+    public void testPost() {
         //Change to whatever url your local tomcat  is set
         //Webapp must be up and running to execute this test!!!
         String url = "http://localhost:8090/ethereum-enterprise/submit_func";
@@ -58,7 +59,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
         System.out.println("Geth func call response :" + result);
 
     }
-    
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testStartRest() {
@@ -69,11 +70,11 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
-        Boolean result = restTemplate.postForObject(url, null, Boolean.class);
+        boolean result = restTemplate.postForObject(url, null, Boolean.class);
         assertEquals(result, true);
         System.out.println("Server started :" + result);
     }
-    
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testStopRest() {
@@ -84,12 +85,12 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
-        Boolean result = restTemplate.postForObject(url, null, Boolean.class);
+        boolean result = restTemplate.postForObject(url, null, Boolean.class);
         assertEquals(result, true);
         System.out.println("Server started :" + result);
     }
-    
-    @Test//(enabled = false)
+
+    @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testRestart() {
         //Change to whatever url your local tomcat  is set
@@ -99,9 +100,9 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
-        Boolean result = restTemplate.postForObject(url, null, Boolean.class);
+        boolean result = restTemplate.postForObject(url, null, Boolean.class);
         assertEquals(result, true);
         System.out.println("Server started :" + result);
     }
-    
+
 }
