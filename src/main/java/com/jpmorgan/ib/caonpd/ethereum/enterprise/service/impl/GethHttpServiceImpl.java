@@ -53,6 +53,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
+import org.springframework.web.client.RestClientException;
 
 /**
  *
@@ -91,7 +92,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
                 return response.getBody();
             }
-        } catch (IOException e) {
+        } catch (IOException | RestClientException e) {
             throw new APIException("RPC call failed", e);
         }
         return null;
