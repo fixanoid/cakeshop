@@ -18,6 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +53,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.logging.Level;
 
 /**
  *
@@ -99,7 +97,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         Gson gson = new Gson();
         String req = gson.toJson(request);
         String response = executeGethCall(req);
-        System.out.println(response);
+        LOG.info(response.trim());
 
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> data;
@@ -174,6 +172,9 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @PostConstruct
     public void autoStart() {
+    		if (!autoStart) {
+    			return;
+    		}
         LOG.info("Autostarting geth node");
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         String genesisDir = root + genesis;
@@ -183,7 +184,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         } else {
             isStarted = isProcessRunningNix(getProcessId());
         }
-        if (!isStarted && autoStart) {
+        if (!isStarted) {
             isStarted = startGeth(root + "/", genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
@@ -428,34 +429,43 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean checkGethStarted() {
+
+        long timeStart = System.currentTimeMillis();
         Boolean started = false;
-        try {            
+
+        try {
             URL urlConn = new URL(url);
-            int attempts = 0;
             while (true) {
                 try {
                     HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
                     conn.setRequestMethod("GET");
                     conn.connect();
-                    if (attempts == 5) {
-                        //Something went wrong anf rpc did not start
-                        LOG.error("RPC has not been started - check if it is enabled in command line");
-                        break;
-                    }
                     if (conn.getResponseCode() == 200) {
+                        LOG.info("Geth started up successfully");
                         conn.disconnect();
                         started = true;
                         break;
                     }
                 } catch (IOException ex) {
-                    attempts++;
-                    LOG.error(ex.getMessage());
+                    LOG.debug(ex.getMessage());
+                    if (System.currentTimeMillis() - timeStart >= 10000) {
+                        // Something went wrong and RPC did not start within 10
+                        // sec
+                        LOG.error("Geth did not start within 10 seconds");
+                        break;
+                    }
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(50);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
                 }
             }
-            
+
         } catch (MalformedURLException ex) {
             LOG.error(ex.getMessage());
         }
+
         return started;
-    }   
+    }
 }
