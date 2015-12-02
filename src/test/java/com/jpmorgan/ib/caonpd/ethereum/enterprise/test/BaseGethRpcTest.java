@@ -17,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
@@ -47,7 +48,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
         new File(eth_datadir).mkdirs();
 
-        Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+        Boolean started = service.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest"));
         assertTrue(started);
     }
 
