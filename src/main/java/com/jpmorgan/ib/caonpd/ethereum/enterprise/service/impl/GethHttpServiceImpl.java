@@ -478,7 +478,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             conn.setRequestMethod("GET");
             conn.connect();
             if (conn.getResponseCode() == 200) {
-                conn.disconnect();
                 connected = true;
             }
             conn.disconnect();
