@@ -2,6 +2,9 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class Transaction {
 
 	public static enum Status {
@@ -163,6 +166,11 @@ public class Transaction {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+	    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }
