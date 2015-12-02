@@ -117,13 +117,13 @@ public class GethHttpServiceImpl implements GethHttpService {
             throw new APIException(message);
         }
 
-        if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean) ) {
+        if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean)) {
             // Handle a special case where only a txid is returned in the result, not a full object
             Map<String, Object> result = new HashMap<>();
             result.put("id", data.get("result"));
             return result;
         }
-        
+
         return (Map<String, Object>) data.get("result");
     }
 
@@ -262,11 +262,12 @@ public class GethHttpServiceImpl implements GethHttpService {
 
             process = builder.start();
 
-            /*
-             if (!dataDirectory.exists()) {
-             answerLegalese(process);
-             }
-             */
+            if (isWindows) {
+                if (!new File(dataDir).exists()) {
+                    answerLegalese(process);
+                }
+            }
+
             if (!isWindows) {
                 setUnixPID(process);
             } else {
@@ -374,7 +375,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                     //Parsing the input stream.
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        LOG.info(line);
                         if (line.contains("genesis_block.json")) {
                             isRunning = true;
                             break;
@@ -385,9 +385,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 LOG.error(ex.getMessage());
             }
         }
-
         return isRunning;
-
     }
 
     private Boolean isProcessRunningWin(String pid) {
@@ -426,7 +424,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             writer.flush();
         }
     }
-    
+
     private Boolean checkGethStarted() {
         Boolean started = false;
         try {
