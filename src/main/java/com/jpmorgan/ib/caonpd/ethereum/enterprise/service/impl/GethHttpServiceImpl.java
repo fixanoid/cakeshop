@@ -51,7 +51,10 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.util.logging.Level;
 
 /**
  *
@@ -252,11 +255,11 @@ public class GethHttpServiceImpl implements GethHttpService {
         Process process;
         try {
             File dataDirectory = new File(dataDir);
-            
+
             if (!dataDirectory.exists()) {
                 dataDirectory.mkdirs();
             }
-            
+
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
@@ -264,7 +267,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
                 System.out.println(files);
             }
-            
+
             process = builder.start();
 
             if (!isWindows) {
@@ -273,10 +276,10 @@ public class GethHttpServiceImpl implements GethHttpService {
                 setWinPID(process);
             }
 
-            TimeUnit.SECONDS.sleep(3);
+//            TimeUnit.SECONDS.sleep(3);
             started = checkGethStarted();
             // FIXME add a watcher thread to make sure it doesn't die..
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             started = false;
             return started;
@@ -426,20 +429,33 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private Boolean checkGethStarted() {
         Boolean started = false;
-        try {
+        try {            
             URL urlConn = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
+            int attempts = 0;
             while (true) {
-                if (conn.getResponseCode() == 200) {
-                    conn.disconnect();
-                    break;
+                try {
+                    HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.connect();
+                    if (attempts == 5) {
+                        //Something went wrong anf rpc did not start
+                        LOG.error("RPC has not been started - check if it is enabled in command line");
+                        break;
+                    }
+                    if (conn.getResponseCode() == 200) {
+                        conn.disconnect();
+                        started = true;
+                        break;
+                    }
+                } catch (IOException ex) {
+                    attempts++;
+                    LOG.error(ex.getMessage());
                 }
             }
-        } catch (IOException ex) {
+            
+        } catch (MalformedURLException ex) {
             LOG.error(ex.getMessage());
         }
         return started;
-    }
+    }   
 }
