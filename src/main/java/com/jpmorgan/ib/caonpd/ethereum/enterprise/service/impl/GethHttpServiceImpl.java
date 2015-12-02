@@ -50,6 +50,11 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.logging.Level;
 
 /**
  *
@@ -116,12 +121,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
 
         if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer )  ) {
+
             // Handle a special case where only a txid is returned in the result, not a full object
             Map<String, Object> result = new HashMap<>();
             result.put("id", data.get("result"));
             return result;
         }
-        
+
         return (Map<String, Object>) data.get("result");
     }
 
@@ -214,14 +220,14 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean deletePid() {
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(root + "../logs/meth.pid");
+        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
         Boolean deleted = pidFile.delete();
         return deleted;
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
-
+        Boolean started;
         List<String> commands = Lists.newArrayList(command,
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 // "--verbosity", "6",
@@ -249,6 +255,11 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         Process process;
         try {
+            File dataDirectory = new File(dataDir);
+
+            if (!dataDirectory.exists()) {
+                dataDirectory.mkdirs();
+            }
 
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
@@ -260,25 +271,21 @@ public class GethHttpServiceImpl implements GethHttpService {
 
             process = builder.start();
 
-            /*
-             if (!dataDirectory.exists()) {
-             answerLegalese(process);
-             }
-             */
             if (!isWindows) {
                 setUnixPID(process);
             } else {
                 setWinPID(process);
             }
 
-            TimeUnit.SECONDS.sleep(3);
-
+//            TimeUnit.SECONDS.sleep(3);
+            started = checkGethStarted();
             // FIXME add a watcher thread to make sure it doesn't die..
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
-            return false;
+            started = false;
+            return started;
         }
-        return true;
+        return started;
     }
 
     /**
@@ -371,7 +378,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                     //Parsing the input stream.
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        LOG.info(line);
                         if (line.contains("genesis_block.json")) {
                             isRunning = true;
                             break;
@@ -382,9 +388,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 LOG.error(ex.getMessage());
             }
         }
-
         return isRunning;
-
     }
 
     private Boolean isProcessRunningWin(String pid) {
@@ -423,4 +427,36 @@ public class GethHttpServiceImpl implements GethHttpService {
             writer.flush();
         }
     }
+
+    private Boolean checkGethStarted() {
+        Boolean started = false;
+        try {            
+            URL urlConn = new URL(url);
+            int attempts = 0;
+            while (true) {
+                try {
+                    HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.connect();
+                    if (attempts == 5) {
+                        //Something went wrong anf rpc did not start
+                        LOG.error("RPC has not been started - check if it is enabled in command line");
+                        break;
+                    }
+                    if (conn.getResponseCode() == 200) {
+                        conn.disconnect();
+                        started = true;
+                        break;
+                    }
+                } catch (IOException ex) {
+                    attempts++;
+                    LOG.error(ex.getMessage());
+                }
+            }
+            
+        } catch (MalformedURLException ex) {
+            LOG.error(ex.getMessage());
+        }
+        return started;
+    }   
 }
