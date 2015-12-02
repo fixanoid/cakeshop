@@ -4,15 +4,17 @@ info:
   version: 1.0.0
   title: Ethereum Enterprise
   contact: {}
-host: 'api.ethereum.org:443'
+host: 'https://10.196.144.225'
+schemes:
+  - "https"
+basePath: "/ethereum-enterprise"
 tags:
   - name: contract
   - name: block
   - name: transaction
-schemes:
-  - https
+  - name: node
 paths:
-  /block:
+  /block/get:
     post:
       tags:
         - block
@@ -36,6 +38,25 @@ paths:
                 description: Block hash to retrieve
                 type: string
                 required: false
+      examples:
+        - name: Get block by number
+          parameters:
+            body: |
+              {
+                "number": 0
+              }
+        - name: Get block by hash
+          parameters:
+            body: |
+              {
+                "hash": "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c"
+              }
+        - name: Get latest block
+          parameters:
+            body: |
+              {
+                "tag": "latest"
+              }
       responses:
         '200':
           description: Success
@@ -81,6 +102,14 @@ paths:
                   - binary
                   - llvm
                   - serpent
+      examples:
+        - name: Create SimpleStorage contract
+          parameters:
+            body: |
+              {
+                "code": "contract SimpleStorage { uint storedData; function set(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }",
+                "code_type": "solidity"
+              }
       responses:
         '200':
           description: Transaction ID hash. Use /transaction/get to get the resulting contract ID
@@ -129,6 +158,13 @@ paths:
                 type: string
                 description: ID (address) of Contract to retrieve
                 example: '0x01f999deef030a0f3c55cec46e6693c06c6b01f8'
+      examples:
+        - name: Create SimpleStorage contract
+          parameters:
+            body: |
+              {
+                "address": "<ENTER ADDRESS HERE>"
+              }
       responses:
         '200':
           description: Success
@@ -342,6 +378,13 @@ paths:
                 required: true
                 description: Transaction ID (address) to retrieve
                 example: ''
+      examples:
+        - name: Retrieve Transaction information
+          parameters:
+            body: |
+              {
+                "address": "<ENTER ADDRESS HERE>"
+              }
       responses:
         '200':
           description: OK
@@ -381,6 +424,96 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Transaction'
+  /miner/start:
+    post:
+      tags:
+        - node
+      description: Start mining
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+      responses:
+        '200':
+          description: OK
+  /miner/stop:
+    post:
+      tags:
+        - node
+      description: Stop mining
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+      responses:
+        '200':
+          description: OK
+  /node-control/start:
+    post:
+      tags:
+        - node
+      description: Start ethereum node
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+      responses:
+        '200':
+          description: OK
+  /node-control/stop:
+    post:
+      tags:
+        - node
+      description: Stop ethereum node
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+      responses:
+        '200':
+          description: OK
+  /node/status:
+    post:
+      tags:
+        - node
+      description: Retrieve node status
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+      responses:
+        '200':
+          description: OK
   /transaction/pending:
     post:
       tags:
