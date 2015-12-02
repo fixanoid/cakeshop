@@ -8,6 +8,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -44,7 +44,7 @@ public class AdminGethController {
     private AdminBean adminBean;
     
     @RequestMapping(value = {"/node/{funcName}","/miner/{funcName}"}, method = POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @RequestParam (value = "func_args", required = false) String funcArguments) throws APIException {
+    protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @JsonBodyParam (value = "func_args", required = false) String funcArguments) throws APIException {
         
         String args [] = null;
         String response = null;
