@@ -3,238 +3,219 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Block  {
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
-  private Long number = null;
-  private String hash = null;
-  private String parentHash = null;
-  private String nonce = null;
-  private String sha3Uncles = null;
-  private String logsBloom = null;
-  private String transactionsRoot = null;
-  private String stateRoot = null;
-  private String miner = null;
-  private Long difficulty = null;
-  private Long totalDifficulty = null;
-  private String extraData = null;
-  private Long gasLimit = null;
-  private Long gasUsed = null;
-  private Long timestamp = null;
-  private List<String> transactions = new ArrayList<String>();
-  private List<String> uncles = new ArrayList<String>();
+public class Block {
 
+    private Long number = null;
+    private String hash = null;
+    private String parentHash = null;
+    private String nonce = null;
+    private String sha3Uncles = null;
+    private String logsBloom = null;
+    private String transactionsRoot = null;
+    private String stateRoot = null;
+    private String miner = null;
+    private Long difficulty = null;
+    private Long totalDifficulty = null;
+    private String extraData = null;
+    private Long gasLimit = null;
+    private Long gasUsed = null;
+    private Long timestamp = null;
+    private List<String> transactions = new ArrayList<String>();
+    private List<String> uncles = new ArrayList<String>();
 
-  /**
-   * Block number
-   **/
-  public Long getNumber() {
-    return number;
-  }
-  public void setNumber(Long number) {
-    this.number = number;
-  }
+    /**
+     * Block number
+     **/
+    public Long getNumber() {
+        return number;
+    }
 
+    public void setNumber(Long number) {
+        this.number = number;
+    }
 
-  /**
-   * hash of the block
-   **/
-  public String getHash() {
-    return hash;
-  }
-  public void setHash(String hash) {
-    this.hash = hash;
-  }
+    /**
+     * hash of the block
+     **/
+    public String getHash() {
+        return hash;
+    }
 
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-  /**
-   * hash of the parent block
-   **/
-  public String getParentHash() {
-    return parentHash;
-  }
-  public void setParentHash(String parentHash) {
-    this.parentHash = parentHash;
-  }
+    /**
+     * hash of the parent block
+     **/
+    public String getParentHash() {
+        return parentHash;
+    }
 
+    public void setParentHash(String parentHash) {
+        this.parentHash = parentHash;
+    }
 
-  /**
-   * hash of the generated proof-of-work (if avail)
-   **/
-  public String getNonce() {
-    return nonce;
-  }
-  public void setNonce(String nonce) {
-    this.nonce = nonce;
-  }
+    /**
+     * hash of the generated proof-of-work (if avail)
+     **/
+    public String getNonce() {
+        return nonce;
+    }
 
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
 
-  /**
-   * SHA3 of the uncles data in the block (32 bytes)
-   **/
-  public String getSha3Uncles() {
-    return sha3Uncles;
-  }
-  public void setSha3Uncles(String sha3Uncles) {
-    this.sha3Uncles = sha3Uncles;
-  }
+    /**
+     * SHA3 of the uncles data in the block (32 bytes)
+     **/
+    public String getSha3Uncles() {
+        return sha3Uncles;
+    }
 
+    public void setSha3Uncles(String sha3Uncles) {
+        this.sha3Uncles = sha3Uncles;
+    }
 
-  /**
-   * the bloom filter for the logs of the block (256 bytes)
-   **/
-  public String getLogsBloom() {
-    return logsBloom;
-  }
-  public void setLogsBloom(String logsBloom) {
-    this.logsBloom = logsBloom;
-  }
+    /**
+     * the bloom filter for the logs of the block (256 bytes)
+     **/
+    public String getLogsBloom() {
+        return logsBloom;
+    }
 
+    public void setLogsBloom(String logsBloom) {
+        this.logsBloom = logsBloom;
+    }
 
-  /**
-   * the root of the transaction trie of the block (32 bytes)
-   **/
-  public String getTransactionsRoot() {
-    return transactionsRoot;
-  }
-  public void setTransactionsRoot(String transactionsRoot) {
-    this.transactionsRoot = transactionsRoot;
-  }
+    /**
+     * the root of the transaction trie of the block (32 bytes)
+     **/
+    public String getTransactionsRoot() {
+        return transactionsRoot;
+    }
 
+    public void setTransactionsRoot(String transactionsRoot) {
+        this.transactionsRoot = transactionsRoot;
+    }
 
-  /**
-   * the root of the final state trie of the block (32 bytes)
-   **/
-  public String getStateRoot() {
-    return stateRoot;
-  }
-  public void setStateRoot(String stateRoot) {
-    this.stateRoot = stateRoot;
-  }
+    /**
+     * the root of the final state trie of the block (32 bytes)
+     **/
+    public String getStateRoot() {
+        return stateRoot;
+    }
 
+    public void setStateRoot(String stateRoot) {
+        this.stateRoot = stateRoot;
+    }
 
-  /**
-   * the address of the beneficiary to whom the mining rewards were given (20 bytes)
-   **/
-  public String getMiner() {
-    return miner;
-  }
-  public void setMiner(String miner) {
-    this.miner = miner;
-  }
+    /**
+     * the address of the beneficiary to whom the mining rewards were given (20
+     * bytes)
+     **/
+    public String getMiner() {
+        return miner;
+    }
 
+    public void setMiner(String miner) {
+        this.miner = miner;
+    }
 
-  /**
-   * integer of the difficulty of this block
-   **/
-  public Long getDifficulty() {
-    return difficulty;
-  }
-  public void setDifficulty(Long difficulty) {
-    this.difficulty = difficulty;
-  }
+    /**
+     * integer of the difficulty of this block
+     **/
+    public Long getDifficulty() {
+        return difficulty;
+    }
 
+    public void setDifficulty(Long difficulty) {
+        this.difficulty = difficulty;
+    }
 
-  /**
-   * integer of the total difficulty of the chain until this block
-   **/
-  public Long getTotalDifficulty() {
-    return totalDifficulty;
-  }
-  public void setTotalDifficulty(Long totalDifficulty) {
-    this.totalDifficulty = totalDifficulty;
-  }
+    /**
+     * integer of the total difficulty of the chain until this block
+     **/
+    public Long getTotalDifficulty() {
+        return totalDifficulty;
+    }
 
+    public void setTotalDifficulty(Long totalDifficulty) {
+        this.totalDifficulty = totalDifficulty;
+    }
 
-  /**
-   * the \"extra data\" field for this block
-   **/
-  public String getExtraData() {
-    return extraData;
-  }
-  public void setExtraData(String extraData) {
-    this.extraData = extraData;
-  }
+    /**
+     * the \"extra data\" field for this block
+     **/
+    public String getExtraData() {
+        return extraData;
+    }
 
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
+    }
 
-  /**
-   * the maximum gas allowed in this block
-   **/
-  public Long getGasLimit() {
-    return gasLimit;
-  }
-  public void setGasLimit(Long gasLimit) {
-    this.gasLimit = gasLimit;
-  }
+    /**
+     * the maximum gas allowed in this block
+     **/
+    public Long getGasLimit() {
+        return gasLimit;
+    }
 
+    public void setGasLimit(Long gasLimit) {
+        this.gasLimit = gasLimit;
+    }
 
-  /**
-   * the total gas used by all transactions in this block
-   **/
-  public Long getGasUsed() {
-    return gasUsed;
-  }
-  public void setGasUsed(Long gasUsed) {
-    this.gasUsed = gasUsed;
-  }
+    /**
+     * the total gas used by all transactions in this block
+     **/
+    public Long getGasUsed() {
+        return gasUsed;
+    }
 
+    public void setGasUsed(Long gasUsed) {
+        this.gasUsed = gasUsed;
+    }
 
-  /**
-   * the unix timestamp for when the block was collated
-   **/
-  public Long getTimestamp() {
-    return timestamp;
-  }
-  public void setTimestamp(Long timestamp) {
-    this.timestamp = timestamp;
-  }
+    /**
+     * the unix timestamp for when the block was collated
+     **/
+    public Long getTimestamp() {
+        return timestamp;
+    }
 
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-  /**
-   * Array of transaction hashes
-   **/
-  public List<String> getTransactions() {
-    return transactions;
-  }
-  public void setTransactions(List<String> transactions) {
-    this.transactions = transactions;
-  }
+    /**
+     * Array of transaction hashes
+     **/
+    public List<String> getTransactions() {
+        return transactions;
+    }
 
+    public void setTransactions(List<String> transactions) {
+        this.transactions = transactions;
+    }
 
-  /**
-   * Array of uncle hashes
-   **/
-  public List<String> getUncles() {
-    return uncles;
-  }
-  public void setUncles(List<String> uncles) {
-    this.uncles = uncles;
-  }
+    /**
+     * Array of uncle hashes
+     **/
+    public List<String> getUncles() {
+        return uncles;
+    }
 
+    public void setUncles(List<String> uncles) {
+        this.uncles = uncles;
+    }
 
-
-  @Override
-  public String toString()  {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Block {\n");
-
-    sb.append("  number: ").append(number).append("\n");
-    sb.append("  hash: ").append(hash).append("\n");
-    sb.append("  parentHash: ").append(parentHash).append("\n");
-    sb.append("  nonce: ").append(nonce).append("\n");
-    sb.append("  sha3Uncles: ").append(sha3Uncles).append("\n");
-    sb.append("  logsBloom: ").append(logsBloom).append("\n");
-    sb.append("  transactionsRoot: ").append(transactionsRoot).append("\n");
-    sb.append("  stateRoot: ").append(stateRoot).append("\n");
-    sb.append("  miner: ").append(miner).append("\n");
-    sb.append("  difficulty: ").append(difficulty).append("\n");
-    sb.append("  totalDifficulty: ").append(totalDifficulty).append("\n");
-    sb.append("  extraData: ").append(extraData).append("\n");
-    sb.append("  gasLimit: ").append(gasLimit).append("\n");
-    sb.append("  gasUsed: ").append(gasUsed).append("\n");
-    sb.append("  timestamp: ").append(timestamp).append("\n");
-    sb.append("  transactions: ").append(transactions).append("\n");
-    sb.append("  uncles: ").append(uncles).append("\n");
-    sb.append("}\n");
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
 }
