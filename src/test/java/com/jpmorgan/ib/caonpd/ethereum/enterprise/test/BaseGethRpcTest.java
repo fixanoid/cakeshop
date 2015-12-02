@@ -42,8 +42,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void startGeth() {
-    		LOG.info("Starting Ethereum at test startup");
-        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
+        LOG.info("Starting Ethereum at test startup");
+        String genesisDir = System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
         new File(eth_datadir).mkdirs();
@@ -54,14 +54,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @AfterClass
     public void stopGeth() {
-    	LOG.info("Stopping Ethereum at test teardown");
-    	service.stopGeth();
-			String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
-			try {
-				FileUtils.deleteDirectory(new File(eth_datadir));
-			} catch (IOException e) {
-				logger.warn(e);
-			}
+        LOG.info("Stopping Ethereum at test teardown");
+        service.stopGeth();
+        String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
+        try {
+            FileUtils.deleteDirectory(new File(eth_datadir));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
     }
 
     /**

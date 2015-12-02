@@ -24,7 +24,7 @@ public interface ContractService {
 
 	public TransactionResult delete() throws APIException;
 
-	public Contract get() throws APIException;
+	public Contract get(String address) throws APIException;
 
 	public List<Contract> list() throws APIException;
 
