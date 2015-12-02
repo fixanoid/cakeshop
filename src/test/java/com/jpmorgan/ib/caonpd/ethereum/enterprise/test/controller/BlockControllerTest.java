@@ -34,7 +34,15 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Test
     public void testGetBlockByHash() throws Exception {
-        commonTest("{\"hash\":\"0xb067233bfb768b2d5b7c190b13601f5eb8628e8daf02bb21dd091369c330c25a\"}");
+        commonTest("{\"hash\":\"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"}");
+    }
+
+    @Test
+    public void testGetBlockByInvalidHash() throws Exception {
+        String body = "{\"hash\":\"0xb067233bfb768b2d5b7c190b13601f5eb8628e8daf02bb21dd091369c330c25a\"}";
+        mockMvc.perform(post("/block/get")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(body))
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -48,7 +56,6 @@ public class BlockControllerTest extends BaseControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().string(containsString("{\"number\":0")));
-
     }
 
 }

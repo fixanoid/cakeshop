@@ -39,6 +39,10 @@ public class BlockServiceImpl implements BlockService {
         Map<String, Object> blockData =
                 gethService.executeGethCall(method, new Object[]{ input, true });
 
+        if (blockData == null) {
+            return null;
+        }
+
         // Convert to model
         Block block = new Block();
 
