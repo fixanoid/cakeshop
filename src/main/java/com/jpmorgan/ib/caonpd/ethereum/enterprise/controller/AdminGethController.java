@@ -60,9 +60,8 @@ public class AdminGethController {
         
         if (StringUtils.isNotEmpty(funcArguments)) {
             args = funcArguments.split(",");
-        //TODO read param from request
         }else if(AdminBean.ADMIN_MINER_START_KEY.equalsIgnoreCase(funcName)){
-            args = new String[]{" "};
+            args = new String[]{"1"};//set default to one cpu
         }
         
         Map<String,String> functionNames = adminBean.getFunctionNames();
