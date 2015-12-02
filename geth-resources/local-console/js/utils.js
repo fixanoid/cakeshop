@@ -18,6 +18,7 @@ var utils = {
 		return $.ajax(config);
 	},
 
+
 	prettyUpdate : function(oldValue, newValue, el) {
 		if (oldValue !== newValue) {
 			el.css({

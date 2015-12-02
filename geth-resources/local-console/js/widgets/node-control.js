@@ -49,7 +49,7 @@
 				action = (Tower.status.mining ? 'stop' : 'start');
 
 				$.when(
-					utils.load({ url: widget.url.minerControl + '/' + action, data: { func_args: 2} })
+					utils.load({ url: widget.url.minerControl + '/' + action})
 				).done(function() {
 					_this.removeAttr('disabled');
 				}).fail(function() {
