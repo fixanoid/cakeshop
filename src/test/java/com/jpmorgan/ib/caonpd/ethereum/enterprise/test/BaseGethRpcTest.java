@@ -56,7 +56,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     public void stopGeth() {
         LOG.info("Stopping Ethereum at test teardown");
         service.stopGeth();
-        String eth_datadir = System.getProperty("user.home") + ethDataDir + "-test";
+        String eth_datadir = System.getProperty("user.home") + ethDataDir;
         try {
             FileUtils.deleteDirectory(new File(eth_datadir));
         } catch (IOException e) {
