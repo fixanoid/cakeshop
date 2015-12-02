@@ -12,6 +12,7 @@
 				'<li><button type="button" class="btn btn-default" id="stop">Stop Node</button></li>'+
 				'<li><button type="button" class="btn btn-default" id="start">Start Node</button></li>'+
 				'<li><button type="button" class="btn btn-default" id="reset">Create New Chain</button></li>'+
+				'<li><button type="button" class="btn btn-default" id="miner">Toggle Mining</button></li>'+
 			'</ul>'),
 
 		// this may be overwritten by main runner
@@ -19,8 +20,11 @@
 			widget.render();
 		},
 
-		url: '../node-control',
-		
+		url: {
+			nodeControl: '../node-control',
+			minerControl: '../miner'
+		},
+
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
 
@@ -41,13 +45,26 @@
 
 			$(this).attr('disabled', 'disabled');
 
-			$.when(
-				utils.load({ url: widget.url + '/' + action })
-			).done(function() {
-				_this.removeAttr('disabled');
-			}).fail(function() {
-				// TODO: fill in
-			});
+			if (action === 'miner') {
+				action = (Tower.status.mining ? 'stop' : 'start');
+
+				$.when(
+					utils.load({ url: widget.url.minerControl + '/' + action })
+				).done(function() {
+					_this.removeAttr('disabled');
+				}).fail(function() {
+					// TODO: fill in
+				});
+
+			} else {
+				$.when(
+					utils.load({ url: widget.url.nodeControl + '/' + action })
+				).done(function() {
+					_this.removeAttr('disabled');
+				}).fail(function() {
+					// TODO: fill in
+				});
+			}
 		}
 	};
 
