@@ -430,10 +430,11 @@ public class GethHttpServiceImpl implements GethHttpService {
         try {
             URL urlConn = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
-            conn.setRequestMethod("POST");
+            conn.setRequestMethod("GET");
             conn.connect();
             while (true) {
                 if (conn.getResponseCode() == 200) {
+                    conn.disconnect();
                     break;
                 }
             }
