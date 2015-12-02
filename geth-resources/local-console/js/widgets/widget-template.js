@@ -5,7 +5,6 @@
 		size: 'small',																															// 'small', 'medium', 'large', 'third'
 
 		initialized: false,
-		shell: Tower.TEMPLATES.widget(this.title, this.size),												// external template shell
 
 		template: _.template('<ul class="widget-node-control">'+										// internal template
 				'<li>List item 1</li>'+
@@ -22,6 +21,8 @@
 		url: 'TBD',
 
 		init: function() {																													// executed by screen manager when registered
+			this.shell = Tower.TEMPLATES.widget(this.title, this.size);																		// external template shell
+
 			this.initialized = true;
 			this.ready();
 		},

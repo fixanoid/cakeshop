@@ -1,8 +1,23 @@
-var demo = true;
+var demo = {
+	on: true,
+
+	add: function() {
+		if (!this.on) {
+			return 0;
+		}
+
+		return Math.ceil(Math.random() * 10);
+	}
+}
 
 var Tower = {
 	current: null,
-	status: null,
+	status: {
+		peers: null,
+		latestBlock: null,
+		pedningTxn: null,
+		status: null
+	},
 
 	screenManager: screenManager,
 
@@ -11,11 +26,9 @@ var Tower = {
 			// these are perma-widgets
 			var def = function() {
 				$.when(
-						utils.load({ url: '../node/status' })
+					utils.load({ url: '../node/status' })
 				).done(function(status) {
 					// TODO: replace before flight
-
-					Tower.status = status;
 
 					if (status.status === 'running') {
 						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
@@ -27,9 +40,11 @@ var Tower = {
 						$('#default-node-status').parent().find('.fa').removeClass('fa-play').addClass('fa-pause');
 					}
 
-					utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
-					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + Math.ceil(Math.random() * 10), $('#default-blocks'));
-					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
+					utils.prettyUpdate(Tower.status.peers, status.peers + demo.add(), $('#default-peers'));
+					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
+					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
+
+					Tower.status = status;
 				});
 			};
 
@@ -40,6 +55,7 @@ var Tower = {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
 
+			Tower.screenManager.show({ widgetId: 'node-info', section: 'console' });
 			Tower.screenManager.show({ widgetId: 'node-control', section: 'console' });
 			Tower.screenManager.show({ widgetId: 'node-settings', section: 'console' });
 		}
