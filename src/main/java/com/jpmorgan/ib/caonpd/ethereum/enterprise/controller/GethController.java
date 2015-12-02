@@ -7,6 +7,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
@@ -45,7 +46,7 @@ public class GethController {
 
     @RequestMapping(value = "/submit_func", method = POST)
     protected @ResponseBody
-    String submitFuncCall(@RequestParam("func_name") String funcName, @RequestParam(value = "func_args", required = false) String funcArguments) {
+    String submitFuncCall(@RequestParam("func_name") String funcName, @RequestParam(value = "func_args", required = false) String funcArguments) throws APIException {
         //funcArguments must be comma separated values
         //first generate json to execute function
         //request need method name, method arguments and id. jsonrpc defaults to version 2.0

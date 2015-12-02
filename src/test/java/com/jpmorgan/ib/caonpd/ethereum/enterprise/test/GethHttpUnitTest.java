@@ -7,6 +7,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
  */
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
@@ -58,7 +59,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     }  
     
     //@Test(dependsOnMethods = "testStart")
-    public void testService() {
+    public void testService() throws APIException {
         String funcName = "admin_peers";
         String funcArgs = " ";
         RequestModel request = new RequestModel("2.0", funcName, funcArgs.split(","), "id");

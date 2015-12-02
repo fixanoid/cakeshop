@@ -63,6 +63,7 @@ import org.springframework.web.client.RestClientException;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
+    private static final String ROOT = System.getProperty("user.dir");
 
     @Value("${geth.url}")
     private String url;
@@ -84,18 +85,15 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public String executeGethCall(String json) throws APIException {
         try {
-            if (this.checkConnection()) {
-                RestTemplate restTemplate = new RestTemplate();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(APPLICATION_JSON);
-                HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
-                ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
-                return response.getBody();
-            }
-        } catch (IOException | RestClientException e) {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(APPLICATION_JSON);
+            HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
+            return response.getBody();
+        } catch (RestClientException e) {
             throw new APIException("RPC call failed", e);
         }
-        return null;
     }
 
     @Override
@@ -232,8 +230,8 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Boolean deletePid() {
-        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
+    //    String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        File pidFile = new File(ROOT + File.separator + "meth.pid");
         Boolean deleted = pidFile.delete();
         return deleted;
     }
@@ -364,8 +362,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private String getProcessId() {
-        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
+//        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+        File pidFile = new File(ROOT + File.separator + "meth.pid");
         String pid = null;
         try {
             try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
@@ -426,12 +424,12 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private void writePidToFile(Integer pid) throws IOException {
-        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
-        File pidFile = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator + "meth.pid");
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+//        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
+//        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
+        File pidFile = new File(ROOT + File.separator + "meth.pid");
+//        if (!directory.exists()) {
+//            directory.mkdirs();
+//        }
         if (!pidFile.exists()) {
             pidFile.createNewFile();
         }

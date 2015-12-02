@@ -8,6 +8,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -43,7 +44,7 @@ public class AdminGethController {
     private AdminBean adminBean;
     
     @RequestMapping(value = {"/node/{funcName}","/miner/{funcName}"}, method = POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @RequestParam (value = "func_args", required = false) String funcArguments) {
+    protected @ResponseBody String adminFuncCall(@PathVariable String funcName, @RequestParam (value = "func_args", required = false) String funcArguments) throws APIException {
         
         String args [] = null;
         String response = null;
