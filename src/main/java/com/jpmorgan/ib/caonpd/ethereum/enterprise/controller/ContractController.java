@@ -35,7 +35,7 @@ public class ContractController {
 
     @RequestMapping(value = "/create")
     public ResponseEntity<TransactionResult> create(
-            @JsonBodyParam String abi,
+            @JsonBodyParam(required=false) String abi,
             @JsonBodyParam String code,
             @JsonBodyParam String code_type) throws APIException {
 
