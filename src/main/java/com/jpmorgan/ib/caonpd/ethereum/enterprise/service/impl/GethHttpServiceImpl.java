@@ -251,7 +251,12 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         Process process;
         try {
-
+            File dataDirectory = new File(dataDir);
+            
+            if (!dataDirectory.exists()) {
+                dataDirectory.mkdirs();
+            }
+            
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
@@ -259,14 +264,8 @@ public class GethHttpServiceImpl implements GethHttpService {
                 Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
                 System.out.println(files);
             }
-
+            
             process = builder.start();
-
-            if (isWindows) {
-                if (!new File(dataDir).exists()) {
-                    answerLegalese(process);
-                }
-            }
 
             if (!isWindows) {
                 setUnixPID(process);
