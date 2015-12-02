@@ -11,7 +11,7 @@ var Tower = {
 			// these are perma-widgets
 			var def = function() {
 				$.when(
-						utils.load({ url: 'json/status.json', method: 'GET' })
+						utils.load({ url: '../node/status' })
 				).done(function(status) {
 					// TODO: replace before flight
 
@@ -29,7 +29,7 @@ var Tower = {
 
 					utils.prettyUpdate(Tower.status.peers, status.peers + Math.ceil(Math.random() * 10), $('#default-peers'));
 					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + Math.ceil(Math.random() * 10), $('#default-blocks'));
-					utils.prettyUpdate(Tower.status.queuedTxn, status.queuedTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
+					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + Math.ceil(Math.random() * 10), $('#default-txn'));
 				});
 			};
 
