@@ -6,7 +6,11 @@
         "title": "Ethereum Enterprise",
         "contact": {}
     },
-    "host": "api.ethereum.org:443",
+    "host": "https://10.196.144.225",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/ethereum-enterprise",
     "tags": [
         {
             "name": "contract"
@@ -16,13 +20,13 @@
         },
         {
             "name": "transaction"
+        },
+        {
+            "name": "node"
         }
     ],
-    "schemes": [
-        "https"
-    ],
     "paths": {
-        "/block": {
+        "/block/get": {
             "post": {
                 "tags": [
                     "block"
@@ -53,6 +57,26 @@
                                     "required": false
                                 }
                             }
+                        }
+                    }
+                ],
+                "examples": [
+                    {
+                        "name": "Get block by number",
+                        "parameters": {
+                            "body": "{\n  \"number\": 0\n}\n"
+                        }
+                    },
+                    {
+                        "name": "Get block by hash",
+                        "parameters": {
+                            "body": "{\n  \"hash\": \"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"\n}\n"
+                        }
+                    },
+                    {
+                        "name": "Get latest block",
+                        "parameters": {
+                            "body": "{\n  \"tag\": \"latest\"\n}\n"
                         }
                     }
                 ],
@@ -118,6 +142,14 @@
                                     ]
                                 }
                             }
+                        }
+                    }
+                ],
+                "examples": [
+                    {
+                        "name": "Create SimpleStorage contract",
+                        "parameters": {
+                            "body": "{\n  \"code\": \"contract SimpleStorage { uint storedData; function set(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }\",\n  \"code_type\": \"solidity\"\n}\n"
                         }
                     }
                 ],
@@ -194,6 +226,14 @@
                                     "example": "0x01f999deef030a0f3c55cec46e6693c06c6b01f8"
                                 }
                             }
+                        }
+                    }
+                ],
+                "examples": [
+                    {
+                        "name": "Create SimpleStorage contract",
+                        "parameters": {
+                            "body": "{\n  \"address\": \"<ENTER ADDRESS HERE>\"\n}\n"
                         }
                     }
                 ],
@@ -498,6 +538,14 @@
                         }
                     }
                 ],
+                "examples": [
+                    {
+                        "name": "Retrieve Transaction information",
+                        "parameters": {
+                            "body": "{\n  \"address\": \"<ENTER ADDRESS HERE>\"\n}\n"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -555,6 +603,151 @@
                                 "$ref": "#/definitions/Transaction"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/miner/start": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Start mining",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/miner/stop": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Stop mining",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/node-control/start": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Start ethereum node",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/node-control/stop": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Stop ethereum node",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/node/status": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Retrieve node status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }

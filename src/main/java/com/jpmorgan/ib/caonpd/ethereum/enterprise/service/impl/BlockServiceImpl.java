@@ -37,7 +37,7 @@ public class BlockServiceImpl implements BlockService {
         }
 
         Map<String, Object> blockData =
-                gethService.executeGethCall(method, new Object[]{ input, true });
+                gethService.executeGethCall(method, new Object[]{ input, false });
 
         if (blockData == null) {
             return null;
