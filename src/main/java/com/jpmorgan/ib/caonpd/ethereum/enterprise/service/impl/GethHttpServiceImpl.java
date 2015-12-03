@@ -53,6 +53,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
+import java.nio.file.Paths;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -63,7 +64,8 @@ import org.springframework.web.client.RestClientException;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private static final String ROOT = System.getProperty("user.dir");
+    private static final String ROOT = Paths.get("").toAbsolutePath().toString();
+            //System.getProperty("user.dir");
 
     @Value("${geth.url}")
     private String url;
