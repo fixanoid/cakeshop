@@ -426,8 +426,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     private void writePidToFile(Integer pid) throws IOException {
 //        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
 //        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
-        File pidFile = new File(ROOT + File.separator + "meth.pid");
-        LOG.info("Creating pid file :" + pidFile.getAbsolutePath());
+        LOG.info("Creating pid file :" + ROOT + File.separator + "meth.pid");
+        File pidFile = new File(ROOT + File.separator + "meth.pid");        
 //        if (!directory.exists()) {
 //            directory.mkdirs();
 //        }
