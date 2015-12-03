@@ -66,7 +66,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/ethereum-enterprise").allowedOrigins(appStoreUrl);
+        registry.addMapping("/**")
+                .allowedOrigins(appStoreUrl)
+                .allowedMethods("POST");
     }
+    
 
 }
