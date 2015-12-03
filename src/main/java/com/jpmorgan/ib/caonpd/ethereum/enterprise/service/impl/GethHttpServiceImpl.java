@@ -64,7 +64,7 @@ import org.springframework.web.client.RestClientException;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private static final String ROOT = Paths.get("").toAbsolutePath().toString();
+    private final String ROOT = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "");
             //System.getProperty("user.dir");
 
     @Value("${geth.url}")
