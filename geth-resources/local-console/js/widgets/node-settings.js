@@ -5,7 +5,7 @@
 		size: 'small',
 
 		initialized: false,
-		shell: Tower.TEMPLATES.widget(this.title, this.size),
+		shell: null,
 
 		template: _.template(
 			'  <div class="form-group">' +

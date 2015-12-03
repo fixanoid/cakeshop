@@ -66,13 +66,16 @@ var Tower = {
 		'peers': function() {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
+
+			Tower.screenManager.show({ widgetId: 'peers-add', section: 'peers' });
+			Tower.screenManager.show({ widgetId: 'peers-list', section: 'peers' });
 		},
 
 		'api': function() {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
 		},
-		
+
 		'contracts': function() {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
@@ -126,7 +129,7 @@ $(function() {
 		$(this).next('.rad-dropmenu-item').toggleClass('active');
 	});
 
-	
+
 	$(document).on('click', function(e) {
 		var el = $(e.target);
 
@@ -156,7 +159,7 @@ $(function() {
 			} else if ( el.hasClass('fa-rotate-right') ) {
 				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
 				 $ele = el.parents('.panel-heading').siblings('.panel-body');
-				
+
 				$ele.append('<div class="overlay"><div class="overlay-content"><i class="fa fa-refresh fa-2x fa-spin"></i></div></div>');
 
 				setTimeout(function() {
