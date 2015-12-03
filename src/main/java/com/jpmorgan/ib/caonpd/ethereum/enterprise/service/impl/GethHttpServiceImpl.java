@@ -231,7 +231,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean deletePid() {
     //    String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(ROOT + File.separator + "meth.pid");
+        File pidFile = new File(ROOT + File.separator + ".." + File.separator + ".." + "meth.pid");
         Boolean deleted = pidFile.delete();
         return deleted;
     }
@@ -363,7 +363,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private String getProcessId() {
 //        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(ROOT + File.separator + "meth.pid");
+        File pidFile = new File(ROOT + File.separator + ".." + File.separator + ".." + "meth.pid");
         String pid = null;
         try {
             try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
@@ -426,8 +426,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     private void writePidToFile(Integer pid) throws IOException {
 //        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
 //        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
-        LOG.info("Creating pid file :" + ROOT + File.separator + "meth.pid");
-        File pidFile = new File(ROOT + File.separator + "meth.pid");        
+        LOG.info("Creating pid file :" + ROOT + File.separator + ".." + File.separator + ".." + "meth.pid");
+        File pidFile = new File(ROOT + File.separator + ".." + File.separator + ".." + "meth.pid");        
 //        if (!directory.exists()) {
 //            directory.mkdirs();
 //        }
