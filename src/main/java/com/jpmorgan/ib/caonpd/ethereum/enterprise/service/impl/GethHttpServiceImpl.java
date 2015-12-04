@@ -42,6 +42,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -250,11 +251,14 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
+
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
         Boolean started;
+
         List<String> commands = Lists.newArrayList(command,
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
-                // "--verbosity", "6",
+                //"--verbosity", "6",
+                //"--mine", "--minerthreads", "1",
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", passwordFile,
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList);
@@ -264,15 +268,15 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
 
         ProcessBuilder builder = new ProcessBuilder(commands);
-        File file = new File(command);
-        if (!file.canExecute()) {
-            file.setExecutable(true);
-        }
+        ensureFileIsExecutable(command);
 
         // need to modify PATH so it can locate compilers correctly
         final Map<String, String> env = builder.environment();
         if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
-            env.put("PATH", "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
+            String nodePath = new File(command).getParent() + File.separator;
+            String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
+            ensureNodeBins(nodePath, solcPath);
+            env.put("PATH", solcPath + File.pathSeparator + "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
         }
 
         builder.inheritIO();
@@ -301,7 +305,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                 setWinPID(process);
             }
 
-//            TimeUnit.SECONDS.sleep(3);
             started = checkGethStarted();
             // FIXME add a watcher thread to make sure it doesn't die..
         } catch (IOException ex) {
@@ -310,6 +313,25 @@ public class GethHttpServiceImpl implements GethHttpService {
             return started;
         }
         return started;
+    }
+
+    /**
+     * Make sure all node bins are executable, both for win & mac/linux
+     * @param nodePath
+     * @param solcPath
+     */
+    private void ensureNodeBins(String nodePath, String solcPath) {
+        ensureFileIsExecutable(nodePath + File.separator + "node");
+        ensureFileIsExecutable(nodePath + File.separator + "node.exe");
+        ensureFileIsExecutable(solcPath + File.separator + "solc");
+        ensureFileIsExecutable(solcPath + File.separator + "solc.cmd");
+    }
+
+    private void ensureFileIsExecutable(String filename) {
+        File file = new File(filename);
+        if (file.exists() && !file.canExecute()) {
+            file.setExecutable(true);
+        }
     }
 
     /**
