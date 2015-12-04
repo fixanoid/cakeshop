@@ -53,7 +53,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
-import java.nio.file.Paths;
+import javax.annotation.PreDestroy;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -64,7 +64,8 @@ import org.springframework.web.client.RestClientException;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private final String ROOT = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "");
+    private final String PID_FILE = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "")
+             + File.separator + ".." + File.separator +  "meth.pid";
             //System.getProperty("user.dir");
 
     @Value("${geth.url}")
@@ -79,6 +80,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String rpcApiList;
     @Value("${geth.auto.start:false}")
     private Boolean autoStart;
+    @Value("${geth.auto.stop:false}")
+    private Boolean autoStop;
     @Value("${geth.genesis}")
     private String genesis;
     @Value("${geth.log}")
@@ -117,7 +120,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
 
             if (data.containsKey("error") && data.get("error") != null) {
-                String message = null;
+                String message;
                 Map<String, String> error = (Map<String, String>) data.get("error");
                 if (error.containsKey("message")) {
                     message = error.get("message");
@@ -193,12 +196,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         String genesisDir = root + genesis;
         Boolean isStarted;
         if (SystemUtils.IS_OS_WINDOWS) {
+            genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
             isStarted = isProcessRunningWin(getProcessId());
         } else {
             isStarted = isProcessRunningNix(getProcessId());
         }
         if (!isStarted) {
-            isStarted = startGeth(root + "/", genesisDir, null, null);
+            isStarted = startGeth(root + File.separator, genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {
@@ -232,10 +236,17 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Boolean deletePid() {
-    //    String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(ROOT + File.separator + ".." + File.separator +  "meth.pid");
+        File pidFile = new File(PID_FILE);
         Boolean deleted = pidFile.delete();
         return deleted;
+    }
+    
+    @PreDestroy
+    protected void autoStop () {
+        if (autoStop) {
+            stopGeth();
+            deletePid();
+        }
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
@@ -364,8 +375,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private String getProcessId() {
-//        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        File pidFile = new File(ROOT + File.separator + ".." + File.separator +  "meth.pid");
+        File pidFile = new File(PID_FILE);
         String pid = null;
         try {
             try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
@@ -426,13 +436,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private void writePidToFile(Integer pid) throws IOException {
-//        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-//        File directory = new File(root + File.separator + ".." + File.separator + ".." + File.separator + "logs" + File.separator);
-        LOG.info("Creating pid file :" + ROOT + File.separator + ".." + File.separator +  "meth.pid");
-        File pidFile = new File(ROOT + File.separator + ".." + File.separator +  "meth.pid");        
-//        if (!directory.exists()) {
-//            directory.mkdirs();
-//        }
+        LOG.info("Creating pid file :" + PID_FILE);
+        File pidFile = new File(PID_FILE);        
         if (!pidFile.exists()) {
             pidFile.createNewFile();
         }
