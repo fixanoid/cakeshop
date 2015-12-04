@@ -29,6 +29,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
@@ -54,8 +55,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
-import javax.annotation.PreDestroy;
-import org.springframework.web.client.RestClientException;
 
 /**
  *
@@ -241,7 +240,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         Boolean deleted = pidFile.delete();
         return deleted;
     }
-    
+
     @PreDestroy
     protected void autoStop () {
         if (autoStop) {
@@ -272,12 +271,10 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         // need to modify PATH so it can locate compilers correctly
         final Map<String, String> env = builder.environment();
-        if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
-            String nodePath = new File(command).getParent() + File.separator;
-            String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
-            ensureNodeBins(nodePath, solcPath);
-            env.put("PATH", solcPath + File.pathSeparator + "/usr/local/bin" + File.pathSeparator + "/opt/local/bin" + File.pathSeparator + env.get("PATH"));
-        }
+        String nodePath = new File(command).getParent() + File.separator;
+        String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
+        ensureNodeBins(nodePath, solcPath);
+        env.put("PATH", nodePath + File.pathSeparator + solcPath + File.pathSeparator + env.get("PATH"));
 
         builder.inheritIO();
 
@@ -459,7 +456,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private void writePidToFile(Integer pid) throws IOException {
         LOG.info("Creating pid file :" + PID_FILE);
-        File pidFile = new File(PID_FILE);        
+        File pidFile = new File(PID_FILE);
         if (!pidFile.exists()) {
             pidFile.createNewFile();
         }
