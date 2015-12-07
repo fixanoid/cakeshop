@@ -8,6 +8,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.FileSystemResource;
 
 @Configuration
 public class AppConfig {
@@ -16,16 +26,26 @@ public class AppConfig {
     private Environment environment;
 
     private static final String ENV = System.getProperty("eth.environment");
+    private static final String PROPS_FILE = File.separator + "env.properties";
+    private static final String ROOT = AppConfig.class.getClassLoader().getResource("").getPath();
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
         PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
+        //Externilizing properties
+        Path path = Paths.get(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE);
+        if (!Files.exists(path)) {
+            try (FileInputStream input = new FileInputStream(ROOT + ENV + PROPS_FILE);
+                    FileOutputStream output = new FileOutputStream(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE)) {
+                IOUtils.copy(input, output);
+            }
+        }
+        propertySourcesPlaceholderConfigurer.setLocation(new FileSystemResource(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE));
         return propertySourcesPlaceholderConfigurer;
     }
 
     @Bean
-    public static AdminBean adminBean(){
+    public static AdminBean adminBean() {
         return new AdminBean();
     }
 
