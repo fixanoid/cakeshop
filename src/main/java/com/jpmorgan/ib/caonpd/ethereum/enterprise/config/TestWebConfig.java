@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
         )
     }
 )
-@Import(AppConfig.class)
+@Import(TestAppConfig.class)
 @ActiveProfiles("integration-test")
 public class TestWebConfig  {
 }
