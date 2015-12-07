@@ -253,11 +253,16 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
         Boolean started;
+        
+        String nodePath = new File(command).getParent() + File.separator;
+        String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
+        ensureNodeBins(nodePath, solcPath);
 
         List<String> commands = Lists.newArrayList(command,
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
+                "--solc", solcPath + File.separator + "solc",
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", passwordFile,
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList);
@@ -271,10 +276,11 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         // need to modify PATH so it can locate compilers correctly
         final Map<String, String> env = builder.environment();
-        String nodePath = new File(command).getParent() + File.separator;
-        String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
-        ensureNodeBins(nodePath, solcPath);
-        env.put("PATH", nodePath + File.pathSeparator + solcPath + File.pathSeparator + env.get("PATH"));
+        String envPath = nodePath + File.pathSeparator + solcPath;
+        if (env.get("PATH") != null && !env.get("PATH").trim().isEmpty()) {
+        	 envPath = envPath + File.pathSeparator + env.get("PATH").trim();
+        }
+        env.put("PATH", envPath);
 
         builder.inheritIO();
 
@@ -291,7 +297,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
                 FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
                 Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
-                System.out.println(files);
             }
 
             process = builder.start();
