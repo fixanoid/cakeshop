@@ -110,7 +110,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         String response = executeGethCall(req);
         if (StringUtils.isNotEmpty(response)) {
             if (LOG.isDebugEnabled()) {
-                LOG.info(response.trim());
+                LOG.debug(response.trim());
             }
 
             ObjectMapper mapper = new ObjectMapper();
