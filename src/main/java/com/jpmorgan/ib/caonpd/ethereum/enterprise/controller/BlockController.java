@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 
@@ -24,14 +26,26 @@ public class BlockController {
     BlockService blockService;
 
     @RequestMapping(value = "/get")
-    public ResponseEntity<Block> getBlock(
+    public ResponseEntity<APIResponse> getBlock(
             @JsonBodyParam(required=false) String hash,
             @JsonBodyParam(required=false) Integer number,
             @JsonBodyParam(required=false) String tag) throws APIException {
 
         Block block = blockService.get(hash, number, tag);
         //System.out.println(block);
-        return new ResponseEntity<Block>(block, HttpStatus.OK);
+
+        APIResponse res = new APIResponse();
+
+        if (block != null) {
+            res.setData(block.toAPIData());
+            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("404");
+        err.setTitle("Block not found");
+        res.addError(err);
+        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
     }
 
 }
