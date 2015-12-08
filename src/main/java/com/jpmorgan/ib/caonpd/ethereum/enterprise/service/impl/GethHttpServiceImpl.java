@@ -103,13 +103,15 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
-        RequestModel request = new RequestModel("2.0", funcName, args, "id");
+        RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
 
         Gson gson = new Gson();
         String req = gson.toJson(request);
         String response = executeGethCall(req);
         if (StringUtils.isNotEmpty(response)) {
-            LOG.info(response.trim());
+            if (LOG.isDebugEnabled()) {
+                LOG.info(response.trim());
+            }
 
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> data;
