@@ -16,7 +16,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 @RestController
-@RequestMapping(value = "/transaction",
+@RequestMapping(value = "/api/transaction",
     method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
