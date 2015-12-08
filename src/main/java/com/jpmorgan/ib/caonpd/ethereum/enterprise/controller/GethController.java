@@ -5,23 +5,25 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  *
@@ -37,12 +39,6 @@ public class GethController {
     private String genesis;
     @Value("${geth.datadir}")
     private String datadir;
-
-    @RequestMapping("/index")
-    protected @ResponseBody
-    String getIndex() {
-        return "Enterprise Index Page";
-    }
 
     @RequestMapping(value = "/submit_func", method = POST)
     protected @ResponseBody
@@ -94,7 +90,7 @@ public class GethController {
         }
         return restarted;
     }
-    
+
     @RequestMapping(value = "/node-control/reset", method = POST)
     protected @ResponseBody
     Boolean resetGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
@@ -110,6 +106,6 @@ public class GethController {
         }
         return reset;
     }
-    
-    
+
+
 }
