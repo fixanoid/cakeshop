@@ -1,11 +1,13 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 
 @JsonInclude(Include.NON_NULL)
 public class APIResponse {
@@ -14,11 +16,33 @@ public class APIResponse {
     private List<APIError> errors;
     private Map<String, String> meta;
 
+    /**
+     * Creates a new response wrapping a single result attribute (e.g., return
+     * true from an [non-crud] RPC call)
+     *
+     * @param result
+     * @return
+     */
+    public static APIResponse newSimpleResponse(Object result) {
+        APIResponse res = new APIResponse();
+        APIData data = new APIData();
+        Map<String, Object> attr = new HashMap<>();
+        attr.put("result", result);
+        data.setAttributes(attr);
+        res.setData(data);
+
+        return res;
+    }
+
     public APIResponse() {
-        this.errors = new ArrayList<APIError>();
+        this.meta = new HashMap<>();
+        meta.put("version", AppConfig.API_VERSION);
     }
 
     public void addError(APIError error) {
+        if (getErrors() == null) {
+            this.errors = new ArrayList<APIError>();
+        }
         getErrors().add(error);
     }
 
