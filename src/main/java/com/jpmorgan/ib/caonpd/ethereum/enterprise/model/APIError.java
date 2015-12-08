@@ -12,6 +12,15 @@ public class APIError {
     private String title;
     private String detail;
 
+    public APIError() {
+    }
+
+    public APIError(String id, String status, String title) {
+        this.id = id;
+        this.status = status;
+        this.title = title;
+    }
+
     public String getId() {
         return id;
     }
