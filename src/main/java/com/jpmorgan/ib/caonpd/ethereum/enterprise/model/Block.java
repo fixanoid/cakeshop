@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Block {
 
+    public static final String API_DATA_TYPE = "block";
+
     private Long number = null;
     private String hash = null;
     private String parentHash = null;
@@ -217,5 +219,13 @@ public class Block {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public APIData toAPIData() {
+        APIData data = new APIData();
+        data.setId(getHash());
+        data.setType(API_DATA_TYPE);
+        data.setAttributes(this);
+        return data;
     }
 }

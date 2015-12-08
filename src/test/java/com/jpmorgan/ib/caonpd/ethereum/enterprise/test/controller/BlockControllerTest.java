@@ -42,7 +42,8 @@ public class BlockControllerTest extends BaseControllerTest {
         String body = "{\"hash\":\"0xb067233bfb768b2d5b7c190b13601f5eb8628e8daf02bb21dd091369c330c25a\"}";
         mockMvc.perform(post("/block/get")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(body))
-            .andExpect(status().isOk());
+            .andExpect(status().isNotFound())
+            .andExpect(content().string(containsString("\"errors\":")));
     }
 
     @Test
@@ -55,7 +56,7 @@ public class BlockControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(body))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string(containsString("{\"number\":0")));
+            .andExpect(content().string(containsString("\"number\":0")));
     }
 
 }
