@@ -35,7 +35,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     
     @Value("${geth.apistore.url}")
     private String appStoreUrl;
-
+    
+    @Value("${geth.cors.enabled:true}")
+    private boolean corsEnabled;
+    
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
         // existing resolvers
@@ -66,9 +69,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(appStoreUrl)
-                .allowedMethods("POST");
+        
+        if(corsEnabled)
+            registry.addMapping("/**")
+                    .allowedOrigins(appStoreUrl)
+                    .allowedMethods("POST");
     }
     
 
