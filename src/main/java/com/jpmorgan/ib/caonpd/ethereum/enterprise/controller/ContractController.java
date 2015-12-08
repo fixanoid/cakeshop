@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
@@ -26,21 +28,45 @@ public class ContractController {
     private ContractService contractService;
 
     @RequestMapping(value = "/get")
-    public ResponseEntity<Contract> getContract(
+    public ResponseEntity<APIResponse> getContract(
             @JsonBodyParam String address) throws APIException {
 
         Contract contract = contractService.get(address);
-        return new ResponseEntity<Contract>(contract, HttpStatus.OK);
+
+        APIResponse res = new APIResponse();
+
+        if (contract != null) {
+            res.setData(contract.toAPIData());
+            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("404");
+        err.setTitle("Contract not found");
+        res.addError(err);
+        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/create")
-    public ResponseEntity<TransactionResult> create(
+    public ResponseEntity<APIResponse> create(
             @JsonBodyParam(required=false) String abi,
             @JsonBodyParam String code,
             @JsonBodyParam String code_type) throws APIException {
 
         TransactionResult tx = contractService.create(abi, code, CodeType.valueOf(code_type));
-        return new ResponseEntity<TransactionResult>(tx, HttpStatus.OK);
+
+        APIResponse res = new APIResponse();
+
+        if (tx != null) {
+            res.setData(tx.toAPIData());
+            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("400");
+        err.setTitle("Bad Request");
+        res.addError(err);
+        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
     }
 
 }

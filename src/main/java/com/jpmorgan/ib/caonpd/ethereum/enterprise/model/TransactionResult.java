@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class TransactionResult {
 
+    public static final String API_DATA_TYPE = "transaction_result";
+
 	private String id;
 
 	public String getId() {
@@ -19,5 +21,13 @@ public class TransactionResult {
 	public String toString() {
 	    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
+
+    public APIData toAPIData() {
+        APIData data = new APIData();
+        data.setId(getId());
+        data.setType(API_DATA_TYPE);
+        data.setAttributes(this);
+        return data;
+    }
 
 }

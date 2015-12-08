@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
@@ -24,11 +26,23 @@ public class TransactionController {
     TransactionService transactionService;
 
     @RequestMapping(value = "/get")
-    public ResponseEntity<Transaction> getTransaction(
+    public ResponseEntity<APIResponse> getTransaction(
             @JsonBodyParam(required=true) String address) throws APIException {
 
         Transaction tx = transactionService.get(address);
-        return new ResponseEntity<Transaction>(tx, HttpStatus.OK);
+
+        APIResponse res = new APIResponse();
+
+        if (tx != null) {
+            res.setData(tx.toAPIData());
+            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("404");
+        err.setTitle("Transaction not found");
+        res.addError(err);
+        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
     }
 
 }

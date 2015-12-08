@@ -7,6 +7,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Transaction {
 
+    public static final String API_DATA_TYPE = "transaction";
+
 	public static enum Status {
 		pending,
 		committed
@@ -172,5 +174,13 @@ public class Transaction {
 	public String toString() {
 	    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
+
+    public APIData toAPIData() {
+        APIData data = new APIData();
+        data.setId(getAddress());
+        data.setType(API_DATA_TYPE);
+        data.setAttributes(this);
+        return data;
+    }
 
 }
