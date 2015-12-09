@@ -93,11 +93,12 @@ public class AdminGethController {
 
     @RequestMapping(value = {"/node/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
-    String updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
+    ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
             @JsonBodyParam(required = false) String networkid) {
         Map<String, String> newProps = new HashMap();
+        String response;
         if (StringUtils.isNotEmpty(mining)) {
             newProps.put("geth.mining", mining);
         }
@@ -113,17 +114,18 @@ public class AdminGethController {
 
         if (newProps.size() > 0) {
             nodeService.updateNodeInfo(newProps);
-            return "Node Updated";
+            response = "Node Updated";
         } else {
-            return "Params are empty. Node has not been updated";
+            response = "Params are empty. Node has not been updated";
         }
+        return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
     @RequestMapping(value = {"/node/reset"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
-    String resetNodeInfo() {
+    ResponseEntity<APIResponse> resetNodeInfo() {
         Boolean reset = nodeService.resetNodeInfo();
-        return String.valueOf(reset);
+        return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
     
     @RequestMapping(value = {"/node/node-info"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
