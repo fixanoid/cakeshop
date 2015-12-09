@@ -77,8 +77,7 @@ public class NodeServiceImpl implements NodeService {
             props.load(input);
             Boolean needUpdate = false;
             for (String key : newProps.keySet()) {
-                if (StringUtils.isNotEmpty(props.getProperty(key))
-                        && !props.getProperty(key).equalsIgnoreCase(newProps.get(key))) {
+                if (props.containsKey(key) && !props.getProperty(key).equalsIgnoreCase(newProps.get(key))) {
                     props.setProperty(key, newProps.get(key));
                     needUpdate = true;
                 }

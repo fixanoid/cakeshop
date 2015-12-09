@@ -107,18 +107,22 @@ public class AdminGethController {
         
         if (StringUtils.isNotEmpty(mining)) {
             newProps.put("geth.mining", mining);
+            this.mining = Boolean.valueOf(mining);
         }
 
         if (StringUtils.isNotEmpty(identity)) {
             newProps.put("geth.identity", identity);
+            this.identity = identity;
         }
 
         if (StringUtils.isNotEmpty(verbosity)) {
             newProps.put("geth.verbosity", verbosity);
+            this.verbosity = Integer.valueOf(verbosity);
         }
 
         if (StringUtils.isNotEmpty(networkid)) {
             newProps.put("geth.networkid",networkid);
+            this.networkid = Integer.valueOf(networkid);
         }
 
         if (newProps.size() > 0) {
