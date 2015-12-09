@@ -84,31 +84,40 @@ public class AdminGethController {
         if (StringUtils.isNotEmpty(gethFunctionName)) {
             request = new RequestModel(GethHttpService.GETH_API_VERSION, gethFunctionName, args, GethHttpService.USER_ID);
         }
+
         Gson gson = new Gson();
+
         if (request != null) {
             response = gethService.executeGethCall(gson.toJson(request));
         }
+
         return response;
     }
 
-    @RequestMapping(value = {"/node/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"/node/settings/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
     ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
             @JsonBodyParam(required = false) String networkid) {
+ 
         Map<String, String> newProps = new HashMap();
+ 
         String response;
+        
         if (StringUtils.isNotEmpty(mining)) {
             newProps.put("geth.mining", mining);
         }
+
         if (StringUtils.isNotEmpty(identity)) {
             newProps.put("geth.identity", identity);
         }
+
         if (StringUtils.isNotEmpty(verbosity)) {
             newProps.put("geth.verbosity", verbosity);
         }
-        if(StringUtils.isNotEmpty(networkid)) {
+
+        if (StringUtils.isNotEmpty(networkid)) {
             newProps.put("geth.networkid",networkid);
         }
 
@@ -118,6 +127,7 @@ public class AdminGethController {
         } else {
             response = "Params are empty. Node has not been updated";
         }
+
         return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
@@ -128,7 +138,7 @@ public class AdminGethController {
         return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
     
-    @RequestMapping(value = {"/node/node-info"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"/node/settings"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
     ResponseEntity<APIResponse> getNodeInfo() throws APIException { 
         NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
