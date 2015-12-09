@@ -9,7 +9,9 @@ import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
@@ -18,7 +20,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +45,15 @@ public class AdminGethController {
 
     @Autowired
     private AdminBean adminBean;
+    
+    @Value("${geth.verbosity:null}")
+    private Integer verbosity;
+    @Value("${geth.mining:null}")
+    private Boolean mining;
+    @Value("${geth.identity:null}")
+    private String identity;
+    @Value("${geth.networkid}")
+    private Integer networkid;
 
     @RequestMapping(value = {"/node/{funcName}", "/miner/{funcName}"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
@@ -108,5 +122,13 @@ public class AdminGethController {
         Boolean reset = nodeService.resetNodeInfo();
         return String.valueOf(reset);
     }
-
+    
+    @RequestMapping(value = {"/node/node-info"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    protected @ResponseBody
+    ResponseEntity<APIResponse> getNodeInfo() {        
+        NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
+        APIResponse res = new APIResponse();
+        res.setData(nodeInfo.toAPIData());
+        return new ResponseEntity(res, HttpStatus.OK);
+    }
 }
