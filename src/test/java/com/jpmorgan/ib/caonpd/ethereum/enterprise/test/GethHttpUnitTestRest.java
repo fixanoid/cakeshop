@@ -90,7 +90,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
         System.out.println("Server started :" + result);
     }
 
-    @Test//(enabled = false)
+    @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testRestart() {
         //Change to whatever url your local tomcat  is set
