@@ -223,7 +223,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         Assert.isTrue(Boolean.parseBoolean(jsonResult.get("result").toString()));
     }
     
-     @Test(enabled = false)
+     @Test//(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
     public void testGetNodeInfo() {        
         String url = "http://localhost:8090/ethereum-enterprise/node/node-info";
@@ -235,7 +235,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         String result = restTemplate.postForObject(url, body, String.class);
         Assert.notNull(result);
-        System.out.println("Geth func call get nodee info :" + result);
+        System.out.println("Geth func call get node info :" + result);
     }
 
 }

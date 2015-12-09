@@ -6,7 +6,10 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import static com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean.ADMIN_VERBOSITY_KEY;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
@@ -125,7 +128,7 @@ public class AdminGethController {
     
     @RequestMapping(value = {"/node/node-info"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
-    ResponseEntity<APIResponse> getNodeInfo() {        
+    ResponseEntity<APIResponse> getNodeInfo() throws APIException { 
         NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
         APIResponse res = new APIResponse();
         res.setData(nodeInfo.toAPIData());
