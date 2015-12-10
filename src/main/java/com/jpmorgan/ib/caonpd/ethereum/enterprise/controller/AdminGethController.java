@@ -5,18 +5,12 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import static com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean.ADMIN_VERBOSITY_KEY;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import java.util.HashMap;
@@ -29,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -64,7 +57,7 @@ public class AdminGethController {
     ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
-            @JsonBodyParam(required = false) String networkid) {
+            @JsonBodyParam(required = false) String networkid) throws APIException {
 
         Map<String, String> newProps = new HashMap();
 
@@ -91,22 +84,8 @@ public class AdminGethController {
         }
 
         if (newProps.size() > 0) {
-
-            try {
-
-                gethService.setNodeInfo(this.identity, this.mining, this.verbosity, this.networkid);
-                nodeService.updateNodeInfo(newProps);
-
-            } catch (APIException ex) {
-
-                APIError err = new APIError();
-                err.setStatus("500");
-                err.setTitle("Node update failed");
-                APIResponse res = new APIResponse();
-                res.addError(err);
-                return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
-
-            }
+            gethService.setNodeInfo(this.identity, this.mining, this.verbosity, this.networkid);
+            nodeService.updateNodeInfo(newProps);
             response = "Node Updated";
         } else {
             response = "Params are empty. Node has not been updated";
