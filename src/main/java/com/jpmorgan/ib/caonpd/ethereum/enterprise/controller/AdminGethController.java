@@ -12,6 +12,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean.ADMIN_VERBOSITY_KEY;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
@@ -48,7 +49,7 @@ public class AdminGethController {
 
     @Autowired
     private AdminBean adminBean;
-    
+
     @Value("${geth.verbosity:null}")
     private Integer verbosity;
     @Value("${geth.mining:null}")
@@ -58,18 +59,17 @@ public class AdminGethController {
     @Value("${geth.networkid}")
     private Integer networkid;
 
-
     @RequestMapping(value = {"/node/settings/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
     ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
             @JsonBodyParam(required = false) String networkid) {
- 
+
         Map<String, String> newProps = new HashMap();
- 
+
         String response;
-        
+
         if (StringUtils.isNotEmpty(mining)) {
             newProps.put("geth.mining", mining);
             this.mining = Boolean.valueOf(mining);
@@ -86,16 +86,21 @@ public class AdminGethController {
         }
 
         if (StringUtils.isNotEmpty(networkid)) {
-            newProps.put("geth.networkid",networkid);
+            newProps.put("geth.networkid", networkid);
             this.networkid = Integer.valueOf(networkid);
         }
 
         if (newProps.size() > 0) {
-            try{
-            nodeService.updateNodeInfo(newProps);
-            }catch(APIException ex){
-                //TODO handle exception
-                ex.printStackTrace();
+            try {
+                gethService.setNodeInfo(this.identity, this.mining, this.verbosity, this.networkid);
+                nodeService.updateNodeInfo(newProps);
+            } catch (APIException ex) {
+                APIError err = new APIError();
+                err.setStatus("500");
+                err.setTitle("Node update failed");
+                APIResponse res = new APIResponse();
+                res.addError(err);
+                return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             response = "Node Updated";
         } else {
@@ -111,10 +116,10 @@ public class AdminGethController {
         Boolean reset = nodeService.resetNodeInfo();
         return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = {"/node/settings"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
-    ResponseEntity<APIResponse> getNodeInfo() throws APIException { 
+    ResponseEntity<APIResponse> getNodeInfo() throws APIException {
         NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
         APIResponse res = new APIResponse();
         res.setData(nodeInfo.toAPIData());

@@ -31,5 +31,6 @@ public interface GethHttpService {
     public Boolean deletEthDatabase(String eth_datadir);
     public Boolean deletePid();
     public void start();
+    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid);
 
 }
