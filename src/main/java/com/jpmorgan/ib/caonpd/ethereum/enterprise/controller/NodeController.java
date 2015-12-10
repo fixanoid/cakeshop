@@ -10,9 +10,9 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import java.util.Map;
@@ -53,29 +53,50 @@ public class NodeController {
         APIResponse apiResponse = new APIResponse();
         Map<String, Object> data=null;
         
-        if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
-            node = nodeService.get();
-            apiResponse.setData(new APIData(node.getId(),"Node",node));
-            return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.OK);  
-        }
+        try{
             
-        if (StringUtils.isNotEmpty(funcArguments)){
-            args = funcArguments.split(",");
-        }else if(AdminBean.ADMIN_MINER_START_KEY.equalsIgnoreCase(funcName)){
-            args = new String[]{"1"};//set default to one cpu
-        }
+            if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
+                
+                node = nodeService.get();
+                apiResponse.setData(new APIData(node.getId(),"Node",node));
+                return new ResponseEntity<>(apiResponse, HttpStatus.OK);  
+                
+            }
 
-        Map<String,String> functionNames = adminBean.getFunctionNames();
-        String gethFunctionName = functionNames.get(funcName); 
+            if (StringUtils.isNotEmpty(funcArguments)){
 
-        if (gethFunctionName != null){ 
-            data = gethService.executeGethCall(gethFunctionName, args);
-        }
+                args = funcArguments.split(",");
+
+            }else if(AdminBean.ADMIN_MINER_START_KEY.equalsIgnoreCase(funcName)){
+
+                args = new String[]{"1"};//set default to one cpu
+
+            }
+
+            Map<String,String> functionNames = adminBean.getFunctionNames();
+            String gethFunctionName = functionNames.get(funcName); 
+
         
-        if(data != null){
-            Object result = data.get("id");
-            if(result != null)
-                apiResponse = APIResponse.newSimpleResponse(result);
+            if (gethFunctionName != null){ 
+                data = gethService.executeGethCall(gethFunctionName, args);
+            }
+
+            if(data != null){
+                
+                Object result = data.get("id");
+                if(result != null)
+                    apiResponse = APIResponse.newSimpleResponse(result);
+                
+            }
+
+        }catch(APIException ex){
+            
+            APIError error = new APIError();
+            error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+            error.setTitle("API Error");
+            apiResponse.addError(error);
+            return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            
         }
         
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

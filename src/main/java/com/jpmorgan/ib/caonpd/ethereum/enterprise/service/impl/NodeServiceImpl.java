@@ -31,7 +31,7 @@ public class NodeServiceImpl implements NodeService {
     
 
     @Override
-    public Node get(){
+    public Node get() throws APIException{
 
         Object input = null;
         Node node = new Node();
@@ -62,16 +62,26 @@ public class NodeServiceImpl implements NodeService {
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending==null?0:pending);
 
-        }  catch (APIException | NumberFormatException ex) {
+        }  catch (APIException ex) {
+            
             node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
             LOG.error(ex.getMessage());
+            throw ex;
+            
+        } catch (NumberFormatException ex){
+            
+            node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
+            LOG.error(ex.getMessage());
+            throw new APIException(ex.getMessage());
+            
         }
         
         return node;
     }
 
     @Override
-    public void updateNodeInfo(Map<String, String> newProps) {
+    public void updateNodeInfo(Map<String, String> newProps) throws APIException {
+        
         String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
                 + ".." + File.separator + "env.properties";
         try {
@@ -92,24 +102,31 @@ public class NodeServiceImpl implements NodeService {
                 restart();
             }
         } catch (IOException ex) {
+            
             LOG.error(ex.getMessage());
+            throw new APIException(ex.getMessage());
+            
         }
 
     }
 
     @Override
     public Boolean resetNodeInfo() {
+        
         String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
                 + ".." + File.separator + "env.properties";
         Boolean deleted = new File(prpsPath).delete();
         restart();
+        
         return deleted;
     }
     
     private void restart() {
+        
         gethService.stopGeth();
         gethService.deletePid();
         gethService.start();
+        
     }
    
 }
