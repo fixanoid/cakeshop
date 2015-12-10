@@ -22,7 +22,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeTy
     method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-public class ContractController {
+public class ContractController extends BaseController {
 
     @Autowired
     private ContractService contractService;

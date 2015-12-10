@@ -8,7 +8,6 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -32,7 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author N631539
  */
 @Controller
-public class AdminGethController {
+public class AdminGethController extends BaseController {
 
     @Autowired
     private GethHttpService gethService;
