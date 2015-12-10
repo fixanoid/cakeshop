@@ -6,11 +6,11 @@
         "title": "Ethereum Enterprise",
         "contact": {}
     },
-    "host": "https://10.196.144.225",
+    "host": "10.196.144.225",
     "schemes": [
         "https"
     ],
-    "basePath": "/ethereum-enterprise",
+    "basePath": "/ethereum-enterprise/api",
     "tags": [
         {
             "name": "contract"
@@ -31,7 +31,7 @@
                 "tags": [
                     "block"
                 ],
-                "description": "Retrieve a block by it's number or hash",
+                "description": "Retrieve a block by number, hash or tag",
                 "operationId": "postBlock",
                 "consumes": [
                     "application/json"
@@ -53,6 +53,11 @@
                                 },
                                 "hash": {
                                     "description": "Block hash to retrieve",
+                                    "type": "string",
+                                    "required": false
+                                },
+                                "tag": {
+                                    "description": "\"earliest\", \"latest\" or \"pending\"",
                                     "type": "string",
                                     "required": false
                                 }
@@ -84,7 +89,37 @@
                     "200": {
                         "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/Block"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Block hash identifier"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'block'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/Block"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -155,9 +190,39 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Transaction ID hash. Use /transaction/get to get the resulting contract ID",
+                        "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/TransactionResult"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Transaction ID. Use /transaction/get to get the resulting Contract ID"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'transaction_result'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/TransactionResult"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -193,9 +258,39 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Transaction ID for delete operation",
+                        "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/TransactionResult"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Transaction ID for delete operation"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'transaction_result'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/TransactionResult"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -241,7 +336,37 @@
                     "200": {
                         "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/Contract"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Contract ID"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'contract'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/Contract"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -282,11 +407,41 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Contract"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "description": "response data",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "Contract ID"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "description": "resource type identifier, 'contract'"
+                                            },
+                                            "attributes": {
+                                                "$ref": "#/definitions/Contract"
+                                            }
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
                             }
                         }
                     }
@@ -401,9 +556,33 @@
                     "200": {
                         "description": "Success",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "result": {
+                                                    "type": "object",
+                                                    "description": "return data from the read call"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
                             }
                         }
                     }
@@ -496,9 +675,39 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Transaction ID",
+                        "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/TransactionResult"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Transaction ID for the operation"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'transaction_result'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/TransactionResult"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -548,9 +757,39 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/Transaction"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Transaction ID"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'transaction'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/Transaction"
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
                         }
                     }
                 }
@@ -596,11 +835,41 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Transaction"
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "description": "response data",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "Transaction ID"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "description": "resource type identifier, 'transaction'"
+                                            },
+                                            "attributes": {
+                                                "$ref": "#/definitions/Transaction"
+                                            }
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "description": "Only present if errors were found",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
                             }
                         }
                     }
@@ -795,6 +1064,65 @@
         }
     },
     "definitions": {
+        "APIResponse": {
+            "properties": {
+                "data": {
+                    "description": "response data",
+                    "$ref": "#/definitions/APIData"
+                },
+                "errors": {
+                    "description": "Only present if errors were found",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/APIError"
+                    }
+                },
+                "meta": {
+                    "type": "object",
+                    "description": "Extra metadata, such as API version"
+                }
+            }
+        },
+        "APIData": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Resource identifier, if available"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "resource type identifier"
+                },
+                "attributes": {
+                    "type": "object",
+                    "description": "The attributes for the resource"
+                }
+            }
+        },
+        "APIError": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Error ID, if available"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "HTTP status code"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "API-specific error code, if available"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Short error description"
+                },
+                "detail": {
+                    "type": "string",
+                    "description": "Detailed error information"
+                }
+            }
+        },
         "Contract": {
             "properties": {
                 "id": {
