@@ -39,6 +39,7 @@ public class NodeServiceImpl implements NodeService {
             //check if node is available 
             data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ input, true });
             node.setStatus(StringUtils.isEmpty((String)data.get("NodeID"))?NodeService.NODE_NOT_RUNNING_STATUS:NodeService.NODE_RUNNING_STATUS);
+            node.setId((String)data.get("NodeID"));
             //check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, new Object[]{ input, true });
             Boolean mining = (Boolean)data.get("id");
@@ -55,6 +56,7 @@ public class NodeServiceImpl implements NodeService {
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending==null?0:pending);
+            
         } catch (APIException ex) {
             node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
             Logger.getLogger(NodeServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

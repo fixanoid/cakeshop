@@ -10,7 +10,17 @@ public class APIData {
     private String type;
 
     private Object attributes;
+    
+    public APIData(){
+        
+    }
 
+    public APIData(String id,String type,Object attributes){
+        this.id = id;
+        this.type = type;
+        this.attributes = attributes;
+    }
+    
     public String getId() {
         return id;
     }

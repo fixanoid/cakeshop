@@ -28,7 +28,7 @@ public class AdminBean {
     public static final String ADMIN_MINER_START = "miner_start";
     public static final String ADMIN_MINER_STOP_KEY = "stop";
     public static final String ADMIN_MINER_STOP = "miner_stop";
-    public static final String ADMIN_MINER_MINING_KEY = "status";
+    public static final String ADMIN_MINER_MINING_KEY = "mining";
     public static final String ADMIN_MINER_MINING = "eth_mining"; 
     public static final String ADMIN_PEER_ADD="admin_addPeer";
     public static final String ADMIN_PEER_ADD_KEY="add_peer";

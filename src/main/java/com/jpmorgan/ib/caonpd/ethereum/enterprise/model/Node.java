@@ -4,6 +4,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 public class Node  {
 
     private String status;
+    private String id;
     private int peerCount;
     private long latestBlock;
     private long pendingTxn;
@@ -48,7 +49,15 @@ public class Node  {
     public void setMining(boolean mining) {
         this.mining = mining;
     }
- 
+
+     public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     @Override
     public String toString()  {
       StringBuilder sb = new StringBuilder();
