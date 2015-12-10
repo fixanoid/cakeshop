@@ -34,7 +34,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  */
 
 @Controller
-public class NodeController {
+public class NodeController extends BaseController{
     
     @Autowired
     private GethHttpService gethService;    
@@ -53,7 +53,7 @@ public class NodeController {
         APIResponse apiResponse = new APIResponse();
         Map<String, Object> data=null;
         
-        try{
+//        try{
             
             if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
                 
@@ -89,15 +89,15 @@ public class NodeController {
                 
             }
 
-        }catch(APIException ex){
+//        }catch(APIException ex){
+//            
+//            APIError error = new APIError();
+//            error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+//            error.setTitle("API Error");
+//            apiResponse.addError(error);
+//            return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
             
-            APIError error = new APIError();
-            error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-            error.setTitle("API Error");
-            apiResponse.addError(error);
-            return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-            
-        }
+//        }
         
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
