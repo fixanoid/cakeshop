@@ -86,6 +86,12 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String genesis;
     @Value("${geth.log}")
     private String logdir;
+    @Value("${geth.verbosity:null}")
+    private Integer verbosity;
+    @Value("${geth.mining:null}")
+    private Boolean mining;
+    @Value("${geth.identity:null}")
+    private String identity;
 
     @Override
     public String executeGethCall(String json) throws APIException {
@@ -194,6 +200,13 @@ public class GethHttpServiceImpl implements GethHttpService {
             return;
         }
         LOG.info("Autostarting geth node");
+        start();
+        
+    }
+    
+    //To restart geth when properties has been changed
+    @Override
+    public void start() {
         String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
         String genesisDir = root + genesis;
         Boolean isStarted;
@@ -273,6 +286,19 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.addAll(additionalParams);
         }
 
+        if(null != this.verbosity) {
+            commands.add("--verbosity");
+            commands.add(String.valueOf(verbosity));
+        }
+        if (null != mining) {
+           commands.add("--mine"); 
+           commands.add("--minerthreads");
+           commands.add("1");
+        }
+        if (StringUtils.isNotEmpty(identity)) {
+            commands.add("--identity");
+            commands.add(identity);
+        }
         ProcessBuilder builder = new ProcessBuilder(commands);
         ensureFileIsExecutable(command);
 

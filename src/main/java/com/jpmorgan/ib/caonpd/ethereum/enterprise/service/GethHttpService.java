@@ -30,5 +30,6 @@ public interface GethHttpService {
     public Boolean stopGeth ();
     public Boolean deletEthDatabase(String eth_datadir);
     public Boolean deletePid();
+    public void start();
 
 }

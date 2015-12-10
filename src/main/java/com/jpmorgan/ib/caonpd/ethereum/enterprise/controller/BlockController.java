@@ -16,7 +16,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 
 @RestController
-@RequestMapping(value = "/block",
+@RequestMapping(value = "/api/block",
     method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)

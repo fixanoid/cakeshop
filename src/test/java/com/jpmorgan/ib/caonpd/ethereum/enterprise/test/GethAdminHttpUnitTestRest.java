@@ -43,7 +43,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
     @Value("${geth.genesis}")
     private String genesis;
     
-    @Value("${geth.peer.addr}")
+    //@Value("${geth.peer.addr}")
     private String peerAddress;
     
     private static JsonParser jsonParser;
@@ -51,7 +51,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
 
     @BeforeTest
     public static void setEnv() {
-        System.setProperty("eth.environment", "local");
+        System.setProperty("eth.environment", "test");
         jsonParser = new JsonParser();
     }
 
@@ -221,6 +221,21 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         JsonObject jsonResult = jsonParser.parse(result).getAsJsonObject();
         Assert.notNull(jsonResult.get("result"));
         Assert.isTrue(Boolean.parseBoolean(jsonResult.get("result").toString()));
+    }
+    
+     @Test(enabled = false)
+    //To run test - comment out (enabled = false) from Test annotation
+    public void testGetNodeInfo() {        
+        String url = "http://localhost:8090/ethereum-enterprise/node/node-info";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MULTIPART_FORM_DATA);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        String result = restTemplate.postForObject(url, body, String.class);
+        Assert.notNull(result);
+        System.out.println("Geth func call get node info :" + result);
     }
 
 }

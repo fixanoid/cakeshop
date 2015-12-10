@@ -9,30 +9,29 @@
 
 		template: _.template(
 			'  <div class="form-group">' +
-			'    <label for="nid">Network ID</label>' +
-			'    <input type="text" class="form-control" id="nid">' +
+			'    <label for="networkid">Network ID</label>' +
+			'    <input type="text" class="form-control" id="networkid">' +
 			'  </div>' +
 			'  <div class="form-group">' +
-			'    <label for="log-level">Log Level</label>' +
-			'			<select id="log-level" class="form-control">' +
-			'			  <option>FINEST</option>' +
-			'			  <option>FINER</option>' +
-			'			  <option>FINE</option>' +
-			'			  <option>CONFIG</option>' +
-			'			  <option>INFO</option>' +
-			'			  <option>WARNING</option>' +
-			'			  <option>SEVERE</option>' +
+			'    <label for="identity">Identity</label>' +
+			'    <input type="text" class="form-control" id="identity">' +
+			'  </div>' +
+			'  <div class="form-group">' +
+			'    <label for="verbosity">Log Level</label>' +
+			'			<select id="verbosity" class="form-control">' +
+			'			  <option value="1">FINEST</option>' +
+			'			  <option value="2">FINER</option>' +
+			'			  <option value="3">FINE</option>' +
+			'			  <option value="4">INFO</option>' +
+			'			  <option value="5">WARNING</option>' +
+			'			  <option value="6">SEVERE</option>' +
 			'			</select>' +
 			'  </div>' +
-			// '  <div class="form-group">' +
-			// '    <label for="log-loc">Log Path Location</label>' +
-			// '    <input type="text" class="form-control" id="log-loc">' +
-			// '  </div>' +
 			'  <div class="form-group">' +
-			'    <label for="commit">Commiting Transactions</label>' +
-			'			<select id="commit" class="form-control">' +
-			'			  <option>Yes</option>' +
-			'			  <option>No</option>' +
+			'    <label for="mining">Commiting Transactions</label>' +
+			'			<select id="mining" class="form-control">' +
+			'			  <option value="true">Yes</option>' +
+			'			  <option value="false">No</option>' +
 			'			</select>' +
 			'  </div>' +
 			'  <div class="pull-right form-group">' +
@@ -44,7 +43,25 @@
 			this.render();
 		},
 
-		url: 'TBD',
+		url: {
+			info: '../node/settings',
+			update: '../node/settings/update'
+		},
+
+		fetch: function() {
+			var _this = this;
+
+			$.when(
+				utils.load({ url: this.url.info })
+			).done(function(info) {
+				console.log(info);
+
+				$('#widget-' + _this.shell.id + ' #networkid').val( info.data.attributes.networkid ? info.data.attributes.networkid : '' );
+				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.identity ? info.data.attributes.identity : '' );
+				$('#widget-' + _this.shell.id + ' #verbosity').val( info.data.attributes.verbosity ? info.data.attributes.verbosity : '4' );
+				$('#widget-' + _this.shell.id + ' #mining').val( info.data.attributes.mining ? 'true' : 'false' );
+			});
+		},
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
@@ -59,16 +76,22 @@
 			$('#widget-' + this.shell.id)
 				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })
 				.html( this.template({}) );
-				// .slimScroll({
-				// 		height: '240px',
-				// 		color: '#c6c6c6'
-				// 	});
 
-			$('#widget-' + this.shell.id + ' button').click(this._handler);
+			$('#widget-' + this.shell.id + ' input').change(this._handler);
+			$('#widget-' + this.shell.id + ' select').change(this._handler);
+
+			this.fetch();
 		},
 
 		_handler: function(ev) {
+			var _this = $(this),
+			 action = _this.attr('id'),
+			 val = _this.val()
+			 data = {};
+			
+			data[action] = val;
 
+			utils.load({ url: widget.url.update, data: data });
 		}
 	};
 

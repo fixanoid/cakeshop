@@ -32,7 +32,7 @@ public class GethHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
     @BeforeTest
     public static void setEnv() {
-        System.setProperty("eth.environment", "local");
+        System.setProperty("eth.environment", "test");
     }
 
     @AfterClass
