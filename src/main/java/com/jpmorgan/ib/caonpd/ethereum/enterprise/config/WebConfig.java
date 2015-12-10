@@ -12,7 +12,10 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
+import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -28,17 +31,23 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Configuration
 @Profile("container")
 @EnableWebMvc
+@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.ethereum.enterprise",
+        excludeFilters = {
+            @Filter(type = ASSIGNABLE_TYPE,
+                    value = {TestWebConfig.class, TestAppConfig.class
+                    })
+        })
 public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private RequestMappingHandlerAdapter adapter;
-    
+
     @Value("${geth.apistore.url}")
     private String appStoreUrl;
-    
+
     @Value("${geth.cors.enabled:true}")
     private boolean corsEnabled;
-    
+
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
         // existing resolvers
@@ -69,12 +78,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        
-        if(corsEnabled)
+
+        if (corsEnabled) {
             registry.addMapping("/**")
                     .allowedOrigins(appStoreUrl)
                     .allowedMethods("POST");
+        }
     }
-    
 
 }
