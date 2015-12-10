@@ -8,6 +8,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 
@@ -16,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
  * @author I629630
  */
 @Configuration
+@Profile("integration-test")
 public class TestAppConfig {
     
      private static final String ENV = System.getProperty("eth.environment");
