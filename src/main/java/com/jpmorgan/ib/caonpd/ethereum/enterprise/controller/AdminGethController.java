@@ -58,41 +58,6 @@ public class AdminGethController {
     @Value("${geth.networkid}")
     private Integer networkid;
 
-    @RequestMapping(value = {"/node/{funcName}", "/miner/{funcName}"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    protected @ResponseBody
-    String adminFuncCall(@PathVariable String funcName, @JsonBodyParam(value = "args", required = false) String funcArguments) throws APIException {
-
-        String args[] = null;
-        String response = null;
-        RequestModel request = null;
-        Node node = null;
-
-        if (StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")) {
-            node = nodeService.get();
-            response = (node == null ? new Node().toString() : node.toString());
-            return response;
-        }
-
-        if (StringUtils.isNotEmpty(funcArguments)) {
-            args = funcArguments.split(",");
-        } else if (AdminBean.ADMIN_MINER_START_KEY.equalsIgnoreCase(funcName)) {
-            args = new String[]{"1"};//set default to one cpu
-        }
-        
-        String gethFunctionName = adminBean.getFunctionNames().get(funcName);
-
-        if (StringUtils.isNotEmpty(gethFunctionName)) {
-            request = new RequestModel(GethHttpService.GETH_API_VERSION, gethFunctionName, args, GethHttpService.USER_ID);
-        }
-
-        Gson gson = new Gson();
-
-        if (request != null) {
-            response = gethService.executeGethCall(gson.toJson(request));
-        }
-
-        return response;
-    }
 
     @RequestMapping(value = {"/node/settings/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     protected @ResponseBody
