@@ -27,7 +27,9 @@ var Tower = {
 			var def = function() {
 				$.when(
 					utils.load({ url: '../node/status' })
-				).done(function(status) {
+				).done(function(response) {
+					var status = response.data.attributes;
+
 					if (status.status === 'running') {
 						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
@@ -42,7 +44,7 @@ var Tower = {
 						 .addClass('fa-pause rad-txt-danger');
 					}
 
-					utils.prettyUpdate(Tower.status.peers, status.peers + demo.add(), $('#default-peers'));
+					utils.prettyUpdate(Tower.status.peers, status.peerCount + demo.add(), $('#default-peers'));
 					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
 					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
 
@@ -84,6 +86,8 @@ var Tower = {
 		'explorer': function() {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
+
+			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer' });
 		}
 	}
 };

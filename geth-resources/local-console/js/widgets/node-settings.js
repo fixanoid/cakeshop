@@ -54,8 +54,6 @@
 			$.when(
 				utils.load({ url: this.url.info })
 			).done(function(info) {
-				console.log(info);
-
 				$('#widget-' + _this.shell.id + ' #networkid').val( info.data.attributes.networkid ? info.data.attributes.networkid : '' );
 				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.identity ? info.data.attributes.identity : '' );
 				$('#widget-' + _this.shell.id + ' #verbosity').val( info.data.attributes.verbosity ? info.data.attributes.verbosity : '4' );
