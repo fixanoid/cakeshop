@@ -255,6 +255,25 @@ public class GethHttpServiceImpl implements GethHttpService {
         Boolean deleted = pidFile.delete();
         return deleted;
     }
+    
+    @Override
+    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
+        if (null != networkid) {
+            this.networkid = String.valueOf(networkid);
+        }
+
+        if (null != mining) {
+            this.mining = mining;
+        }
+
+        if (null != verbosity) {
+            this.verbosity = verbosity;
+        }
+
+        if (StringUtils.isNotEmpty(identity)) {
+            this.identity = identity;
+        }
+    }
 
     @PreDestroy
     protected void autoStop () {
