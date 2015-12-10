@@ -19,8 +19,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("container")
 public class AppConfig {
 
     public static final String API_VERSION = "1.0";
