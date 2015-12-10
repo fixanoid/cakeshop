@@ -91,7 +91,12 @@ public class AdminGethController {
         }
 
         if (newProps.size() > 0) {
+            try{
             nodeService.updateNodeInfo(newProps);
+            }catch(APIException ex){
+                //TODO handle exception
+                ex.printStackTrace();
+            }
             response = "Node Updated";
         } else {
             response = "Params are empty. Node has not been updated";
