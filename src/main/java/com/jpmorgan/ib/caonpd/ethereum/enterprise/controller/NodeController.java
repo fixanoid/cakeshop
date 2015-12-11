@@ -58,7 +58,7 @@ public class NodeController {
             if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
                 
                 node = nodeService.get();
-                apiResponse.setData(new APIData(node.getId(),"Node",node));
+                apiResponse.setData(new APIData(node.getId(),"node",node));
                 return new ResponseEntity<>(apiResponse, HttpStatus.OK);  
                 
             }
