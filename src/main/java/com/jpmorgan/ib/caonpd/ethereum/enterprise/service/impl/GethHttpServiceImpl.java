@@ -64,8 +64,7 @@ import com.sun.jna.platform.win32.WinNT;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private final String PID_FILE = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "")
-             + File.separator + ".." + File.separator +  "meth.pid";
+    private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
             //System.getProperty("user.dir");
 
     @Value("${geth.url}")
@@ -207,8 +206,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     //To restart geth when properties has been changed
     @Override
     public void start() {
-        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        String genesisDir = root + genesis;
+        String genesisDir = ROOT + genesis;
         Boolean isStarted;
         if (SystemUtils.IS_OS_WINDOWS) {
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
@@ -217,7 +215,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             isStarted = isProcessRunningNix(getProcessId());
         }
         if (!isStarted) {
-            isStarted = startGeth(root + File.separator, genesisDir, null, null);
+            isStarted = startGeth(ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {

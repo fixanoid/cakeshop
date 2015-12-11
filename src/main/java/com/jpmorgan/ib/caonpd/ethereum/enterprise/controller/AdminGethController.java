@@ -5,7 +5,6 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
@@ -38,9 +37,6 @@ public class AdminGethController extends BaseController {
 
     @Autowired
     private NodeService nodeService;
-
-    @Autowired
-    private AdminBean adminBean;
 
     @Value("${geth.verbosity:null}")
     private Integer verbosity;

@@ -21,6 +21,7 @@ public interface GethHttpService {
     public static final String startMacCommand = "bin/mac/geth";
     public static final String GETH_API_VERSION = "2.0";
     public static final String USER_ID = "enterprise-ethereum";
+    public static final String ROOT = GethHttpService.class.getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
 
 
     public String executeGethCall(String json) throws APIException;

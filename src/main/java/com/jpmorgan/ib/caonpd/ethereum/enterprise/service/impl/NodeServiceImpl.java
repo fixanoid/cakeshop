@@ -31,7 +31,7 @@ public class NodeServiceImpl implements NodeService {
     
 
     @Override
-    public Node get() throws APIException{
+    public Node get() throws APIException {
 
         Object input = null;
         Node node = new Node();
@@ -60,7 +60,7 @@ public class NodeServiceImpl implements NodeService {
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
-            node.setPendingTxn(pending==null?0:pending);
+            node.setPendingTxn(pending == null ? 0 : pending);
 
         }  catch (APIException ex) {
             
@@ -82,8 +82,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void updateNodeInfo(Map<String, String> newProps) throws APIException {
         
-        String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
-                + ".." + File.separator + "env.properties";
+        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
         try {
             InputStream input = new FileInputStream(prpsPath);
             Properties props = new Properties();
@@ -113,8 +112,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public Boolean resetNodeInfo() {
         
-        String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
-                + ".." + File.separator + "env.properties";
+        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
         Boolean deleted = new File(prpsPath).delete();
         restart();
         
