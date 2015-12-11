@@ -17,23 +17,23 @@ public class BaseController {
     public ResponseEntity<APIResponse> handleException(APIException ex) {
 
         APIResponse res = new APIResponse();
-        res.addError(new APIError("", "500", "Internal server error"));
+        res.addError(new APIError("", HttpStatus.INTERNAL_SERVER_ERROR.toString(), "Internal server error"));
         return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
     @ExceptionHandler(Exception.class)
-	public ResponseEntity<APIResponse> handleAllException(Exception ex) {
+    public ResponseEntity<APIResponse> handleAllException(Exception ex) {
 
-		APIResponse res = new APIResponse();
+        APIResponse res = new APIResponse();
 
         if (ex instanceof ResourceAccessException) {
-            res.addError(new APIError(null, "503", ex.getMessage()));
+            res.addError(new APIError(null, HttpStatus.SERVICE_UNAVAILABLE.toString(), ex.getMessage()));
             return new ResponseEntity<>(res, HttpStatus.SERVICE_UNAVAILABLE);
         }
 
-        res.addError(new APIError("", "500", "Internal server error"));
+        res.addError(new APIError("", HttpStatus.INTERNAL_SERVER_ERROR.toString(), "Internal server error"));
         return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
 
-	}
+    }
 
 }
