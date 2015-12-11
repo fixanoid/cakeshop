@@ -20,7 +20,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
     method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-public class BlockController {
+public class BlockController extends BaseController {
 
     @Autowired
     BlockService blockService;

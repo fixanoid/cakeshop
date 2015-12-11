@@ -20,7 +20,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
     method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-public class TransactionController {
+public class TransactionController extends BaseController {
 
     @Autowired
     TransactionService transactionService;

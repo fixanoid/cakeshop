@@ -33,7 +33,7 @@ import org.springframework.http.ResponseEntity;
  * @author I629630
  */
 @Controller
-public class GethController {
+public class GethController extends BaseController {
 
     @Autowired
     private GethHttpService gethService;

@@ -1021,6 +1021,107 @@
                 }
             }
         },
+        "/node/settings": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "View node settings",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "schema": null,
+                            "properties": {
+                                "verbosity": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "node log verbosity (integer range from 0 to 6)"
+                                },
+                                "networkid": {
+                                    "type": "integer",
+                                    "required": false,
+                                    "description": "node network id"
+                                },
+                                "identity": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "node identity"
+                                },
+                                "mining": {
+                                    "type": "boolean",
+                                    "required": false,
+                                    "description": "if node is in mining mode"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/node/settings/update": {
+            "post": {
+                "tags": [
+                    "node"
+                ],
+                "description": "Reset node info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "verbosity": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "To change log verbosity (integer range from 0 to 6)"
+                                },
+                                "networkid": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "To change network id from default (any integer)"
+                                },
+                                "identity": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "To change node identity name"
+                                },
+                                "mining": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "to set node mining to the whole node"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array"
+                        }
+                    }
+                }
+            }
+        },
         "/transaction/pending": {
             "post": {
                 "tags": [
