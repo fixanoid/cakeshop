@@ -3,11 +3,29 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 public class Node  {
 
+    /**
+    *Node status
+    */
     private String status;
+    /**
+    *Node ID
+    */
     private String id;
+    /**
+    *Number of peers connected to node
+    */
     private int peerCount;
+    /**
+    *Last mined block
+    */
     private long latestBlock;
+    /**
+    *Pending transactions in txpool
+    */
     private long pendingTxn;
+    /**
+    *True if miner is running on the node
+    */
     private boolean mining;
 
     public String getStatus() {
