@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import static org.springframework.http.HttpMethod.*;
@@ -74,6 +69,10 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String networkid;
     @Value("${geth.datadir}")
     private String datadir;
+
+    @Value("${geth.node.port:30303}")
+    private String gethNodePort;
+
     @Value("${geth.rpcport}")
     private String rpcport;
     @Value("${geth.rpcapi.list}")
@@ -293,6 +292,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         ensureNodeBins(nodePath, solcPath);
 
         List<String> commands = Lists.newArrayList(command,
+                "--port", gethNodePort, "--ipcpath", dataDir + File.separator + "geth.ipc",
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
