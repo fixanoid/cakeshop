@@ -8,6 +8,16 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,6 +46,7 @@ import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,16 +56,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinNT;
 
 /**
  *
@@ -102,53 +103,54 @@ public class GethHttpServiceImpl implements GethHttpService {
             ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
             return response.getBody();
         } catch (RestClientException e) {
+            LOG.error("RPC call failed - " + ExceptionUtils.getRootCauseMessage(e));
             throw new APIException("RPC call failed", e);
         }
     }
 
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
+
         RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
-
-        Gson gson = new Gson();
-        String req = gson.toJson(request);
+        String req = new Gson().toJson(request);
         String response = executeGethCall(req);
-        if (StringUtils.isNotEmpty(response)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(response.trim());
-            }
 
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> data;
-            try {
-                data = mapper.readValue(response, Map.class);
-            } catch (IOException e) {
-                throw new APIException("RPC call failed", e);
-            }
-
-            if (data.containsKey("error") && data.get("error") != null) {
-                String message;
-                Map<String, String> error = (Map<String, String>) data.get("error");
-                if (error.containsKey("message")) {
-                    message = error.get("message");
-                } else {
-                    message = "RPC call failed";
-                }
-                throw new APIException(message);
-            }
-
-            if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer)) {
-
-                // Handle a special case where only a txid is returned in the result, not a full object
-                Map<String, Object> result = new HashMap<>();
-                result.put("id", data.get("result"));
-                return result;
-            }
-
-            return (Map<String, Object>) data.get("result");
-        } else {
-            return null;
+        if (StringUtils.isEmpty(response)) {
+            throw new APIException("Received empty reply from server");
         }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(response.trim());
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> data;
+        try {
+            data = mapper.readValue(response, Map.class);
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
+
+        if (data.containsKey("error") && data.get("error") != null) {
+            String message;
+            Map<String, String> error = (Map<String, String>) data.get("error");
+            if (error.containsKey("message")) {
+                message = error.get("message");
+            } else {
+                message = "RPC call failed";
+            }
+            throw new APIException(message);
+        }
+
+        if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer)) {
+
+            // Handle a special case where only a txid is returned in the result, not a full object
+            Map<String, Object> result = new HashMap<>();
+            result.put("id", data.get("result"));
+            return result;
+        }
+
+        return (Map<String, Object>) data.get("result");
     }
 
     @Override
