@@ -13,7 +13,7 @@
 			this.render();
 		},
 
-		url: '../node/get',
+		url: '../api/node/get',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
@@ -37,7 +37,7 @@
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 			});
 		},
-		
+
 		render: function() {
 			Tower.screenManager.grounds.append(this.shell.tpl);
 

@@ -1,5 +1,12 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -7,13 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 
 @RestController
 @RequestMapping(value = "/api/block",
@@ -25,7 +25,7 @@ public class BlockController extends BaseController {
     @Autowired
     BlockService blockService;
 
-    @RequestMapping(value = "/get")
+    @RequestMapping("/get")
     public ResponseEntity<APIResponse> getBlock(
             @JsonBodyParam(required=false) String hash,
             @JsonBodyParam(required=false) Integer number,

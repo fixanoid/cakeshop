@@ -5,7 +5,12 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 import java.util.List;
 
@@ -14,25 +19,24 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author I629630
  */
-@Controller
+@RestController
+@RequestMapping(value = "/api",
+    method = RequestMethod.POST,
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
 public class GethController extends BaseController {
 
     @Autowired
@@ -43,7 +47,7 @@ public class GethController extends BaseController {
     @Value("${geth.datadir}")
     private String datadir;
 
-    @RequestMapping(value = "/submit_func", method = POST)
+    @RequestMapping("/submit_func")
     protected @ResponseBody
     ResponseEntity<APIResponse> submitFuncCall(@RequestParam("func_name") String funcName, @RequestParam(value = "func_args", required = false) String funcArguments) throws APIException {
         //funcArguments must be comma separated values
@@ -59,7 +63,7 @@ public class GethController extends BaseController {
         return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/node-control/start", method = POST)
+    @RequestMapping("/node/start")
     protected @ResponseBody
     ResponseEntity<APIResponse> startGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
         String genesisDir = request.getServletContext().getRealPath("/") + genesis;
@@ -72,7 +76,7 @@ public class GethController extends BaseController {
         return new ResponseEntity(APIResponse.newSimpleResponse(started), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/node-control/stop", method = POST)
+    @RequestMapping("/node/stop")
     protected @ResponseBody
     ResponseEntity<APIResponse> stopGeth() {
         Boolean stopped = gethService.stopGeth();
@@ -80,7 +84,7 @@ public class GethController extends BaseController {
         return new ResponseEntity(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/node-control/restart", method = POST)
+    @RequestMapping("/node/restart")
     protected @ResponseBody
     ResponseEntity<APIResponse> restartGeth(HttpServletRequest request) {
         Boolean stopped = gethService.stopGeth();
@@ -94,7 +98,7 @@ public class GethController extends BaseController {
         return new ResponseEntity(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/node-control/reset", method = POST)
+    @RequestMapping("/node/reset")
     protected @ResponseBody
     ResponseEntity<APIResponse> resetGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
         String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;

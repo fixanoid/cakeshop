@@ -23,7 +23,7 @@
 			this.render();
 		},
 
-		url: '../node/add_peer',
+		url: '../api/node/add_peer',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);

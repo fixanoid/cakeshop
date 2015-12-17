@@ -13,23 +13,28 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author N631539
  */
-@Controller
+@RestController
+@RequestMapping(value = "/api/node",
+    method = RequestMethod.POST,
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
 public class NodeController extends BaseController {
 
     @Autowired
@@ -41,22 +46,22 @@ public class NodeController extends BaseController {
     @Autowired
     private AdminBean adminBean;
 
-    @RequestMapping(value = {"/node/{funcName}", "/miner/{funcName}"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    protected ResponseEntity<APIResponse> adminFuncCall(@PathVariable String funcName, 
+    @RequestMapping({"/{funcName}", "/miner/{funcName}"})
+    protected ResponseEntity<APIResponse> adminFuncCall(@PathVariable String funcName,
             @JsonBodyParam(value = "args", required = false) String funcArguments) throws APIException {
 
         String args[] = null;
         Node node;
         APIResponse apiResponse = new APIResponse();
         Map<String, Object> data=null;
-        
 
-            
+
+
         if(StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")){
 
             node = nodeService.get();
             apiResponse.setData(new APIData(node.getId(),"node",node));
-            return new ResponseEntity<>(apiResponse, HttpStatus.OK);  
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         }
 
@@ -89,7 +94,7 @@ public class NodeController extends BaseController {
         if (data != null) {
 
             Object result = data.get("id");
-            
+
             if (result != null) {
                 apiResponse = APIResponse.newSimpleResponse(result);
             }

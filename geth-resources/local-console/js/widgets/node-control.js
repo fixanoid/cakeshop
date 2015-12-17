@@ -21,8 +21,8 @@
 		},
 
 		url: {
-			nodeControl: '../node-control',
-			minerControl: '../miner'
+			nodeControl: '../api/node',
+			minerControl: '../api/node/miner'
 		},
 
 		init: function() {

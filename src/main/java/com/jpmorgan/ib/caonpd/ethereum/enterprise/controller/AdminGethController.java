@@ -5,7 +5,12 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,22 +21,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author N631539
  */
-@Controller
+@RestController
+@RequestMapping(value = "/api/node",
+    method = RequestMethod.POST,
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminGethController extends BaseController {
 
     @Autowired
@@ -49,14 +52,14 @@ public class AdminGethController extends BaseController {
     @Value("${geth.networkid}")
     private Integer networkid;
 
-    @RequestMapping(value = {"/node/settings/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping("/settings/update")
     protected @ResponseBody
     ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
             @JsonBodyParam(required = false) String networkid) throws APIException {
 
-        Map<String, String> newProps = new HashMap();
+        Map<String, String> newProps = new HashMap<String, String>();
 
         String response;
 
@@ -91,14 +94,14 @@ public class AdminGethController extends BaseController {
         return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"/node/reset"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping("/settings/reset")
     protected @ResponseBody
     ResponseEntity<APIResponse> resetNodeInfo() {
         Boolean reset = nodeService.resetNodeInfo();
         return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"/node/settings"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping("/settings")
     protected @ResponseBody
     ResponseEntity<APIResponse> getNodeInfo() throws APIException {
         NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
