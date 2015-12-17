@@ -85,11 +85,11 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String genesis;
     @Value("${geth.log}")
     private String logdir;
-    @Value("${geth.verbosity:null}")
+    @Value("${geth.verbosity:}")
     private Integer verbosity;
-    @Value("${geth.mining:null}")
+    @Value("${geth.mining:}")
     private Boolean mining;
-    @Value("${geth.identity:null}")
+    @Value("${geth.identity:}")
     private String identity;
 
     @Override
@@ -200,9 +200,9 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
         LOG.info("Autostarting geth node");
         start();
-        
+
     }
-    
+
     //To restart geth when properties has been changed
     @Override
     public void start() {
@@ -253,7 +253,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         Boolean deleted = pidFile.delete();
         return deleted;
     }
-    
+
     @Override
     public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
         if (null != networkid) {
@@ -285,7 +285,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
         Boolean started;
-        
+
         String nodePath = new File(command).getParent() + File.separator;
         String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
         ensureNodeBins(nodePath, solcPath);
@@ -308,7 +308,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.add(String.valueOf(verbosity));
         }
         if (null != mining) {
-           commands.add("--mine"); 
+           commands.add("--mine");
            commands.add("--minerthreads");
            commands.add("1");
         }

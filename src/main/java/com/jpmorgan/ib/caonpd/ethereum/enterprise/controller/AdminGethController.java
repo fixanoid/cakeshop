@@ -5,16 +5,12 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,8 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 
 /**
  *
@@ -38,11 +40,11 @@ public class AdminGethController extends BaseController {
     @Autowired
     private NodeService nodeService;
 
-    @Value("${geth.verbosity:null}")
+    @Value("${geth.verbosity:}")
     private Integer verbosity;
-    @Value("${geth.mining:null}")
+    @Value("${geth.mining:}")
     private Boolean mining;
-    @Value("${geth.identity:null}")
+    @Value("${geth.identity:}")
     private String identity;
     @Value("${geth.networkid}")
     private Integer networkid;
