@@ -79,9 +79,20 @@ public class NodeController extends BaseController {
         data = gethService.executeGethCall(gethFunctionName, args);
 
         if (data != null) {
-            APIData apiData = new APIData((String) data.get("id"), "node", data);
+            if (data.containsKey("_result")) {
+                return new ResponseEntity<>(APIResponse.newSimpleResponse(data.get("_result")), HttpStatus.OK);
+            }
+
+            APIData apiData = new APIData();
+            Object id = data.get("id");
+            if (id instanceof String) {
+                apiData.setId((String) id);
+            }
+            apiData.setType("node");
+            apiData.setAttributes(data);
             apiResponse.setData(apiData);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+
         } else {
             apiResponse.addError(new APIError(null, "500", "Empty response from server"));
             return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);

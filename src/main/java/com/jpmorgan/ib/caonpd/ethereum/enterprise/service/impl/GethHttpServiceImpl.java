@@ -141,12 +141,16 @@ public class GethHttpServiceImpl implements GethHttpService {
             throw new APIException(message);
         }
 
-        if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer)) {
+        Object result = data.get("result");
+        if (result == null) {
+            return null;
+        }
 
-            // Handle a special case where only a txid is returned in the result, not a full object
-            Map<String, Object> result = new HashMap<>();
-            result.put("id", data.get("result"));
-            return result;
+        if (!(result instanceof Map)) {
+            // Handle case where a simple value is returned instead of a map (int, bool, or string)
+            Map<String, Object> res = new HashMap<>();
+            res.put("_result", data.get("result"));
+            return res;
         }
 
         return (Map<String, Object>) data.get("result");
