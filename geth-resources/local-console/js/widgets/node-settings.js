@@ -44,8 +44,8 @@
 		},
 
 		url: {
-			info: '../node/settings',
-			update: '../node/settings/update'
+			info: '../api/node/settings',
+			update: '../api/node/settings/update'
 		},
 
 		fetch: function() {
@@ -86,7 +86,7 @@
 			 action = _this.attr('id'),
 			 val = _this.val()
 			 data = {};
-			
+
 			data[action] = val;
 
 			utils.load({ url: widget.url.update, data: data });

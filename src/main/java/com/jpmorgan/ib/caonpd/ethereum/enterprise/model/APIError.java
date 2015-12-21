@@ -11,6 +11,7 @@ public class APIError {
     private String code;
     private String title;
     private String detail;
+    private String rootCause;
 
     public APIError() {
     }
@@ -19,6 +20,13 @@ public class APIError {
         this.id = id;
         this.status = status;
         this.title = title;
+    }
+    
+    public APIError(String id, String status, String title,String rootCause) {
+        this.id = id;
+        this.status = status;
+        this.title = title;
+        this.rootCause = rootCause;
     }
 
     public String getId() {
@@ -56,4 +64,11 @@ public class APIError {
         this.detail = detail;
     }
 
+    public String getRootCause() {
+        return rootCause;
+    }
+
+    public void setRootCause(String rootCause) {
+        this.rootCause = rootCause;
+    }
 }

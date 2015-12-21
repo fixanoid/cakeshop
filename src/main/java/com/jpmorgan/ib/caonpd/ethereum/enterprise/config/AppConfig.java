@@ -11,11 +11,9 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
@@ -26,9 +24,6 @@ import org.springframework.context.annotation.Profile;
 public class AppConfig {
 
     public static final String API_VERSION = "1.0";
-
-    @Autowired
-    private Environment environment;
 
     private static final String ENV = System.getProperty("eth.environment");
     private static final String PROPS_FILE = File.separator + "env.properties";

@@ -6,7 +6,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,31 +14,32 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service; 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 
 @Service
 public class NodeServiceImpl implements NodeService {
-    
+
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
 
     @Autowired
     private GethHttpService gethService;
-    
+
 
     @Override
-    public Node get(){
+    public Node get() throws APIException {
 
         Object input = null;
         Node node = new Node();
 
         Map<String, Object> data = null;
-        
+
         try {
-            //check if node is available 
+            //check if node is available
             data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ input, true });
 
             node.setId((String)data.get("NodeID"));
@@ -60,20 +60,35 @@ public class NodeServiceImpl implements NodeService {
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
-            node.setPendingTxn(pending==null?0:pending);
+            node.setPendingTxn(pending == null ? 0 : pending);
 
-        }  catch (APIException | NumberFormatException ex) {
+        }  catch (APIException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof ResourceAccessException) {
+                node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
+                return node;
+
+            } else if (cause instanceof HttpStatusCodeException) {
+                throw ex; // our request failed, so re-raise
+            }
+
+            throw ex;
+
+        } catch (NumberFormatException ex){
+
             node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
             LOG.error(ex.getMessage());
+            throw new APIException(ex.getMessage());
+
         }
-        
+
         return node;
     }
 
     @Override
-    public void updateNodeInfo(Map<String, String> newProps) {
-        String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
-                + ".." + File.separator + "env.properties";
+    public void updateNodeInfo(Map<String, String> newProps) throws APIException {
+
+        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
         try {
             InputStream input = new FileInputStream(prpsPath);
             Properties props = new Properties();
@@ -92,24 +107,30 @@ public class NodeServiceImpl implements NodeService {
                 restart();
             }
         } catch (IOException ex) {
+
             LOG.error(ex.getMessage());
+            throw new APIException(ex.getMessage());
+
         }
 
     }
 
     @Override
     public Boolean resetNodeInfo() {
-        String prpsPath = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "") + File.separator
-                + ".." + File.separator + "env.properties";
+
+        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
         Boolean deleted = new File(prpsPath).delete();
         restart();
+
         return deleted;
     }
-    
+
     private void restart() {
+
         gethService.stopGeth();
         gethService.deletePid();
         gethService.start();
+
     }
-   
+
 }

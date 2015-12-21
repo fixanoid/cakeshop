@@ -1,17 +1,17 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 @Service
 public class ContractServiceImpl implements ContractService {
@@ -40,7 +40,7 @@ public class ContractServiceImpl implements ContractService {
 		Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{ contractArgs });
 
 		TransactionResult tr = new TransactionResult();
-		tr.setId((String) contractRes.get("id"));
+		tr.setId((String) contractRes.get("_result"));
 
 		return tr;
 	}
@@ -55,7 +55,7 @@ public class ContractServiceImpl implements ContractService {
 		Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
 
 		Contract contract = new Contract();
-		contract.setBinary((String) contractRes.get("id"));
+		contract.setBinary((String) contractRes.get("_result"));
 
 		return contract;
 	}

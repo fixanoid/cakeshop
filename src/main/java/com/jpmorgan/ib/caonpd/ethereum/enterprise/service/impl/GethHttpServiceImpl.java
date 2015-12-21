@@ -1,12 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,6 +41,7 @@ import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,16 +52,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinNT;
-
 /**
  *
  * @author I629630
@@ -64,8 +60,7 @@ import com.sun.jna.platform.win32.WinNT;
 public class GethHttpServiceImpl implements GethHttpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private final String PID_FILE = this.getClass().getClassLoader().getResource("").getPath().replace("/WEB-INF/classes/", "")
-             + File.separator + ".." + File.separator +  "meth.pid";
+    private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
             //System.getProperty("user.dir");
 
     @Value("${geth.url}")
@@ -74,6 +69,10 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String networkid;
     @Value("${geth.datadir}")
     private String datadir;
+
+    @Value("${geth.node.port:30303}")
+    private String gethNodePort;
+
     @Value("${geth.rpcport}")
     private String rpcport;
     @Value("${geth.rpcapi.list}")
@@ -86,11 +85,11 @@ public class GethHttpServiceImpl implements GethHttpService {
     private String genesis;
     @Value("${geth.log}")
     private String logdir;
-    @Value("${geth.verbosity:null}")
+    @Value("${geth.verbosity:}")
     private Integer verbosity;
-    @Value("${geth.mining:null}")
+    @Value("${geth.mining:}")
     private Boolean mining;
-    @Value("${geth.identity:null}")
+    @Value("${geth.identity:}")
     private String identity;
 
     @Override
@@ -103,53 +102,58 @@ public class GethHttpServiceImpl implements GethHttpService {
             ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
             return response.getBody();
         } catch (RestClientException e) {
+            LOG.error("RPC call failed - " + ExceptionUtils.getRootCauseMessage(e));
             throw new APIException("RPC call failed", e);
         }
     }
 
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
+
         RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
-
-        Gson gson = new Gson();
-        String req = gson.toJson(request);
+        String req = new Gson().toJson(request);
         String response = executeGethCall(req);
-        if (StringUtils.isNotEmpty(response)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(response.trim());
+
+        if (StringUtils.isEmpty(response)) {
+            throw new APIException("Received empty reply from server");
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(response.trim());
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> data;
+        try {
+            data = mapper.readValue(response, Map.class);
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
+
+        if (data.containsKey("error") && data.get("error") != null) {
+            String message;
+            Map<String, String> error = (Map<String, String>) data.get("error");
+            if (error.containsKey("message")) {
+                message = error.get("message");
+            } else {
+                message = "RPC call failed";
             }
+            throw new APIException(message);
+        }
 
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> data;
-            try {
-                data = mapper.readValue(response, Map.class);
-            } catch (IOException e) {
-                throw new APIException("RPC call failed", e);
-            }
-
-            if (data.containsKey("error") && data.get("error") != null) {
-                String message;
-                Map<String, String> error = (Map<String, String>) data.get("error");
-                if (error.containsKey("message")) {
-                    message = error.get("message");
-                } else {
-                    message = "RPC call failed";
-                }
-                throw new APIException(message);
-            }
-
-            if (data.get("result") != null && (data.get("result") instanceof String || data.get("result") instanceof Boolean || data.get("result") instanceof Integer)) {
-
-                // Handle a special case where only a txid is returned in the result, not a full object
-                Map<String, Object> result = new HashMap<>();
-                result.put("id", data.get("result"));
-                return result;
-            }
-
-            return (Map<String, Object>) data.get("result");
-        } else {
+        Object result = data.get("result");
+        if (result == null) {
             return null;
         }
+
+        if (!(result instanceof Map)) {
+            // Handle case where a simple value is returned instead of a map (int, bool, or string)
+            Map<String, Object> res = new HashMap<>();
+            res.put("_result", data.get("result"));
+            return res;
+        }
+
+        return (Map<String, Object>) data.get("result");
     }
 
     @Override
@@ -201,14 +205,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
         LOG.info("Autostarting geth node");
         start();
-        
+
     }
-    
+
     //To restart geth when properties has been changed
     @Override
     public void start() {
-        String root = this.getClass().getClassLoader().getResource("").getPath().replaceAll("/WEB-INF/classes/", "");
-        String genesisDir = root + genesis;
+        String genesisDir = ROOT + genesis;
         Boolean isStarted;
         if (SystemUtils.IS_OS_WINDOWS) {
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
@@ -217,7 +220,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             isStarted = isProcessRunningNix(getProcessId());
         }
         if (!isStarted) {
-            isStarted = startGeth(root + File.separator, genesisDir, null, null);
+            isStarted = startGeth(ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {
@@ -256,6 +259,25 @@ public class GethHttpServiceImpl implements GethHttpService {
         return deleted;
     }
 
+    @Override
+    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
+        if (null != networkid) {
+            this.networkid = String.valueOf(networkid);
+        }
+
+        if (null != mining) {
+            this.mining = mining;
+        }
+
+        if (null != verbosity) {
+            this.verbosity = verbosity;
+        }
+
+        if (StringUtils.isNotEmpty(identity)) {
+            this.identity = identity;
+        }
+    }
+
     @PreDestroy
     protected void autoStop () {
         if (autoStop) {
@@ -268,12 +290,13 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
         Boolean started;
-        
+
         String nodePath = new File(command).getParent() + File.separator;
         String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
         ensureNodeBins(nodePath, solcPath);
 
         List<String> commands = Lists.newArrayList(command,
+                "--port", gethNodePort, "--ipcpath", dataDir + File.separator + "geth.ipc",
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
@@ -291,7 +314,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.add(String.valueOf(verbosity));
         }
         if (null != mining) {
-           commands.add("--mine"); 
+           commands.add("--mine");
            commands.add("--minerthreads");
            commands.add("1");
         }

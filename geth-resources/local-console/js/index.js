@@ -26,7 +26,7 @@ var Tower = {
 			// these are perma-widgets
 			var def = function() {
 				$.when(
-					utils.load({ url: '../node/status' })
+					utils.load({ url: '../api/node/status' })
 				).done(function(response) {
 					var status = response.data.attributes;
 

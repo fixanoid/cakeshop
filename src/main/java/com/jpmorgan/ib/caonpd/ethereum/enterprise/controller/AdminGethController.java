@@ -5,40 +5,37 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import static com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean.ADMIN_VERBOSITY_KEY;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author N631539
  */
-@Controller
-public class AdminGethController {
+@RestController
+@RequestMapping(value = "/api/node",
+    method = RequestMethod.POST,
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+public class AdminGethController extends BaseController {
 
     @Autowired
     private GethHttpService gethService;
@@ -46,30 +43,26 @@ public class AdminGethController {
     @Autowired
     private NodeService nodeService;
 
-    @Autowired
-    private AdminBean adminBean;
-    
-    @Value("${geth.verbosity:null}")
+    @Value("${geth.verbosity:}")
     private Integer verbosity;
-    @Value("${geth.mining:null}")
+    @Value("${geth.mining:}")
     private Boolean mining;
-    @Value("${geth.identity:null}")
+    @Value("${geth.identity:}")
     private String identity;
     @Value("${geth.networkid}")
     private Integer networkid;
 
-
-    @RequestMapping(value = {"/node/settings/update"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping("/settings/update")
     protected @ResponseBody
     ResponseEntity<APIResponse> updateNodeInfo(@JsonBodyParam(required = false) String verbosity,
             @JsonBodyParam(required = false) String identity,
             @JsonBodyParam(required = false) String mining,
-            @JsonBodyParam(required = false) String networkid) {
- 
-        Map<String, String> newProps = new HashMap();
- 
+            @JsonBodyParam(required = false) String networkid) throws APIException {
+
+        Map<String, String> newProps = new HashMap<String, String>();
+
         String response;
-        
+
         if (StringUtils.isNotEmpty(mining)) {
             newProps.put("geth.mining", mining);
             this.mining = Boolean.valueOf(mining);
@@ -86,11 +79,12 @@ public class AdminGethController {
         }
 
         if (StringUtils.isNotEmpty(networkid)) {
-            newProps.put("geth.networkid",networkid);
+            newProps.put("geth.networkid", networkid);
             this.networkid = Integer.valueOf(networkid);
         }
 
         if (newProps.size() > 0) {
+            gethService.setNodeInfo(this.identity, this.mining, this.verbosity, this.networkid);
             nodeService.updateNodeInfo(newProps);
             response = "Node Updated";
         } else {
@@ -100,16 +94,16 @@ public class AdminGethController {
         return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"/node/reset"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping("/settings/reset")
     protected @ResponseBody
     ResponseEntity<APIResponse> resetNodeInfo() {
         Boolean reset = nodeService.resetNodeInfo();
         return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
-    
-    @RequestMapping(value = {"/node/settings"}, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @RequestMapping("/settings")
     protected @ResponseBody
-    ResponseEntity<APIResponse> getNodeInfo() throws APIException { 
+    ResponseEntity<APIResponse> getNodeInfo() throws APIException {
         NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
         APIResponse res = new APIResponse();
         res.setData(nodeInfo.toAPIData());
