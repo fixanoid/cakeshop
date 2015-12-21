@@ -215,6 +215,6 @@ $(function() {
 	Tower.section['default']();
 
 	// Setting 'Console' as first section
-	$('.rad-sidebar li#console').click();
+	$('.rad-sidebar li').first().click();
 
 });
