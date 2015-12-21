@@ -14,6 +14,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
 
 import java.util.Map;
 
@@ -79,17 +80,11 @@ public class NodeController extends BaseController {
         data = gethService.executeGethCall(gethFunctionName, args);
 
         if (data != null) {
-            if (data.containsKey("_result")) {
-                return new ResponseEntity<>(APIResponse.newSimpleResponse(data.get("_result")), HttpStatus.OK);
+            if (data.containsKey(GethHttpServiceImpl.SIMPLE_RESULT)) {
+                return new ResponseEntity<>(APIResponse.newSimpleResponse(data.get(GethHttpServiceImpl.SIMPLE_RESULT)), HttpStatus.OK);
             }
 
-            APIData apiData = new APIData();
-            Object id = data.get("id");
-            if (id instanceof String) {
-                apiData.setId((String) id);
-            }
-            apiData.setType("node");
-            apiData.setAttributes(data);
+            APIData apiData = nodeService.getAPIData(data);
             apiResponse.setData(apiData);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 

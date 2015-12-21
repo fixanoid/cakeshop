@@ -58,10 +58,13 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 public class GethHttpServiceImpl implements GethHttpService {
-
+    
+    public static final String SIMPLE_RESULT = "_result";
+    
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
     private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
-            //System.getProperty("user.dir");
+    
+    //System.getProperty("user.dir");
 
     @Value("${geth.url}")
     private String url;
@@ -149,7 +152,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         if (!(result instanceof Map)) {
             // Handle case where a simple value is returned instead of a map (int, bool, or string)
             Map<String, Object> res = new HashMap<>();
-            res.put("_result", data.get("result"));
+            res.put(SIMPLE_RESULT, data.get("result"));
             return res;
         }
 

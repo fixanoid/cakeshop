@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ public interface NodeService {
 
     public Node get() throws APIException;
     public void updateNodeInfo(Map <String, String> newProps) throws APIException;
+    public APIData getAPIData(Map data);
     public Boolean resetNodeInfo();
 
 }

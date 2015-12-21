@@ -2,23 +2,28 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 
 @Service
@@ -47,31 +52,28 @@ public class NodeServiceImpl implements NodeService {
 
             //check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, new Object[]{ input, true });
-            Boolean mining = (Boolean)data.get("id");
+            Boolean mining = (Boolean)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
             //peer count
             data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT, new Object[]{ input, true });
-            String peerCount = (String)data.get("id");
+            String peerCount = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
             //get last block number
             data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER, new Object[]{ input, true });
-            String blockNumber = (String)data.get("id");
+            String blockNumber = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending == null ? 0 : pending);
 
-        }  catch (APIException ex) {
+        } catch (APIException ex) {
             Throwable cause = ex.getCause();
             if (cause instanceof ResourceAccessException) {
                 node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
                 return node;
-
-            } else if (cause instanceof HttpStatusCodeException) {
-                throw ex; // our request failed, so re-raise
             }
-
+            
             throw ex;
 
         } catch (NumberFormatException ex){
@@ -131,6 +133,34 @@ public class NodeServiceImpl implements NodeService {
         gethService.deletePid();
         gethService.start();
 
+    }
+    
+    @Override
+    public APIData getAPIData(Map data){
+        
+        APIData apiData = new APIData();
+        Object id = data.get("id");
+        if (id instanceof String) {
+            apiData.setId((String) id);
+        }
+        apiData.setType("node");
+        //handle empty IP address
+        String ipAddress = (String) data.get("IP");
+        //if no IP address is set, default is local host
+        if(ipAddress != null && "::".equalsIgnoreCase(ipAddress)){
+            try {
+                String ip = EEUtils.getLocalIP();
+                if( ip != null ){
+                    data.put("IP",ip);
+                }
+            } catch (APIException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
+        
+        apiData.setAttributes(data);
+        
+        return apiData;
     }
 
 }
