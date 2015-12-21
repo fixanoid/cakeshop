@@ -84,13 +84,7 @@ public class NodeController extends BaseController {
                 return new ResponseEntity<>(APIResponse.newSimpleResponse(data.get(GethHttpServiceImpl.SIMPLE_RESULT)), HttpStatus.OK);
             }
 
-            APIData apiData = new APIData();
-            Object id = data.get("id");
-            if (id instanceof String) {
-                apiData.setId((String) id);
-            }
-            apiData.setType("node");
-            apiData.setAttributes(data);
+            APIData apiData = nodeService.getAPIData(data);
             apiResponse.setData(apiData);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
