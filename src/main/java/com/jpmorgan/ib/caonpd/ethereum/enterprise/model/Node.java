@@ -80,6 +80,7 @@ public class Node  {
     public String toString()  {
       StringBuilder sb = new StringBuilder();
       sb.append("{\n");
+      sb.append("\"id\":").append("\"").append(id).append("\",").append("\n");
       sb.append("\"status\":").append("\"").append(status).append("\",").append("\n");
       sb.append("\"peers\":").append(peerCount).append(",").append("\n");
       sb.append("\"latestBlock\":").append(latestBlock).append(",").append("\n");

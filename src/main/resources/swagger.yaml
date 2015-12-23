@@ -854,21 +854,11 @@ paths:
     post:
       tags:
         - node
-      description: Retrieve Node details
+      description: Retrieve information on the node you are connecting to.
       consumes:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              id:
-                description: Node ID (defaults to the node on localhost)
-                type: string
-                required: false
       responses:
         '200':
           description: Success
@@ -886,7 +876,7 @@ paths:
                     type: string
                     description: resource type identifier, 'node'
                   attributes:
-                    $ref: '#/definitions/Node'
+                    $ref: '#/definitions/NodeDetails'
               meta:
                 type: object
                 description: Extra metadata, such as API version
@@ -1293,35 +1283,30 @@ definitions:
         description: Array of uncle hashes
         items:
           type: string
-  Node:
+  NodeDetails:
     properties:
-      id:
+      NodeID:
         type: string
-        description: Node ID
-      name:
+        description: Unique Node ID  
+      Name:
         type: string
-        description: Friendly node name (includes version info and identity string)
-      url:
+        description: Friendly node name (includes client and version info)
+      NodeUrl:
         type: string
-        description: enode URI
-      status:
-        type: boolean
-        description: Whether or not the node is currently running
-      committing_transactions:
-        type: boolean
-        description: Whether or not the node is currently committing incoming transactions (i.e. mining)
-      latest_block_number:
+        description: enode URI (Includes port number)
+      IP:
+        type: string
+        description: IP address of the node
+      DiscPort:
         type: integer
-        description: Latest block number known to this node
-      latest_block_hash:
-        type: string
-        description: Latest block hash known to this node
-      log_level:
+        description:
+      TCPPort: 
         type: integer
-        description: Log verbosity level (0-6, 6 being most verbose)
-      network_id:
-        type: integer
-        description: Network ID
-      identity:
+        description:
+      Td:
+        type:
+        description:
+      ListenAddr:
         type: string
-        description: Node identity
+        description: includes IP address and port number (when IP address is empty, refer to IP propety for the IP address)
+      
