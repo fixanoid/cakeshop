@@ -44,7 +44,7 @@ var Tower = {
 						 .addClass('fa-pause rad-txt-danger');
 					}
 
-					utils.prettyUpdate(Tower.status.peers, status.peerCount + demo.add(), $('#default-peers'));
+					utils.prettyUpdate(Tower.status.peerCount, status.peerCount + demo.add(), $('#default-peers'));
 					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
 					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
 
@@ -87,7 +87,9 @@ var Tower = {
 			// reset screen, load widgets
 			Tower.screenManager.clear();
 
+			Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: Tower.status.latestBlock });
 			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer' });
+			Tower.screenManager.show({ widgetId: 'block-view', section: 'explorer' });
 		}
 	}
 };

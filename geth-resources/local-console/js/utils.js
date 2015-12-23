@@ -1,62 +1,81 @@
 var utils = {
-	load : function(opts) {
+	load: function(opts) {
 		var config = {
-			headers : {
-				'janus_user' : 'V442113'
+			headers: {
+				'janus_user': 'V442113'
 			},
-			type : opts.method ? opts.method : 'POST',
-			url : opts.url,
-			contentType : opts.type ? opts.type : 'application/json',
-			cache : false,
-			async : true
+			type: opts.method ? opts.method : 'POST',
+			url: opts.url,
+			contentType: opts.type ? opts.type : 'application/json',
+			cache: false,
+			async: true
 		};
 
 		if (opts.data) {
 			config.data = JSON.stringify(opts.data);
 		}
 
+		if (opts.complete) {
+			config.complete = opts.complete;
+		}
+
 		return $.ajax(config);
 	},
 
-	prettyUpdate : function(oldValue, newValue, el) {
+	prettyUpdate: function(oldValue, newValue, el) {
 		if (oldValue !== newValue) {
 			el.css({
-				'opacity' : 0
+				'opacity': 0
 			});
 
 			setTimeout(function() {
 				el.html($('<span>', {
-					html : newValue
+					html: newValue
 				}));
 
 				el.css({
-					'opacity' : 1
+					'opacity': 1
 				});
 			}, 500);
 		}
 	},
 
-	capitalize : function(str) {
+	prettyMoneyPrint: function(val) {
+		if (val) {
+			var sign = '';
+
+			if (val < 0) {
+				sign = '-';
+			}
+
+			return sign + '$' + Math.abs(val).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+		}
+	},
+
+	capitalize: function(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}
 };
 
 var screenManager = {
 	// DOM anchor for the widget field
-	grounds : $('#grounds'),
+	grounds: $('#grounds'),
 
 	// section to widget mapping
-	sectionMap : {},
+	sectionMap: {},
 
 	// widget id to widget mapping
-	idMap : {},
+	idMap: {},
 
 	// widgets that have been loaded
-	loaded : {},
+	loaded: {},
 
-	addWidget : function(widget) {
+	// init data for widgets
+	initData: {},
+
+	addWidget: function(widget) {
 		// shared injects
-		widget.init();
+		widget.init(this.initData[widget.name]);
 
 		// set section widget belongs to
 		widget.section = _.invert(this.sectionMap)[widget.name];
@@ -67,9 +86,11 @@ var screenManager = {
 
 		this.loaded[widget.name] = widget;
 		this.idMap[widget.shell.id] = widget;
+
+		delete this.initData[widget.name];
 	},
 
-	show : function(opts) {
+	show: function(opts) {
 		if ((!opts) || (!opts.widgetId)) {
 			return;
 		}
@@ -80,28 +101,36 @@ var screenManager = {
 					'display') === 'none') {
 				// Remove .panel-close
 				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id)
-						.children().removeClass('panel-close');
+					.children().removeClass('panel-close');
 
 				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css({
-					'display' : 'block'
+					'display': 'block'
 				});
 			}
+
+			if ( (opts.data) && this.loaded[opts.widgetId].setData ) {
+				this.loaded[opts.widgetId].setData(opts.data);
+			}
 		} else {
+			if (opts.data) {
+				this.initData[opts.widgetId] = opts.data;
+			}
+
 			// load widget and then run its payload
 			$.getScript('js/widgets/' + opts.widgetId + '.js').then(
-					function(jqxhr, settings, e) {
-						screenManager.sectionMap[opts.section] = opts.widgetId;
-					}).fail(function(jqxhr, settings, e) {
+				function(jqxhr, settings, e) {
+					screenManager.sectionMap[opts.section] = opts.widgetId;
+				}).fail(function(jqxhr, settings, e) {
 				delete screenManager.sectionMap[opts.section];
 				console.log(opts.widgetId + ' loading failed with: ' + e);
 			});
 		}
 	},
 
-	hide : function(widget) {
+	hide: function(widget) {
 		if ($('#widget-shell-' + widget.shell.id).css('display') !== 'none') {
 			$('#widget-shell-' + widget.shell.id).css({
-				'display' : 'none'
+				'display': 'none'
 			});
 		}
 	},
@@ -109,7 +138,7 @@ var screenManager = {
 	// clear the grounds of any displayed widgets
 	// TODO: using show/hide CSS fuckery. Could be easier in the long run to
 	// remove from DOM
-	clear : function() {
+	clear: function() {
 		var _this = this;
 
 		_.each(this.loaded, function(val, key) {
