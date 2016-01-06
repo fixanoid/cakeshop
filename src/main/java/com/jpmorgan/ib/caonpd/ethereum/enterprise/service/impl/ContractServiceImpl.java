@@ -2,14 +2,12 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ContractServiceImpl implements ContractService {
+
+    // FIXME remove hardcoded FROM address
+    public static final String DEFAULT_FROM_ADDRESS = "0x2e219248f44546d966808cdd20cb6c36df6efa82";
 
 	@Autowired
 	GethHttpService geth;
@@ -40,7 +41,7 @@ public class ContractServiceImpl implements ContractService {
 		String binaryCode = (String) compiled.get("code");
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
-		contractArgs.put("from", "0x2e219248f44546d966808cdd20cb6c36df6efa82"); // FIXME remove this hardcoded and first getAccounts
+		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
 		contractArgs.put("data", binaryCode);
 		contractArgs.put("gas", 3_141_592);
 
@@ -89,27 +90,13 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public Object read(String id, String abi, String method, Object[] args) throws APIException {
 
-	    ContractABI contractABI;
-	    try {
-	        contractABI = new ContractABI(abi);
-	    } catch (IOException e) {
-	        throw new APIException("Invalid ABI", e);
-	    }
+	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
 
-	    Function func = contractABI.getFunction(method);
-	    String data = func.encodeAsHex(args);
-
-	    Map<String, Object> readArgs = new HashMap<String, Object>();
-	    readArgs.put("from", "0x2e219248f44546d966808cdd20cb6c36df6efa82"); // FIXME remove this hardcoded and first getAccounts
-	    readArgs.put("to", id);
-	    readArgs.put("gas", 3_141_590);
-	    readArgs.put("data", data);
-
-	    Map<String, Object> readRes = geth.executeGethCall("eth_call", new Object[]{ readArgs });
+	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
 	    String res = (String) readRes.get("_result");
-	    Object[] decodedResults = func.decodeHexResult(res);
+	    Object[] decodedResults = req.getFunction().decodeHexResult(res);
 
-	    if (func.outputs.length == 1 && decodedResults.length == 1) {
+	    if (req.getFunction().outputs.length == 1 && decodedResults.length == 1) {
 	        return decodedResults[0];
 	    }
 
@@ -118,14 +105,20 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public TransactionResult transact(String id, String method, Object[] args) throws APIException {
-	    // TODO Auto-generated method stub
-	    return null;
+	    Contract contract = contractRegistry.getById(id);
+	    if (contract == null) {
+	        throw new APIException("Contract not in registry " + id);
+	    }
+	    return transact(id, contract.getABI(), method, args);
 	}
 
 	@Override
 	public TransactionResult transact(String id, String abi, String method, Object[] args) throws APIException {
-	    // TODO Auto-generated method stub
-	    return null;
+
+	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
+
+	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
+	    return new TransactionResult((String) readRes.get("_result"));
 	}
 
 }

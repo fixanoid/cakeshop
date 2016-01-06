@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
@@ -59,6 +60,25 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertEquals(val.intValue(), 100);
 	}
 
+	public void testTransactByABI() throws InterruptedException, IOException {
+
+	    String contractAddress = createContract();
+
+	    String abi = readTestFile("contracts/simplestorage.abi.txt");
+
+	    // 100 to start
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null);
+	    assertEquals(val.intValue(), 100);
+
+	    // modify value
+	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
+	    Transaction tx = waitForTx(tr);
+
+	    // should now be 200
+	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, "get", null);
+	    assertEquals(val2.intValue(), 200);
+	}
+
 	private String createContract() throws IOException, InterruptedException {
 
 		String abi = readTestFile("contracts/simplestorage.abi.txt");
@@ -71,7 +91,12 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 		Map<String, Object> res = geth.executeGethCall("miner_start", new Object[]{ });
 
-		Transaction tx = null;
+		Transaction tx = waitForTx(result);
+		return tx.getContractAddress();
+	}
+
+    private Transaction waitForTx(TransactionResult result) throws APIException, InterruptedException {
+        Transaction tx = null;
 		while (true) {
 			tx = transactionService.get(result.getId());
 			if (tx.getStatus() == Status.committed) {
@@ -79,8 +104,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 			}
 			TimeUnit.MILLISECONDS.sleep(50);
 		}
-
-		return tx.getContractAddress();
-	}
+        return tx;
+    }
 
 }

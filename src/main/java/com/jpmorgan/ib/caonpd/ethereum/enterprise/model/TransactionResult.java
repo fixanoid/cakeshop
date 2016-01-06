@@ -9,6 +9,13 @@ public class TransactionResult {
 
 	private String id;
 
+	public TransactionResult() {
+    }
+
+	public TransactionResult(String id) {
+	    this.id = id;
+    }
+
 	public String getId() {
 		return id;
 	}
