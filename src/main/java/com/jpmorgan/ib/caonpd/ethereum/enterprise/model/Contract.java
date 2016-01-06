@@ -1,9 +1,9 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 
 public class Contract {
 
@@ -28,6 +28,11 @@ public class Contract {
      * Binary source code
      */
     private String binary;
+
+    /**
+     * Contract ABI (JSON string)
+     */
+    private String abi;
 
     public String getCode() {
         return code;
@@ -72,5 +77,13 @@ public class Contract {
         data.setType(API_DATA_TYPE);
         data.setAttributes(this);
         return data;
+    }
+
+    public String getABI() {
+        return abi;
+    }
+
+    public void setABI(String abi) {
+        this.abi = abi;
     }
 }

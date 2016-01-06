@@ -2,10 +2,14 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,9 @@ public class ContractServiceImpl implements ContractService {
 
 	@Autowired
 	GethHttpService geth;
+
+	@Autowired
+	ContractRegistryService contractRegistry;
 
 	@SuppressWarnings("unchecked")
     @Override
@@ -71,16 +78,54 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	@Override
-	public Object read() throws APIException {
-		// TODO Auto-generated method stub
-		return null;
+	public Object read(String id, String method, Object[] args) throws APIException {
+	    Contract contract = contractRegistry.getById(id);
+	    if (contract == null) {
+	        throw new APIException("Contract not in registry " + id);
+	    }
+	    return read(id, contract.getABI(), method, args);
 	}
 
 	@Override
-	public TransactionResult transact() throws APIException {
-		// TODO Auto-generated method stub
-		return null;
+	public Object read(String id, String abi, String method, Object[] args) throws APIException {
+
+	    ContractABI contractABI;
+	    try {
+	        contractABI = new ContractABI(abi);
+	    } catch (IOException e) {
+	        throw new APIException("Invalid ABI", e);
+	    }
+
+	    Function func = contractABI.getFunction(method);
+	    String data = func.encodeAsHex(args);
+
+	    Map<String, Object> readArgs = new HashMap<String, Object>();
+	    readArgs.put("from", "0x2e219248f44546d966808cdd20cb6c36df6efa82"); // FIXME remove this hardcoded and first getAccounts
+	    readArgs.put("to", id);
+	    readArgs.put("gas", 3_141_590);
+	    readArgs.put("data", data);
+
+	    Map<String, Object> readRes = geth.executeGethCall("eth_call", new Object[]{ readArgs });
+	    String res = (String) readRes.get("_result");
+	    Object[] decodedResults = func.decodeHexResult(res);
+
+	    if (func.outputs.length == 1 && decodedResults.length == 1) {
+	        return decodedResults[0];
+	    }
+
+	    return decodedResults;
 	}
 
+	@Override
+	public TransactionResult transact(String id, String method, Object[] args) throws APIException {
+	    // TODO Auto-generated method stub
+	    return null;
+	}
+
+	@Override
+	public TransactionResult transact(String id, String abi, String method, Object[] args) throws APIException {
+	    // TODO Auto-generated method stub
+	    return null;
+	}
 
 }

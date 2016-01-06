@@ -1,15 +1,15 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
-import java.util.List;
-
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 
+import java.util.List;
+
 public interface ContractService {
 
 	/**
-	 * List of allowable Code Types durinug create
+	 * List of allowable Code Types during contract create
 	 * @author chetan
 	 *
 	 */
@@ -30,8 +30,12 @@ public interface ContractService {
 
 	public TransactionResult migrate() throws APIException;
 
-	public Object read() throws APIException;
+	public Object read(String id, String method, Object[] args) throws APIException;
 
-	public TransactionResult transact() throws APIException;
+	public Object read(String id, String abi, String method, Object[] args) throws APIException;
+
+	public TransactionResult transact(String id, String method, Object[] args) throws APIException;
+
+	public TransactionResult transact(String id, String abi, String method, Object[] args) throws APIException;
 
 }

@@ -2,7 +2,11 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
 import java.util.Map;
 
+import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
+
 public class RpcUtil {
+
+    public static final int SHA3_DEFAULT_SIZE = 256;
 
 	public static Long toLong(String key, Map<String, Object> blockData) {
 		String str = (String)blockData.get(key);
@@ -10,6 +14,36 @@ public class RpcUtil {
 			return null;
 		}
 		return Long.decode(str);
+	}
+
+	public static byte[] sha3(String input) {
+	    return sha3(input.getBytes());
+	}
+
+	public static byte[] sha3(byte[] input) {
+        return new DigestSHA3(SHA3_DEFAULT_SIZE).digest(input);
+	}
+
+	/**
+	 * Merge the given arrays into a single array
+	 *
+	 * @param arrays - arrays to merge
+	 * @return - merged array
+	 */
+	public static byte[] merge(byte[]... arrays) {
+	    int count = 0;
+	    for (byte[] array: arrays) {
+	        count += array.length;
+	    }
+
+	    // Create new array and copy all array contents
+	    byte[] mergedArray = new byte[count];
+	    int start = 0;
+	    for (byte[] array: arrays) {
+	        System.arraycopy(array, 0, mergedArray, start, array.length);
+	        start += array.length;
+	    }
+	    return mergedArray;
 	}
 
 }
