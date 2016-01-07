@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -46,7 +48,35 @@ public class NodeServiceImpl implements NodeService {
 
             node.setId((String)data.get("NodeID"));
             node.setStatus(StringUtils.isEmpty((String)data.get("NodeID")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
-
+            node.setNodeName((String)data.get("Name"));
+            String nodeURI = (String)data.get("NodeUrl");
+            if(StringUtils.isNotEmpty(nodeURI)){
+                try {
+                    URI uri = new URI(nodeURI);
+                    String host = uri.getHost();
+                    //if host or IP aren't set, then populate with localhost IP
+                    if(StringUtils.isEmpty(host) || "[::]".equals(host) ||  "0.0.0.0".equalsIgnoreCase(host)){
+                        
+                        try {
+                            String ip = EEUtils.getLocalIP();
+                            uri = new URI(uri.getScheme(), uri.getUserInfo(), ip, uri.getPort(), null, uri.getQuery(), null);
+                            node.setNodeUrl(uri.toString());
+                            node.setNodeIP(ip);
+                        
+                        } catch (APIException ex) {
+                            LOG.error(ex.getMessage());
+                            node.setNodeUrl(nodeURI);
+                            node.setNodeIP(host);
+                        }
+                        
+                    }else{
+                        node.setNodeUrl(nodeURI);
+                    }
+                } catch (URISyntaxException ex) {
+                    LOG.error(ex.getMessage());
+                    throw new APIException(ex.getMessage());
+                }
+            }
             //check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, new Object[]{ input, true });
             Boolean mining = (Boolean)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
@@ -144,7 +174,7 @@ public class NodeServiceImpl implements NodeService {
         //handle empty IP address
         String ipAddress = (String) data.get("IP");
         //if no IP address is set, default is local host
-        if(ipAddress != null && "::".equalsIgnoreCase(ipAddress)){
+        if( ipAddress != null && ("::".equalsIgnoreCase(ipAddress) || "0.0.0.0".equalsIgnoreCase(ipAddress) ) ){
             try {
                 String ip = EEUtils.getLocalIP();
                 if( ip != null ){

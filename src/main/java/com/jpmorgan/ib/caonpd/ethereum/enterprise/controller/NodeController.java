@@ -57,7 +57,7 @@ public class NodeController extends BaseController {
         APIResponse apiResponse = new APIResponse();
         Map<String, Object> data=null;
 
-        if (StringUtils.isNotEmpty(funcName) && funcName.equalsIgnoreCase("status")) {
+        if (StringUtils.isNotEmpty(funcName) && ( funcName.equalsIgnoreCase("status") || funcName.equalsIgnoreCase("get")) ) {
             node = nodeService.get();
             apiResponse.setData(new APIData(node.getId(), "node", node));
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
