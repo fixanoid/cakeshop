@@ -45,7 +45,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         LOG.info("Starting Ethereum at test startup");
         String genesisDir = System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
-        String eth_datadir = System.getProperty("user.home") + ethDataDir;
+        String eth_datadir = System.getProperty("user.home") + File.separator + ethDataDir;
+        eth_datadir = eth_datadir.replaceAll(File.separator + File.separator, "/");
         new File(eth_datadir).mkdirs();
 
         Boolean started = service.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest"));

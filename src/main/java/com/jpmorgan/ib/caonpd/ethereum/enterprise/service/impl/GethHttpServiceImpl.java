@@ -290,7 +290,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
-
+        String ipcPipe = isWindows ? "\\\\.\\pipe\\geth-" + System.getProperty("eth.environment") + ".ipc" : dataDir + File.separator +  "geth.ipc";
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
         Boolean started;
 
@@ -299,7 +299,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         ensureNodeBins(nodePath, solcPath);
 
         List<String> commands = Lists.newArrayList(command,
-                "--port", gethNodePort, "--ipcpath", dataDir + File.separator + "geth.ipc",
+                "--port", gethNodePort, "--ipcpath", ipcPipe,
                 "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
