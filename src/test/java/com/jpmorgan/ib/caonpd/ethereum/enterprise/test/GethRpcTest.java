@@ -17,7 +17,10 @@ public class GethRpcTest extends BaseGethRpcTest {
         Object input = new BigInteger("0");
         System.out.println(input);
 
-        String hash = "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c";
+
+
+        String hash = "0x437d85e5a21ab984836930176ec31bd22a7b174b8a70a2d08c5173f554b7384b";
+
         Map<String, Object> data = geth.executeGethCall(method, new Object[]{ "latest", false });
         assertEquals(data.get("hash"), hash);
 
