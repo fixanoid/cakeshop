@@ -2,12 +2,14 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,20 +82,17 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public Object read(String id, String method, Object[] args) throws APIException {
-	    Contract contract = contractRegistry.getById(id);
-	    if (contract == null) {
-	        throw new APIException("Contract not in registry " + id);
-	    }
-	    return read(id, contract.getABI(), method, args);
+	    return read(id, lookupABI(id), method, args);
 	}
 
 	@Override
-	public Object read(String id, String abi, String method, Object[] args) throws APIException {
-
+	public Object read(String id, ContractABI abi, String method, Object[] args) throws APIException {
 	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
+	    System.out.println(readRes);
 	    String res = (String) readRes.get("_result");
+	    System.out.println(res);
 	    Object[] decodedResults = req.getFunction().decodeHexResult(res);
 
 	    if (req.getFunction().outputs.length == 1 && decodedResults.length == 1) {
@@ -105,20 +104,29 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public TransactionResult transact(String id, String method, Object[] args) throws APIException {
-	    Contract contract = contractRegistry.getById(id);
-	    if (contract == null) {
-	        throw new APIException("Contract not in registry " + id);
-	    }
-	    return transact(id, contract.getABI(), method, args);
+	    return transact(id, lookupABI(id), method, args);
 	}
 
 	@Override
-	public TransactionResult transact(String id, String abi, String method, Object[] args) throws APIException {
-
+	public TransactionResult transact(String id, ContractABI abi, String method, Object[] args) throws APIException {
 	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
 	    return new TransactionResult((String) readRes.get("_result"));
+	}
+
+	private ContractABI lookupABI(String id) throws APIException {
+
+	    Contract contract = contractRegistry.getById(id);
+	    if (contract == null) {
+	        throw new APIException("Contract not in registry " + id);
+	    }
+
+	    try {
+	        return new ContractABI(contract.getABI());
+	    } catch (IOException e) {
+	        throw new APIException("Invalid ABI", e);
+	    }
 	}
 
 }

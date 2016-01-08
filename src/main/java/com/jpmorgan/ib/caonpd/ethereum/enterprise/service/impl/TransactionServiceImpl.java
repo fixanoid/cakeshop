@@ -2,17 +2,19 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -68,6 +70,19 @@ public class TransactionServiceImpl implements TransactionService {
 	public List<Transaction> pending() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Transaction waitForTx(TransactionResult result) throws APIException, InterruptedException {
+	    Transaction tx = null;
+	    while (true) {
+	        tx = this.get(result.getId());
+	        if (tx.getStatus() == Status.committed) {
+	            break;
+	        }
+	        TimeUnit.MILLISECONDS.sleep(50);
+	    }
+	    return tx;
 	}
 
 }

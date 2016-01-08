@@ -9,6 +9,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.SolidityType.IntType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,12 +97,13 @@ public class ContractABI {
 
             int off = 0;
             for (int i = 0; i < params.length; i++) {
+                Param param = params[i];
                 if (params[i].type.isDynamicType()) {
-                    ret[i] = params[i].type.decode(encoded, IntType.decodeInt(encoded, off).intValue());
+                    ret[i] = param.type.decode(encoded, IntType.decodeInt(encoded, off).intValue());
                 } else {
-                    ret[i] = params[i].type.decode(encoded, off);
+                    ret[i] = param.type.decode(encoded, off);
                 }
-                off += params[i].type.getFixedSize();
+                off += param.type.getFixedSize();
             }
             return ret;
         }
@@ -167,13 +169,20 @@ public class ContractABI {
     private Function[] functions;
     private Map<String, Function> functionMap;
 
-    public ContractABI(String jsonABI) throws IOException {
-        functions = new ObjectMapper().readValue(jsonABI, Function[].class);
-
+    public ContractABI(Function[] functions) {
+        this.functions = functions;
         functionMap = new HashMap<>();
         for (Function f : functions) {
             functionMap.put(f.name, f);
         }
+    }
+
+    public ContractABI(String jsonABI) throws IOException {
+        this(new ObjectMapper().readValue(jsonABI, Function[].class));
+    }
+
+    public ContractABI(InputStream input) throws IOException {
+        this(new ObjectMapper().readValue(input, Function[].class));
     }
 
     public Function getFunction(String name) {

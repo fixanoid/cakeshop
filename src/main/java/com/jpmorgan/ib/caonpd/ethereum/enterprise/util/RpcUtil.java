@@ -1,8 +1,10 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
+import org.bouncycastle.util.encoders.Hex;
 
 public class RpcUtil {
 
@@ -44,6 +46,14 @@ public class RpcUtil {
 	        start += array.length;
 	    }
 	    return mergedArray;
+	}
+
+	public static String addrToHex(BigInteger addr) {
+	    String hex = Hex.toHexString(addr.toByteArray());
+	    if (hex.length() > 40) {
+	        hex = hex.substring(hex.length()-40); // remove any leading 0 padding
+	    }
+	    return "0x" + hex;
 	}
 
 }

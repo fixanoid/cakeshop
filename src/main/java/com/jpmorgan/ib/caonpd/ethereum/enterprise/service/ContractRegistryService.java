@@ -1,20 +1,22 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 
 import java.util.List;
 
 public interface ContractRegistryService {
 
-    public boolean register(String name, String abi, String code, CodeType codeType);
+    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType) throws APIException;
 
-    public Contract getById(String id);
+    public Contract getById(String id) throws APIException;
 
-    public Contract getByName(String name);
+    public Contract getByName(String name) throws APIException;
 
-    public List<Contract> list();
+    public List<Contract> list() throws APIException;
 
-    public List<Contract> listByOwner(String owner);
+    public List<Contract> listByOwner(String owner) throws APIException;
 
 }

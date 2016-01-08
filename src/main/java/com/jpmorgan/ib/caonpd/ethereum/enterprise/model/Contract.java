@@ -34,6 +34,19 @@ public class Contract {
      */
     private String abi;
 
+
+    public Contract() {
+    }
+
+    public Contract(String address, String abi, String code, CodeType codeType, String binary) {
+        this.address = address;
+        this.abi = abi;
+        this.code = code;
+        this.codeType = codeType;
+        this.binary = binary;
+    }
+
+
     public String getCode() {
         return code;
     }

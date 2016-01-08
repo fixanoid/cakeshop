@@ -1,0 +1,52 @@
+contract ContractRegistry
+{
+	address public owner;
+
+	struct Contract {
+	    address addr;
+	    address owner;
+	    string name;
+	    string abi;
+	    string code;
+	    string code_type;
+	}
+
+    // helpers for iterating
+    uint num_addrs;
+    address[] addrs;
+
+	mapping (address => Contract) public contracts; // contracts by address
+
+	function ContractRegistry() {
+		owner = msg.sender;
+		num_addrs = 0;
+	}
+
+	function register(address addr, string name, string abi, string code, string code_type) {
+        addrs.length = ++num_addrs;
+        addrs[num_addrs-1] = addr;
+        contracts[addr] = Contract(addr, msg.sender, name, abi, code, code_type);
+	}
+
+	function getById(address id) returns (address _id, string _name, string _abi, string _code, string _code_type) {
+	    var c = contracts[id];
+	    _id = c.addr;
+	    _name = c.name;
+	    _abi = c.abi;
+	    _code = c.code;
+	    _code_type = c.code_type;
+	}
+
+	function getByName(string name) returns (address _id, string _name, string _abi, string _code, string _code_type) {
+	    // TODO
+	}
+
+	function listAddrs() returns (address[] _addresses) {
+	    return addrs;
+	}
+
+	function listByOwner() {
+	    // TODO
+	}
+
+}
