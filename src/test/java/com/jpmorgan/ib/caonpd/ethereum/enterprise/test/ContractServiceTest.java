@@ -10,12 +10,10 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ShortToStringStyle;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
@@ -79,9 +77,6 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	            new Object[] { addr, str });
 
 	    String hexAddr = RpcUtil.addrToHex((BigInteger) res[0]);
-	    System.out.println(hexAddr);
-	    System.out.println(res[1]);
-
 	    assertEquals(hexAddr, addr);
 	    assertEquals(res[1], str);
 
@@ -93,15 +88,9 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	            "echo_contract",
 	            new Object[] { contractAddress, "SimpleStorage", json, code, "solidity" });
 
-	    System.out.println(ToStringBuilder.reflectionToString(res2, ShortToStringStyle.INSTANCE));
-
-	    System.out.println(RpcUtil.addrToHex((BigInteger) res2[0]));
-
-
 	    assertEquals(RpcUtil.addrToHex((BigInteger) res2[0]), contractAddress);
 	    assertEquals(res2[1], "SimpleStorage");
 	    assertEquals(res2[2], json);
-
 	}
 
 	public void testTransactByABI() throws InterruptedException, IOException {

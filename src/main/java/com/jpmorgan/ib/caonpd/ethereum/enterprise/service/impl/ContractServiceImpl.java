@@ -90,9 +90,7 @@ public class ContractServiceImpl implements ContractService {
 	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
-	    System.out.println(readRes);
 	    String res = (String) readRes.get("_result");
-	    System.out.println(res);
 	    Object[] decodedResults = req.getFunction().decodeHexResult(res);
 
 	    if (req.getFunction().outputs.length == 1 && decodedResults.length == 1) {
