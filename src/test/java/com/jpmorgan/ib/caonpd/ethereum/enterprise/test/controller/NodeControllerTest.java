@@ -38,6 +38,14 @@ public class NodeControllerTest extends BaseControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+    
+    @Test
+    public void testNodeGet() throws Exception {
+        mockMvc.perform(post("/api/node/get")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(""))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
 
     @Test
     public void testMinerStatus() throws Exception {

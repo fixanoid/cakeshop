@@ -876,7 +876,7 @@ paths:
                     type: string
                     description: resource type identifier, 'node'
                   attributes:
-                    $ref: '#/definitions/NodeDetails'
+                    $ref: '#/definitions/Node'
               meta:
                 type: object
                 description: Extra metadata, such as API version
@@ -1283,30 +1283,33 @@ definitions:
         description: Array of uncle hashes
         items:
           type: string
-  NodeDetails:
+  Node:
     properties:
-      NodeID:
+      status:
+        type: string
+        description: Status of the node, it has two values "running" or "stopped"  
+      id:
         type: string
         description: Unique Node ID  
-      Name:
+      nodeName:
         type: string
         description: Friendly node name (includes client and version info)
-      NodeUrl:
+      nodeUrl:
         type: string
-        description: enode URI (Includes port number)
-      IP:
+        description: enode URI (Includes host IP and port number)
+      nodeIP:
         type: string
         description: IP address of the node
-      DiscPort:
+      peerCount:
         type: integer
-        description:
-      TCPPort: 
+        description: Number of peers connected to the node
+      pendingTxn: 
         type: integer
-        description:
-      Td:
-        type:
-        description:
-      ListenAddr:
-        type: string
-        description: includes IP address and port number (when IP address is empty, refer to IP propety for the IP address)
+        description: Number of transaction in the queue and haven't been mined
+      mining:
+        type: boolean
+        description: Indicates weather the miner is running or not. It has a true or false values.
+      latestBlock:
+        type: integer
+        description: A number indicating the most recent block that has been mined.
       
