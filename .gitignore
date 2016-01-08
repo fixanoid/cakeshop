@@ -7,10 +7,17 @@
 .settings/
 .idea/
 *.iml
+nb-configuration.xml
+.externalToolBuilders/
 
 /target/
 /test-output/
 /test.json
+logs/
 meth.log
+meth.pid
+node.conf
 .DS_Store
 /bin/
+WebContent/
+

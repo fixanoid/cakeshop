@@ -2,9 +2,18 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
+import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -17,10 +26,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Lists;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-
 @Test
 @ContextConfiguration(classes = {TestWebConfig.class})
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
@@ -31,8 +36,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         System.setProperty("eth.environment", "test");
     }
 
+	@Autowired
+	private ContractService contractService;
+
+	@Autowired
+	private TransactionService transactionService;
+
     @Autowired
-    protected GethHttpService service;
+    protected GethHttpService geth;
 
     @Value("${geth.genesis}")
     private String genesis;
@@ -40,8 +51,15 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Value("${geth.datadir}")
     private String ethDataDir;
 
+    public boolean runGeth() {
+        return true;
+    }
+
     @BeforeClass
     public void startGeth() {
+        if (!runGeth()) {
+            return;
+        }
         LOG.info("Starting Ethereum at test startup");
         String genesisDir = System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
         String command = System.getProperty("user.dir") + "/geth-resources/";
@@ -49,14 +67,17 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         eth_datadir = eth_datadir.replaceAll(File.separator + File.separator, "/");
         new File(eth_datadir).mkdirs();
 
-        Boolean started = service.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest"));
+        Boolean started = geth.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest")); // , "--verbosity", "6"
         assertTrue(started);
     }
 
     @AfterClass
     public void stopGeth() {
+        if (!runGeth()) {
+            return;
+        }
         LOG.info("Stopping Ethereum at test teardown");
-        service.stopGeth();
+        geth.stopGeth();
         String eth_datadir = System.getProperty("user.home") + ethDataDir;
         try {
             FileUtils.deleteDirectory(new File(eth_datadir));
@@ -76,6 +97,23 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     	URL url = this.getClass().getClassLoader().getResource(path);
     	File file = FileUtils.toFile(url);
     	return FileUtils.readFileToString(file);
+    }
+
+    protected String createContract() throws IOException, InterruptedException {
+
+    	String abi = readTestFile("contracts/simplestorage.abi.txt");
+    	String code = readTestFile("contracts/simplestorage.sol");
+
+    	TransactionResult result = contractService.create(abi, code, ContractService.CodeType.solidity);
+    	assertNotNull(result);
+    	assertNotNull(result.getId());
+    	assertTrue(!result.getId().isEmpty());
+
+    	// make sure mining is enabled
+    	Map<String, Object> res = geth.executeGethCall("miner_start", new Object[]{ });
+
+    	Transaction tx = transactionService.waitForTx(result);
+    	return tx.getContractAddress();
     }
 
 }

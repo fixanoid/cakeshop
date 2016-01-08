@@ -3,7 +3,6 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,16 +20,11 @@ public class TransactionRequest {
 
     private Map<String, Object> args;
 
-    public TransactionRequest(String fromAddress, String contractAddress, String jsonABI, String method, Object[] args) throws APIException {
+    public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args) throws APIException {
 
         this.fromAddress = fromAddress;
         this.contractAddress = contractAddress;
-
-	    try {
-	        this.abi = new ContractABI(jsonABI);
-	    } catch (IOException e) {
-	        throw new APIException("Invalid ABI", e);
-	    }
+        this.abi = abi;
 
 	    this.function = abi.getFunction(method);
 	    if (this.function == null) {
