@@ -6,7 +6,7 @@
 		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
-		templateRow: _.template('<tr><td style="width: 90px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
+		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -35,10 +35,11 @@
 			$.when(
 				utils.load({ url: this.url, data: { number: parseInt(_this.blockNumber, 10) } })
 			).done(function(res) {
-				var rows = [];
+				var rows = [],
+				 keys = _.sortBy(_.keys(res.data.attributes));;
 
-				_.each(res.data.attributes, function(val, key) {
-					rows.push( _this.templateRow({ key: key, value: val }) );
+				_.each(keys, function(val, key) {
+					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] }) );
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );

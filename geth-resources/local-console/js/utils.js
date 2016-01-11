@@ -54,6 +54,10 @@ var utils = {
 
 	capitalize: function(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
+	},
+
+	camelToRegularForm: function(t) {
+		return t.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
 	}
 };
 
