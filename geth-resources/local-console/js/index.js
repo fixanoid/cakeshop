@@ -104,8 +104,6 @@ $(function() {
 	});
 
 	$(document).on('click', function(e) {
-		e.preventDefault();
-
 		var $item = $('.rad-dropmenu-item');
 
 		if ($item.hasClass('active')) {
@@ -218,5 +216,4 @@ $(function() {
 
 	// Setting 'Console' as first section
 	$('.rad-sidebar li').first().click();
-
 });

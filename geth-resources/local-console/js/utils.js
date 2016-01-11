@@ -97,8 +97,7 @@ var screenManager = {
 
 		if (this.loaded[opts.widgetId]) {
 			// been loaded, execute?
-			if ($('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css(
-					'display') === 'none') {
+			if ($('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css('display') === 'none') {
 				// Remove .panel-close
 				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id)
 					.children().removeClass('panel-close');
@@ -110,6 +109,10 @@ var screenManager = {
 
 			if ( (opts.data) && this.loaded[opts.widgetId].setData ) {
 				this.loaded[opts.widgetId].setData(opts.data);
+
+				if (opts.refetch) {
+					this.loaded[opts.widgetId].fetch();
+				}
 			}
 		} else {
 			if (opts.data) {

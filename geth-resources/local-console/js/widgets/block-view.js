@@ -9,18 +9,18 @@
 
 		template: _.template(
 			'  <div class="form-group">' +
-			'    <label for="addy">Identifier [number, hash, tag]</label>' +
-			'    <input type="text" class="form-control" id="addy">' +
+			'    <label for="block-id">Identifier [number, hash, tag]</label>' +
+			'    <input type="text" class="form-control" id="block-id">' +
 			'  </div>'+
 			'  <div class="radio">' +
 			'    <label>' +
-			'      <input type="radio" name="searchType" value="block">' +
+			'      <input type="radio" id="searchType" name="searchType" value="block" checked="checked"/>' +
 			'      Block' +
 			'    </label>' +
 			'  </div>' +
 			'  <div class="radio">' +
 			'    <label>' +
-			'      <input type="radio" name="searchType" value="txn">' +
+			'      <input type="radio" id="searchType" name="searchType" value="txn"/>' +
 			'      Transaction' +
 			'    </label>' +
 			'  </div>' +
@@ -34,8 +34,6 @@
 		ready: function() {
 			this.render();
 		},
-
-		url: '../api/node/add_peer',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
@@ -60,37 +58,12 @@
 
 		_handler: function(ev) {
 			var _this = widget,
-			 input = $('#widget-' + _this.shell.id + ' #addy'),
-			 notif = $('#widget-' + _this.shell.id + ' #notification');
+			 id = $('#widget-' + _this.shell.id + ' #block-id'),
+			 type = $('#widget-' + _this.shell.id + ' #searchType');
 
-			if (!input.val()) {
-				return;
+			if (id.val() && (type.val() == 'block') ) {
+				Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: id.val(), refetch: true });
 			}
-
-			$.when(
-				utils.load({ url: widget.url, data: { "args": input.val() } })
-			).done(function(r) {
-				notif.show();
-
-				if ( (r) && (r.error) ) {
-					notif
-					 .addClass('text-danger')
-					 .removeClass('text-success')
-					 .html(r.error.message);
-
-				} else {
-					input.val('');
-
-					notif
-					 .removeClass('text-danger')
-					 .addClass('text-success')
-					 .html('Request to add peer is sent');
-
-					setTimeout(function() {
-						notif.fadeOut();
-					}, 2000);
-				}
-			});
 		}
 	};
 

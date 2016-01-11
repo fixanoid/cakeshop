@@ -33,7 +33,7 @@
 			var _this = this;
 
 			$.when(
-				utils.load({ url: this.url, data: { number: _this.blockNumber } })
+				utils.load({ url: this.url, data: { number: parseInt(_this.blockNumber, 10) } })
 			).done(function(res) {
 				var rows = [];
 
@@ -42,7 +42,7 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
-
+				$('#widget-shell-' + _this.shell.id + ' .panel-title').html(_this.title);
 			});
 		},
 
