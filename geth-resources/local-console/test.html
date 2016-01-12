@@ -6,47 +6,47 @@
     <script src="js/ws/sockjs-0.3.4.min.js"></script>
     <script src="js/ws/stomp.min.js"></script>
     <script type="text/javascript">
-        var stompNodeClient = null;
-        var stompBlockClient = null;
-        var stompTransClient = null;
+        var stompClient = null;
+//        var stompBlockClient = null;
+//        var stompTransClient = null;
 
         function connect() {
-            var socket = new SockJS('/ethereum-enterprise/node');
-            stompNodeClient = Stomp.over(socket);
-            stompNodeClient.connect({}, function(frame) {
+            var socket = new SockJS('/ethereum-enterprise/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
                 console.log('Connected NODE: ' + frame);
-                stompNodeClient.subscribe('/topic/node', function(apiResponse){
+                stompClient.subscribe('/topic/node', function(apiResponse){
                     showNode(apiResponse.body);
                 });
-            });
-            var socket2 = new SockJS('/ethereum-enterprise/block');
-            stompBlockClient = Stomp.over(socket2);
-            stompBlockClient.connect({}, function(frame) {
+//            });
+//            var socket2 = new SockJS('/ethereum-enterprise/block');
+//            stompBlockClient = Stomp.over(socket2);
+//            stompClient.connect({}, function(frame) {
                 console.log('Connected BLOCK: ' + frame);
-                stompBlockClient.subscribe('/topic/block', function(apiResponse){
+                stompClient.subscribe('/topic/block', function(apiResponse){
                     showBlock(apiResponse.body);
                 });
-            });
-            var socket3 = new SockJS('/ethereum-enterprise/transaction');
-            stompTransClient = Stomp.over(socket3);
-            stompTransClient.connect({}, function(frame) {
+//            });
+//            var socket3 = new SockJS('/ethereum-enterprise/transaction');
+//            stompTransClient = Stomp.over(socket3);
+//            stompClient.connect({}, function(frame) {
                 console.log('Connected TRANS: ' + frame);
-                stompTransClient.subscribe('/topic/pending/transactions', function(apiResponse){
+                stompClient.subscribe('/topic/pending/transactions', function(apiResponse){
                     showTransactions(apiResponse.body);
                 });
             });
         }
 
         function disconnect() {
-            if (stompNodeClient !== null) {
-                stompNodeClient.disconnect();
+            if (stompClient !== null) {
+                stompClient.disconnect();
             } 
-            if (stompBlockClient !== null) {
-                stompBlockClient.disconnect();
-            }
-            if (stompTransClient !== null) {
-                stompTransClient.disconnect();
-            }
+//            if (stompBlockClient !== null) {
+//                stompBlockClient.disconnect();
+//            }
+//            if (stompTransClient !== null) {
+//                stompTransClient.disconnect();
+//            }
             console.log("Disconnected");
         }
 
