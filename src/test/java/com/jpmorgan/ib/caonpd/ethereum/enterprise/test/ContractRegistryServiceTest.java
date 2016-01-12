@@ -12,6 +12,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -55,6 +56,39 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 
 	    BigInteger val = (BigInteger) contractService.read(addr, "get", null);
 	    assertEquals(val.intValue(), 100);
+	}
+
+	@Test
+	public void testList() throws IOException, InterruptedException {
+
+	    String addr = createContract();
+	    String abi = readTestFile("contracts/simplestorage.abi.txt");
+	    String code = readTestFile("contracts/simplestorage.sol");
+
+	    Long createdDate = (System.currentTimeMillis() / 1000);
+
+	    System.out.println("putting addr into registry " + addr);
+
+	    TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
+	    assertNotNull(tr);
+	    assertNotNull(tr.getId());
+	    assertTrue(!tr.getId().isEmpty());
+
+	    Transaction tx = transactionService.waitForTx(tr);
+	    assertNotNull(tx);
+
+
+	    List<Contract> list = contractRegistry.list();
+	    assertNotNull(list);
+	    assertTrue(!list.isEmpty());
+	    assertEquals(list.size(), 1);
+
+	    Contract c = list.get(0);
+	    assertEquals(c.getAddress(), addr);
+	    assertEquals(c.getABI(), abi);
+	    assertEquals(c.getCode(), code);
+	    assertEquals(c.getCreatedDate(), createdDate);
+
 	}
 
 }
