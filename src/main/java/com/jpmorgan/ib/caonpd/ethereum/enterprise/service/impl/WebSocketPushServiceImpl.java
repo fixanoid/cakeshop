@@ -41,7 +41,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
     private Integer openedSessions = 0;
 
-    @Autowired
+    @Autowired(required = false)
     private SimpMessagingTemplate template;
 
     @Autowired
