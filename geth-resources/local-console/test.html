@@ -16,7 +16,7 @@
             stompNodeClient.connect({}, function(frame) {
                 console.log('Connected NODE: ' + frame);
                 stompNodeClient.subscribe('/topic/node', function(apiResponse){
-                    showNode(JSON.parse(apiResponse.body));
+                    showNode(apiResponse.body);
                 });
             });
             var socket2 = new SockJS('/ethereum-enterprise/block');
@@ -24,7 +24,7 @@
             stompBlockClient.connect({}, function(frame) {
                 console.log('Connected BLOCK: ' + frame);
                 stompBlockClient.subscribe('/topic/block', function(apiResponse){
-                    showBlock(JSON.parse(apiResponse.body));
+                    showBlock(apiResponse.body);
                 });
             });
             var socket3 = new SockJS('/ethereum-enterprise/transaction');
@@ -32,7 +32,7 @@
             stompTransClient.connect({}, function(frame) {
                 console.log('Connected TRANS: ' + frame);
                 stompTransClient.subscribe('/topic/pending/transactions', function(apiResponse){
-                    showTransactions(JSON.parse(apiResponse.body));
+                    showTransactions(apiResponse.body);
                 });
             });
         }
