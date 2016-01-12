@@ -34,11 +34,11 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     }
 
     @Override
-    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType) throws APIException {
+    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
         return contractService.transact(
                 CONTRACT_REGISTRY_ADDRESS, this.abi,
                 "register",
-                new Object[] { id, name, abi, code, codeType.toString() });
+                new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
 
     @Override
@@ -54,7 +54,8 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 (String) res[2],
                 (String) res[3],
                 CodeType.valueOf((String) res[4]),
-                null);
+                null,
+                ((BigInteger) res[5]).longValue());
     }
 
     @Override

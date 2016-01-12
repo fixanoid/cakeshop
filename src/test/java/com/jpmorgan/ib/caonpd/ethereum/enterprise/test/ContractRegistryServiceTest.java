@@ -34,7 +34,9 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    String abi = readTestFile("contracts/simplestorage.abi.txt");
 	    String code = readTestFile("contracts/simplestorage.sol");
 
-	    TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity);
+	    Long createdDate = (System.currentTimeMillis() / 1000);
+
+	    TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
 	    assertNotNull(tr);
 	    assertNotNull(tr.getId());
 	    assertTrue(!tr.getId().isEmpty());
@@ -48,6 +50,8 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(contract.getABI(), abi);
 	    assertEquals(contract.getCode(), code);
 	    assertEquals(contract.getCodeType(), CodeType.solidity);
+	    assertNotNull(contract.getCreatedDate());
+	    assertEquals(contract.getCreatedDate(), createdDate);
 
 	    BigInteger val = (BigInteger) contractService.read(addr, "get", null);
 	    assertEquals(val.intValue(), 100);

@@ -31,7 +31,7 @@ public class ContractServiceImpl implements ContractService {
 
 	@SuppressWarnings("unchecked")
     @Override
-	public TransactionResult create(String abi, String code, CodeType codeType) throws APIException {
+	public TransactionResult create(String code, CodeType codeType) throws APIException {
 
 		Map<String, Object> res = null;
 		if (codeType == CodeType.solidity) {
@@ -41,6 +41,15 @@ public class ContractServiceImpl implements ContractService {
 		Map<String, Object> compiled  = (Map<String, Object>) res.values().toArray()[0];
 
 		String binaryCode = (String) compiled.get("code");
+
+		// not currently used, but ABI is needed to insert into registry later...
+//		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
+//		ObjectMapper mapper = new ObjectMapper();
+//		try {
+//		    String abi = mapper.writeValueAsString(abiObj);
+//		} catch (JsonProcessingException e) {
+//		    throw new APIException("Unable to read ABI", e);
+//		}
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);

@@ -30,11 +30,9 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	@Test
     public void testCreate() throws IOException {
-
-        String abi = readTestFile("contracts/simplestorage.abi.txt");
         String code = readTestFile("contracts/simplestorage.sol");
 
-        TransactionResult result = contractService.create(abi, code, ContractService.CodeType.solidity);
+        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());

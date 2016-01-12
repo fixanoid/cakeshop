@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ContractRegistryService {
 
-    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType) throws APIException;
+    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException;
 
     public Contract getById(String id) throws APIException;
 

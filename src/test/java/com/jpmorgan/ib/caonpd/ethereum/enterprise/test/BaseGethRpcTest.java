@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
@@ -99,12 +100,29 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     	return FileUtils.readFileToString(file);
     }
 
+    /**
+     * Deploy SimpleStorage sample to the chain and return its address
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     protected String createContract() throws IOException, InterruptedException {
-
-    	String abi = readTestFile("contracts/simplestorage.abi.txt");
+    	//String abi = readTestFile("contracts/simplestorage.abi.txt");
     	String code = readTestFile("contracts/simplestorage.sol");
+    	return createContract(code);
+    }
 
-    	TransactionResult result = contractService.create(abi, code, ContractService.CodeType.solidity);
+    /**
+     * Deploy the given contract code to the chain
+     *
+     * @param code
+     * @return
+     * @throws APIException
+     * @throws InterruptedException
+     */
+    protected String createContract(String code) throws APIException, InterruptedException {
+        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
     	assertNotNull(result);
     	assertNotNull(result.getId());
     	assertTrue(!result.getId().isEmpty());
