@@ -2,12 +2,16 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +40,7 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
 
         if (contract != null) {
-            res.setData(contract.toAPIData());
+            res.setData(toAPIData(contract));
             return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
         }
 
@@ -66,6 +70,25 @@ public class ContractController extends BaseController {
         err.setTitle("Bad Request");
         res.addError(err);
         return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+    }
+
+    @RequestMapping("/list")
+    public ResponseEntity<APIResponse> list() throws APIException {
+
+        List<Contract> list = contractService.list();
+        APIResponse res = new APIResponse();
+
+        List<APIData> data = new ArrayList<>();
+        for (Contract c : list) {
+           data.add(toAPIData(c));
+        }
+        res.setData(data);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    private APIData toAPIData(Contract c) {
+        return new APIData(c.getAddress(), Contract.API_DATA_TYPE, c);
     }
 
 }

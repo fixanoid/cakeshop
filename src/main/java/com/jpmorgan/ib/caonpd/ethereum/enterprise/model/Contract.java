@@ -97,14 +97,6 @@ public class Contract {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    public APIData toAPIData() {
-        APIData data = new APIData();
-        data.setId(getAddress());
-        data.setType(API_DATA_TYPE);
-        data.setAttributes(this);
-        return data;
-    }
-
     public String getABI() {
         return abi;
     }

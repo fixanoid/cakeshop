@@ -1,18 +1,22 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
-
 @JsonInclude(Include.NON_NULL)
 public class APIResponse {
 
-    private APIData data;
+    /**
+     * Response data. Should be an instance of either {@link APIData} or List&lt;APIData&gt;.
+     */
+    private Object data;
+
     private List<APIError> errors;
     private Map<String, String> meta;
 
@@ -46,10 +50,10 @@ public class APIResponse {
         getErrors().add(error);
     }
 
-    public APIData getData() {
+    public Object getData() {
         return data;
     }
-    public void setData(APIData data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
