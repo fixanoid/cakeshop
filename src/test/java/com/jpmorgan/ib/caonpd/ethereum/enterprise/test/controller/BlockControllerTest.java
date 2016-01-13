@@ -34,7 +34,7 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Test
     public void testGetBlockByHash() throws Exception {
-        commonTest("{\"hash\":\"0x437d85e5a21ab984836930176ec31bd22a7b174b8a70a2d08c5173f554b7384b\"}");
+        commonTest("{\"hash\":\"0x54321cd203712578849e9f697efbf7b05c2a72e3281d036677c7196b2996813d\"}");
     }
 
     @Test

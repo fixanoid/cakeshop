@@ -1,55 +1,121 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContractServiceImpl implements ContractService {
 
+    private class ContractRegistrationTask implements Runnable {
+
+        private TransactionResult transactionResult;
+        private Contract contract;
+
+        public ContractRegistrationTask(Contract contract, TransactionResult transactionResult) {
+            this.contract = contract;
+            this.transactionResult = transactionResult;
+        }
+
+        @Override
+        public void run() {
+
+            Transaction tx = null;
+
+            while (tx == null) {
+                try {
+                    tx = transactionService.waitForTx(
+                            transactionResult, pollDelayMillis, TimeUnit.MILLISECONDS);
+
+                } catch (APIException e) {
+                    LOG.warn("Error while waiting for contract to mine", e);
+                    // TODO add backoff delay if server is down?
+                } catch (InterruptedException e) {
+                    LOG.warn("Interrupted while waiting for contract to mine", e);
+                    return;
+                }
+            }
+
+            try {
+                contract.setAddress(tx.getContractAddress());
+                contractRegistry.register(tx.getContractAddress(), contract.getName(), contract.getABI(),
+                        contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
+            } catch (APIException e) {
+                LOG.warn("Failed to register contract at address " + tx.getContractAddress(), e);
+            }
+
+        }
+    }
+
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContractServiceImpl.class);
+
+    @Value("${contract.poll.delay.millis}")
+    Long pollDelayMillis;
+
     // FIXME remove hardcoded FROM address
     public static final String DEFAULT_FROM_ADDRESS = "0x2e219248f44546d966808cdd20cb6c36df6efa82";
 
 	@Autowired
-	GethHttpService geth;
+	private GethHttpService geth;
 
 	@Autowired
-	ContractRegistryService contractRegistry;
+	private ContractRegistryService contractRegistry;
+
+	@Autowired
+	private TransactionService transactionService;
+
+	@Autowired
+	@Qualifier("asyncExecutor")
+	private TaskExecutor executor;
 
 	@SuppressWarnings("unchecked")
     @Override
 	public TransactionResult create(String code, CodeType codeType) throws APIException {
+
+	    Contract contract = new Contract();
+	    contract.setCreatedDate(System.currentTimeMillis() / 1000);
+	    contract.setCode(code);
+	    contract.setCodeType(codeType);
 
 		Map<String, Object> res = null;
 		if (codeType == CodeType.solidity) {
 			res = geth.executeGethCall("eth_compileSolidity", new Object[]{ code });
 		}
 
-		Map<String, Object> compiled  = (Map<String, Object>) res.values().toArray()[0];
+		Map<String, Object> compiled = (Map<String, Object>) res.values().toArray()[0];
 
 		String binaryCode = (String) compiled.get("code");
+		contract.setBinary(binaryCode);
 
-		// not currently used, but ABI is needed to insert into registry later...
-//		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
-//		ObjectMapper mapper = new ObjectMapper();
-//		try {
-//		    String abi = mapper.writeValueAsString(abiObj);
-//		} catch (JsonProcessingException e) {
-//		    throw new APIException("Unable to read ABI", e);
-//		}
+		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+		    contract.setABI(mapper.writeValueAsString(abiObj));
+		} catch (JsonProcessingException e) {
+		    throw new APIException("Unable to read ABI", e);
+		}
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
@@ -60,6 +126,8 @@ public class ContractServiceImpl implements ContractService {
 
 		TransactionResult tr = new TransactionResult();
 		tr.setId((String) contractRes.get("_result"));
+
+		executor.execute(new ContractRegistrationTask(contract, tr));
 
 		return tr;
 	}
@@ -81,7 +149,7 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public List<Contract> list() throws APIException {
-		throw new APIException("Not yet implemented"); // TODO
+	    return contractRegistry.list();
 	}
 
 	@Override

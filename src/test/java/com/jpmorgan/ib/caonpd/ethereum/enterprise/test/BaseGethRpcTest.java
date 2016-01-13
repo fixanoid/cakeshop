@@ -15,15 +15,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -55,6 +60,16 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     public boolean runGeth() {
         return true;
     }
+
+	@Autowired
+	@Qualifier("asyncExecutor")
+	private TaskExecutor executor;
+
+	@AfterMethod
+	public void resetExecutor() {
+	    ((ThreadPoolTaskExecutor) executor).destroy();
+	    ((ThreadPoolTaskExecutor) executor).initialize();
+	}
 
     @BeforeClass
     public void startGeth() {
@@ -130,7 +145,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     	// make sure mining is enabled
     	Map<String, Object> res = geth.executeGethCall("miner_start", new Object[]{ });
 
-    	Transaction tx = transactionService.waitForTx(result);
+    	Transaction tx = transactionService.waitForTx(result, 50, TimeUnit.MILLISECONDS);
     	return tx.getContractAddress();
     }
 

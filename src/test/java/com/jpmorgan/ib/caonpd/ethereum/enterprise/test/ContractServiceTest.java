@@ -13,6 +13,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -103,7 +104,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    // modify value
 	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
-	    Transaction tx = transactionService.waitForTx(tr);
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 
 	    // should now be 200
 	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, "get", null);

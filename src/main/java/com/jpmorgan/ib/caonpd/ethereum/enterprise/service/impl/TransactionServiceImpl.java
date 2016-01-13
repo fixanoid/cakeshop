@@ -73,14 +73,16 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Transaction waitForTx(TransactionResult result) throws APIException, InterruptedException {
+	public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit)
+	        throws APIException, InterruptedException {
+
 	    Transaction tx = null;
 	    while (true) {
 	        tx = this.get(result.getId());
 	        if (tx.getStatus() == Status.committed) {
 	            break;
 	        }
-	        TimeUnit.MILLISECONDS.sleep(50);
+	        pollDelayUnit.sleep(pollDelay);
 	    }
 	    return tx;
 	}

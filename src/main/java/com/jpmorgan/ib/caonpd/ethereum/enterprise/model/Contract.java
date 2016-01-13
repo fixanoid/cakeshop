@@ -15,6 +15,11 @@ public class Contract {
     private String address;
 
     /**
+     * Contract (class) name
+     */
+    private String name;
+
+    /**
      * Original source code (not yet supported)
      */
     private String code;
@@ -41,10 +46,12 @@ public class Contract {
 
 
     public Contract() {
+        this.name = "foobar"; // TODO placeholder
     }
 
     public Contract(String address, String abi, String code, CodeType codeType, String binary, Long createdDate) {
         this.address = address;
+        this.name = "foobar"; // TODO placeholder
         this.abi = abi;
         this.code = code;
         this.codeType = codeType;
@@ -112,5 +119,13 @@ public class Contract {
 
     public void setCreatedDate(Long createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -13,6 +13,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -42,7 +43,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertNotNull(tr.getId());
 	    assertTrue(!tr.getId().isEmpty());
 
-	    Transaction tx = transactionService.waitForTx(tr);
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 	    assertNotNull(tx);
 
 	    Contract contract = contractRegistry.getById(addr);
@@ -61,11 +62,11 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	@Test
 	public void testList() throws IOException, InterruptedException {
 
+	    Long createdDate = (System.currentTimeMillis() / 1000);
+
 	    String addr = createContract();
 	    String abi = readTestFile("contracts/simplestorage.abi.txt");
 	    String code = readTestFile("contracts/simplestorage.sol");
-
-	    Long createdDate = (System.currentTimeMillis() / 1000);
 
 	    System.out.println("putting addr into registry " + addr);
 
@@ -74,20 +75,20 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertNotNull(tr.getId());
 	    assertTrue(!tr.getId().isEmpty());
 
-	    Transaction tx = transactionService.waitForTx(tr);
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 	    assertNotNull(tx);
 
 
 	    List<Contract> list = contractRegistry.list();
 	    assertNotNull(list);
 	    assertTrue(!list.isEmpty());
-	    assertEquals(list.size(), 1);
+	    assertTrue(list.size() > 0);
 
 	    Contract c = list.get(0);
 	    assertEquals(c.getAddress(), addr);
 	    assertEquals(c.getABI(), abi);
 	    assertEquals(c.getCode(), code);
-	    assertEquals(c.getCreatedDate(), createdDate);
+	    assertTrue(c.getCreatedDate() >= createdDate);
 
 	}
 
