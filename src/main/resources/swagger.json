@@ -1600,8 +1600,13 @@
                             "type": "object",
                             "properties": {
                                 "data": {
-                                    "type": "boolean",
-                                    "description": "Whether or not the settings were updated successfully"
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "attributes": {
+                                            "$ref": "#/definitions/NodeInfo"
+                                        }
+                                    }
                                 },
                                 "meta": {
                                     "type": "object",
@@ -1889,6 +1894,26 @@
                 "latestBlock": {
                     "type": "integer",
                     "description": "A number indicating the most recent block that has been mined."
+                }
+            }
+        },
+        "NodeInfo": {
+            "properties": {
+                "identity": {
+                    "type": "string",
+                    "description": "Friendly node name which gets included in the full node Name"
+                },
+                "mining": {
+                    "type": "boolean",
+                    "description": "Indicates whether the node is commiting transactions or not"
+                },
+                "networkid": {
+                    "type": "integer",
+                    "description": "Network identifier"
+                },
+                "verbosity": {
+                    "type": "integer",
+                    "description": "Logging verbosity: 0-6 (0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=debug detail)"
                 }
             }
         }
