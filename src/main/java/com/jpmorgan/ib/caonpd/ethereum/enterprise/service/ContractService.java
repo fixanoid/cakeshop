@@ -21,7 +21,7 @@ public interface ContractService {
 		serpent
 	}
 
-	public TransactionResult create(String abi, String code, CodeType codeType) throws APIException;
+	public TransactionResult create(String code, CodeType codeType) throws APIException;
 
 	public TransactionResult delete() throws APIException;
 

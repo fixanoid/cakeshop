@@ -4,7 +4,6 @@ import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -14,17 +13,16 @@ public class GethRpcTest extends BaseGethRpcTest {
     @Test
     public void testExecWithParams() throws APIException {
         String method = "eth_getBlockByNumber";
-        Object input = new BigInteger("0");
-        String hash = "0x437d85e5a21ab984836930176ec31bd22a7b174b8a70a2d08c5173f554b7384b";
+        String expectedHash = "0x54321cd203712578849e9f697efbf7b05c2a72e3281d036677c7196b2996813d";
 
         Map<String, Object> data = geth.executeGethCall(method, new Object[]{ "latest", false });
-        assertEquals(data.get("hash"), hash);
+        assertEquals(data.get("hash"), expectedHash);
 
         data = geth.executeGethCall(method, new Object[]{ 0, false });
-        assertEquals(data.get("hash"), hash);
+        assertEquals(data.get("hash"), expectedHash);
 
-        data = geth.executeGethCall("eth_getBlockByHash", new Object[]{ hash, false });
-        assertEquals(data.get("hash"), hash);
+        data = geth.executeGethCall("eth_getBlockByHash", new Object[]{ expectedHash, false });
+        assertEquals(data.get("hash"), expectedHash);
     }
 
 }

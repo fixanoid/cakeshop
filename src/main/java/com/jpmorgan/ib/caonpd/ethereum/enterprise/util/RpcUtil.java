@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 import java.math.BigInteger;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -54,6 +55,14 @@ public class RpcUtil {
 	        hex = hex.substring(hex.length()-40); // remove any leading 0 padding
 	    }
 	    return "0x" + hex;
+	}
+
+	public static String toString(Object object) {
+	    return ToStringBuilder.reflectionToString(object, ShortToStringStyle.INSTANCE);
+	}
+
+	public static void puts(Object object) {
+	    System.out.println(toString(object));
 	}
 
 }

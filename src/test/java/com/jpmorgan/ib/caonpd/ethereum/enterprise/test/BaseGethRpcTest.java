@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
@@ -14,15 +15,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,6 +60,16 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     public boolean runGeth() {
         return true;
     }
+
+	@Autowired
+	@Qualifier("asyncExecutor")
+	private TaskExecutor executor;
+
+	@AfterMethod
+	public void resetExecutor() {
+	    ((ThreadPoolTaskExecutor) executor).destroy();
+	    ((ThreadPoolTaskExecutor) executor).initialize();
+	}
 
     @BeforeClass
     public void startGeth() {
@@ -99,12 +115,29 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     	return FileUtils.readFileToString(file);
     }
 
+    /**
+     * Deploy SimpleStorage sample to the chain and return its address
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     protected String createContract() throws IOException, InterruptedException {
-
-    	String abi = readTestFile("contracts/simplestorage.abi.txt");
+    	//String abi = readTestFile("contracts/simplestorage.abi.txt");
     	String code = readTestFile("contracts/simplestorage.sol");
+    	return createContract(code);
+    }
 
-    	TransactionResult result = contractService.create(abi, code, ContractService.CodeType.solidity);
+    /**
+     * Deploy the given contract code to the chain
+     *
+     * @param code
+     * @return
+     * @throws APIException
+     * @throws InterruptedException
+     */
+    protected String createContract(String code) throws APIException, InterruptedException {
+        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
     	assertNotNull(result);
     	assertNotNull(result.getId());
     	assertTrue(!result.getId().isEmpty());
@@ -112,7 +145,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     	// make sure mining is enabled
     	Map<String, Object> res = geth.executeGethCall("miner_start", new Object[]{ });
 
-    	Transaction tx = transactionService.waitForTx(result);
+    	Transaction tx = transactionService.waitForTx(result, 50, TimeUnit.MILLISECONDS);
     	return tx.getContractAddress();
     }
 

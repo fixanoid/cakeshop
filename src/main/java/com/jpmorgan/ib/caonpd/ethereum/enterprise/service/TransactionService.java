@@ -5,6 +5,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public interface TransactionService {
 
@@ -22,6 +23,6 @@ public interface TransactionService {
 	 * @throws APIException
 	 * @throws InterruptedException
 	 */
-    public Transaction waitForTx(TransactionResult result) throws APIException, InterruptedException;
+    public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit) throws APIException, InterruptedException;
 
 }

@@ -7,9 +7,8 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
-import org.springframework.context.annotation.ComponentScan;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -21,11 +20,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @author I629630
  */
 @Profile("container")
-@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.ethereum.enterprise",
-        excludeFilters = {
-            @ComponentScan.Filter(type = ASSIGNABLE_TYPE,
-                    value = {TestWebConfig.class})
-        })
+@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.ethereum.enterprise")
 public class WebAppInit implements WebApplicationInitializer {
 
     @Override

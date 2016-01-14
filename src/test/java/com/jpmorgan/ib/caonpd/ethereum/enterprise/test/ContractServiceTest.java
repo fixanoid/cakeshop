@@ -13,6 +13,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -30,11 +31,9 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	@Test
     public void testCreate() throws IOException {
-
-        String abi = readTestFile("contracts/simplestorage.abi.txt");
         String code = readTestFile("contracts/simplestorage.sol");
 
-        TransactionResult result = contractService.create(abi, code, ContractService.CodeType.solidity);
+        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());
@@ -105,7 +104,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    // modify value
 	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
-	    Transaction tx = transactionService.waitForTx(tr);
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 
 	    // should now be 200
 	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, "get", null);
