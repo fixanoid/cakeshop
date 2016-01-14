@@ -3,7 +3,10 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,6 +33,8 @@ import org.springframework.web.client.ResourceAccessException;
 public class NodeServiceImpl implements NodeService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
+    public static final String ADMIN_MINER_START = "miner_start";
+    public static final String ADMIN_MINER_STOP = "miner_stop";
 
     @Autowired
     private GethHttpService gethService;
@@ -113,9 +119,55 @@ public class NodeServiceImpl implements NodeService {
 
         return node;
     }
-
+    
     @Override
-    public void updateNodeInfo(Map<String, String> newProps) throws APIException {
+    public NodeInfo update(Integer logLevel,Integer networkID,String identity,Boolean mining) throws APIException {
+        
+        Map<String, Object> data=null;
+        Map<String,String> nodeProp = null;
+        
+        String args[] = null;
+        
+        if(logLevel != null || networkID != null || !StringUtils.isEmpty(identity)){
+            
+            nodeProp = new HashMap<>();
+            
+            if(logLevel != null){
+                nodeProp.put("geth.verbosity", logLevel.toString());
+            }
+            if(networkID != null){
+                nodeProp.put("geth.networkid", networkID.toString());
+            
+            }
+            if(StringUtils.isNotEmpty(identity)){
+                nodeProp.put("geth.identity", identity);
+            }
+            
+            gethService.setNodeInfo(identity, mining, logLevel,networkID);
+            updateNodeInfo(nodeProp,true);
+            
+        }
+        
+        if(mining != null){
+            nodeProp = new HashMap<>();
+            nodeProp.put("geth.mining",mining.toString());
+            if(mining == true){
+                args = new String[]{"1"};
+                data = gethService.executeGethCall(ADMIN_MINER_START,args);
+            }else{
+                data = gethService.executeGethCall(ADMIN_MINER_STOP,args);
+            }
+            
+            gethService.setNodeInfo(identity, mining, logLevel,networkID);
+            updateNodeInfo(nodeProp,false);
+            
+        }
+        return gethService.getNodeInfo();
+    }
+    
+    
+    @Override
+    public void updateNodeInfo(Map<String, String> newProps,Boolean requiresRestart) throws APIException {
 
         String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
         try {
@@ -133,7 +185,8 @@ public class NodeServiceImpl implements NodeService {
                 try (FileOutputStream out = new FileOutputStream(prpsPath)) {
                     props.store(out, null);
                 }
-                restart();
+                if(requiresRestart)
+                    restart();
             }
         } catch (IOException ex) {
 

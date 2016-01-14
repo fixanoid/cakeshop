@@ -32,6 +32,14 @@ public class NodeControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void testInvalidEndPoint() throws Exception {
+        mockMvc.perform(post("/api/node/testendpoint")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(""))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+    
+    @Test
     public void testNodeStatus() throws Exception {
         mockMvc.perform(post("/api/node/status")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(""))
@@ -57,6 +65,7 @@ public class NodeControllerTest extends BaseControllerTest {
     public void testMinerStart() throws Exception {
         assertNotNull(mockMvc);
         commonTest("","/api/node/miner/start");
+        commonTest("{\"args\":\"3\"}","/api/node/miner/start");
     }
 
     @Test

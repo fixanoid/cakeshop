@@ -30,10 +30,6 @@
 //            var socket3 = new SockJS('/ethereum-enterprise/transaction');
 //            stompTransClient = Stomp.over(socket3);
 //            stompClient.connect({}, function(frame) {
-                console.log('Connected TRANS: ' + frame);
-                stompClient.subscribe('/topic/pending/transactions', function(apiResponse){
-                    showTransactions(apiResponse.body);
-                });
             });
         }
 
@@ -65,13 +61,7 @@
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
         }
-        function showTransactions(message) {
-            var response = document.getElementById('trans-response');
-            var p = document.createElement('p');
-            p.style.wordWrap = 'break-word';
-            p.appendChild(document.createTextNode(message));
-            response.appendChild(p);
-        }
+        
     </script>
 </head>
 <body onload="connect();" onclose="disconnect();">
@@ -87,7 +77,6 @@
         
         <p id="node-response">Node</p>
         <p id="block-response">Block</p>
-        <p id="trans-response">Transaction</p>
     </div>
 </div>
 </body>

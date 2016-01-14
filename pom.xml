@@ -123,6 +123,12 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.52</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.0</version>
+            <type>jar</type>
+        </dependency>
         
         <!-- test dependencies -->
         <dependency>
@@ -175,7 +181,7 @@
             <version>1.0.1.Final</version>
             <scope>test</scope>
         </dependency>
-     
+        
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>

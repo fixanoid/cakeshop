@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 
 /**
  *
@@ -33,5 +34,6 @@ public interface GethHttpService {
     public Boolean deletePid();
     public void start();
     public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid);
+    public NodeInfo getNodeInfo();
 
 }
