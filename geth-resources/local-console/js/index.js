@@ -88,7 +88,7 @@ var Tower = {
 			Tower.screenManager.clear();
 
 			Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: Tower.status.latestBlock });
-			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer' });
+			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer', data: Tower.status.latestBlock });
 			Tower.screenManager.show({ widgetId: 'block-view', section: 'explorer' });
 		}
 	}
