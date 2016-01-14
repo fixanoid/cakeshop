@@ -112,7 +112,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
     }
 
     @Override
-    @Scheduled(fixedDelay = 5000)
+//    @Scheduled(fixedDelay = 5000)
     public void pushPendingTransactions() throws APIException {
         
         if (openedSessions > 0) {
