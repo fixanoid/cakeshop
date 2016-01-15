@@ -45,7 +45,7 @@
 
 		url: {
 			info: '../api/node/settings',
-			update: '../api/node/settings/update'
+			update: '../api/node/settings/update',
 		},
 
 		fetch: function() {
@@ -89,7 +89,12 @@
 
 			data[action] = val;
 
-			utils.load({ url: widget.url.update, data: data });
+			$.when(
+				utils.load({ url: widget.url.update, data: data })
+			).done(function(info) {
+				// trigger event update
+				$(document).trigger('WidgetInternalEvent', [ widget.name + '|updated|' + action] );
+			});
 		}
 	};
 

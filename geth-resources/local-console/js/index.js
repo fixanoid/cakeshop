@@ -252,6 +252,11 @@ $(function() {
 	// ---------- INIT -----------
 	Tower.socketInit();
 
+	// add dispatcher listener
+	// $(document).on('WidgetInternalEvent', function(ev, action) {
+	// 	Tower.debug(ev, action);
+	// });
+
 	// Setting 'Console' as first section
 	$('.rad-sidebar li').first().click();
 });

@@ -20,6 +20,13 @@
 
 			this.initialized = true;
 			this.ready();
+
+			// adding listener to reload the widget if identity is updated
+			$(document).on('WidgetInternalEvent', function(ev, action) {
+				if (action === 'node-settings|updated|identity') {
+					widget.fetch();
+				}
+			});
 		},
 
 		fetch: function() {
@@ -36,7 +43,7 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
-				
+
 				$('#widget-' + _this.shell.id + ' .value').click(function(e) {
 					var isEditable = !!$(this).prop('contentEditable');
 					$(this).prop('contentEditable', isEditable);
