@@ -11,6 +11,7 @@ var demo = {
 }
 
 var Tower = {
+	stomp: null,
 	current: null,
 	status: {
 		peers: null,
@@ -21,39 +22,72 @@ var Tower = {
 
 	screenManager: screenManager,
 
+	socketInit: function() {
+		this.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
+		this.stomp.debug = null;
+		this.stomp.connect({}, function(frame) {
+			// Connection succesful
+
+			// Startup & Update perma-widgets
+			Tower.section['default']();
+		}, function(err) {
+			// Connection error
+			Tower.stomp = false;
+
+			// Startup & Update perma-widgets
+			Tower.section['default']();
+		});
+	},
+
 	section: {
 		'default': function() {
-			// these are perma-widgets
-			var def = function() {
-				$.when(
-					utils.load({ url: '../api/node/status' })
-				).done(function(response) {
-					var status = response.data.attributes;
+			var STATUS_END_POINT = '/node/status',
+			 statusUpdate = function(status) {
+				if (status.status === 'running') {
+					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
-					if (status.status === 'running') {
-						$('#default-node-status').html( $('<span>', { html: 'Running' }) );
+					$('#default-node-status').parent().find('.fa')
+					 .removeClass('fa-pause rad-txt-danger')
+					 .addClass('fa-play rad-txt-success');
+				} else {
+					$('#default-node-status').html( $('<span>', { html: utils.capitalize(status.status) }) );
 
-						$('#default-node-status').parent().find('.fa')
-						 .removeClass('fa-pause rad-txt-danger')
-						 .addClass('fa-play rad-txt-success');
-					} else {
-						$('#default-node-status').html( $('<span>', { html: utils.capitalize(status.status) }) );
+					$('#default-node-status').parent().find('.fa')
+					 .removeClass('fa-play rad-txt-success')
+					 .addClass('fa-pause rad-txt-danger');
+				}
 
-						$('#default-node-status').parent().find('.fa')
-						 .removeClass('fa-play rad-txt-success')
-						 .addClass('fa-pause rad-txt-danger');
-					}
+				utils.prettyUpdate(Tower.status.peerCount, status.peerCount + demo.add(), $('#default-peers'));
+				utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
+				utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
 
-					utils.prettyUpdate(Tower.status.peerCount, status.peerCount + demo.add(), $('#default-peers'));
-					utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
-					utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
-
-					Tower.status = status;
-				});
+				Tower.status = status;
 			};
 
-			def();
-			setInterval(def, 5000);
+			if (Tower.stomp && Tower.stomp.connected === true) {
+				Tower.debug('STOMPING');
+				Tower.stomp.subscribe('/topic' + STATUS_END_POINT, function(res) {
+					var status = JSON.parse(res.body);
+					status = status.data.attributes;
+
+					statusUpdate(status);
+				});
+			} else {
+				Tower.debug('FALLBACK');
+
+				var def = function() {
+					$.when(
+						utils.load({ url: '../api' + STATUS_END_POINT })
+					).done(function(response) {
+						var status = response.data.attributes;
+
+						statusUpdate(status);
+					});
+				};
+
+				def();
+				setInterval(def, 5000);
+			}
 		},
 
 		'console': function() {
@@ -91,7 +125,12 @@ var Tower = {
 			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer', data: Tower.status.latestBlock });
 			Tower.screenManager.show({ widgetId: 'block-view', section: 'explorer' });
 		}
-	}
+	},
+
+	debug: function(message) {
+		var _ref;
+		return typeof window !== "undefined" && window !== null ? (_ref = window.console) != null ? _ref.log(message) : void 0 : void 0;
+    }
 };
 
 $(function() {
@@ -211,8 +250,7 @@ $(function() {
 
 
 	// ---------- INIT -----------
-	// Update perma-widgets
-	Tower.section['default']();
+	Tower.socketInit();
 
 	// Setting 'Console' as first section
 	$('.rad-sidebar li').first().click();

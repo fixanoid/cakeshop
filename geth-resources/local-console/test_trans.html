@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>WebSocket</title>
-    <meta charset="utf-8"> 
-    <script src="js/ws/sockjs-0.3.4.min.js"></script>
-    <script src="js/ws/stomp.min.js"></script>
+    <meta charset="utf-8">
+    <script src="js/vendor/sockjs-0.3.4.min.js"></script>
+    <script src="js/vendor/stomp.min.js"></script>
     <script type="text/javascript">
         var stompClient = null;
 
@@ -13,7 +13,7 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame){});
         }
-        
+
         function subscribe(trans_id) {
             console.log("Trans_ID :" + trans_id);
             if (null !== stompClient) {
@@ -28,20 +28,20 @@
                 console.log("STOMP is null");
             }
         }
-        
+
         function unsubscribe(trans_id) {
             if (stompClient !== null) {
                 stompClient.unsubscribe('/topic/transaction/' + trans_id);
                 console.log("Unsubscribed");
-            } 
+            }
         }
-        
+
         function disconnect() {
             if (stompClient !== null) {
                 stompClient.disconnect();
                 console.log("Disconnected");
-            } 
-            
+            }
+
         }
 
         function showTransaction(message) {

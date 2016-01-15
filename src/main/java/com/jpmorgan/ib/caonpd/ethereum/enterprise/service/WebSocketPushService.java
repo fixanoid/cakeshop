@@ -14,7 +14,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 public interface WebSocketPushService {
     
     public final String CONTRACT_TOPIC = "/topic/contract";
-    public final String NODE_TOPIC = "/topic/node";
+    public final String NODE_TOPIC = "/topic/node/status";
     public final String BLOCK_TOPIC = "/topic/block";
     public final String PENDING_TRANSACTIONS_TOPIC = "/topic/pending/transactions";
     public final String TRANSACTION_TOPIC = "/topic/transaction/";
