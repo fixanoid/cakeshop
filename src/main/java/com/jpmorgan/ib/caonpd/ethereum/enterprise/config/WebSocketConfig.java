@@ -42,7 +42,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        String [] endpoints = {"/node", "/block", "transaction"};
+        //String [] endpoints = {"/node", "/block", "transaction"};
         registry.addEndpoint("ws").withSockJS();
         
     }

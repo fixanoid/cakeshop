@@ -19,12 +19,12 @@
 			'  <div class="form-group">' +
 			'    <label for="verbosity">Log Level</label>' +
 			'			<select id="verbosity" class="form-control">' +
-			'			  <option value="1">FINEST</option>' +
-			'			  <option value="2">FINER</option>' +
-			'			  <option value="3">FINE</option>' +
-			'			  <option value="4">INFO</option>' +
-			'			  <option value="5">WARNING</option>' +
-			'			  <option value="6">SEVERE</option>' +
+			'			  <option value="6">FINEST</option>' +
+			'			  <option value="5">FINER</option>' +
+			'			  <option value="4">FINE</option>' +
+			'			  <option value="3">INFO</option>' +
+			'			  <option value="2">WARNING</option>' +
+			'			  <option value="1">SEVERE</option>' +
 			'			</select>' +
 			'  </div>' +
 			'  <div class="form-group">' +
@@ -45,7 +45,7 @@
 
 		url: {
 			info: '../api/node/settings',
-			update: '../api/node/settings/update'
+			update: '../api/node/settings/update',
 		},
 
 		fetch: function() {
@@ -89,7 +89,12 @@
 
 			data[action] = val;
 
-			utils.load({ url: widget.url.update, data: data });
+			$.when(
+				utils.load({ url: widget.url.update, data: data })
+			).done(function(info) {
+				// trigger event update
+				$(document).trigger('WidgetInternalEvent', [ widget.name + '|updated|' + action] );
+			});
 		}
 	};
 

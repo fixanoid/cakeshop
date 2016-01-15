@@ -12,9 +12,11 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
+import java.util.HashMap;
 
 import java.util.Map;
 
@@ -87,12 +89,44 @@ public class NodeController extends BaseController {
             APIData apiData = nodeService.getAPIData(data);
             apiResponse.setData(apiData);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-
-        } else {
+        
+        } else if(AdminBean.ADMIN_PEERS.equalsIgnoreCase(gethFunctionName)){
+            
+            data = new HashMap<>();
+            return new ResponseEntity<>(APIResponse.newSimpleResponse(data), HttpStatus.OK);
+            
+        } else {    
+            
             apiResponse.addError(new APIError(null, "500", "Empty response from server"));
             return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
         }
 
+    }
+    
+    @RequestMapping("/update")
+    public ResponseEntity<APIResponse> update(
+            @JsonBodyParam(required=false,value="log_level") Integer logLevel,
+            @JsonBodyParam(required=false,value="network_id") Integer networkID,
+            @JsonBodyParam(required=false,value="identity") String identity,
+            @JsonBodyParam(required=false,value="committing_transactions") Boolean mining
+            ) throws APIException {
+
+        APIResponse res = new APIResponse();
+        APIData data = new APIData();
+        
+        NodeInfo updates = nodeService.update(logLevel, networkID, identity, mining);
+        
+        if(updates != null){
+            data.setAttributes(updates);
+            res.setData(data);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+        
+        APIError err = new APIError();
+        err.setStatus("400");
+        err.setTitle("Bad Request");
+        res.addError(err);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -85,7 +85,7 @@ public class AdminGethController extends BaseController {
 
         if (newProps.size() > 0) {
             gethService.setNodeInfo(this.identity, this.mining, this.verbosity, this.networkid);
-            nodeService.updateNodeInfo(newProps);
+            nodeService.updateNodeInfo(newProps,true);
             response = "Node Updated";
         } else {
             response = "Params are empty. Node has not been updated";

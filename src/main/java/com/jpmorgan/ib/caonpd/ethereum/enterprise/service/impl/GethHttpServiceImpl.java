@@ -6,7 +6,9 @@ import static org.springframework.http.MediaType.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.sun.jna.Pointer;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -60,6 +63,7 @@ import org.springframework.web.client.RestTemplate;
 public class GethHttpServiceImpl implements GethHttpService {
     
     public static final String SIMPLE_RESULT = "_result";
+    public static final Integer DEFAULT_NETWORK_ID = 1006;
     
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
     private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
@@ -69,7 +73,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Value("${geth.url}")
     private String url;
     @Value("${geth.networkid}")
-    private String networkid;
+    private Integer networkid;
     @Value("${geth.datadir}")
     private String datadir;
 
@@ -265,7 +269,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
         if (null != networkid) {
-            this.networkid = String.valueOf(networkid);
+            this.networkid = networkid;
         }
 
         if (null != mining) {
@@ -274,11 +278,33 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         if (null != verbosity) {
             this.verbosity = verbosity;
+        }else if(null == this.verbosity){
+            this.verbosity = 0;
         }
 
         if (StringUtils.isNotEmpty(identity)) {
             this.identity = identity;
+        }else if(null == this.identity){
+            this.identity = "";
         }
+        
+    }
+    
+    @Override
+    public NodeInfo getNodeInfo(){
+            
+        return new NodeInfo(this.identity,this.mining,this.networkid,this.verbosity);
+    }
+    
+    private String getNodeIdentity() throws APIException{
+        Map<String, Object> data = null;
+        
+        data = this.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ null, true });
+        
+        if(data != null)
+            return (String)data.get("Name");
+        
+        return null;
     }
 
     @PreDestroy
@@ -300,7 +326,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         List<String> commands = Lists.newArrayList(command,
                 "--port", gethNodePort, "--ipcpath", ipcPipe,
-                "--datadir", dataDir, "--networkid", networkid, "--genesis", genesisDir,
+                "--datadir", dataDir, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
                 "--solc", solcPath + File.separator + "solc",
@@ -310,6 +336,14 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
+        }
+        
+        if(null != this.networkid) {
+            commands.add("--networkid");
+            commands.add(String.valueOf(networkid));
+        }else{
+            commands.add("--networkid");
+            commands.add(String.valueOf(DEFAULT_NETWORK_ID));
         }
 
         if(null != this.verbosity) {
