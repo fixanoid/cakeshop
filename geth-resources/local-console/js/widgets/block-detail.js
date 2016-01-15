@@ -6,7 +6,7 @@
 		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
-		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
+		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -44,6 +44,13 @@
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 				$('#widget-shell-' + _this.shell.id + ' .panel-title').html(_this.title);
+
+				$('#widget-' + _this.shell.id + ' .value').click(function(e) {
+					var isEditable = !!$(this).prop('contentEditable');
+					$(this).prop('contentEditable', isEditable);
+
+					$(this).focus();
+				});
 			});
 		},
 

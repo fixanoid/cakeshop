@@ -59,10 +59,12 @@
 		_handler: function(ev) {
 			var _this = widget,
 			 id = $('#widget-' + _this.shell.id + ' #block-id'),
-			 type = $('#widget-' + _this.shell.id + ' #searchType');
+			 type = $('#widget-' + _this.shell.id + ' #searchType:checked');
 
 			if (id.val() && (type.val() == 'block') ) {
 				Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: id.val(), refetch: true });
+			} else if (id.val() && (type.val() == 'txn') ) {
+				//Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: id.val(), refetch: true });
 			}
 		}
 	};
