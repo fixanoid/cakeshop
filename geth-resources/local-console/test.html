@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>WebSocket</title>
-    <meta charset="utf-8"> 
-    <script src="js/ws/sockjs-0.3.4.min.js"></script>
-    <script src="js/ws/stomp.min.js"></script>
+    <meta charset="utf-8">
+    <script src="js/vendor/sockjs-0.3.4.min.js"></script>
+    <script src="js/vendor/stomp.min.js"></script>
     <script type="text/javascript">
         var stompClient = null;
 //        var stompBlockClient = null;
@@ -15,7 +15,7 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
                 console.log('Connected NODE: ' + frame);
-                stompClient.subscribe('/topic/node', function(apiResponse){
+                stompClient.subscribe('/topic/node/status', function(apiResponse){
                     showNode(apiResponse.body);
                 });
 //            });
@@ -30,17 +30,13 @@
 //            var socket3 = new SockJS('/ethereum-enterprise/transaction');
 //            stompTransClient = Stomp.over(socket3);
 //            stompClient.connect({}, function(frame) {
-                console.log('Connected TRANS: ' + frame);
-                stompClient.subscribe('/topic/pending/transactions', function(apiResponse){
-                    showTransactions(apiResponse.body);
-                });
             });
         }
 
         function disconnect() {
             if (stompClient !== null) {
                 stompClient.disconnect();
-            } 
+            }
 //            if (stompBlockClient !== null) {
 //                stompBlockClient.disconnect();
 //            }
@@ -57,7 +53,7 @@
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
         }
-        
+
         function showBlock(message) {
             var response = document.getElementById('block-response');
             var p = document.createElement('p');
@@ -65,13 +61,7 @@
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
         }
-        function showTransactions(message) {
-            var response = document.getElementById('trans-response');
-            var p = document.createElement('p');
-            p.style.wordWrap = 'break-word';
-            p.appendChild(document.createTextNode(message));
-            response.appendChild(p);
-        }
+
     </script>
 </head>
 <body onload="connect();" onclose="disconnect();">
@@ -84,10 +74,9 @@
     </div>-->
     <div id="conversationDiv">
 <!--        <label>What is your name?</label><input type="text" id="name" />-->
-        
+
         <p id="node-response">Node</p>
         <p id="block-response">Block</p>
-        <p id="trans-response">Transaction</p>
     </div>
 </div>
 </body>

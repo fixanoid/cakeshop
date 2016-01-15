@@ -4,10 +4,10 @@ info:
   version: 1.0.0
   title: Ethereum Enterprise
   contact: {}
-host: '10.196.144.225'
+host: 10.196.144.225
 schemes:
-  - "https"
-basePath: "/ethereum-enterprise/api"
+  - https
+basePath: /ethereum-enterprise/api
 tags:
   - name: node
   - name: block
@@ -18,7 +18,7 @@ paths:
     post:
       tags:
         - block
-      description: Retrieve a block by number, hash or tag
+      description: 'Retrieve a block by number, hash or tag'
       operationId: postBlock
       consumes:
         - application/json
@@ -51,9 +51,12 @@ paths:
               }
         - name: Get block by hash
           parameters:
-            body: |
+            body: >
               {
-                "hash": "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c"
+
+                "hash":
+              "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c"
+
               }
         - name: Get latest block
           parameters:
@@ -76,13 +79,13 @@ paths:
                     description: Block hash identifier
                   type:
                     type: string
-                    description: resource type identifier, 'block'
+                    description: "resource type identifier, 'block'"
                   attributes:
                     $ref: '#/definitions/Block'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -93,8 +96,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -105,7 +108,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/create:
     post:
       tags:
@@ -149,10 +152,15 @@ paths:
       examples:
         - name: Create SimpleStorage contract
           parameters:
-            body: |
+            body: >
               {
-                "code": "contract SimpleStorage { uint storedData; function set(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }",
+
+                "code": "contract SimpleStorage { uint storedData; function
+              set(uint x) { storedData = x; } function get() constant returns
+              (uint retVal) { return storedData; } }",
+
                 "code_type": "solidity"
+
               }
       responses:
         '200':
@@ -169,13 +177,13 @@ paths:
                     description: Transaction ID. Use /transaction/get to get the resulting Contract ID
                   type:
                     type: string
-                    description: resource type identifier, 'transaction_result'
+                    description: "resource type identifier, 'transaction_result'"
                   attributes:
                     $ref: '#/definitions/TransactionResult'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -186,8 +194,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -198,7 +206,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/delete:
     post:
       tags:
@@ -233,13 +241,13 @@ paths:
                     description: Transaction ID for delete operation
                   type:
                     type: string
-                    description: resource type identifier, 'transaction_result'
+                    description: "resource type identifier, 'transaction_result'"
                   attributes:
                     $ref: '#/definitions/TransactionResult'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -250,8 +258,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -262,7 +270,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/get:
     post:
       tags:
@@ -304,13 +312,13 @@ paths:
                     description: Contract ID
                   type:
                     type: string
-                    description: resource type identifier, 'contract'
+                    description: "resource type identifier, 'contract'"
                   attributes:
                     $ref: '#/definitions/Contract'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -321,8 +329,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -333,7 +341,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/list:
     post:
       tags:
@@ -374,13 +382,13 @@ paths:
                       description: Contract ID
                     type:
                       type: string
-                      description: resource type identifier, 'contract'
+                      description: "resource type identifier, 'contract'"
                     attributes:
                       $ref: '#/definitions/Contract'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -391,8 +399,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -403,7 +411,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/migrate:
     post:
       tags:
@@ -421,7 +429,7 @@ paths:
     post:
       tags:
         - contract
-      description: Execute a non-transactional method of a contract, usually to read some data (synchronously)
+      description: 'Execute a non-transactional method of a contract, usually to read some data (synchronously)'
       operationId: postContractRead
       consumes:
         - application/json
@@ -476,12 +484,11 @@ paths:
               gasPrice:
                 type: integer
                 required: false
-                description: the price of gas for this transaction in wei, defaults to the mean network gas price
+                description: 'the price of gas for this transaction in wei, defaults to the mean network gas price'
               value:
                 type: integer
                 required: false
                 description: amount of Ether to transfer to contract
-
       responses:
         '200':
           description: Success
@@ -499,8 +506,8 @@ paths:
                         description: return data from the read call
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -511,8 +518,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -523,7 +530,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /contract/transact:
     post:
       tags:
@@ -583,7 +590,7 @@ paths:
               gasPrice:
                 type: integer
                 required: false
-                description: the price of gas for this transaction in wei, defaults to the mean network gas price
+                description: 'the price of gas for this transaction in wei, defaults to the mean network gas price'
               value:
                 type: integer
                 required: false
@@ -603,13 +610,13 @@ paths:
                     description: Transaction ID for the operation
                   type:
                     type: string
-                    description: resource type identifier, 'transaction_result'
+                    description: "resource type identifier, 'transaction_result'"
                   attributes:
                     $ref: '#/definitions/TransactionResult'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -620,8 +627,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -632,7 +639,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /transaction/get:
     post:
       tags:
@@ -679,13 +686,13 @@ paths:
                     description: Transaction ID
                   type:
                     type: string
-                    description: resource type identifier, 'transaction'
+                    description: "resource type identifier, 'transaction'"
                   attributes:
                     $ref: '#/definitions/Transaction'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -696,8 +703,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -708,7 +715,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /transaction/list:
     post:
       tags:
@@ -753,13 +760,13 @@ paths:
                       description: Transaction ID
                     type:
                       type: string
-                      description: resource type identifier, 'transaction'
+                      description: "resource type identifier, 'transaction'"
                     attributes:
                       $ref: '#/definitions/Transaction'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -770,8 +777,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -782,7 +789,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /transaction/pending:
     post:
       tags:
@@ -819,13 +826,13 @@ paths:
                       description: Transaction ID
                     type:
                       type: string
-                      description: resource type identifier, 'transaction'
+                      description: "resource type identifier, 'transaction'"
                     attributes:
                       $ref: '#/definitions/Transaction'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -836,8 +843,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -848,8 +855,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-
+                description: 'Extra metadata, such as API version'
   /node/get:
     post:
       tags:
@@ -874,13 +880,13 @@ paths:
                     description: Node ID
                   type:
                     type: string
-                    description: resource type identifier, 'node'
+                    description: "resource type identifier, 'node'"
                   attributes:
                     $ref: '#/definitions/Node'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -891,8 +897,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -903,7 +909,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /node/start:
     post:
       tags:
@@ -918,7 +924,7 @@ paths:
           name: body
           required: true
           schema:
-            properties:
+            properties: null
       responses:
         '200':
           description: Success
@@ -930,8 +936,8 @@ paths:
                 description: Whether or not the node was started
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -942,8 +948,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -954,7 +960,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /node/stop:
     post:
       tags:
@@ -969,7 +975,7 @@ paths:
           name: body
           required: true
           schema:
-            properties:
+            properties: null
       responses:
         '200':
           description: Success
@@ -981,8 +987,8 @@ paths:
                 description: Whether or not the node was stopped
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -993,8 +999,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -1005,7 +1011,7 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
   /node/reset:
     post:
       tags:
@@ -1015,43 +1021,8 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
+      parameters: null
       responses:
-        '200':
-          description: Success
-          schema:
-            type: object
-            properties:
-              data:
-                type: boolean
-                description: Whether or not the miner was stopped
-              meta:
-                type: object
-                description: Extra metadata, such as API version
-        '4xx':
-          description: Error with the request
-          schema:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/definitions/APIError'
-              meta:
-                type: object
-                description: Extra metadata, such as API version
-        '5xx':
-          description: Error processing the request
-          schema:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/definitions/APIError'
-              meta:
-                type: object
-                description: Extra metadata, such as API version
         '200':
           description: Success
           schema:
@@ -1067,7 +1038,31 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
+                description: 'Extra metadata, such as API version'
+        4xx:
+          description: Error with the request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/APIError'
+              meta:
+                type: object
+                description: 'Extra metadata, such as API version'
+        5xx:
+          description: Error processing the request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/APIError'
+              meta:
+                type: object
+                description: 'Extra metadata, such as API version'
   /node/update:
     post:
       tags:
@@ -1086,7 +1081,7 @@ paths:
               log_level:
                 type: integer
                 required: false
-                description: Set log level (0-6, 6 is most verbose)
+                description: 'Set log level (0-6, 6 is most verbose)'
               network_id:
                 type: integer
                 required: false
@@ -1106,12 +1101,15 @@ paths:
             type: object
             properties:
               data:
-                type: boolean
-                description: Whether or not the settings were updated successfully
+                type: object
+                description: response data
+                properties:
+                  attributes:
+                    $ref: '#/definitions/NodeInfo'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '4xx':
+                description: 'Extra metadata, such as API version'
+        4xx:
           description: Error with the request
           schema:
             type: object
@@ -1122,8 +1120,8 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-        '5xx':
+                description: 'Extra metadata, such as API version'
+        5xx:
           description: Error processing the request
           schema:
             type: object
@@ -1134,20 +1132,19 @@ paths:
                   $ref: '#/definitions/APIError'
               meta:
                 type: object
-                description: Extra metadata, such as API version
-
+                description: 'Extra metadata, such as API version'
 definitions:
   APIError:
     properties:
       id:
         type: string
-        description: Error ID, if available
+        description: 'Error ID, if available'
       status:
         type: string
         description: HTTP status code
       code:
         type: string
-        description: API-specific error code, if available
+        description: 'API-specific error code, if available'
       title:
         type: string
         description: Short error description
@@ -1199,7 +1196,7 @@ definitions:
         type: integer
       transactionIndex:
         type: integer
-        description: integer of the transaction's index position in the block
+        description: "integer of the transaction's index position in the block"
       from:
         type: string
         description: address of the sender
@@ -1214,7 +1211,7 @@ definitions:
         description: the amount of gas used by this specific transaction alone.
       contractAddress:
         type: string
-        description: the contract address created, if this transaction was a contract creation, otherwise null.
+        description: 'the contract address created, if this transaction was a contract creation, otherwise null.'
       logs:
         type: array
         description: TODO add Log type
@@ -1287,10 +1284,10 @@ definitions:
     properties:
       status:
         type: string
-        description: Status of the node, it has two values "running" or "stopped"  
+        description: 'Status of the node, it has two values "running" or "stopped"'
       id:
         type: string
-        description: Unique Node ID  
+        description: Unique Node ID
       nodeName:
         type: string
         description: Friendly node name (includes client and version info)
@@ -1303,13 +1300,26 @@ definitions:
       peerCount:
         type: integer
         description: Number of peers connected to the node
-      pendingTxn: 
+      pendingTxn:
         type: integer
-        description: Number of transaction in the queue and haven't been mined
+        description: "Number of transaction in the queue and haven't been mined"
       mining:
         type: boolean
         description: Indicates weather the miner is running or not. It has a true or false values.
       latestBlock:
         type: integer
         description: A number indicating the most recent block that has been mined.
-      
+  NodeInfo:
+    properties:
+      identity:
+        type: string
+        description: Friendly node name which gets included in the full node Name
+      mining:
+        type: boolean
+        description: Indicates whether the node is commiting transactions or not
+      networkid:
+        type: integer
+        description: Network identifier
+      verbosity:
+        type: integer
+        description: 'Logging verbosity: 0-6 (0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=debug detail)'

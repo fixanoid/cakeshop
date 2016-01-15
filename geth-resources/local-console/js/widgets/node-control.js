@@ -12,7 +12,7 @@
 				'<li><button type="button" class="btn btn-default" id="stop">Stop Node</button></li>'+
 				'<li><button type="button" class="btn btn-default" id="start">Start Node</button></li>'+
 				'<li><button type="button" class="btn btn-default" id="reset">Create New Chain</button></li>'+
-				'<li><button type="button" class="btn btn-default" id="miner">Toggle Mining</button></li>'+
+				//'<li><button type="button" class="btn btn-default" id="miner">Toggle Mining</button></li>'+
 			'</ul>'),
 
 		// this may be overwritten by main runner
