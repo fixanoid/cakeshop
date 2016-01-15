@@ -3,10 +3,9 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
@@ -18,9 +17,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import org.apache.commons.lang3.StringUtils;
@@ -241,6 +245,61 @@ public class NodeServiceImpl implements NodeService {
         apiData.setAttributes(data);
         
         return apiData;
+    }
+    
+    @Override
+    public List<Peer> peers() throws APIException{
+        String args[] = null;
+        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS,args );
+        List peers = null;
+        List<Peer> peerList = new ArrayList<>();
+        
+        if(data != null){
+ 
+            peers =(List) data.get("_result");
+            if(peers != null){
+                for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
+                    Map peerMap = (Map)iterator.next();
+                    Peer peer = populateNode(peerMap);
+                    peerList.add(peer);
+                }
+            }
+        }
+        
+        return peerList;
+    }
+    
+    private Peer populateNode(Map data){
+        Peer peer = null;
+        URI uri = null;
+        
+        if(data != null){
+            
+            peer = new Peer();
+            peer.setStatus("running");
+            String id = (String)data.get("ID");
+            peer.setId(id);
+            String name = (String)data.get("Name");
+            peer.setNodeName(name);
+            String remoteAddress = (String)data.get("RemoteAddress");
+            try {
+                URI remoteURI = new URI("enode://" + remoteAddress);
+                
+                if(remoteURI.getHost() != null && remoteURI.getPort() != -1){
+                    
+                    uri = new URI("enode",id, remoteURI.getHost(),remoteURI.getPort(), null, null, null);
+                    peer.setNodeUrl(uri.toString());
+                    peer.setNodeIP(remoteURI.getHost());
+                }
+                
+            } catch (URISyntaxException ex) {
+                LOG.error("error parsing Peer Address ",ex.getMessage());
+                peer.setNodeUrl("");
+            }
+            
+        }
+        
+        return peer;
     }
 
 }

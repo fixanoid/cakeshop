@@ -75,7 +75,7 @@
                     {
                         "name": "Get block by hash",
                         "parameters": {
-                            "body": "{\n  \"hash\": \"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"\n}\n"
+                            "body": "{\n\n  \"hash\":\n\"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"\n}\n"
                         }
                     },
                     {
@@ -213,7 +213,7 @@
                     {
                         "name": "Create SimpleStorage contract",
                         "parameters": {
-                            "body": "{\n  \"code\": \"contract SimpleStorage { uint storedData; function set(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }\",\n  \"code_type\": \"solidity\"\n}\n"
+                            "body": "{\n\n  \"code\": \"contract SimpleStorage { uint storedData; function\nset(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }\",\n\n  \"code_type\": \"solidity\"\n\n}\n"
                         }
                     }
                 ],
@@ -1318,6 +1318,84 @@
                 }
             }
         },
+        "/node/peers": {
+            "post": {
+                "tags": [
+                    "peer",
+                    "node"
+                ],
+                "description": "Retrieve information on the peers connected to the node.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'peer'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/Peer"
+                                        }
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    },
+                    "4xx": {
+                        "description": "Error with the request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    },
+                    "5xx": {
+                        "description": "Error processing the request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/node/start": {
             "post": {
                 "tags": [
@@ -1894,6 +1972,30 @@
                 "latestBlock": {
                     "type": "integer",
                     "description": "A number indicating the most recent block that has been mined."
+                }
+            }
+        },
+        "Peer": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "Status of the node, it has two values \"running\" or \"stopped\""
+                },
+                "id": {
+                    "type": "string",
+                    "description": "Unique Node ID"
+                },
+                "nodeName": {
+                    "type": "string",
+                    "description": "Friendly node name (includes client and version info)"
+                },
+                "nodeUrl": {
+                    "type": "string",
+                    "description": "enode URI (Includes host IP and port number)"
+                },
+                "nodeIP": {
+                    "type": "string",
+                    "description": "IP address of the node"
                 }
             }
         },

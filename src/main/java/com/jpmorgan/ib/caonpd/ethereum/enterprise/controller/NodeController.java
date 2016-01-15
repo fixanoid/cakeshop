@@ -13,10 +13,12 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
 import java.util.HashMap;
+import java.util.List;
 
 import java.util.Map;
 
@@ -118,6 +120,28 @@ public class NodeController extends BaseController {
         
         if(updates != null){
             data.setAttributes(updates);
+            res.setData(data);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+        
+        APIError err = new APIError();
+        err.setStatus("400");
+        err.setTitle("Bad Request");
+        res.addError(err);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+    }
+    
+    @RequestMapping("/peers")
+    public ResponseEntity<APIResponse> peers() throws APIException {
+
+        APIResponse res = new APIResponse();
+        APIData data = new APIData();
+        
+        List<Peer> nodes = nodeService.peers();
+        
+        if(nodes != null){
+            data.setAttributes(nodes);
+            data.setType("peer");
             res.setData(data);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }

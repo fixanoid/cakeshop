@@ -4,6 +4,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
+import java.util.List;
 import java.util.Map;
 
 public interface NodeService {
@@ -16,5 +18,6 @@ public interface NodeService {
     public NodeInfo update(Integer logLevel,Integer networkID,String identity,Boolean mining) throws APIException;
     public APIData getAPIData(Map data);
     public Boolean resetNodeInfo();
+    public List<Peer> peers() throws APIException;
 
 }
