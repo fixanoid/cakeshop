@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   title: Ethereum Enterprise
   contact: {}
-host: 10.196.144.225
+host: vsin8u3955.svr.us.jpmchase.net:8443
 schemes:
   - https
 basePath: /ethereum-enterprise/api
