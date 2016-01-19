@@ -30,7 +30,7 @@ public interface GethHttpService {
 
     public Boolean startGeth(String command, String genesisDir, String eth_datadir, List<String> additionalParams);
     public Boolean stopGeth ();
-    public Boolean deletEthDatabase(String eth_datadir);
+    public Boolean deleteEthDatabase(String eth_datadir);
     public Boolean deletePid();
     public void start();
     public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid);

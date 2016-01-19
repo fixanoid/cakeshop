@@ -162,7 +162,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public Boolean deletEthDatabase(String eth_datadir) {
+    public Boolean deleteEthDatabase(String eth_datadir) {
         if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         }
