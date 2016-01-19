@@ -235,7 +235,9 @@ $(function() {
 
 
 	// Navigation menu handler
-	$('.rad-sidebar li').click(function() {
+	$('.rad-sidebar li').click(function(e) {
+		e.preventDefault();
+
 		Tower.current = $(this).attr('id');
 
 		$('.rad-sidebar li').removeClass('active');

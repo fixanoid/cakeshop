@@ -43,7 +43,7 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
-				$('#widget-shell-' + _this.shell.id + ' .panel-title').html(_this.title);
+				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.title);
 
 				$('#widget-' + _this.shell.id + ' .value').click(function(e) {
 					var isEditable = !!$(this).prop('contentEditable');
