@@ -27,9 +27,9 @@ public class TransactionController extends BaseController {
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getTransaction(
-            @JsonBodyParam(required=true) String address) throws APIException {
+            @JsonBodyParam(required=true) String id) throws APIException {
 
-        Transaction tx = transactionService.get(address);
+        Transaction tx = transactionService.get(id);
 
         APIResponse res = new APIResponse();
 
