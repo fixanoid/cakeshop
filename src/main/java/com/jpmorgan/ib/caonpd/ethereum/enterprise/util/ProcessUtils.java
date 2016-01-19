@@ -27,36 +27,30 @@ public class ProcessUtils {
      * Check if the given PID is running (supports both Unix and Windows systems)
      *
      * @param pid
-     * @param searchString String to search for in process list (only on Linux/Mac)
      * @return
      */
-    public static boolean isProcessRunning(String pid, String searchString) {
+    public static boolean isProcessRunning(String pid) {
         if (SystemUtils.IS_OS_WINDOWS) {
             return isProcessRunningWin(pid);
         } else {
-            return isProcessRunningNix(pid, searchString);
+            return isProcessRunningNix(pid);
         }
     }
 
-    public static boolean isProcessRunningNix(String pid, String searchString) {
+    public static boolean isProcessRunningNix(String pid) {
         if (StringUtils.isEmpty(pid)) {
             return false;
         }
 
         try {
-            Process proc = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "ps aux | grep " + pid});
-            try (InputStream stream = proc.getInputStream()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains(searchString)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException ex) {
+            Process exec = Runtime.getRuntime().exec("kill -0 " + pid);
+            exec.waitFor();
+            return (exec.exitValue() == 0); // process is running when kill -0 returns 0 (signal 0 was successfully sent)
+
+        } catch (IOException | InterruptedException ex) {
             LOG.error(ex.getMessage());
         }
+
         return false;
     }
 
@@ -80,37 +74,27 @@ public class ProcessUtils {
     }
 
     public static boolean killProcess(String pid, String exeName) throws InterruptedException, IOException {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            return killProcessWin(pid, exeName);
+        boolean killed = SystemUtils.IS_OS_WINDOWS ? killProcessWin(pid, exeName) : killProcessNix(pid);
+        if (!killed) {
+            return false;
         }
-        return killProcessNix(pid);
-    }
-
-    public static boolean killProcessWin(String pid, String exeName) throws InterruptedException, IOException {
-        Runtime.getRuntime().exec("taskkill /F /IM " + exeName).waitFor();
 
         // wait for process to actually stop
         while (true) {
-            if (!isProcessRunningWin(pid)) {
+            if (!isProcessRunning(pid)) {
                 return true;
             }
             TimeUnit.MILLISECONDS.sleep(5);
         }
     }
 
+    public static boolean killProcessWin(String pid, String exeName) throws InterruptedException, IOException {
+        Runtime.getRuntime().exec("taskkill /F /IM " + exeName).waitFor();
+        return true;
+    }
+
     public static boolean killProcessNix(String pid) throws InterruptedException, IOException {
         Runtime.getRuntime().exec("kill " + pid).waitFor();
-
-        // wait for process to actually stop
-        while (true) {
-            Process exec = Runtime.getRuntime().exec("kill -0 " + pid);
-            exec.waitFor();
-            if (exec.exitValue() != 0) {
-                break;
-            }
-            TimeUnit.MILLISECONDS.sleep(5);
-        }
-
         return true;
     }
 

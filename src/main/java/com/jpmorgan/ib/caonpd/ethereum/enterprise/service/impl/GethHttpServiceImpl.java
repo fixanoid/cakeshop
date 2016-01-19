@@ -194,7 +194,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
         }
 
-        boolean isStarted = isProcessRunning(readPidFromFile(PID_FILE), "genesis_block.json");
+        boolean isStarted = isProcessRunning(readPidFromFile(PID_FILE));
         if (!isStarted) {
             isStarted = startGeth(ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
