@@ -81,14 +81,21 @@ public class ProcessUtils {
 
     public static boolean killProcess(String pid, String exeName) throws InterruptedException, IOException {
         if (SystemUtils.IS_OS_WINDOWS) {
-            return killProcessWin(exeName);
+            return killProcessWin(pid, exeName);
         }
         return killProcessNix(pid);
     }
 
-    public static boolean killProcessWin(String exeName) throws InterruptedException, IOException {
+    public static boolean killProcessWin(String pid, String exeName) throws InterruptedException, IOException {
         Runtime.getRuntime().exec("taskkill /F /IM " + exeName).waitFor();
-        return true;
+
+        // wait for process to actually stop
+        while (true) {
+            if (!isProcessRunningWin(pid)) {
+                return true;
+            }
+            TimeUnit.MILLISECONDS.sleep(5);
+        }
     }
 
     public static boolean killProcessNix(String pid) throws InterruptedException, IOException {
