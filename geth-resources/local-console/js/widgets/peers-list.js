@@ -9,9 +9,9 @@
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 10px;">' +
 			'<table style="width: 100%; table-layout: fixed; background-color: inherit; margin-bottom: initial;" class="table">' +
-			'	<tr><td style="font-weight: bold; width:30px">ID</td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" colspan="2"><%= o.ID %></td></tr>' +
-			'	<tr><td style="font-weight: bold;">Info</td><td><%= o.Name %></td><td><%= o.Caps %></td></tr>' +
-			'	<tr><td style="font-weight: bold;">IPs</td><td><%= o.LocalAddress %></td><td><%= o.RemoteAddress %></td></tr>' +
+			'	<tr><td style="font-weight: bold; width: 35px;">Peer</td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" colspan="2"><%= o.nodeUrl %></td></tr>' +
+			'	<tr><td style="font-weight: bold;">Info</td><td><%= o.nodeName %></td><td><%= o.nodeIP %></td></tr>' +
+			//'	<tr><td style="font-weight: bold;">IPs</td><td><%= o.nodeIP %></td><td><%= o.status %></td></tr>' +
 			'</table></td></tr>'),
 
 		ready: function() {
@@ -35,11 +35,22 @@
 			).done(function(info) {
 				var rows = [];
 
-				_.each(info.result, function(peer) {
-					rows.push( _this.templateRow({ o: peer }) );
-				});
+				if (info.data.attributes.length > 0) {
+					_.each(info.data.attributes, function(peer) {
+						rows.push( _this.templateRow({ o: peer }) );
+					});
 
-				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
+					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
+
+					$('#widget-' + _this.shell.id + ' .value').click(function(e) {
+						var isEditable = !!$(this).prop('contentEditable');
+						$(this).prop('contentEditable', isEditable);
+
+						$(this).focus();
+					});
+				} else {
+					// no peers
+				}
 			});
 		},
 
