@@ -23,14 +23,18 @@ public class ContractABI {
     public static class Param {
         public String name;
         public SolidityType type;
+        public boolean indexed; // used for events
     }
 
     enum FunctionType {
         constructor,
-        function
+        function,
+        event
     }
 
     public static class Function {
+
+        public boolean anonymous; // used for events
         public boolean constant;
         public String name;
         public Param[] inputs;
