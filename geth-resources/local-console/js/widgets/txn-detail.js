@@ -1,24 +1,23 @@
 (function() {
 	var widget = {
-		name: 'block-detail',
+		name: 'txn-detail',
 		size: 'medium',
 
 		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
-		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
-		templateTxnRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td style="text-overflow: ellipsis; overflow: hidden;"><%= value %></td></tr>'),
+		templateRow: _.template('<tr><td style="width: 160px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
 		ready: function() {
 			this.render();
 		},
 
-		url: '../api/block/get',
+		url: '../api/transaction/get',
 
 		setData: function(data) {
-			this.blockNumber = data;
+			this.txnAddy = data;
 
-			this.title = 'Block #' + this.blockNumber;
+			this.title = 'Transaction #' + this.txnAddy;
 		},
 
 		init: function(data) {
@@ -34,27 +33,17 @@
 			var _this = this;
 
 			$.when(
-				utils.load({ url: this.url, data: { number: parseInt(_this.blockNumber, 10) } })
+				utils.load({ url: this.url, data: { id: _this.txnAddy } })
 			).done(function(res) {
 				var rows = [],
 				 keys = _.sortBy(_.keys(res.data.attributes));;
 
 				_.each(keys, function(val, key) {
-					if ( (!res.data.attributes[val]) || (res.data.attributes[val].length == 0) ) {
+					if (!res.data.attributes[val]) {
 						return;
 					}
 
-					if (val == 'transactions') {
-						var txnHtml = [];
-
-						_.each(res.data.attributes[val], function(txn) {
-							txnHtml.push('<a href="#">' + txn  + '</a>')
-						});
-
-						rows.push( _this.templateTxnRow({ key: utils.camelToRegularForm(val), value: txnHtml.join('<br/>') }) );
-					} else {
-						rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] }) );
-					}
+					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] }) );
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
@@ -66,12 +55,6 @@
 
 					$(this).focus();
 				});
-
-				$('#widget-' + _this.shell.id + ' a').click(function(e) {
-					e.preventDefault();
-
-					Tower.screenManager.show({ widgetId: 'txn-detail', section: 'explorer', data: $(this).text(), refetch: true });
-				});
 			});
 		},
 
@@ -81,7 +64,6 @@
 			this.fetch();
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
 		}
 	};
 
