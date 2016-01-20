@@ -14,13 +14,13 @@ public class Transaction {
 		committed
 	}
 
-	private String address;
+	private String id;
 
 	private Status status;
 
 	private String nonce;
 
-	private String blockHash;
+	private String blockId;
 
 	private Long blockNumber;
 
@@ -42,12 +42,12 @@ public class Transaction {
 	private List<String> logs;
 
 
-	public String getAddress() {
-		return address;
+	public String getId() {
+		return id;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getNonce() {
@@ -58,12 +58,12 @@ public class Transaction {
 		this.nonce = nonce;
 	}
 
-	public String getBlockHash() {
-		return blockHash;
+	public String getBlockId() {
+		return blockId;
 	}
 
-	public void setBlockHash(String blockHash) {
-		this.blockHash = blockHash;
+	public void setBlockId(String blockId) {
+		this.blockId = blockId;
 	}
 
 	public Long getBlockNumber() {
@@ -177,7 +177,7 @@ public class Transaction {
 
     public APIData toAPIData() {
         APIData data = new APIData();
-        data.setId(getAddress());
+        data.setId(getId());
         data.setType(API_DATA_TYPE);
         data.setAttributes(this);
         return data;

@@ -42,6 +42,7 @@ public class TransactionController extends BaseController {
         err.setStatus("404");
         err.setTitle("Transaction not found");
         res.addError(err);
+
         return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
     }
 

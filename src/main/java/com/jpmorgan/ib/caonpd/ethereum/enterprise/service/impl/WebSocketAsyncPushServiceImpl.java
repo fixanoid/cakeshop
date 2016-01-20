@@ -43,7 +43,7 @@ public class WebSocketAsyncPushServiceImpl implements WebSocketAsyncPushService 
             Transaction transaction = transactionService.get(transactionAddress);
             APIResponse apiResponse = new APIResponse();
 
-            if (StringUtils.isNotBlank(transaction.getAddress())) {
+            if (StringUtils.isNotBlank(transaction.getId())) {
                 apiResponse.setData(transaction.toAPIData());
             } else {
                 APIError err = new APIError();

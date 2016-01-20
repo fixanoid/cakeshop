@@ -35,8 +35,8 @@ public class TransactionServiceImpl implements TransactionService {
 
 		Transaction tx = new Transaction();
 
-		tx.setAddress((String) txData.get("hash"));
-		tx.setBlockHash((String) txData.get("blockHash"));
+		tx.setId((String) txData.get("hash"));
+		tx.setBlockId((String) txData.get("blockHash"));
 		tx.setContractAddress((String) txData.get("contractAddress"));
 		tx.setNonce((String) txData.get("nonce"));
 		tx.setInput((String) txData.get("input"));
@@ -51,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
 		tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
 		tx.setGasUsed(toLong("gasUsed", txData));
 
-		if (tx.getBlockHash() == null) {
+		if (tx.getBlockId() == null) {
 			tx.setStatus(Status.pending);
 		} else {
 			tx.setStatus(Status.committed);

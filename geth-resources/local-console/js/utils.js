@@ -72,9 +72,9 @@ var utils = {
 				' TXN' +
 				ret.substring(ret.indexOf(' Txn') + 4, ret.indexOf(' Txn').length)
 		} else if (ret.toLowerCase().indexOf(' id') >= 0) {
-			ret = ret.substring(0, ret.indexOf(' id')) +
+			ret = ret.substring(0, ret.indexOf(' Id')) +
 				' ID' +
-				ret.substring(ret.indexOf(' ID') + 4, ret.indexOf(' ID').length)
+				ret.substring(ret.indexOf(' Id') + 4, ret.indexOf(' Id').length)
 		}
 
 		return ret;

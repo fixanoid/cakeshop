@@ -35,8 +35,27 @@
 			$.when(
 				utils.load({ url: this.url, data: { id: _this.txnAddy } })
 			).done(function(res) {
-				var rows = [],
-				 keys = _.sortBy(_.keys(res.data.attributes));;
+				var mainTable = {
+					'id': 0,
+					'status': 1,
+					'blockId': 2,
+					'blockNumber': 3,
+					'contractAddress': 4,
+					'gasUsed': 5,
+					'cumulativeGasUsed': 6
+				},
+				mainRows = [],
+				secRows = [],
+				keys = _.sortBy(_.keys(res.data.attributes), function(key) {
+				   // custom reorder of the returned keys
+
+					if (key in mainTable) {
+						return '' + mainTable[key];
+					}
+
+					return ('zzz' + key);
+			  	});
+
 
 				keys = utils.idAlwaysFirst(keys);
 
@@ -45,10 +64,20 @@
 						return;
 					}
 
-					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] }) );
+					var template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+
+					if (val in mainTable) {
+						mainRows.push( template );
+					} else {
+						secRows.push( template );
+					}
 				});
 
-				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
+				$('#widget-' + _this.shell.id).html( _this.template({ rows: mainRows.join('') }) +
+					'<h3 style="margin-top: 30px;margin-left: 8px;">Transaction inputs &amp; parameters</h3>' +
+					_this.template({ rows: secRows.join('') }) );
+
+
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.title);
 
 				$('#widget-' + _this.shell.id + ' .value').click(function(e) {
