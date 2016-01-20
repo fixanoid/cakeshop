@@ -1130,11 +1130,11 @@ paths:
           required: true
           schema:
             properties:
-              log_level:
+              logLevel:
                 type: integer
                 required: false
                 description: 'Set log level (0-6, 6 is most verbose)'
-              network_id:
+              networkId:
                 type: integer
                 required: false
                 description: Network ID (any integer value)
@@ -1142,7 +1142,7 @@ paths:
                 type: string
                 required: false
                 description: Change node identity
-              committing_transactions:
+              committingTransactions:
                 type: boolean
                 required: false
                 description: Whether or not the node should commit incoming transactions (i.e. toggle mining)
@@ -1383,13 +1383,13 @@ definitions:
           identity:
             type: string
             description: Friendly node name which gets included in the full node Name
-          mining:
+          committingTransactions:
             type: boolean
             description: Indicates whether the node is commiting transactions or not
-          networkid:
+          networkId:
             type: integer
             description: Network identifier
-          verbosity:
+          logLevel:
             type: integer
             description: 'Logging verbosity: 0-6 (0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=debug detail)'
             

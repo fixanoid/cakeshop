@@ -107,10 +107,10 @@ public class NodeController extends BaseController {
     
     @RequestMapping("/update")
     public ResponseEntity<APIResponse> update(
-            @JsonBodyParam(required=false,value="log_level") Integer logLevel,
-            @JsonBodyParam(required=false,value="network_id") Integer networkID,
+            @JsonBodyParam(required=false,value="logLevel") Integer logLevel,
+            @JsonBodyParam(required=false,value="networkId") Integer networkID,
             @JsonBodyParam(required=false,value="identity") String identity,
-            @JsonBodyParam(required=false,value="committing_transactions") Boolean mining
+            @JsonBodyParam(required=false,value="committingTransactions") Boolean mining
             ) throws APIException {
 
         APIResponse res = new APIResponse();

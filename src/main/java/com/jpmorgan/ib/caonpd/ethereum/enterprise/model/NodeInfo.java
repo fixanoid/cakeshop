@@ -12,15 +12,15 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 public class NodeInfo {
     
     private String identity;
-    private Boolean mining;
-    private Integer networkid;
-    private Integer verbosity;
+    private Boolean committingTransactions;
+    private Integer networkId;
+    private Integer logLevel;
     
     public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity) {
         this.identity = identity;
-        this.mining = mining;
-        this.networkid = networkid;
-        this.verbosity = verbosity;
+        this.committingTransactions = mining;
+        this.networkId = networkid;
+        this.logLevel = verbosity;
     }
 
     /**
@@ -40,43 +40,43 @@ public class NodeInfo {
     /**
      * @return the mining
      */
-    public Boolean getMining() {
-        return mining;
+    public Boolean getCommittingTransactions() {
+        return committingTransactions;
     }
 
     /**
-     * @param mining the mining to set
+     * @param committingTransactions the mining to set
      */
-    public void setMining(Boolean mining) {
-        this.mining = mining;
+    public void setCommittingTransactions(Boolean committingTransactions) {
+        this.committingTransactions = committingTransactions;
     }
 
     /**
-     * @return the networkid
+     * @return the networkId
      */
-    public Integer getNetworkid() {
-        return networkid;
+    public Integer getNetworkId() {
+        return networkId;
     }
 
     /**
-     * @param networkid the networkid to set
+     * @param networkId the networkId to set
      */
-    public void setNetworkid(Integer networkid) {
-        this.networkid = networkid;
+    public void setNetworkid(Integer networkId) {
+        this.networkId = networkId;
     }
 
     /**
-     * @return the verbosity
+     * @return the logLevel
      */
-    public Integer getVerbosity() {
-        return verbosity;
+    public Integer getLogLevel() {
+        return logLevel;
     }
 
     /**
-     * @param verbosity the verbosity to set
+     * @param logLevel the verbosity to set
      */
-    public void setVerbosity(Integer verbosity) {
-        this.verbosity = verbosity;
+    public void setLogLevel(Integer logLevel) {
+        this.logLevel = logLevel;
     }
     
     public APIData toAPIData() {
