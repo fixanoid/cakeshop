@@ -47,8 +47,8 @@ public class BlockServiceImpl implements BlockService {
         Block block = new Block();
 
         // add addresses directly
-        block.setHash((String)blockData.get("hash"));
-        block.setParentHash((String)blockData.get("parentHash"));
+        block.setId((String)blockData.get("hash"));
+        block.setParentId((String)blockData.get("parentHash"));
         block.setNonce((String)blockData.get("nonce"));
         block.setSha3Uncles((String)blockData.get("sha3Uncles"));
         block.setLogsBloom((String)blockData.get("logsBloom"));

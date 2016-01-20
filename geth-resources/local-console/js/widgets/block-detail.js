@@ -37,9 +37,26 @@
 				utils.load({ url: this.url, data: { number: parseInt(_this.blockNumber, 10) } })
 			).done(function(res) {
 				var rows = [],
-				 keys = _.sortBy(_.keys(res.data.attributes));;
+				 keys = _.sortBy(_.keys(res.data.attributes), function(key) {
+					// custom reorder of the returned keys
+				  var customOrder = {
+					  'number': 1,
+					  'timestamp': 2,
+					  'transactions': 3
+				  };
+
+				  if (key in customOrder) {
+					  return '' + customOrder[key];
+				  }
+
+				  return ('zzz' + key);
+			   });
 
 				keys = utils.idAlwaysFirst(keys);
+
+				if (keys.indexOf('timestamp') >= 0) {
+					res.data.attributes.timestamp = moment.unix(res.data.attributes.timestamp).format('hh:mm:ss A MM/DD/YYYY') + ' (' + moment.unix(res.data.attributes.timestamp).fromNow() + ')' ;
+				}
 
 				_.each(keys, function(val, key) {
 					if ( (!res.data.attributes[val]) || (res.data.attributes[val].length == 0) ) {

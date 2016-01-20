@@ -11,8 +11,8 @@ public class Block {
     public static final String API_DATA_TYPE = "block";
 
     private Long number = null;
-    private String hash = null;
-    private String parentHash = null;
+    private String id = null;
+    private String parentId = null;
     private String nonce = null;
     private String sha3Uncles = null;
     private String logsBloom = null;
@@ -40,25 +40,25 @@ public class Block {
     }
 
     /**
-     * hash of the block
+     * id of the block
      **/
-    public String getHash() {
-        return hash;
+    public String getId() {
+        return id;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
-     * hash of the parent block
+     * id of the parent block
      **/
-    public String getParentHash() {
-        return parentHash;
+    public String getParentId() {
+        return parentId;
     }
 
-    public void setParentHash(String parentHash) {
-        this.parentHash = parentHash;
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     /**
@@ -223,7 +223,7 @@ public class Block {
 
     public APIData toAPIData() {
         APIData data = new APIData();
-        data.setId(getHash());
+        data.setId(getId());
         data.setType(API_DATA_TYPE);
         data.setAttributes(this);
         return data;
