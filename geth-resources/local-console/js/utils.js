@@ -57,7 +57,27 @@ var utils = {
 	},
 
 	camelToRegularForm: function(t) {
-		return t.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
+		var ret = t.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
+
+		if ( (ret.toLowerCase() === 'id') ||
+			(ret.toLowerCase() === 'url') ||
+			(ret.toLowerCase() === 'txn') ) {
+			ret = ret.toUpperCase();
+		} else if (ret.toLowerCase().indexOf(' url') >= 0) {
+			ret = ret.substring(0, ret.indexOf(' Url')) +
+				' URL' +
+				ret.substring(ret.indexOf(' Url') + 4, ret.indexOf(' Url').length)
+		} else if (ret.toLowerCase().indexOf(' txn') >= 0) {
+			ret = ret.substring(0, ret.indexOf(' Txn')) +
+				' TXN' +
+				ret.substring(ret.indexOf(' Txn') + 4, ret.indexOf(' Txn').length)
+		} else if (ret.toLowerCase().indexOf(' id') >= 0) {
+			ret = ret.substring(0, ret.indexOf(' id')) +
+				' ID' +
+				ret.substring(ret.indexOf(' ID') + 4, ret.indexOf(' ID').length)
+		}
+
+		return ret;
 	}
 };
 
