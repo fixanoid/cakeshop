@@ -42,12 +42,7 @@
 
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 
-					$('#widget-' + _this.shell.id + ' .value').click(function(e) {
-						var isEditable = !!$(this).prop('contentEditable');
-						$(this).prop('contentEditable', isEditable);
-
-						$(this).focus();
-					});
+					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 				} else {
 					// no peers
 				}

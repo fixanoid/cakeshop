@@ -88,6 +88,17 @@ var utils = {
 		arr.splice(0, 0, 'id');
 
 		return arr;
+	},
+
+	makeAreaEditable: function(selector) {
+		$(selector).click(function(e) {
+			var isEditable = !!$(this).prop('contentEditable');
+			$(this).prop('contentEditable', isEditable);
+
+			$(this).focus();
+
+			$(this).selectText();
+		});
 	}
 };
 
@@ -184,3 +195,21 @@ var screenManager = {
 		})
 	}
 }
+
+jQuery.fn.selectText = function() {
+	var doc = document,
+	 element = this[0];
+
+	if (doc.body.createTextRange) {
+		var range = document.body.createTextRange();
+		range.moveToElementText(element);
+		range.select();
+	} else if (window.getSelection) {
+		var selection = window.getSelection(),
+		 range = document.createRange();
+
+		range.selectNodeContents(element);
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+};

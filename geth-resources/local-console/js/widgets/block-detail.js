@@ -83,12 +83,7 @@
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.title);
 
-				$('#widget-' + _this.shell.id + ' .value').click(function(e) {
-					var isEditable = !!$(this).prop('contentEditable');
-					$(this).prop('contentEditable', isEditable);
-
-					$(this).focus();
-				});
+				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 
 				$('#widget-' + _this.shell.id + ' a').click(function(e) {
 					e.preventDefault();
