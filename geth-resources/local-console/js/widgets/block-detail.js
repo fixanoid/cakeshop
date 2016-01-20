@@ -39,6 +39,8 @@
 				var rows = [],
 				 keys = _.sortBy(_.keys(res.data.attributes));;
 
+				keys = utils.idAlwaysFirst(keys);
+
 				_.each(keys, function(val, key) {
 					if ( (!res.data.attributes[val]) || (res.data.attributes[val].length == 0) ) {
 						return;

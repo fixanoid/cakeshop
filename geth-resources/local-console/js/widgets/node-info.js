@@ -38,6 +38,8 @@
 				var rows = [],
 				 keys = _.sortBy(_.keys(info.data.attributes));
 
+				keys = utils.idAlwaysFirst(keys);
+
 				_.each(keys, function(val, key) {
 					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: info.data.attributes[val] }) );
 				});

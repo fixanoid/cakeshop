@@ -78,6 +78,16 @@ var utils = {
 		}
 
 		return ret;
+	},
+
+	idAlwaysFirst: function(arr) {
+		// remove ID from wherever it is, and make it first
+		arr = _.without(arr, 'id');
+
+		// insert ID as first element
+		arr.splice(0, 0, 'id');
+
+		return arr;
 	}
 };
 
