@@ -30,7 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("integration-test")
 @Order(1)
 @EnableAsync
-public class TestWebConfig implements AsyncConfigurer {
+public class TestAppConfig implements AsyncConfigurer {
 
     private static final String ENV = System.getProperty("eth.environment");
 
