@@ -34,7 +34,11 @@
 
 			$.when(
 				utils.load({ url: this.url, data: { id: _this.txnAddy } })
-			).done(function(res) {
+			).fail(function(res) {
+				$('#widget-' + _this.shell.id).html( '<h3 style="text-align: center;margin-top: 70px;">Unable to load transaction</h3>' );
+
+				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html('Transaction Detail');
+			}).done(function(res) {
 				var mainTable = {
 					'id': 0,
 					'status': 1,

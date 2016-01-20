@@ -35,7 +35,11 @@
 
 			$.when(
 				utils.load({ url: this.url, data: { number: parseInt(_this.blockNumber, 10) } })
-			).done(function(res) {
+			).fail(function(res) {
+				$('#widget-' + _this.shell.id).html( '<h3 style="text-align: center;margin-top: 70px;">Unable to load block</h3>' );
+
+				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html('Block Detail');
+			}).done(function(res) {
 				var rows = [],
 				 keys = _.sortBy(_.keys(res.data.attributes), function(key) {
 					// custom reorder of the returned keys
