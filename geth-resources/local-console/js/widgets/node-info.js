@@ -36,9 +36,30 @@
 				utils.load({ url: this.url })
 			).done(function(info) {
 				var rows = [],
-				 keys = _.sortBy(_.keys(info.data.attributes));
+				 keys = _.sortBy(_.keys(info.data.attributes), function(key) {
+					 // custom reorder of the returned keys
+				   var customOrder = {
+					   'nodeUrl': 1,
+					   'nodeName': 2,
+					   'nodeIP': 3,
+					   'nodePort': 4,
+					   'nodeRpcPort': 5,
+					   'peerCount': 6,
+					   'pendingTxn': 7,
+					   'status': 8,
+					   'mining': 9,
+					   'latestBlock': 'a'
+				   };
+
+				   if (key in customOrder) {
+					   return '' + customOrder[key];
+				   }
+
+				   return ('zzz' + key);
+				});
 
 				keys = utils.idAlwaysFirst(keys);
+
 
 				_.each(keys, function(val, key) {
 					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: info.data.attributes[val] }) );
