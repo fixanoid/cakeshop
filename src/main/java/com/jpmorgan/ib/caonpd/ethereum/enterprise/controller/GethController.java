@@ -104,7 +104,7 @@ public class GethController extends BaseController {
         String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         Boolean stopped = gethService.stopGeth();
         gethService.deletePid();
-        Boolean deletedDaraDir = gethService.deletEthDatabase(eth_datadir);
+        Boolean deletedDaraDir = gethService.deleteEthDatabase(eth_datadir);
         Boolean reset = false;
         if (stopped && deletedDaraDir) {
             String genesisDir = request.getServletContext().getRealPath("/") + genesis;

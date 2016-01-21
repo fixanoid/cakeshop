@@ -8,15 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -34,44 +30,82 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 @Profile("container")
 public class AppConfig implements AsyncConfigurer {
-    
+
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
     public static final String API_VERSION = "1.0";
 
-    private static final String ENV = System.getProperty("eth.environment");
-    private static final String PROPS_FILE = File.separator + "env.properties";
-    private static String ROOT = AppConfig.class.getClassLoader().getResource("").getPath();
+    protected static final String ENV = System.getProperty("eth.environment");
+    protected static final String CONFIG_FILE = "env.properties";
+
+    protected static final String PROPS_FILE = File.separator + "env.properties";
+//    protected static String ROOT = AppConfig.class.getClassLoader().getResource("").getPath();
+
+
+    protected static final String APP_ROOT;
+    static {
+        String root = null;
+        try {
+            root = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(""), "..", "..");
+        } catch (IOException e) {
+        }
+        APP_ROOT = root;
+    }
+
+    protected static final String TOMCAT_ROOT;
+    static {
+        String root = null;
+        try {
+            root = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(""), "..", "..", "..", "..");
+        } catch (IOException e) {
+        }
+        TOMCAT_ROOT = root;
+    }
+
+    protected static final String CONFIG_ROOT = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", ENV);
+
+    public String getConfigPath() {
+        return CONFIG_ROOT;
+    }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
-        Boolean propsExists = true;
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        //Externalizing properties
-        if (SystemUtils.IS_OS_WINDOWS && ROOT.startsWith("/")) {
-            ROOT = ROOT.replaceFirst("/", "");
-        }
-        Path path = Paths.get(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE);
-        if (!Files.exists(path)) {
-            try (FileInputStream input = new FileInputStream(ROOT + ENV + PROPS_FILE);
-                    FileOutputStream output = 
-                            new FileOutputStream(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE)) {
-                IOUtils.copy(input, output);
+    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
+
+//        if (SystemUtils.IS_OS_WINDOWS && ROOT.startsWith("/")) {
+//            ROOT = ROOT.replaceFirst("/", "");
+//        }
+
+        File configPath = new File(getConfigPath());
+        File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
+        File vendorEnvConfigFile = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(ENV + File.separator + CONFIG_FILE).toFile();
+
+        if (!configPath.exists() || !configFile.exists()) {
+            LOG.debug("Config dir does not exist, will init");
+
+            configPath.mkdirs();
+            if (!configPath.exists()) {
+               throw new IOException("Unable to create config dir: " + configPath.getAbsolutePath());
             }
-            propsExists = false;
-        } 
-        if (propsExists) {
-            FileWriter writer = new FileWriter(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE);
-            Properties newProperties = new Properties();
-            newProperties.load(new FileInputStream(ROOT + ENV + PROPS_FILE));
-            Properties existingProperties = new Properties();
-            existingProperties.load(new FileInputStream(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE));
-            checkPropsChangesNeeded(existingProperties, newProperties, writer);
+
+            LOG.info("Initializing new config from " + vendorEnvConfigFile.getPath());
+            FileUtils.copyFile(vendorEnvConfigFile, configFile);
+
+        } else {
+            Properties mergedProps = new Properties();
+            mergedProps.load(new FileInputStream(vendorEnvConfigFile));
+            mergedProps.load(new FileInputStream(configFile)); // overwrite vendor props with our configs
+            mergedProps.store(new FileOutputStream(configFile), null);
         }
-        propertySourcesPlaceholderConfigurer.setLocation(
-                new FileSystemResource(ROOT.replace("/WEB-INF/classes/", "") + File.separator + ".." + PROPS_FILE));
-       
-        return propertySourcesPlaceholderConfigurer;
+
+        // Finally create the configurer and return it
+        Properties localProps = new Properties();
+        localProps.setProperty("config.path", configPath.getPath());
+        localProps.setProperty("app.path", APP_ROOT);
+
+        PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
+        propConfig.setLocation(new FileSystemResource(configFile));
+        propConfig.setProperties(localProps);
+        return propConfig;
     }
 
     @Bean
@@ -95,7 +129,7 @@ public class AppConfig implements AsyncConfigurer {
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new SimpleAsyncUncaughtExceptionHandler();
     }
-    
+
     private static void checkPropsChangesNeeded(Properties existingProperties, Properties newProperties, FileWriter writer) {
         Boolean updated = false;
         for (String key : newProperties.stringPropertyNames()) {

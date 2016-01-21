@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -9,16 +10,21 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryServic
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 public class ContractRegistryServiceTest extends BaseGethRpcTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceTest.class);
 
     @Autowired
     private ContractRegistryService contractRegistry;
@@ -38,13 +44,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 
 	    Long createdDate = (System.currentTimeMillis() / 1000);
 
-	    TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
-	    assertNotNull(tr);
-	    assertNotNull(tr.getId());
-	    assertTrue(!tr.getId().isEmpty());
-
-	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
-	    assertNotNull(tx);
+	    registerContract(addr, abi, code, createdDate);
 
 	    Contract contract = contractRegistry.getById(addr);
 	    assertNotNull(contract);
@@ -59,6 +59,17 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(val.intValue(), 100);
 	}
 
+    private void registerContract(String addr, String abi, String code, Long createdDate)
+            throws APIException, InterruptedException {
+        TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
+	    assertNotNull(tr);
+	    assertNotNull(tr.getId());
+	    assertTrue(!tr.getId().isEmpty());
+
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
+	    assertNotNull(tx);
+    }
+
 	@Test
 	public void testList() throws IOException, InterruptedException {
 
@@ -68,27 +79,27 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    String abi = readTestFile("contracts/simplestorage.abi.txt");
 	    String code = readTestFile("contracts/simplestorage.sol");
 
-	    System.out.println("putting addr into registry " + addr);
-
-	    TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
-	    assertNotNull(tr);
-	    assertNotNull(tr.getId());
-	    assertTrue(!tr.getId().isEmpty());
-
-	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
-	    assertNotNull(tx);
-
+	    registerContract(addr, abi, code, createdDate);
+	    registerContract(addr, abi, code, createdDate);
 
 	    List<Contract> list = contractRegistry.list();
+	    //System.out.println(list);
+
+	    RpcUtil.puts(list.size());
+	    RpcUtil.puts(list);
+
 	    assertNotNull(list);
 	    assertTrue(!list.isEmpty());
 	    assertTrue(list.size() > 0);
 
-	    Contract c = list.get(0);
-	    assertEquals(c.getAddress(), addr);
-	    assertEquals(c.getABI(), abi);
-	    assertEquals(c.getCode(), code);
-	    assertTrue(c.getCreatedDate() >= createdDate);
+	    for (Contract c : list) {
+	        if (c.getAddress().equalsIgnoreCase(addr)) {
+                assertEquals(c.getAddress(), addr);
+                assertEquals(c.getABI(), abi);
+                assertEquals(c.getCode(), code);
+                assertTrue(c.getCreatedDate() >= createdDate);
+	        }
+        }
 
 	}
 

@@ -9,6 +9,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,11 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -38,6 +38,9 @@ public class NodeServiceImpl implements NodeService {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
     public static final String ADMIN_MINER_START = "miner_start";
     public static final String ADMIN_MINER_STOP = "miner_stop";
+
+    @Value("${config.path}")
+    private String CONFIG_ROOT;
 
     @Autowired
     private GethHttpService gethService;
@@ -65,19 +68,19 @@ public class NodeServiceImpl implements NodeService {
                     String host = uri.getHost();
                     //if host or IP aren't set, then populate with localhost IP
                     if(StringUtils.isEmpty(host) || "[::]".equals(host) ||  "0.0.0.0".equalsIgnoreCase(host)){
-                        
+
                         try {
                             String ip = EEUtils.getLocalIP();
                             uri = new URI(uri.getScheme(), uri.getUserInfo(), ip, uri.getPort(), null, uri.getQuery(), null);
                             node.setNodeUrl(uri.toString());
                             node.setNodeIP(ip);
-                        
+
                         } catch (APIException ex) {
                             LOG.error(ex.getMessage());
                             node.setNodeUrl(nodeURI);
                             node.setNodeIP(host);
                         }
-                        
+
                     }else{
                         node.setNodeUrl(nodeURI);
                     }
@@ -109,7 +112,7 @@ public class NodeServiceImpl implements NodeService {
                 node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
                 return node;
             }
-            
+
             throw ex;
 
         } catch (NumberFormatException ex){
@@ -122,19 +125,19 @@ public class NodeServiceImpl implements NodeService {
 
         return node;
     }
-    
+
     @Override
     public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
-        
-        Map<String, Object> data = null;
-        Map<String, String> nodeProp = null;
-        
+
+        Map<String, Object> data=null;
+        Map<String,String> nodeProp = null;
+
         String args[] = null;
-        
+
         if (logLevel != null || networkID != null || !StringUtils.isEmpty(identity)) {
-            
+
             nodeProp = new HashMap<>();
-            
+
             if (logLevel != null) {
                 nodeProp.put("geth.verbosity", logLevel.toString());
             }
@@ -146,35 +149,34 @@ public class NodeServiceImpl implements NodeService {
             if (StringUtils.isNotEmpty(identity)) {
                 nodeProp.put("geth.identity", identity);
             }
-            
+
             gethService.setNodeInfo(identity, mining, logLevel, networkID);
             updateNodeInfo(nodeProp, true);
         }
-        
+
         if (mining != null) {
             nodeProp = new HashMap<>();
             nodeProp.put("geth.mining",mining.toString());
-           
+
             if (mining == true) {
                 args = new String[]{"1"};
                 data = gethService.executeGethCall(ADMIN_MINER_START, args);
             } else {
                 data = gethService.executeGethCall(ADMIN_MINER_STOP, args);
             }
-            
+
             gethService.setNodeInfo(identity, mining, logLevel, networkID);
             updateNodeInfo(nodeProp, false);
-            
         }
 
         return gethService.getNodeInfo();
     }
-    
-    
+
+
     @Override
     public void updateNodeInfo(Map<String, String> newProps,Boolean requiresRestart) throws APIException {
 
-        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
+        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
         try {
             InputStream input = new FileInputStream(prpsPath);
             Properties props = new Properties();
@@ -205,7 +207,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public Boolean resetNodeInfo() {
 
-        String prpsPath = GethHttpService.ROOT + File.separator + ".." + File.separator + "env.properties";
+        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
         Boolean deleted = new File(prpsPath).delete();
         restart();
 
@@ -219,10 +221,10 @@ public class NodeServiceImpl implements NodeService {
         gethService.start();
 
     }
-    
+
     @Override
     public APIData getAPIData(Map data){
-        
+
         APIData apiData = new APIData();
         Object id = data.get("id");
         if (id instanceof String) {
@@ -242,21 +244,21 @@ public class NodeServiceImpl implements NodeService {
                 LOG.error(ex.getMessage());
             }
         }
-        
+
         apiData.setAttributes(data);
-        
+
         return apiData;
     }
-    
+
     @Override
     public List<Peer> peers() throws APIException{
         String args[] = null;
         Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS,args );
         List peers = null;
         List<Peer> peerList = new ArrayList<>();
-        
+
         if(data != null){
- 
+
             peers =(List) data.get("_result");
             if(peers != null){
                 for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
@@ -266,16 +268,16 @@ public class NodeServiceImpl implements NodeService {
                 }
             }
         }
-        
+
         return peerList;
     }
-    
+
     private Peer populateNode(Map data){
         Peer peer = null;
         URI uri = null;
-        
+
         if(data != null){
-            
+
             peer = new Peer();
             peer.setStatus("running");
             String id = (String)data.get("ID");
@@ -285,21 +287,21 @@ public class NodeServiceImpl implements NodeService {
             String remoteAddress = (String)data.get("RemoteAddress");
             try {
                 URI remoteURI = new URI("enode://" + remoteAddress);
-                
+
                 if(remoteURI.getHost() != null && remoteURI.getPort() != -1){
-                    
+
                     uri = new URI("enode",id, remoteURI.getHost(),remoteURI.getPort(), null, null, null);
                     peer.setNodeUrl(uri.toString());
                     peer.setNodeIP(remoteURI.getHost());
                 }
-                
+
             } catch (URISyntaxException ex) {
                 LOG.error("error parsing Peer Address ",ex.getMessage());
                 peer.setNodeUrl("");
             }
-            
+
         }
-        
+
         return peer;
     }
 

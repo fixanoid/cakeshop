@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 
@@ -11,43 +12,33 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinNT;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -60,14 +51,21 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService {
-    
+public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware {
+
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
-    
+
+    @Value("${app.path}")
+    private String APP_ROOT;
+
+    @Value("${config.path}")
+    private String CONFIG_ROOT;
+
+    private String PID_FILE;
+
     //System.getProperty("user.dir");
 
     @Value("${geth.url}")
@@ -98,6 +96,13 @@ public class GethHttpServiceImpl implements GethHttpService {
     private Boolean mining;
     @Value("${geth.identity:}")
     private String identity;
+
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void setPidFilename() {
+         PID_FILE = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(CONFIG_ROOT, "meth.pid");
+    }
 
     @Override
     public String executeGethCall(String json) throws APIException {
@@ -166,24 +171,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean stopGeth() {
         try {
-            if (SystemUtils.IS_OS_WINDOWS) {
-                Runtime.getRuntime().exec("taskkill /F /IM geth.exe").waitFor();
-                return true;
-            } else {
-                Runtime.getRuntime().exec("kill -9 " + getProcessId()).waitFor();
-
-                // wait for process to actually stop
-                while (true) {
-                    Process exec = Runtime.getRuntime().exec("kill -0 " + getProcessId());
-                    exec.waitFor();
-                    if (exec.exitValue() != 0) {
-                        break;
-                    }
-                    TimeUnit.MILLISECONDS.sleep(5);
-                }
-
-                return true;
-            }
+            return killProcess(readPidFromFile(PID_FILE), "geth.exe");
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot shutdown process " + ex.getMessage());
             return false;
@@ -191,7 +179,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @Override
-    public Boolean deletEthDatabase(String eth_datadir) {
+    public Boolean deleteEthDatabase(String eth_datadir) {
         if (StringUtils.isEmpty(eth_datadir)) {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         }
@@ -218,16 +206,14 @@ public class GethHttpServiceImpl implements GethHttpService {
     //To restart geth when properties has been changed
     @Override
     public void start() {
-        String genesisDir = ROOT + genesis;
-        Boolean isStarted;
+        String genesisDir = APP_ROOT + genesis;
         if (SystemUtils.IS_OS_WINDOWS) {
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
-            isStarted = isProcessRunningWin(getProcessId());
-        } else {
-            isStarted = isProcessRunningNix(getProcessId());
         }
+
+        boolean isStarted = isProcessRunning(readPidFromFile(PID_FILE));
         if (!isStarted) {
-            isStarted = startGeth(ROOT + File.separator, genesisDir, null, null);
+            isStarted = startGeth(APP_ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {
@@ -245,16 +231,15 @@ public class GethHttpServiceImpl implements GethHttpService {
             eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
         }
         if (SystemUtils.IS_OS_WINDOWS) {
-            //start Windows geth
+            LOG.info("Starting geth for windows");
             started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir, additionalParams, true);
         } else if (SystemUtils.IS_OS_LINUX) {
-            //start *nix geth
+            LOG.info("Starting geth for linux");
             started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir, additionalParams, false);
-            LOG.info("Starting *nix");
         } else {
             //Default to Mac
+            LOG.info("Starting geth for mac");
             started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir, additionalParams, false);
-            LOG.info("Starting Mac");
         }
         return started;
     }
@@ -262,8 +247,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean deletePid() {
         File pidFile = new File(PID_FILE);
-        Boolean deleted = pidFile.delete();
-        return deleted;
+        return pidFile.delete();
     }
 
     @Override
@@ -287,23 +271,23 @@ public class GethHttpServiceImpl implements GethHttpService {
         }else if(null == this.identity){
             this.identity = "";
         }
-        
+
     }
-    
+
     @Override
     public NodeInfo getNodeInfo(){
-            
+
         return new NodeInfo(this.identity,this.mining,this.networkid,this.verbosity);
     }
-    
+
     private String getNodeIdentity() throws APIException{
         Map<String, Object> data = null;
-        
+
         data = this.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ null, true });
-        
+
         if(data != null)
             return (String)data.get("Name");
-        
+
         return null;
     }
 
@@ -337,23 +321,23 @@ public class GethHttpServiceImpl implements GethHttpService {
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
         }
-        
-        if(null != this.networkid) {
+
+        if (null != this.networkid) {
             commands.add("--networkid");
             commands.add(String.valueOf(networkid));
-        }else{
+        } else {
             commands.add("--networkid");
             commands.add(String.valueOf(DEFAULT_NETWORK_ID));
         }
 
-        if(null != this.verbosity) {
+        if (null != this.verbosity) {
             commands.add("--verbosity");
             commands.add(String.valueOf(verbosity));
         }
         if (null != mining) {
-           commands.add("--mine");
-           commands.add("--minerthreads");
-           commands.add("1");
+            commands.add("--mine");
+            commands.add("--minerthreads");
+            commands.add("1");
         }
         if (StringUtils.isNotEmpty(identity)) {
             commands.add("--identity");
@@ -375,6 +359,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         Process process;
         try {
             File dataDirectory = new File(dataDir);
+            boolean newGethInstall = false;
 
             if (!dataDirectory.exists()) {
                 dataDirectory.mkdirs();
@@ -384,19 +369,26 @@ public class GethHttpServiceImpl implements GethHttpService {
             if (!keystoreDir.exists()) {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
                 FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
-                Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
+                //Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
+                newGethInstall = true;
             }
 
             process = builder.start();
 
-            if (!isWindows) {
-                setUnixPID(process);
-            } else {
-                setWinPID(process);
+            Integer pid = getProcessPid(process);
+            if (pid != null) {
+                writePidToFile(pid, PID_FILE);
             }
 
             started = checkGethStarted();
+
+            if (started && newGethInstall) {
+                BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
+                init.run();
+            }
+
             // FIXME add a watcher thread to make sure it doesn't die..
+
         } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             started = false;
@@ -415,13 +407,6 @@ public class GethHttpServiceImpl implements GethHttpService {
         ensureFileIsExecutable(nodePath + File.separator + "node.exe");
         ensureFileIsExecutable(solcPath + File.separator + "solc");
         ensureFileIsExecutable(solcPath + File.separator + "solc.cmd");
-    }
-
-    private void ensureFileIsExecutable(String filename) {
-        File file = new File(filename);
-        if (file.exists() && !file.canExecute()) {
-            file.setExecutable(true);
-        }
     }
 
     /**
@@ -450,112 +435,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                     }
                 }
             }
-        }
-    }
-
-    private void setUnixPID(Process process) throws IOException {
-        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
-            try {
-                Class<? extends Process> cl = process.getClass();
-                Field field = cl.getDeclaredField("pid");
-                field.setAccessible(true);
-                Object pidObject = field.get(process);
-                Integer gethpid = (Integer) pidObject;
-                writePidToFile(gethpid);
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
-                LOG.error("Cannot get UNIX pid" + ex.getMessage());
-            }
-        }
-    }
-
-    private void setWinPID(Process proc) throws IOException {
-        if (proc.getClass().getName().equals("java.lang.Win32Process")
-                || proc.getClass().getName().equals("java.lang.ProcessImpl")) {
-            try {
-                Field f = proc.getClass().getDeclaredField("handle");
-                f.setAccessible(true);
-                long handl = f.getLong(proc);
-                Kernel32 kernel = Kernel32.INSTANCE;
-                WinNT.HANDLE handle = new WinNT.HANDLE();
-                handle.setPointer(Pointer.createConstant(handl));
-                Integer pid = kernel.GetProcessId(handle);
-                writePidToFile(pid);
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                LOG.error(e.getMessage());
-            }
-        }
-    }
-
-    private String getProcessId() {
-        File pidFile = new File(PID_FILE);
-        String pid = null;
-        try {
-            try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
-                String s;
-                while ((s = br.readLine()) != null) {
-                    pid = s;
-                    break;
-                }
-            }
-        } catch (IOException ex) {
-            LOG.error(ex.getMessage());
-        }
-        return pid;
-    }
-
-    private Boolean isProcessRunningNix(String pid) {
-        Boolean isRunning = false;
-        if (StringUtils.isNotEmpty(pid)) {
-            try {
-                Process proc = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "ps aux | grep " + pid});
-                try (InputStream stream = proc.getInputStream()) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                    //Parsing the input stream.
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (line.contains("genesis_block.json")) {
-                            isRunning = true;
-                            break;
-                        }
-                    }
-                }
-            } catch (IOException ex) {
-                LOG.error(ex.getMessage());
-            }
-        }
-        return isRunning;
-    }
-
-    private Boolean isProcessRunningWin(String pid) {
-        Boolean isRunning = false;
-        try {
-            Process proc = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "tasklist /FI \"PID eq " + pid + "\""});
-            try (InputStream stream = proc.getInputStream()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                //Parsing the input stream.
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains(" " + pid + " ")) {
-                        isRunning = true;
-                        break;
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            LOG.error(ex.getMessage());
-        }
-        return isRunning;
-    }
-
-    private void writePidToFile(Integer pid) throws IOException {
-        LOG.info("Creating pid file :" + PID_FILE);
-        File pidFile = new File(PID_FILE);
-        if (!pidFile.exists()) {
-            pidFile.createNewFile();
-        }
-        try (FileWriter writer = new FileWriter(pidFile)) {
-            writer.write(String.valueOf(pid));
-            writer.flush();
         }
     }
 
@@ -605,5 +484,10 @@ public class GethHttpServiceImpl implements GethHttpService {
             LOG.error(ex.getMessage());
         }
         return connected;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

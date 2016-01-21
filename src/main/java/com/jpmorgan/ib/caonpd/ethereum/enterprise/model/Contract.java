@@ -46,12 +46,10 @@ public class Contract {
 
 
     public Contract() {
-        this.name = "foobar"; // TODO placeholder
     }
 
     public Contract(String address, String abi, String code, CodeType codeType, String binary, Long createdDate) {
         this.address = address;
-        this.name = "foobar"; // TODO placeholder
         this.abi = abi;
         this.code = code;
         this.codeType = codeType;

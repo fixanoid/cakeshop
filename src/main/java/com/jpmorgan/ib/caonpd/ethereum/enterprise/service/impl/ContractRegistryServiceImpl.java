@@ -3,10 +3,13 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.File;
@@ -15,6 +18,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +29,13 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceImpl.class);
 
-    public static final String CONTRACT_REGISTRY_ADDRESS = "0x81635fe3d9cecbcf44aa58e967af1ab7ceefb817";
-
     @Autowired
     private ContractService contractService;
 
+    @Autowired
+    private TransactionService transactionService;
+
+    private String contractRegistryAddress;
     private final ContractABI abi;
 
     public ContractRegistryServiceImpl() throws IOException {
@@ -38,9 +44,33 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     }
 
     @Override
+    public boolean deploy() throws APIException {
+
+        try {
+            String code = FileUtils.readClasspathFile("contracts/ContractRegistry.sol");
+            TransactionResult txr = contractService.create(code, CodeType.solidity);
+            Transaction tx = transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
+            this.contractRegistryAddress = tx.getContractAddress();
+            return true;
+
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error deploying ContractRegistry to chain: " + e.getMessage(), e);
+        }
+
+        return false;
+    }
+
+    @Override
     public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
+
+        if (name.equalsIgnoreCase("ContractRegistry") ||
+                this.contractRegistryAddress == null || this.contractRegistryAddress.isEmpty()) {
+
+            return null; // FIXME return silently because registry hasn't yet been registered
+        }
+
         return contractService.transact(
-                CONTRACT_REGISTRY_ADDRESS, this.abi,
+                contractRegistryAddress, this.abi,
                 "register",
                 new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
@@ -49,7 +79,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     public Contract getById(String id) throws APIException {
 
         Object[] res = (Object[]) contractService.read(
-                CONTRACT_REGISTRY_ADDRESS, this.abi,
+                contractRegistryAddress, this.abi,
                 "getById",
                 new Object[] { id });
 
@@ -72,7 +102,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     public List<Contract> list() throws APIException {
 
         Object[] res = (Object[]) contractService.read(
-                CONTRACT_REGISTRY_ADDRESS, this.abi,
+                contractRegistryAddress, this.abi,
                 "listAddrs", null);
 
         List<Contract> contracts = new ArrayList<>();
