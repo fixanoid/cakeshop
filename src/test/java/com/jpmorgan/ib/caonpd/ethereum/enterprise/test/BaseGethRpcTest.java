@@ -10,6 +10,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 @Test
@@ -57,44 +58,94 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
+    private static final String GETH_TEMPLATE = TestAppConfig.getTempPath();
+
     public boolean runGeth() {
         return true;
     }
 
+    /**
+     * Initialize geth once for re-use across tests since it can be quite slow
+     * @throws Exception
+     * @throws IOException
+     */
+    @BeforeSuite
+    public void bootstrapGeth() throws Exception {
+        springTestContextPrepareTestInstance();
+
+        assertTrue(_startGeth());
+        assertTrue(geth.stopGeth());
+
+        // once geth has bootstrapped, copy it to a new location
+        try {
+            FileUtils.copyDirectory(new File(ethDataDir), new File(GETH_TEMPLATE));
+            FileUtils.deleteDirectory(new File(ethDataDir));
+        } catch (IOException e) {
+            try {
+                _stopGeth();
+                FileUtils.deleteDirectory(new File(GETH_TEMPLATE));
+            } catch (IOException e1) {
+            }
+            throw new RuntimeException("Failed to copy geth template", e);
+        }
+    }
+
     @AfterSuite
-    public void cleanupTempConfigPath() {
+    public void cleanupTempPaths() {
         try {
             FileUtils.deleteDirectory(new File(CONFIG_ROOT));
+            FileUtils.deleteDirectory(new File(GETH_TEMPLATE));
+            TestAppConfig.cleanupTempPaths();
         } catch (IOException e) {
         }
     }
 
     @BeforeClass
-    public void startGeth() {
+    public void startGeth() throws IOException {
         if (!runGeth()) {
             return;
         }
         LOG.info("Starting Ethereum at test startup");
-        String genesisDir = System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
-        String command = System.getProperty("user.dir") + "/geth-resources/";
-        String eth_datadir = System.getProperty("user.home") + File.separator + ethDataDir;
-        eth_datadir = eth_datadir.replaceAll(File.separator + File.separator, "/");
-        new File(eth_datadir).mkdirs();
-
-        Boolean started = geth.startGeth(command, genesisDir, eth_datadir, Lists.newArrayList("--jpmtest")); // , "--verbosity", "6"
-        assertTrue(started);
+        assertTrue(_startGeth());
     }
 
+    private boolean _startGeth() throws IOException {
+        String gethDir = FileUtils.expandPath(TestAppConfig.APP_ROOT, "geth-resources") + File.separator;
+        String genesisFile = FileUtils.expandPath(gethDir, "/genesis/genesis_block.json");
+
+        this.ethDataDir = FileUtils.getTempPath(); // ignore the path configured in properties and use a temp dir
+        ethDataDir = ethDataDir.replaceAll(File.separator + File.separator, "/");
+        TestAppConfig.tempFiles.add(ethDataDir);
+
+        File gethTemplate = new File(GETH_TEMPLATE);
+        if (gethTemplate.exists()) {
+            // copy from template
+            LOG.debug("Bootstrapping GETH from TEMPLATE!");
+            FileUtils.copyDirectory(gethTemplate, new File(ethDataDir));
+
+        } else {
+            new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
+        }
+
+        return geth.startGeth(gethDir, genesisFile, ethDataDir, Lists.newArrayList("--jpmtest")); // , "--verbosity", "6"
+    }
+
+    /**
+     * Stop geth & delete data dir
+     */
     @AfterClass
     public void stopGeth() {
         if (!runGeth()) {
             return;
         }
         LOG.info("Stopping Ethereum at test teardown");
+        _stopGeth();
+    }
+
+    private void _stopGeth() {
         geth.stopGeth();
-        String eth_datadir = System.getProperty("user.home") + ethDataDir;
         try {
-            FileUtils.deleteDirectory(new File(eth_datadir));
+            FileUtils.deleteDirectory(new File(ethDataDir));
         } catch (IOException e) {
             logger.warn(e);
         }
