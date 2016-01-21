@@ -13,8 +13,8 @@ contract ContractRegistry
 	}
 
     // helpers for iterating
-    uint num_addrs;
-    address[] addrs;
+    uint public num_addrs;
+    address[] public addrs;
 
 	mapping (address => Contract) public contracts; // contracts by address
 
