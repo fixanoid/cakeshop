@@ -48,7 +48,7 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Test
     public void testGetBlockByTag() throws Exception {
-        commonTest("{\"tag\":\"latest\"}", 2);
+        commonTest("{\"tag\":\"latest\"}", 1);
     }
 
     private void commonTest(String postBody, int blockNum) throws Exception {
