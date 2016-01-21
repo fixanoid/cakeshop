@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,12 +112,19 @@ public class ContractServiceImpl implements ContractService {
 		String binaryCode = (String) compiled.get("code");
 		contract.setBinary(binaryCode);
 
+		// get abi
 		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 		    contract.setABI(mapper.writeValueAsString(abiObj));
 		} catch (JsonProcessingException e) {
 		    throw new APIException("Unable to read ABI", e);
+		}
+
+		// get name
+		Matcher nameMatcher = Pattern.compile("contract\\s+([a-zA-Z]+).*?\\{", Pattern.DOTALL).matcher(code);
+		if (nameMatcher.find()) {
+		    contract.setName(nameMatcher.group());
 		}
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
