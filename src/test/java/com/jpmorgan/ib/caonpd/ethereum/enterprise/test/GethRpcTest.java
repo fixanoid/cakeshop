@@ -13,10 +13,12 @@ public class GethRpcTest extends BaseGethRpcTest {
     @Test
     public void testExecWithParams() throws APIException {
         String method = "eth_getBlockByNumber";
-        String expectedHash = "0xd93b8da4c2f48c98e2cb76bef403ec22cada28331946218487b0fd1335e52bdd";
 
         Map<String, Object> data = geth.executeGethCall(method, new Object[]{ "latest", false });
-        assertEquals(data.get("hash"), expectedHash);
+        assertNotNull(data.get("hash"));
+
+
+        String expectedHash = "0xd93b8da4c2f48c98e2cb76bef403ec22cada28331946218487b0fd1335e52bdd";
 
         data = geth.executeGethCall(method, new Object[]{ 0, false });
         assertEquals(data.get("hash"), expectedHash);

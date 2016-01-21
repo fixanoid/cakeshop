@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import org.springframework.util.Assert;
 
 
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * @author N631539
  */
 
-@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TestAppConfig.class ,loader = AnnotationConfigContextLoader.class)
 public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
     

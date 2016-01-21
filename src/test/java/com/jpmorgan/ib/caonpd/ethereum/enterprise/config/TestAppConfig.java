@@ -1,21 +1,17 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Executor;
 
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
-import org.springframework.context.annotation.Bean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ActiveProfiles;
 
 @Configuration
@@ -30,36 +26,36 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("integration-test")
 @Order(1)
 @EnableAsync
-public class TestAppConfig implements AsyncConfigurer {
+public class TestAppConfig extends AppConfig {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TestAppConfig.class);
+
+    static {
+        System.setProperty("eth.environment", "test");
+    }
 
     private static final String ENV = System.getProperty("eth.environment");
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        propertySourcesPlaceholderConfigurer.setLocation(new ClassPathResource(ENV + "/env.properties"));
-        return propertySourcesPlaceholderConfigurer;
-    }
-
-    @Bean
-    public static AdminBean adminBean() {
-        return new AdminBean();
-    }
-
-    @Bean(name="asyncExecutor")
     @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-        exec.setCorePoolSize(250);
-        exec.setMaxPoolSize(500);
-        exec.setQueueCapacity(10000);
-        exec.setThreadNamePrefix("EE-SDK-");
-        exec.afterPropertiesSet();
-        return exec;
+    public String getConfigPath() {
+
+        LOG.info("getConfigPath..");
+
+        // Use a temp folder
+        try {
+            File temp = File.createTempFile("ee-", "");
+            temp.delete();
+            LOG.info(temp.getPath());
+            return temp.getPath();
+        } catch (IOException e) {
+        }
+        return null;
     }
 
     @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new SimpleAsyncUncaughtExceptionHandler();
+    public Executor getAsyncExecutor() {
+        LOG.info("Creating SyncTaskExecutor");
+        return new SyncTaskExecutor();
     }
+
 }

@@ -35,7 +35,10 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -48,13 +51,20 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService {
+public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware {
 
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-    private final String PID_FILE = ROOT + File.separator + ".." + File.separator +  "meth.pid";
+
+    @Value("${app.path}")
+    private String APP_ROOT;
+
+    @Value("${config.path}")
+    private String CONFIG_ROOT;
+
+    private String PID_FILE;
 
     //System.getProperty("user.dir");
 
@@ -86,6 +96,13 @@ public class GethHttpServiceImpl implements GethHttpService {
     private Boolean mining;
     @Value("${geth.identity:}")
     private String identity;
+
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void setPidFilename() {
+         PID_FILE = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(CONFIG_ROOT, "meth.pid");
+    }
 
     @Override
     public String executeGethCall(String json) throws APIException {
@@ -189,14 +206,14 @@ public class GethHttpServiceImpl implements GethHttpService {
     //To restart geth when properties has been changed
     @Override
     public void start() {
-        String genesisDir = ROOT + genesis;
+        String genesisDir = APP_ROOT + genesis;
         if (SystemUtils.IS_OS_WINDOWS) {
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
         }
 
         boolean isStarted = isProcessRunning(readPidFromFile(PID_FILE));
         if (!isStarted) {
-            isStarted = startGeth(ROOT + File.separator, genesisDir, null, null);
+            isStarted = startGeth(APP_ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {
@@ -230,8 +247,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean deletePid() {
         File pidFile = new File(PID_FILE);
-        Boolean deleted = pidFile.delete();
-        return deleted;
+        return pidFile.delete();
     }
 
     @Override
@@ -306,22 +322,22 @@ public class GethHttpServiceImpl implements GethHttpService {
             commands.addAll(additionalParams);
         }
 
-        if(null != this.networkid) {
+        if (null != this.networkid) {
             commands.add("--networkid");
             commands.add(String.valueOf(networkid));
-        }else{
+        } else {
             commands.add("--networkid");
             commands.add(String.valueOf(DEFAULT_NETWORK_ID));
         }
 
-        if(null != this.verbosity) {
+        if (null != this.verbosity) {
             commands.add("--verbosity");
             commands.add(String.valueOf(verbosity));
         }
         if (null != mining) {
-           commands.add("--mine");
-           commands.add("--minerthreads");
-           commands.add("1");
+            commands.add("--mine");
+            commands.add("--minerthreads");
+            commands.add("1");
         }
         if (StringUtils.isNotEmpty(identity)) {
             commands.add("--identity");
@@ -343,6 +359,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         Process process;
         try {
             File dataDirectory = new File(dataDir);
+            boolean newGethInstall = false;
 
             if (!dataDirectory.exists()) {
                 dataDirectory.mkdirs();
@@ -353,6 +370,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
                 FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
                 //Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
+                newGethInstall = true;
             }
 
             process = builder.start();
@@ -363,6 +381,11 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
 
             started = checkGethStarted();
+
+            if (started && newGethInstall) {
+                BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
+                init.run();
+            }
 
             // FIXME add a watcher thread to make sure it doesn't die..
 
@@ -461,5 +484,10 @@ public class GethHttpServiceImpl implements GethHttpService {
             LOG.error(ex.getMessage());
         }
         return connected;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

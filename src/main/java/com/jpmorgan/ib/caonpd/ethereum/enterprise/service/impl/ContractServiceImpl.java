@@ -105,6 +105,7 @@ public class ContractServiceImpl implements ContractService {
 		}
 
 		Map<String, Object> compiled = (Map<String, Object>) res.values().toArray()[0];
+		//System.out.println(compiled.toString());
 
 		String binaryCode = (String) compiled.get("code");
 		contract.setBinary(binaryCode);

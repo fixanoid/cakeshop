@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
  * and open the template in the editor.
  */
 import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeTest;
  */
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = {WebConfigTest.class})
-@ContextConfiguration(classes = TestWebConfig.class ,loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TestAppConfig.class ,loader = AnnotationConfigContextLoader.class)
 
 public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 

@@ -3,7 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestWebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -21,19 +21,15 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test
-@ContextConfiguration(classes = {TestWebConfig.class})
+@ContextConfiguration(classes = {TestAppConfig.class})
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseGethRpcTest.class);
@@ -60,16 +56,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     public boolean runGeth() {
         return true;
     }
-
-	@Autowired
-	@Qualifier("asyncExecutor")
-	private TaskExecutor executor;
-
-	@AfterMethod
-	public void resetExecutor() {
-	    ((ThreadPoolTaskExecutor) executor).destroy();
-	    ((ThreadPoolTaskExecutor) executor).initialize();
-	}
 
     @BeforeClass
     public void startGeth() {
@@ -123,7 +109,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
      * @throws InterruptedException
      */
     protected String createContract() throws IOException, InterruptedException {
-    	//String abi = readTestFile("contracts/simplestorage.abi.txt");
     	String code = readTestFile("contracts/simplestorage.sol");
     	return createContract(code);
     }
