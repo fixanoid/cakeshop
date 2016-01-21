@@ -369,7 +369,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             if (!keystoreDir.exists()) {
                 String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
                 FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
-                //Collection<File> files = FileUtils.listFiles(new File(dataDir), FileFileFilter.FILE, TrueFileFilter.INSTANCE);
                 newGethInstall = true;
             }
 
