@@ -99,9 +99,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     private ApplicationContext applicationContext;
 
-    @PostConstruct
-    public void setPidFilename() {
-         PID_FILE = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(CONFIG_ROOT, "meth.pid");
+    public String getPidFilename() {
+        if (PID_FILE == null) {
+            PID_FILE = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(CONFIG_ROOT, "meth.pid");
+        }
+        return PID_FILE;
     }
 
     @Override
@@ -171,7 +173,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public Boolean stopGeth() {
         try {
-            return killProcess(readPidFromFile(PID_FILE), "geth.exe");
+            return killProcess(readPidFromFile(getPidFilename()), "geth.exe");
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot shutdown process " + ex.getMessage());
             return false;
@@ -211,7 +213,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
         }
 
-        boolean isStarted = isProcessRunning(readPidFromFile(PID_FILE));
+        boolean isStarted = isProcessRunning(readPidFromFile(getPidFilename()));
         if (!isStarted) {
             isStarted = startGeth(APP_ROOT + File.separator, genesisDir, null, null);
             if (!isStarted) {
@@ -246,7 +248,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean deletePid() {
-        File pidFile = new File(PID_FILE);
+        File pidFile = new File(getPidFilename());
         return pidFile.delete();
     }
 
@@ -378,7 +380,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
             Integer pid = getProcessPid(process);
             if (pid != null) {
-                writePidToFile(pid, PID_FILE);
+                writePidToFile(pid, getPidFilename());
             }
 
             started = checkGethStarted();
