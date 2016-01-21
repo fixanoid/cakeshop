@@ -38,6 +38,11 @@ public class FileUtils {
     }
 
     public static Path getClasspathPath(String path) throws IOException {
+    	if (SystemUtils.IS_OS_WINDOWS) {
+    		// flip slashes so it doesn't get escaped in the resulting URL
+    		// like \test%5cenv.properties
+    		path = path.replace('\\', '/');
+    	}
         URL url = RpcUtil.class.getClassLoader().getResource(path);
         String filePath = url.getPath();
         if (SystemUtils.IS_OS_WINDOWS && filePath.matches("/[A-Z]:.*")) {
