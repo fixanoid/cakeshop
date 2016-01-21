@@ -11,14 +11,35 @@ import org.apache.commons.lang3.SystemUtils;
 
 public class FileUtils {
 
+    /**
+     * Join the given paths and expand any relative locations (. or ..) to their full canonical form
+     *
+     * @param path
+     * @param rel
+     * @return
+     */
     public static String expandPath(String path, String... rel) {
         return expandPath(Paths.get(path), rel);
     }
 
+    /**
+     * Join the given paths and expand any relative locations (. or ..) to their full canonical form
+     *
+     * @param path
+     * @param rel
+     * @return
+     */
     public static String expandPath(File path, String... rel) {
         return expandPath(Paths.get(path.getPath()), rel);
     }
 
+    /**
+     * Join the given paths and expand any relative locations (. or ..) to their full canonical form
+     *
+     * @param basePath
+     * @param rel
+     * @return
+     */
     public static String expandPath(Path basePath, String... rel) {
         StringBuilder relPath = new StringBuilder();
         for (String r : rel) {
@@ -31,12 +52,25 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Read in the given classpath resource as a string
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
     public static String readClasspathFile(String path) throws IOException {
     	URL url = RpcUtil.class.getClassLoader().getResource(path);
     	File file = org.apache.commons.io.FileUtils.toFile(url);
     	return org.apache.commons.io.FileUtils.readFileToString(file);
     }
 
+    /**
+     * Get a {@link Path} to the given classpath resource
+     * @param path
+     * @return
+     * @throws IOException
+     */
     public static Path getClasspathPath(String path) throws IOException {
     	if (SystemUtils.IS_OS_WINDOWS) {
     		// flip slashes so it doesn't get escaped in the resulting URL
@@ -53,6 +87,13 @@ public class FileUtils {
         return Paths.get(filePath);
     }
 
+    /**
+     * Get an InputStream for the given classpath resource
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
     public static InputStream getClasspathStream(String path) throws IOException {
     	URL url = RpcUtil.class.getClassLoader().getResource(path);
     	return url.openStream();
