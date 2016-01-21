@@ -316,7 +316,9 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--solc", solcPath + File.separator + "solc",
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", passwordFile,
-                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList);
+                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList,
+                "--ipcdisable"
+                );
 
         if (null != additionalParams && !additionalParams.isEmpty()) {
             commands.addAll(additionalParams);
