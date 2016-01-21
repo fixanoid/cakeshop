@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -46,7 +46,7 @@ public class AppConfig implements AsyncConfigurer {
     static {
         String root = null;
         try {
-            root = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(""), "..", "..");
+            root = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
         } catch (IOException e) {
         }
         APP_ROOT = root;
@@ -56,13 +56,13 @@ public class AppConfig implements AsyncConfigurer {
     static {
         String root = null;
         try {
-            root = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(""), "..", "..", "..", "..");
+            root = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..", "..", "..");
         } catch (IOException e) {
         }
         TOMCAT_ROOT = root;
     }
 
-    protected static final String CONFIG_ROOT = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", ENV);
+    protected static final String CONFIG_ROOT = FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", ENV);
 
     public String getConfigPath() {
         return CONFIG_ROOT;
@@ -77,7 +77,7 @@ public class AppConfig implements AsyncConfigurer {
 
         File configPath = new File(getConfigPath());
         File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
-        File vendorEnvConfigFile = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.getClasspathPath(ENV + File.separator + CONFIG_FILE).toFile();
+        File vendorEnvConfigFile = FileUtils.getClasspathPath(ENV + File.separator + CONFIG_FILE).toFile();
 
         if (!configPath.exists() || !configFile.exists()) {
             LOG.debug("Config dir does not exist, will init");
@@ -88,7 +88,7 @@ public class AppConfig implements AsyncConfigurer {
             }
 
             LOG.info("Initializing new config from " + vendorEnvConfigFile.getPath());
-            FileUtils.copyFile(vendorEnvConfigFile, configFile);
+            org.apache.commons.io.FileUtils.copyFile(vendorEnvConfigFile, configFile);
 
         } else {
             Properties mergedProps = new Properties();
