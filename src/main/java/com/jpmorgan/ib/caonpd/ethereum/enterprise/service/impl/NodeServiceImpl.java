@@ -124,47 +124,49 @@ public class NodeServiceImpl implements NodeService {
     }
     
     @Override
-    public NodeInfo update(Integer logLevel,Integer networkID,String identity,Boolean mining) throws APIException {
+    public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
         
-        Map<String, Object> data=null;
-        Map<String,String> nodeProp = null;
+        Map<String, Object> data = null;
+        Map<String, String> nodeProp = null;
         
         String args[] = null;
         
-        if(logLevel != null || networkID != null || !StringUtils.isEmpty(identity)){
+        if (logLevel != null || networkID != null || !StringUtils.isEmpty(identity)) {
             
             nodeProp = new HashMap<>();
             
-            if(logLevel != null){
+            if (logLevel != null) {
                 nodeProp.put("geth.verbosity", logLevel.toString());
             }
-            if(networkID != null){
+
+            if (networkID != null) {
                 nodeProp.put("geth.networkid", networkID.toString());
-            
             }
-            if(StringUtils.isNotEmpty(identity)){
+
+            if (StringUtils.isNotEmpty(identity)) {
                 nodeProp.put("geth.identity", identity);
             }
             
-            gethService.setNodeInfo(identity, mining, logLevel,networkID);
-            updateNodeInfo(nodeProp,true);
-            
+            gethService.setNodeInfo(identity, mining, logLevel, networkID);
+            updateNodeInfo(nodeProp, true);
         }
         
-        if(mining != null){
+        if (mining != null) {
             nodeProp = new HashMap<>();
             nodeProp.put("geth.mining",mining.toString());
-            if(mining == true){
+           
+            if (mining == true) {
                 args = new String[]{"1"};
-                data = gethService.executeGethCall(ADMIN_MINER_START,args);
-            }else{
-                data = gethService.executeGethCall(ADMIN_MINER_STOP,args);
+                data = gethService.executeGethCall(ADMIN_MINER_START, args);
+            } else {
+                data = gethService.executeGethCall(ADMIN_MINER_STOP, args);
             }
             
-            gethService.setNodeInfo(identity, mining, logLevel,networkID);
-            updateNodeInfo(nodeProp,false);
+            gethService.setNodeInfo(identity, mining, logLevel, networkID);
+            updateNodeInfo(nodeProp, false);
             
         }
+
         return gethService.getNodeInfo();
     }
     

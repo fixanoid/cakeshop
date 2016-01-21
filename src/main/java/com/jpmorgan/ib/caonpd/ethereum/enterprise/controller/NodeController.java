@@ -59,7 +59,7 @@ public class NodeController extends BaseController {
         String args[] = null;
         Node node;
         APIResponse apiResponse = new APIResponse();
-        Map<String, Object> data=null;
+        Map<String, Object> data = null;
 
         if (StringUtils.isNotEmpty(funcName) && ( funcName.equalsIgnoreCase("status") || funcName.equalsIgnoreCase("get")) ) {
             node = nodeService.get();
@@ -106,28 +106,49 @@ public class NodeController extends BaseController {
     }
     
     @RequestMapping("/update")
-    public ResponseEntity<APIResponse> update(
-            @JsonBodyParam(required=false,value="logLevel") Integer logLevel,
-            @JsonBodyParam(required=false,value="networkId") Integer networkID,
-            @JsonBodyParam(required=false,value="identity") String identity,
-            @JsonBodyParam(required=false,value="committingTransactions") Boolean mining
-            ) throws APIException {
+	public ResponseEntity<APIResponse> update(@JsonBodyParam(required = false, value = "logLevel") String logLevel,
+			@JsonBodyParam(required = false, value = "networkId") String networkID,
+			@JsonBodyParam(required = false, value = "identity") String identity,
+			@JsonBodyParam(required = false, value = "committingTransactions") String mining) throws APIException {
 
         APIResponse res = new APIResponse();
         APIData data = new APIData();
-        
-        NodeInfo updates = nodeService.update(logLevel, networkID, identity, mining);
-        
-        if(updates != null){
-            data.setAttributes(updates);
-            res.setData(data);
-            return new ResponseEntity<>(res, HttpStatus.OK);
+
+        try {
+        	Integer logLevelInt = null, 
+        			networkIDInt = null;
+        	
+        	if (logLevel != null) {
+        		logLevelInt = Integer.parseInt(logLevel);
+        	}
+
+        	if (networkID != null) {
+        		networkIDInt = Integer.parseInt(networkID);
+        	}
+        	
+        	NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, Boolean.parseBoolean(mining));
+
+        	if (updates != null) {
+        		data.setAttributes(updates);
+        		res.setData(data);
+        		return new ResponseEntity<>(res, HttpStatus.OK);
+        	}
+        } catch (NumberFormatException ne) {
+            APIError err = new APIError();
+            err.setStatus("400");
+            err.setTitle("Input Formatting Error");
+
+            res.addError(err);
+
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
         
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
+
         res.addError(err);
+
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
     
