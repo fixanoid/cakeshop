@@ -7,12 +7,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -38,30 +36,9 @@ public class AppConfig implements AsyncConfigurer {
     protected static final String ENV = System.getProperty("eth.environment");
     protected static final String CONFIG_FILE = "env.properties";
 
-    protected static final String PROPS_FILE = File.separator + "env.properties";
-//    protected static String ROOT = AppConfig.class.getClassLoader().getResource("").getPath();
+    public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
-
-    protected static final String APP_ROOT;
-    static {
-        String root = null;
-        try {
-            root = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
-        } catch (IOException e) {
-        }
-        APP_ROOT = root;
-    }
-
-    protected static final String TOMCAT_ROOT;
-    static {
-        String root = null;
-        try {
-            root = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..", "..", "..");
-        } catch (IOException e) {
-        }
-        TOMCAT_ROOT = root;
-    }
-
+    protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
     protected static final String CONFIG_ROOT = FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", ENV);
 
     public String getConfigPath() {
@@ -124,23 +101,6 @@ public class AppConfig implements AsyncConfigurer {
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new SimpleAsyncUncaughtExceptionHandler();
-    }
-
-    private static void checkPropsChangesNeeded(Properties existingProperties, Properties newProperties, FileWriter writer) {
-        Boolean updated = false;
-        for (String key : newProperties.stringPropertyNames()) {
-            if (StringUtils.isBlank(existingProperties.getProperty(key))) {
-                existingProperties.setProperty(key, newProperties.getProperty(key));
-                updated = true;
-            }
-        }
-        if (updated) {
-            try {
-                existingProperties.store(writer, null);
-            } catch (IOException ex) {
-                LOG.error(ex.getMessage());
-            }
-        }
     }
 
 }

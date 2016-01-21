@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.lang3.SystemUtils;
 
-public class FileUtils {
+public class FileUtils extends org.apache.commons.io.FileUtils {
 
     /**
      * Join the given paths and expand any relative locations (. or ..) to their full canonical form
@@ -41,12 +41,16 @@ public class FileUtils {
      * @return
      */
     public static String expandPath(Path basePath, String... rel) {
-        StringBuilder relPath = new StringBuilder();
+        StringBuilder relPathBuilder = new StringBuilder();
         for (String r : rel) {
-           relPath.append(r).append(File.separator);
+           relPathBuilder.append(r).append(File.separator);
+        }
+        String relPath = relPathBuilder.toString();
+        if (relPath.startsWith("/")) {
+            relPath = relPath.substring(1);
         }
         try {
-            return basePath.resolve(relPath.toString()).toFile().getCanonicalPath();
+            return basePath.resolve(relPath).toFile().getCanonicalPath();
         } catch (IOException e) {
             return null;
         }
@@ -71,13 +75,16 @@ public class FileUtils {
      * @return
      * @throws IOException
      */
-    public static Path getClasspathPath(String path) throws IOException {
+    public static Path getClasspathPath(String path) {
     	if (SystemUtils.IS_OS_WINDOWS) {
     		// flip slashes so it doesn't get escaped in the resulting URL
     		// like \test%5cenv.properties
     		path = path.replace('\\', '/');
     	}
         URL url = RpcUtil.class.getClassLoader().getResource(path);
+        if (url == null) {
+            return null;
+        }
         String filePath = url.getPath();
         if (SystemUtils.IS_OS_WINDOWS && filePath.matches("/[A-Z]:.*")) {
             // Fixes weird path handling on Windows
