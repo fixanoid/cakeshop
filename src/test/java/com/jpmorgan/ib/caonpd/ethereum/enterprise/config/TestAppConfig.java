@@ -1,7 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
-import java.io.File;
-import java.io.IOException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
+
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -38,18 +38,8 @@ public class TestAppConfig extends AppConfig {
 
     @Override
     public String getConfigPath() {
-
-        LOG.info("getConfigPath..");
-
-        // Use a temp folder
-        try {
-            File temp = File.createTempFile("ee-", "");
-            temp.delete();
-            LOG.info(temp.getPath());
-            return temp.getPath();
-        } catch (IOException e) {
-        }
-        return null;
+        // Use a temp folder since not in a container
+        return FileUtils.getTempPath();
     }
 
     @Override

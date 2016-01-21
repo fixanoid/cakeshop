@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,8 +54,19 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Value("${geth.datadir}")
     private String ethDataDir;
 
+    @Value("${config.path}")
+    private String CONFIG_ROOT;
+
     public boolean runGeth() {
         return true;
+    }
+
+    @AfterSuite
+    public void cleanupTempConfigPath() {
+        try {
+            FileUtils.deleteDirectory(new File(CONFIG_ROOT));
+        } catch (IOException e) {
+        }
     }
 
     @BeforeClass

@@ -99,4 +99,29 @@ public class FileUtils {
     	return url.openStream();
     }
 
+    /**
+     * Create a temporary filename (for use as a file or directory)
+     *
+     * @return
+     */
+    public static String getTempPath() {
+        return getTempPath("ee-");
+    }
+
+    /**
+     * Create a temporary filename with the given prefix (for use as a file or directory)
+     *
+     * @param prefix
+     * @return
+     */
+    public static String getTempPath(String prefix) {
+        try {
+            File temp = File.createTempFile("ee-", "");
+            temp.delete();
+            return temp.getPath();
+        } catch (IOException e) {
+        }
+        return null;
+    }
+
 }
