@@ -7,6 +7,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.lang3.SystemUtils;
+
 public class FileUtils {
 
     public static String expandPath(String path, String... rel) {
@@ -36,10 +38,14 @@ public class FileUtils {
     }
 
     public static Path getClasspathPath(String path) throws IOException {
-        System.out.println("getClasspathPath " + path);
         URL url = RpcUtil.class.getClassLoader().getResource(path);
-        System.out.println(url);
-        return Paths.get(url.getPath());
+        String filePath = url.getPath();
+        if (SystemUtils.IS_OS_WINDOWS && filePath.matches("/[A-Z]:.*")) {
+            // Fixes weird path handling on Windows
+            // Caused by: java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/Java/bamboo-agent-home/xml-data/build-dir/ETE-WIN-JOB1/target/test-classes/
+            filePath = filePath.substring(1);
+        }
+        return Paths.get(filePath);
     }
 
     public static InputStream getClasspathStream(String path) throws IOException {

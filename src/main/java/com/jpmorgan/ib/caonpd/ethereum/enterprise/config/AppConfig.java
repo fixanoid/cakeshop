@@ -13,7 +13,6 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -58,12 +57,6 @@ public class AppConfig implements AsyncConfigurer {
         String root = null;
         try {
             root = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..", "..", "..");
-            if (SystemUtils.IS_OS_WINDOWS && root.startsWith("/")) {
-                // Fixes weird path handling on Windows
-                // Caused by: java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/Java/bamboo-agent-home/xml-data/build-dir/ETE-WIN-JOB1/target/test-classes/
-                root = root.substring(1);
-            }
-
         } catch (IOException e) {
         }
         TOMCAT_ROOT = root;
