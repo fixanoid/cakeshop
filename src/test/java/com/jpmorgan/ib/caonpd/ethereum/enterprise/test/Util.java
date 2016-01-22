@@ -32,7 +32,7 @@ public class Util extends BaseGethRpcTest {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	@Test
+	@Test(enabled=false)
 	public void testGetDeployedBinaryForContract() throws IOException, InterruptedException {
 
 	    String code = readTestFile("contracts/ContractRegistry.sol");
