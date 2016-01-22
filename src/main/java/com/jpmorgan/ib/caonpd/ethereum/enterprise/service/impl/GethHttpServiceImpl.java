@@ -264,31 +264,30 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
         if (null != verbosity) {
             this.verbosity = verbosity;
-        }else if(null == this.verbosity){
+        } else if (null == this.verbosity) {
             this.verbosity = 0;
         }
 
         if (StringUtils.isNotEmpty(identity)) {
             this.identity = identity;
-        }else if(null == this.identity){
+        } else if (null == this.identity) {
             this.identity = "";
         }
-
     }
 
     @Override
-    public NodeInfo getNodeInfo(){
-
-        return new NodeInfo(this.identity,this.mining,this.networkid,this.verbosity);
+    public NodeInfo getNodeInfo() {
+        return new NodeInfo(this.identity, this.mining, this.networkid, this.verbosity);
     }
 
-    private String getNodeIdentity() throws APIException{
+    private String getNodeIdentity() throws APIException {
         Map<String, Object> data = null;
 
-        data = this.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ null, true });
+        data = this.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[] { null, true });
 
-        if(data != null)
-            return (String)data.get("Name");
+        if (data != null) {
+            return (String) data.get("Name");
+        }
 
         return null;
     }
@@ -302,16 +301,14 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
-        String ipcPipe = isWindows ? "\\\\.\\pipe\\geth-" + System.getProperty("eth.environment") + ".ipc" : dataDir + File.separator +  "geth.ipc";
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
-        Boolean started;
 
         String nodePath = new File(command).getParent() + File.separator;
         String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
         ensureNodeBins(nodePath, solcPath);
 
         List<String> commands = Lists.newArrayList(command,
-                "--port", gethNodePort, "--ipcpath", ipcPipe,
+                "--port", gethNodePort,
                 "--datadir", dataDir, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
@@ -360,6 +357,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
         builder.inheritIO();
 
+        Boolean started = false;
         Process process;
         try {
             File dataDirectory = new File(dataDir);
@@ -395,8 +393,8 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
             started = false;
-            return started;
         }
+
         return started;
     }
 

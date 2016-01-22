@@ -68,14 +68,12 @@ public class TestAppConfig extends AppConfig {
     @Override
     public String getConfigPath() {
         // Use a temp folder since not in a container
-        System.out.println("GETTING NEW CONFIG PATH TEMP DIR");
         tempConfigPath = getTempPath();
         return tempConfigPath;
     }
 
     @Override
     public Executor getAsyncExecutor() {
-        LOG.info("Creating SyncTaskExecutor");
         return new SyncTaskExecutor();
     }
 
