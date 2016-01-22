@@ -71,15 +71,15 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Value("${geth.url}")
     private String url;
     @Value("${geth.networkid}")
-    private Integer networkid;
+    private Integer networkId;
     @Value("${geth.datadir}")
-    private String datadir;
+    private String dataDir;
 
     @Value("${geth.node.port:30303}")
     private String gethNodePort;
 
     @Value("${geth.rpcport}")
-    private String rpcport;
+    private String rpcPort;
     @Value("${geth.rpcapi.list}")
     private String rpcApiList;
     @Value("${geth.auto.start:false}")
@@ -89,7 +89,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Value("${geth.genesis}")
     private String genesis;
     @Value("${geth.log}")
-    private String logdir;
+    private String logDir;
     @Value("${geth.verbosity:}")
     private Integer verbosity;
     @Value("${geth.mining:}")
@@ -183,7 +183,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public Boolean deleteEthDatabase(String eth_datadir) {
         if (StringUtils.isEmpty(eth_datadir)) {
-            eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
+            eth_datadir = dataDir.startsWith("/.") ? System.getProperty("user.home") + dataDir : dataDir;
         }
         try {
             FileUtils.deleteDirectory(new File(eth_datadir));
@@ -227,26 +227,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     @Override
-    public Boolean startGeth(String commandPrefix, String genesisDir, String eth_datadir, List<String> additionalParams) {
-        Boolean started;
-        if (StringUtils.isEmpty(eth_datadir)) {
-            eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
-        }
-        if (SystemUtils.IS_OS_WINDOWS) {
-            LOG.info("Starting geth for windows");
-            started = startProcess(commandPrefix + startWinCommand, eth_datadir, genesisDir, additionalParams, true);
-        } else if (SystemUtils.IS_OS_LINUX) {
-            LOG.info("Starting geth for linux");
-            started = startProcess(commandPrefix + startXCommand, eth_datadir, genesisDir, additionalParams, false);
-        } else {
-            //Default to Mac
-            LOG.info("Starting geth for mac");
-            started = startProcess(commandPrefix + startMacCommand, eth_datadir, genesisDir, additionalParams, false);
-        }
-        return started;
-    }
-
-    @Override
     public Boolean deletePid() {
         File pidFile = new File(getPidFilename());
         return pidFile.delete();
@@ -255,7 +235,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
         if (null != networkid) {
-            this.networkid = networkid;
+            this.networkId = networkid;
         }
 
         if (null != mining) {
@@ -277,7 +257,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public NodeInfo getNodeInfo() {
-        return new NodeInfo(this.identity, this.mining, this.networkid, this.verbosity);
+        return new NodeInfo(this.identity, this.mining, this.networkId, this.verbosity);
     }
 
     private String getNodeIdentity() throws APIException {
@@ -300,7 +280,29 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
     }
 
-    private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
+    @Override
+    public Boolean startGeth(String commandPrefix, String genesisDir, String dataDir, List<String> additionalParams) {
+    //private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
+
+        if (StringUtils.isEmpty(dataDir)) {
+            dataDir = this.dataDir.startsWith("/.") ? System.getProperty("user.home") + this.dataDir : this.dataDir;
+        }
+
+        String command;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            LOG.info("Starting geth for windows");
+            command = commandPrefix + startWinCommand;
+        } else if (SystemUtils.IS_OS_LINUX) {
+            LOG.info("Starting geth for linux");
+            command = commandPrefix + startLinuxCommand;
+        } else if (SystemUtils.IS_OS_MAC_OSX) {
+            LOG.info("Starting geth for mac");
+            command = commandPrefix + startMacCommand;
+        } else {
+            LOG.error("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
+            return false;
+        }
+
         String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
 
         String nodePath = new File(command).getParent() + File.separator;
@@ -315,7 +317,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--solc", solcPath + File.separator + "solc",
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", passwordFile,
-                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcport, "--rpcapi", rpcApiList,
+                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcPort, "--rpcapi", rpcApiList,
                 "--ipcdisable"
                 );
 
@@ -323,9 +325,9 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             commands.addAll(additionalParams);
         }
 
-        if (null != this.networkid) {
+        if (null != this.networkId) {
             commands.add("--networkid");
-            commands.add(String.valueOf(networkid));
+            commands.add(String.valueOf(networkId));
         } else {
             commands.add("--networkid");
             commands.add(String.valueOf(DEFAULT_NETWORK_ID));
@@ -349,11 +351,14 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
         // need to modify PATH so it can locate compilers correctly
         final Map<String, String> env = builder.environment();
-        String envPath = nodePath + File.pathSeparator + solcPath;
-        if (env.get("PATH") != null && !env.get("PATH").trim().isEmpty()) {
-        	 envPath = envPath + File.pathSeparator + env.get("PATH").trim();
+        env.put("PATH", prefixPathStr(nodePath + File.pathSeparator + solcPath, env.get("PATH")));
+
+        if (SystemUtils.IS_OS_MAC_OSX) {
+            // we ship the gmp lib at this location, make sure its accessible
+            env.put("DYLD_LIBRARY_PATH", prefixPathStr(nodePath, env.get("DYLD_LIBRARY_PATH")));
+        } else if (SystemUtils.IS_OS_LINUX) {
+            env.put("LD_LIBRARY_PATH", prefixPathStr(nodePath, env.get("LD_LIBRARY_PATH")));
         }
-        env.put("PATH", envPath);
 
         builder.inheritIO();
 
@@ -396,6 +401,13 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
 
         return started;
+    }
+
+    private String prefixPathStr(String newPath, String currPath) {
+        if (currPath != null && !currPath.trim().isEmpty()) {
+            newPath = newPath + File.pathSeparator + currPath.trim();
+        }
+        return newPath;
     }
 
     /**
