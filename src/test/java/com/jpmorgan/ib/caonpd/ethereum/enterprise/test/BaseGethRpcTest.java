@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TempFileManager;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
@@ -58,7 +59,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
-    private static final String GETH_TEMPLATE = TestAppConfig.getTempPath();
+    private static final String GETH_TEMPLATE = TempFileManager.getTempPath();
 
     public boolean runGeth() {
         return true;
@@ -95,7 +96,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         try {
             FileUtils.deleteDirectory(new File(CONFIG_ROOT));
             FileUtils.deleteDirectory(new File(GETH_TEMPLATE));
-            TestAppConfig.cleanupTempPaths();
+            TempFileManager.cleanupTempPaths();
         } catch (IOException e) {
         }
     }
@@ -115,7 +116,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
         this.ethDataDir = FileUtils.getTempPath(); // ignore the path configured in properties and use a temp dir
         ethDataDir = ethDataDir.replaceAll(File.separator + File.separator, "/");
-        TestAppConfig.tempFiles.add(ethDataDir);
+        TempFileManager.tempFiles.add(ethDataDir);
 
         File gethTemplate = new File(GETH_TEMPLATE);
         if (gethTemplate.exists()) {
