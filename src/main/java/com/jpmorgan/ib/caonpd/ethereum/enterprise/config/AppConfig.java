@@ -48,6 +48,10 @@ public class AppConfig implements AsyncConfigurer {
     @Bean
     public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
 
+        if (ENV == null || ENV.trim().isEmpty()) {
+            throw new IOException("ENV var 'eth.environment' not set; unable to load config");
+        }
+
         File configPath = new File(getConfigPath());
         File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
         File vendorEnvConfigFile = FileUtils.getClasspathPath(ENV + File.separator + CONFIG_FILE).toFile();
