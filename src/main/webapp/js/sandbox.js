@@ -347,8 +347,6 @@
     var previousInput = '';
     var sourceAnnotations = [];
     var compile = function() {
-        console.log("[compile] compilation currently disabled");
-
     	editor.getSession().clearAnnotations();
     	sourceAnnotations = [];
     	editor.getSession().removeMarker(errMarkerId);
@@ -359,18 +357,13 @@
 
     	var files = {};
     	files[fileNameFromKey(SOL_CACHE_FILE)] = editorSource;
-        console.log("files", files);
     	var input = gatherImports(files, compile);
     	if (!input) {
-            console.log(input);
-            console.log("no input, returning..");
             return;
         }
     	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
 
-        console.log("going to compile input: ");
-        console.log(input);
-
+        console.log("compiling...");
         Contract.compile(input, optimize, compilationFinished);
     	//compileJSON(input, optimize);
     };
@@ -622,6 +615,8 @@
     };
 
     var renderContracts = function(data, source) {
+
+        console.log("rendering contracts", data);
 
     	var udappContracts = [];
     	for (var contractName in data.contracts) {

@@ -19,13 +19,21 @@
                 code: code,
                 code_type: "solidity"
             }
-        ).done(function(res) {
-            if (res.data && res.data.type === "contract") {
-                var c = new Contract(res.data.attributes);
+        ).done(function(res, status, xhr) {
+            if (res.data && _.isArray(res.data)) {
+                var contracts = [];
+                res.data.forEach(function(d) {
+                    var c = new Contract(d.attributes);
+                    contracts.push(c);
+                });
                 if (cb) {
-                    cb(c);
+                    cb(contracts);
                 }
             }
+        }).fail(function(xhr, status, errThrown) {
+            // TODO
+            console.log("compilation failed: ", status);
+            console.log("err: ", errThrown);
         });
     };
 
