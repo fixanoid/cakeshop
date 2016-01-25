@@ -433,7 +433,6 @@
     		$('#version').text(Module.cwrap("version", "string", [])());
     	}
     	previousInput = '';
-        console.log("calling onChange...");
     	onChange();
     };
 
@@ -561,7 +560,7 @@
     		var errFile = err[1];
     		var errLine = parseInt(err[2], 10) - 1;
     		var errCol = err[4] ? parseInt(err[4], 10) : 0;
-    		if (errFile == '' || errFile == fileNameFromKey(SOL_CACHE_FILE)) {
+    		if (errFile === '' || errFile === fileNameFromKey(SOL_CACHE_FILE)) {
     			sourceAnnotations[sourceAnnotations.length] = {
     				row: errLine,
     				column: errCol,
@@ -571,7 +570,7 @@
     			editor.getSession().setAnnotations(sourceAnnotations);
     		}
     		$error.click(function(ev){
-    			if (errFile != '' && errFile != fileNameFromKey(SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
+    			if (errFile !== '' && errFile !== fileNameFromKey(SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
     				// Switch to file
     				SOL_CACHE_FILE = fileKey(errFile);
     				updateFiles();
@@ -596,8 +595,8 @@
     		code += "var " + inp.name + " = /* var of type " + inp.type + " here */ ;\n";
     	});
 
-    	code += "var " + contractName + "Contract = web3.eth.contract(" + interface.replace("\n","") + ");"
-    		+"\nvar " + contractName + " = " + contractName + "Contract.new(";
+    	code += "var " + contractName + "Contract = web3.eth.contract(" + interface.replace("\n","") + ");" +
+            "\nvar " + contractName + " = " + contractName + "Contract.new(";
 
     	$.each(funABI.inputs, function(i, inp) {
     		code += "\n   " + inp.name + ",";
@@ -623,13 +622,13 @@
     };
 
     var renderContracts = function(data, source) {
-        
+
     	var udappContracts = [];
     	for (var contractName in data.contracts) {
     		var contract = data.contracts[contractName];
     		udappContracts.push({
     			name: contractName,
-    			interface: contract['interface'],
+    			interface: contract.interface,
     			bytecode: contract.bytecode
     		});
     	}
@@ -642,9 +641,9 @@
     			var contract = data.contracts[contractName];
     			return $contractOutput
     				.append(textRow('Bytecode', contract.bytecode))
-    				.append(textRow('Interface', contract['interface']))
-    				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(),contract['interface'],contract.bytecode), 'deploy'))
-    				.append(textRow('uDApp', combined(contractName,contract['interface'],contract.bytecode), 'deploy'))
+    				.append(textRow('Interface', contract.interface))
+    				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(), contract.interface, contract.bytecode), 'deploy'))
+    				.append(textRow('uDApp', combined(contractName, contract.interface, contract.bytecode), 'deploy'))
     				.append(getDetails(contract, source, contractName));
     		}});
     	var $contractOutput = dapp.render();
@@ -715,16 +714,18 @@
     	return $('<div class="contractDetails"/>').append(button).append(details);
     };
     var formatGasEstimates = function(data) {
-    	var gasToText = function(g) { return g === null ? 'unknown' : g; }
+    	var gasToText = function(g) { return g === null ? 'unknown' : g; };
     	var text = '';
     	if ('creation' in data)
     		text += 'Creation: ' + gasToText(data.creation[0]) + ' + ' + gasToText(data.creation[1]) + '\n';
     	text += 'External:\n';
-    	for (var fun in data.external)
+    	for (var fun in data.external) {
     		text += '  ' + fun + ': ' + gasToText(data.external[fun]) + '\n';
+        }
     	text += 'Internal:\n';
-    	for (var fun in data.internal)
+    	for (fun in data.internal) {
     		text += '  ' + fun + ': ' + gasToText(data.internal[fun]) + '\n';
+        }
     	return text;
     };
     var formatAssemblyText = function(asm, prefix, source) {
@@ -734,7 +735,7 @@
     	$.each(asm['.code'], function(i, item) {
     		var v = item.value === undefined ? '' : item.value;
     		var src = '';
-    		if (item.begin !== undefined && item.end != undefined)
+    		if (item.begin !== undefined && item.end !== undefined)
     			src = source.slice(item.begin, item.end).replace('\n', '\\n', 'g');
     		if (src.length > 30)
     			src = src.slice(0, 30) + '...';
