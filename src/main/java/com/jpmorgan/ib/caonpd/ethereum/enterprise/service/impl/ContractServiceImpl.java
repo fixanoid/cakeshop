@@ -33,8 +33,8 @@ public class ContractServiceImpl implements ContractService {
 
     private class ContractRegistrationTask implements Runnable {
 
-        private TransactionResult transactionResult;
-        private Contract contract;
+        private final TransactionResult transactionResult;
+        private final Contract contract;
 
         public ContractRegistrationTask(Contract contract, TransactionResult transactionResult) {
             this.contract = contract;
@@ -92,14 +92,18 @@ public class ContractServiceImpl implements ContractService {
 	@Qualifier("asyncExecutor")
 	private TaskExecutor executor;
 
-	@SuppressWarnings("unchecked")
     @Override
-	public TransactionResult create(String code, CodeType codeType) throws APIException {
-
+	@SuppressWarnings("unchecked")
+    public Contract compile(String code, CodeType codeType) throws APIException {
 	    Contract contract = new Contract();
 	    contract.setCreatedDate(System.currentTimeMillis() / 1000);
 	    contract.setCode(code);
-	    contract.setCodeType(codeType);
+
+        // get name
+		Matcher nameMatcher = Pattern.compile("contract\\s+([a-zA-Z]+).*?\\{", Pattern.DOTALL).matcher(code);
+		if (nameMatcher.find()) {
+		    contract.setName(nameMatcher.group());
+		}    contract.setCodeType(codeType);
 
 		Map<String, Object> res = null;
 		if (codeType == CodeType.solidity) {
@@ -109,8 +113,8 @@ public class ContractServiceImpl implements ContractService {
 		Map<String, Object> compiled = (Map<String, Object>) res.values().toArray()[0];
 		//System.out.println(compiled.toString());
 
-		String binaryCode = (String) compiled.get("code");
-		contract.setBinary(binaryCode);
+		// get binary
+		contract.setBinary((String) compiled.get("code"));
 
 		// get abi
 		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
@@ -121,15 +125,16 @@ public class ContractServiceImpl implements ContractService {
 		    throw new APIException("Unable to read ABI", e);
 		}
 
-		// get name
-		Matcher nameMatcher = Pattern.compile("contract\\s+([a-zA-Z]+).*?\\{", Pattern.DOTALL).matcher(code);
-		if (nameMatcher.find()) {
-		    contract.setName(nameMatcher.group());
-		}
+		return contract;
+    }
+
+    @Override
+	public TransactionResult create(String code, CodeType codeType) throws APIException {
+	    Contract contract = compile(code, codeType);
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
-		contractArgs.put("data", binaryCode);
+		contractArgs.put("data", contract.getBinary());
 		contractArgs.put("gas", 3_141_592);
 
 		Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{ contractArgs });
