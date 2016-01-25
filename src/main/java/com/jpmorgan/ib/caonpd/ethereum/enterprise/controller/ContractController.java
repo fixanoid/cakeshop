@@ -51,6 +51,27 @@ public class ContractController extends BaseController {
         return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
     }
 
+    @RequestMapping("/compile")
+    public ResponseEntity<APIResponse> compile(
+            @JsonBodyParam String code,
+            @JsonBodyParam String code_type) throws APIException {
+
+        Contract contract = contractService.compile(code, CodeType.valueOf(code_type));
+
+        APIResponse res = new APIResponse();
+
+        if (contract != null) {
+            res.setData(toAPIData(contract));
+            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("400");
+        err.setTitle("Bad Request");
+        res.addError(err);
+        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+    }
+
     @RequestMapping("/create")
     public ResponseEntity<APIResponse> create(
             @JsonBodyParam String code,
