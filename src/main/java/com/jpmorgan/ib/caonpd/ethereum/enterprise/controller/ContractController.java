@@ -56,12 +56,12 @@ public class ContractController extends BaseController {
             @JsonBodyParam String code,
             @JsonBodyParam String code_type) throws APIException {
 
-        Contract contract = contractService.compile(code, CodeType.valueOf(code_type));
+        List<Contract> contracts = contractService.compile(code, CodeType.valueOf(code_type));
 
         APIResponse res = new APIResponse();
 
-        if (contract != null) {
-            res.setData(toAPIData(contract));
+        if (contracts != null) {
+            res.setData(toAPIData(contracts));
             return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
         }
 
@@ -96,20 +96,23 @@ public class ContractController extends BaseController {
     @RequestMapping("/list")
     public ResponseEntity<APIResponse> list() throws APIException {
 
-        List<Contract> list = contractService.list();
+        List<Contract> contracts = contractService.list();
         APIResponse res = new APIResponse();
-
-        List<APIData> data = new ArrayList<>();
-        for (Contract c : list) {
-           data.add(toAPIData(c));
-        }
-        res.setData(data);
+        res.setData(toAPIData(contracts));
 
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     private APIData toAPIData(Contract c) {
         return new APIData(c.getAddress(), Contract.API_DATA_TYPE, c);
+    }
+
+    private List<APIData> toAPIData(List<Contract> contracts) {
+        List<APIData> data = new ArrayList<>();
+        for (Contract c : contracts) {
+           data.add(toAPIData(c));
+        }
+        return data;
     }
 
 }

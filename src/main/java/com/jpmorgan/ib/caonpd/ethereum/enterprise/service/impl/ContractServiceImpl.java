@@ -14,12 +14,12 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,43 +94,49 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
 	@SuppressWarnings("unchecked")
-    public Contract compile(String code, CodeType codeType) throws APIException {
-	    Contract contract = new Contract();
-	    contract.setCreatedDate(System.currentTimeMillis() / 1000);
-	    contract.setCode(code);
+    public List<Contract> compile(String code, CodeType codeType) throws APIException {
 
-        // get name
-		Matcher nameMatcher = Pattern.compile("contract\\s+([a-zA-Z]+).*?\\{", Pattern.DOTALL).matcher(code);
-		if (nameMatcher.find()) {
-		    contract.setName(nameMatcher.group());
-		}    contract.setCodeType(codeType);
+        List<Contract> contracts = new ArrayList<>();
+        long createdDate = System.currentTimeMillis() / 1000;
 
 		Map<String, Object> res = null;
 		if (codeType == CodeType.solidity) {
 			res = geth.executeGethCall("eth_compileSolidity", new Object[]{ code });
 		}
 
-		Map<String, Object> compiled = (Map<String, Object>) res.values().toArray()[0];
-		//System.out.println(compiled.toString());
+		// res is a hash of contract name -> compiled result map
+		for (Entry<String, Object> contractRes : res.entrySet()) {
+            Contract contract = new Contract();
+            contract.setName(contractRes.getKey());
+            contract.setCreatedDate(createdDate);
+            contract.setCode(code);
+            contract.setCodeType(codeType);
 
-		// get binary
-		contract.setBinary((String) compiled.get("code"));
+            Map<String, Object> compiled = (Map<String, Object>) contractRes.getValue();
+            //System.out.println(compiled);
 
-		// get abi
-		Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-		    contract.setABI(mapper.writeValueAsString(abiObj));
-		} catch (JsonProcessingException e) {
-		    throw new APIException("Unable to read ABI", e);
-		}
+            // get binary
+            contract.setBinary((String) compiled.get("code"));
 
-		return contract;
+            // get abi
+            Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                contract.setABI(mapper.writeValueAsString(abiObj));
+            } catch (JsonProcessingException e) {
+                throw new APIException("Unable to read ABI", e);
+            }
+
+            contracts.add(contract);
+        }
+
+		return contracts;
     }
 
     @Override
 	public TransactionResult create(String code, CodeType codeType) throws APIException {
-	    Contract contract = compile(code, codeType);
+	    List<Contract> contracts = compile(code, codeType);
+	    Contract contract = contracts.get(0); // FIXME for now, assume we are only deploying a single contract
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
