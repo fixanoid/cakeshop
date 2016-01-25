@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
@@ -65,18 +65,18 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/local-console/**").addResourceLocations("/local-console/").setCachePeriod(31556926);
-    }
-
-    @Override
     public void addCorsMappings(CorsRegistry registry) {
-
         if (corsEnabled) {
             registry.addMapping("/**")
                     .allowedOrigins(appStoreUrl)
                     .allowedMethods("POST");
         }
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        // Enable DefaultServlet handler for static resources at /**
+        configurer.enable();
     }
 
 }

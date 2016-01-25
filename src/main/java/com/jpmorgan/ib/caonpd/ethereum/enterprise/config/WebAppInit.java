@@ -27,36 +27,21 @@ public class WebAppInit implements WebApplicationInitializer {
     public void onStartup(ServletContext container) {
         //Load Annotation Based Configs
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        container.addListener(new ContextLoaderListener(rootContext));
         rootContext.register(AppConfig.class);
+        container.addListener(new ContextLoaderListener(rootContext));
 
-        // Create the dispatcher servlet's Spring application context
+        // Dispatcher servlet for our app
         AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
-        dispatcherContext.register(WebConfig.class);
+
+        // all @annotated beans will be scanned and configured here
         dispatcherContext.scan("com.jpmorgan.ib.caonpd.ethereum.enterprise");
 
-        // Register and map the dispatcher servlet
         ServletRegistration.Dynamic dispatcher =
                 container.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
+
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
         dispatcher.setInitParameter("spring.profiles.active", "container");
-
     }
-
-//    @Override
-//    protected Class<?>[] getRootConfigClasses() {
-//        return new Class<?>[] { };
-//    }
-//
-//    @Override
-//    protected Class<?>[] getServletConfigClasses() {
-//        return new Class<?>[] { WebConfig.class };
-//    }
-//
-//    @Override
-//    protected String[] getServletMappings() {
-//        return new String [] {"/"};
-//    }
 
 }
