@@ -337,7 +337,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             commands.add("--verbosity");
             commands.add(String.valueOf(verbosity));
         }
-        if (null != mining) {
+        if (null != mining && mining == true) {
             commands.add("--mine");
             commands.add("--minerthreads");
             commands.add("1");
