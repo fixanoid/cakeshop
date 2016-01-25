@@ -18,7 +18,7 @@
 			this.render();
 		},
 
-		url: '../api/block/get',
+		url: 'api/block/get',
 
 		setData: function(data) {
 			this.lastBlockNum = data;

@@ -13,7 +13,7 @@
 			this.render();
 		},
 
-		url: '../api/node/get',
+		url: 'api/node/get',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);

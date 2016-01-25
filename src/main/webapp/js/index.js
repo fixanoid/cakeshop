@@ -77,7 +77,7 @@ var Tower = {
 
 				var def = function() {
 					$.when(
-						utils.load({ url: '../api' + STATUS_END_POINT })
+						utils.load({ url: 'api' + STATUS_END_POINT })
 					).done(function(response) {
 						var status = response.data.attributes;
 

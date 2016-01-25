@@ -18,7 +18,7 @@
 			this.render();
 		},
 
-		url: '../api/node/peers',
+		url: 'api/node/peers',
 
 		init: function() {
 			this.shell = Tower.TEMPLATES.widget(this.title, this.size);

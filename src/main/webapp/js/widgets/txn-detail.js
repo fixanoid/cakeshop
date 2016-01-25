@@ -12,7 +12,7 @@
 			this.render();
 		},
 
-		url: '../api/transaction/get',
+		url: 'api/transaction/get',
 
 		setData: function(data) {
 			this.txnAddy = data;

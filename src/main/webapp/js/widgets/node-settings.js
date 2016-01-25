@@ -43,7 +43,7 @@
 			this.render();
 		},
 
-		url: '../api/node/update',
+		url: 'api/node/update',
 
 		fetch: function() {
 			var _this = this;
