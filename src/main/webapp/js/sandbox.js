@@ -363,9 +363,7 @@
         }
     	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
 
-        console.log("compiling...");
         Contract.compile(input, optimize, compilationFinished);
-    	//compileJSON(input, optimize);
     };
 
     var compilationFinished = function(data) {
@@ -581,9 +579,10 @@
     };
 
     var gethDeploy = function(contractName, interface, bytecode){
-    	var code = "";
-    	var funABI = getConstructorInterface($.parseJSON(interface));
+        var abi = _.isString(interface) ? JSON.parse(interface) : interface;
+    	var funABI = getConstructorInterface(interface);
 
+    	var code = "";
     	$.each(funABI.inputs, function(i, inp) {
     		code += "var " + inp.name + " = /* var of type " + inp.type + " here */ ;\n";
     	});
@@ -614,31 +613,29 @@
     	return JSON.stringify([{name: contractName, interface: interface, bytecode: bytecode}]);
     };
 
-    var renderContracts = function(data, source) {
-
-        console.log("rendering contracts", data);
-
+    var renderContracts = function(contracts, source) {
     	var udappContracts = [];
-    	for (var contractName in data.contracts) {
-    		var contract = data.contracts[contractName];
+        contracts.forEach(function(contract) {
     		udappContracts.push({
-    			name: contractName,
-    			interface: contract.interface,
-    			bytecode: contract.bytecode
+                name:      contract.get("name"),
+                interface: contract.get("abi"),
+                bytecode:  contract.get("binary")
     		});
-    	}
+
+        });
+
     	var dapp = new UniversalDApp(udappContracts, {
     		vm: executionContext === 'vm',
     		removable: false,
     		getAddress: function(){ return $('#txorigin').val(); },
     		removable_instances: true,
     		renderOutputModifier: function(contractName, $contractOutput) {
-    			var contract = data.contracts[contractName];
+    			var contract = _.find(contracts, function(c) { return c.get("name").toLowerCase() === contractName.toLowerCase(); });
     			return $contractOutput
-    				.append(textRow('Bytecode', contract.bytecode))
-    				.append(textRow('Interface', contract.interface))
-    				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(), contract.interface, contract.bytecode), 'deploy'))
-    				.append(textRow('uDApp', combined(contractName, contract.interface, contract.bytecode), 'deploy'))
+    				.append(textRow('Bytecode', contract.get("binary")))
+    				.append(textRow('Interface', contract.get("abi")))
+    				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(), contract.get("abi"), contract.get("binary")), 'deploy'))
+    				.append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
     				.append(getDetails(contract, source, contractName));
     		}});
     	var $contractOutput = dapp.render();
@@ -709,6 +706,9 @@
     	return $('<div class="contractDetails"/>').append(button).append(details);
     };
     var formatGasEstimates = function(data) {
+        if (_.isNull(data) || _.isUndefined(data)) {
+            return "";
+        }
     	var gasToText = function(g) { return g === null ? 'unknown' : g; };
     	var text = '';
     	if ('creation' in data)
@@ -759,5 +759,7 @@
     		}
     	return funABI;
     };
+
+    //compileTimeout = window.setTimeout(compile, 300);
 
 })();
