@@ -113,20 +113,25 @@ public class NodeController extends BaseController {
 
         APIResponse res = new APIResponse();
         APIData data = new APIData();
+        Boolean isMining = null;
 
         try {
         	Integer logLevelInt = null, 
         			networkIDInt = null;
         	
-        	if (logLevel != null) {
-        		logLevelInt = Integer.parseInt(logLevel);
+        	if ( !StringUtils.isEmpty(logLevel) ) {
+                    logLevelInt = Integer.parseInt(logLevel);
         	}
 
-        	if (networkID != null) {
-        		networkIDInt = Integer.parseInt(networkID);
-        	}
+        	if (!StringUtils.isEmpty(networkID)) {
+                    networkIDInt = Integer.parseInt(networkID);
+                }
+                
+                if(!StringUtils.isEmpty(mining)){
+                    isMining = Boolean.parseBoolean(mining);
+                }
         	
-        	NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, Boolean.parseBoolean(mining));
+        	NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity,isMining);
 
         	if (updates != null) {
         		data.setAttributes(updates);
