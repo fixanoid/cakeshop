@@ -6,7 +6,6 @@ import com.sun.jna.platform.win32.WinNT;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,15 +144,12 @@ public class ProcessUtils {
 
     public static String readPidFromFile(String pidFilename) {
         File pidFile = new File(pidFilename);
+        if (!pidFile.exists()) {
+            return null;
+        }
         String pid = null;
         try {
-            try (FileReader reader = new FileReader(pidFile); BufferedReader br = new BufferedReader(reader)) {
-                String s;
-                while ((s = br.readLine()) != null) {
-                    pid = s;
-                    break;
-                }
-            }
+            pid = FileUtils.readFileToString(pidFile);
         } catch (IOException ex) {
             LOG.error(ex.getMessage());
         }
