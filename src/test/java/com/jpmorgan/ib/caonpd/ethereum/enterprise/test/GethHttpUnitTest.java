@@ -50,10 +50,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 
     //@Test(priority=0)
     public void testStart () {
-        String genesisDir =  System.getProperty("user.dir") + "/geth-resources/genesis/genesis_block.json";
-        String command = System.getProperty("user.dir") + "/geth-resources/";
-        String eth_datadir = System.getProperty("user.home") + datadir + "-test";
-        Boolean started = service.startGeth(command, genesisDir, eth_datadir, null);
+        Boolean started = service.start();
         assertEquals(started, true);
         System.out.println("Server started :" + started);
     }

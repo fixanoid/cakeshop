@@ -5,14 +5,11 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -66,13 +63,7 @@ public class GethController extends BaseController {
     @RequestMapping("/node/start")
     protected @ResponseBody
     ResponseEntity<APIResponse> startGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
-        String genesisDir = request.getServletContext().getRealPath("/") + genesis;
-        String command = request.getServletContext().getRealPath("/");
-        List<String> params = null;
-        if (null != startupParams) {
-            params = Lists.newArrayList(startupParams);
-        }
-        Boolean started = gethService.startGeth(command, genesisDir, null, params);
+        Boolean started = gethService.start(startupParams);
         return new ResponseEntity(APIResponse.newSimpleResponse(started), HttpStatus.OK);
     }
 
@@ -91,9 +82,7 @@ public class GethController extends BaseController {
         Boolean deleted = gethService.deletePid();
         Boolean restarted = false;
         if (stopped && deleted) {
-            String genesisDir = request.getServletContext().getRealPath("/") + genesis;
-            String command = request.getServletContext().getRealPath("/");
-            restarted = gethService.startGeth(command, genesisDir, null, null);
+            restarted = gethService.start();
         }
         return new ResponseEntity(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
     }
@@ -107,9 +96,7 @@ public class GethController extends BaseController {
         Boolean deletedDaraDir = gethService.deleteEthDatabase(eth_datadir);
         Boolean reset = false;
         if (stopped && deletedDaraDir) {
-            String genesisDir = request.getServletContext().getRealPath("/") + genesis;
-            String command = request.getServletContext().getRealPath("/");
-            reset = gethService.startGeth(command, genesisDir, null, null);
+            reset = gethService.start();
         }
         return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }

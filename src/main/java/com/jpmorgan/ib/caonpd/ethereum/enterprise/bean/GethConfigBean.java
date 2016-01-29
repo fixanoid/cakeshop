@@ -3,8 +3,6 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.bean;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.*;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils.*;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
-
 import java.io.File;
 
 import javax.annotation.PostConstruct;
@@ -123,11 +121,11 @@ public class GethConfigBean {
         ensureNodeBins(binPath, solcDir);
 
         solcPath = solcDir + File.separator + "solc";
-        System.out.println(solcPath);
 
-
-        RpcUtil.puts(this);
-
+        // Clean up data dir path for default config (not an absolute path)
+        if (dataDirPath != null && dataDirPath.startsWith("/.")) {
+            dataDirPath = expandPath(System.getProperty("user.home"), dataDirPath);
+        }
     }
 
     /**

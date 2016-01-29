@@ -2,7 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
-import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TempFileManager;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -59,6 +59,9 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
+    @Autowired
+    private GethConfigBean gethConfig;
+
     private static final String GETH_TEMPLATE = TempFileManager.getTempPath();
 
     public boolean runGeth() {
@@ -111,9 +114,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
 
     private boolean _startGeth() throws IOException {
-        String gethDir = FileUtils.expandPath(TestAppConfig.APP_ROOT, "geth-resources") + File.separator;
-        String genesisFile = FileUtils.expandPath(gethDir, "/genesis/genesis_block.json");
-
         this.ethDataDir = FileUtils.getTempPath(); // ignore the path configured in properties and use a temp dir
         ethDataDir = ethDataDir.replaceAll(File.separator + File.separator, "/");
         TempFileManager.tempFiles.add(ethDataDir);
@@ -128,7 +128,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
             new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
         }
 
-        return geth.startGeth(gethDir, genesisFile, ethDataDir, Lists.newArrayList("--jpmtest")); // , "--verbosity", "6"
+        gethConfig.setDataDirPath(ethDataDir);
+        return geth.start("--jpmtest"); // , "--verbosity", "6"
     }
 
     /**

@@ -62,9 +62,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Value("${app.path}")
     private String APP_ROOT;
 
-    @Value("${config.path}")
-    private String CONFIG_ROOT;
-
     @Autowired
     private GethConfigBean gethConfig;
 
@@ -170,24 +167,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         start();
     }
 
-    //To restart geth when properties has been changed
-    @Override
-    public void start() {
-        String genesisFile = gethConfig.getGenesisBlockFilename();
-
-        boolean isStarted = isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()));
-        if (!isStarted) {
-            isStarted = startGeth(APP_ROOT + File.separator, genesisFile, null, null);
-            if (!isStarted) {
-                LOG.error("Ethereum has NOT been started...");
-            } else {
-                LOG.info("Ethereum started ...");
-            }
-        } else if (isStarted) {
-            LOG.info("Ethereum was already running");
-        }
-    }
-
     @Override
     public Boolean deletePid() {
         File pidFile = new File(gethConfig.getGethPidFilename());
@@ -244,16 +223,21 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     @Override
-    public Boolean startGeth(String commandPrefix, String genesisDir, String dataDir, List<String> additionalParams) {
+    public Boolean start(String... additionalParams) {
 
-        // FIXME set once in config only???
-        if (StringUtils.isEmpty(dataDir)) {
-            dataDir = gethConfig.getDataDirPath().startsWith("/.") ? System.getProperty("user.home") + gethConfig.getDataDirPath() : gethConfig.getDataDirPath();
+        boolean isStarted = isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()));
+
+        if (isStarted) {
+            LOG.info("Ethereum was already running");
+            return true;
         }
+
+        String genesisFile = gethConfig.getGenesisBlockFilename();
+        String dataDir = gethConfig.getDataDirPath();
 
         List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
                 "--port", gethConfig.getGethNodePort(),
-                "--datadir", dataDir, "--genesis", genesisDir,
+                "--datadir", dataDir, "--genesis", genesisFile,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
                 "--solc", gethConfig.getSolcPath(),
@@ -263,10 +247,9 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--ipcdisable"
                 );
 
-        if (null != additionalParams && !additionalParams.isEmpty()) {
-            commands.addAll(additionalParams);
+        if (null != additionalParams && additionalParams.length > 0) {
+            commands.addAll(Lists.newArrayList(additionalParams));
         }
-
 
         commands.add("--networkid");
         commands.add(String.valueOf(gethConfig.getNetworkId() == null ? DEFAULT_NETWORK_ID : gethConfig.getNetworkId()));
@@ -299,7 +282,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
-                String keystoreSrcPath = new File(genesisDir).getParent() + File.separator + "keystore";
+                String keystoreSrcPath = new File(genesisFile).getParent() + File.separator + "keystore";
                 FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
                 newGethInstall = true;
             }
@@ -325,6 +308,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             started = false;
         }
 
+        if (started) {
+            LOG.info("Ethereum started ...");
+        } else {
+            LOG.error("Ethereum has NOT been started...");
+        }
         return started;
     }
 
