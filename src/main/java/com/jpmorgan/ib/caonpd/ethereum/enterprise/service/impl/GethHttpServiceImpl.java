@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
@@ -31,11 +32,11 @@ import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -64,47 +65,10 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
-    private String PID_FILE;
-
-    //System.getProperty("user.dir");
-
-    @Value("${geth.url}")
-    private String url;
-    @Value("${geth.networkid}")
-    private Integer networkId;
-    @Value("${geth.datadir}")
-    private String dataDir;
-
-    @Value("${geth.node.port:30303}")
-    private String gethNodePort;
-
-    @Value("${geth.rpcport}")
-    private String rpcPort;
-    @Value("${geth.rpcapi.list}")
-    private String rpcApiList;
-    @Value("${geth.auto.start:false}")
-    private Boolean autoStart;
-    @Value("${geth.auto.stop:false}")
-    private Boolean autoStop;
-    @Value("${geth.genesis}")
-    private String genesis;
-    @Value("${geth.log}")
-    private String logDir;
-    @Value("${geth.verbosity:}")
-    private Integer verbosity;
-    @Value("${geth.mining:}")
-    private Boolean mining;
-    @Value("${geth.identity:}")
-    private String identity;
+    @Autowired
+    private GethConfigBean gethConfig;
 
     private ApplicationContext applicationContext;
-
-    public String getPidFilename() {
-        if (PID_FILE == null) {
-            PID_FILE = com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.expandPath(CONFIG_ROOT, "meth.pid");
-        }
-        return PID_FILE;
-    }
 
     @Override
     public String executeGethCall(String json) throws APIException {
@@ -113,7 +77,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(APPLICATION_JSON);
             HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, POST, httpEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(gethConfig.getRpcUrl(), POST, httpEntity, String.class);
             return response.getBody();
         } catch (RestClientException e) {
             LOG.error("RPC call failed - " + ExceptionUtils.getRootCauseMessage(e));
@@ -173,7 +137,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public Boolean stopGeth() {
         try {
-            return killProcess(readPidFromFile(getPidFilename()), "geth.exe");
+            return killProcess(readPidFromFile(gethConfig.getGethPidFilename()), "geth.exe");
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot shutdown process " + ex.getMessage());
             return false;
@@ -182,9 +146,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean deleteEthDatabase(String eth_datadir) {
-        if (StringUtils.isEmpty(eth_datadir)) {
-            eth_datadir = dataDir.startsWith("/.") ? System.getProperty("user.home") + dataDir : dataDir;
+        // FIXME do we need this param here??
+        if (eth_datadir == null) {
+            return false;
         }
+
         try {
             FileUtils.deleteDirectory(new File(eth_datadir));
             return true;
@@ -197,25 +163,21 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @PostConstruct
     public void autoStart() {
-        if (!autoStart) {
+        if (!gethConfig.isAutoStart()) {
             return;
         }
         LOG.info("Autostarting geth node");
         start();
-
     }
 
     //To restart geth when properties has been changed
     @Override
     public void start() {
-        String genesisDir = APP_ROOT + genesis;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            genesisDir = genesisDir.replaceAll(File.separator + File.separator, "/").replaceFirst("/", "");
-        }
+        String genesisFile = gethConfig.getGenesisBlockFilename();
 
-        boolean isStarted = isProcessRunning(readPidFromFile(getPidFilename()));
+        boolean isStarted = isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()));
         if (!isStarted) {
-            isStarted = startGeth(APP_ROOT + File.separator, genesisDir, null, null);
+            isStarted = startGeth(APP_ROOT + File.separator, genesisFile, null, null);
             if (!isStarted) {
                 LOG.error("Ethereum has NOT been started...");
             } else {
@@ -228,36 +190,37 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean deletePid() {
-        File pidFile = new File(getPidFilename());
+        File pidFile = new File(gethConfig.getGethPidFilename());
         return pidFile.delete();
     }
 
     @Override
-    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid) {
-        if (null != networkid) {
-            this.networkId = networkid;
+    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkId) {
+        if (null != networkId) {
+            gethConfig.setNetworkId(networkId);
         }
 
         if (null != mining) {
-            this.mining = mining;
+            gethConfig.setMining(mining);
         }
 
         if (null != verbosity) {
-            this.verbosity = verbosity;
-        } else if (null == this.verbosity) {
-            this.verbosity = 0;
+            gethConfig.setVerbosity(verbosity);
+        } else if (null == gethConfig.getVerbosity()) {
+            gethConfig.setVerbosity(0);
         }
 
         if (StringUtils.isNotEmpty(identity)) {
-            this.identity = identity;
-        } else if (null == this.identity) {
-            this.identity = "";
+            gethConfig.setIdentity(identity);
+        } else if (null == gethConfig.getIdentity()) {
+            gethConfig.setIdentity("");
         }
     }
 
     @Override
     public NodeInfo getNodeInfo() {
-        return new NodeInfo(this.identity, this.mining, this.networkId, this.verbosity);
+        return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(),
+                gethConfig.getNetworkId(), gethConfig.getVerbosity());
     }
 
     private String getNodeIdentity() throws APIException {
@@ -274,7 +237,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @PreDestroy
     protected void autoStop () {
-        if (autoStop) {
+        if (gethConfig.isAutoStop()) {
             stopGeth();
             deletePid();
         }
@@ -282,42 +245,21 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean startGeth(String commandPrefix, String genesisDir, String dataDir, List<String> additionalParams) {
-    //private Boolean startProcess(String command, String dataDir, String genesisDir, List<String> additionalParams, Boolean isWindows) {
 
+        // FIXME set once in config only???
         if (StringUtils.isEmpty(dataDir)) {
-            dataDir = this.dataDir.startsWith("/.") ? System.getProperty("user.home") + this.dataDir : this.dataDir;
+            dataDir = gethConfig.getDataDirPath().startsWith("/.") ? System.getProperty("user.home") + gethConfig.getDataDirPath() : gethConfig.getDataDirPath();
         }
 
-        String command;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            LOG.info("Starting geth for windows");
-            command = commandPrefix + startWinCommand;
-        } else if (SystemUtils.IS_OS_LINUX) {
-            LOG.info("Starting geth for linux");
-            command = commandPrefix + startLinuxCommand;
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
-            LOG.info("Starting geth for mac");
-            command = commandPrefix + startMacCommand;
-        } else {
-            LOG.error("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
-            return false;
-        }
-
-        String passwordFile = new File(genesisDir).getParent() + File.separator + "geth_pass.txt";
-
-        String nodePath = new File(command).getParent() + File.separator;
-        String solcPath = new File(genesisDir).getParentFile().getParent() + File.separator + "solc" + File.separator + "node_modules" + File.separator + ".bin";
-        ensureNodeBins(nodePath, solcPath);
-
-        List<String> commands = Lists.newArrayList(command,
-                "--port", gethNodePort,
+        List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
+                "--port", gethConfig.getGethNodePort(),
                 "--datadir", dataDir, "--genesis", genesisDir,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
-                "--solc", solcPath + File.separator + "solc",
+                "--solc", gethConfig.getSolcPath(),
                 "--nat", "none", "--nodiscover",
-                "--unlock", "0 1 2", "--password", passwordFile,
-                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", rpcPort, "--rpcapi", rpcApiList,
+                "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
+                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable"
                 );
 
@@ -325,41 +267,24 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             commands.addAll(additionalParams);
         }
 
-        if (null != this.networkId) {
-            commands.add("--networkid");
-            commands.add(String.valueOf(networkId));
-        } else {
-            commands.add("--networkid");
-            commands.add(String.valueOf(DEFAULT_NETWORK_ID));
-        }
 
-        if (null != this.verbosity) {
-            commands.add("--verbosity");
-            commands.add(String.valueOf(verbosity));
-        }
-        if (null != mining && mining == true) {
+        commands.add("--networkid");
+        commands.add(String.valueOf(gethConfig.getNetworkId() == null ? DEFAULT_NETWORK_ID : gethConfig.getNetworkId()));
+
+        commands.add("--verbosity");
+        commands.add(String.valueOf(gethConfig.getVerbosity() == null ? "3" : gethConfig.getVerbosity()));
+
+        if (null != gethConfig.isMining() && gethConfig.isMining() == true) {
             commands.add("--mine");
             commands.add("--minerthreads");
             commands.add("1");
         }
-        if (StringUtils.isNotEmpty(identity)) {
+        if (StringUtils.isNotEmpty(gethConfig.getIdentity())) {
             commands.add("--identity");
-            commands.add(identity);
-        }
-        ProcessBuilder builder = new ProcessBuilder(commands);
-        ensureFileIsExecutable(command);
-
-        // need to modify PATH so it can locate compilers correctly
-        final Map<String, String> env = builder.environment();
-        env.put("PATH", prefixPathStr(nodePath + File.pathSeparator + solcPath, env.get("PATH")));
-
-        if (SystemUtils.IS_OS_MAC_OSX) {
-            // we ship the gmp lib at this location, make sure its accessible
-            env.put("DYLD_LIBRARY_PATH", prefixPathStr(nodePath, env.get("DYLD_LIBRARY_PATH")));
-        } else if (SystemUtils.IS_OS_LINUX) {
-            env.put("LD_LIBRARY_PATH", prefixPathStr(nodePath, env.get("LD_LIBRARY_PATH")));
+            commands.add(gethConfig.getIdentity());
         }
 
+        ProcessBuilder builder = createProcessBuilder(gethConfig, commands);
         builder.inheritIO();
 
         Boolean started = false;
@@ -383,7 +308,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
             Integer pid = getProcessPid(process);
             if (pid != null) {
-                writePidToFile(pid, getPidFilename());
+                writePidToFile(pid, gethConfig.getGethPidFilename());
             }
 
             started = checkGethStarted();
@@ -401,25 +326,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
 
         return started;
-    }
-
-    private String prefixPathStr(String newPath, String currPath) {
-        if (currPath != null && !currPath.trim().isEmpty()) {
-            newPath = newPath + File.pathSeparator + currPath.trim();
-        }
-        return newPath;
-    }
-
-    /**
-     * Make sure all node bins are executable, both for win & mac/linux
-     * @param nodePath
-     * @param solcPath
-     */
-    private void ensureNodeBins(String nodePath, String solcPath) {
-        ensureFileIsExecutable(nodePath + File.separator + "node");
-        ensureFileIsExecutable(nodePath + File.separator + "node.exe");
-        ensureFileIsExecutable(solcPath + File.separator + "solc");
-        ensureFileIsExecutable(solcPath + File.separator + "solc.cmd");
     }
 
     /**
@@ -485,7 +391,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     private Boolean checkConnection() throws IOException {
         Boolean connected = false;
         try {
-            URL urlConn = new URL(url);
+            URL urlConn = new URL(gethConfig.getRpcUrl());
             HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();

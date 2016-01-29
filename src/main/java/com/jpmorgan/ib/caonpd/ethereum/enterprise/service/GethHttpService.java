@@ -17,9 +17,6 @@ import java.util.Map;
  */
 public interface GethHttpService {
 
-    public static final String startLinuxCommand = "bin/linux/geth";
-    public static final String startWinCommand = "bin/win/geth.exe";
-    public static final String startMacCommand = "bin/mac/geth";
     public static final String GETH_API_VERSION = "2.0";
     public static final String USER_ID = "enterprise-ethereum";
 

@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
+import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +25,35 @@ import org.slf4j.LoggerFactory;
 public class ProcessUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProcessUtils.class);
+
+    public static ProcessBuilder createProcessBuilder(GethConfigBean gethConfig, String... commands) {
+        return createProcessBuilder(gethConfig, Lists.newArrayList(commands));
+    }
+
+    public static ProcessBuilder createProcessBuilder(GethConfigBean gethConfig, List<String> commands) {
+        ProcessBuilder builder = new ProcessBuilder(commands);
+
+        // need to modify PATH so it can locate compilers correctly
+        String solcDir = new File(gethConfig.getSolcPath()).getParent();
+        final Map<String, String> env = builder.environment();
+        env.put("PATH", prefixPathStr(gethConfig.getBinPath() + File.pathSeparator + solcDir, env.get("PATH")));
+
+        if (SystemUtils.IS_OS_MAC_OSX) {
+            // we ship the gmp lib at this location, make sure its accessible
+            env.put("DYLD_LIBRARY_PATH", prefixPathStr(gethConfig.getBinPath(), env.get("DYLD_LIBRARY_PATH")));
+        } else if (SystemUtils.IS_OS_LINUX) {
+            env.put("LD_LIBRARY_PATH", prefixPathStr(gethConfig.getBinPath(), env.get("LD_LIBRARY_PATH")));
+        }
+
+        return builder;
+    }
+
+    private static String prefixPathStr(String newPath, String currPath) {
+        if (currPath != null && !currPath.trim().isEmpty()) {
+            newPath = newPath + File.pathSeparator + currPath.trim();
+        }
+        return newPath;
+    }
 
     /**
      * Check if the given PID is running (supports both Unix and Windows systems)

@@ -62,7 +62,8 @@ public class RpcUtil {
 	}
 
 	public static void puts(Object object) {
-	    System.out.println(toString(object));
+	    String str = (String) (object instanceof String ? object : toString(object));
+	    System.out.println(str);
 	}
 
 }

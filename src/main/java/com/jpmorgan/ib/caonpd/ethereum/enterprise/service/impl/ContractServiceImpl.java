@@ -1,7 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
@@ -12,6 +12,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryServic
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,6 +81,9 @@ public class ContractServiceImpl implements ContractService {
     // FIXME remove hardcoded FROM address
     public static final String DEFAULT_FROM_ADDRESS = "0x2e219248f44546d966808cdd20cb6c36df6efa82";
 
+    @Autowired
+    private GethConfigBean gethConfig;
+
 	@Autowired
 	private GethHttpService geth;
 
@@ -96,13 +101,31 @@ public class ContractServiceImpl implements ContractService {
 	@SuppressWarnings("unchecked")
     public List<Contract> compile(String code, CodeType codeType) throws APIException {
 
+        if (codeType != CodeType.solidity) {
+            throw new APIException("Only 'solidity' source is currently supported");
+        }
+
         List<Contract> contracts = new ArrayList<>();
         long createdDate = System.currentTimeMillis() / 1000;
 
+
+        ProcessBuilder builder = ProcessUtils.createProcessBuilder(
+                gethConfig, gethConfig.getSolcPath(), "--ipc");
+
 		Map<String, Object> res = null;
-		if (codeType == CodeType.solidity) {
-			res = geth.executeGethCall("eth_compileSolidity", new Object[]{ code });
-		}
+        try {
+            Process proc = builder.start();
+            proc.getOutputStream().write(code.getBytes());;
+            proc.getOutputStream().close();
+            proc.waitFor();
+
+            String out = IOUtils.toString(proc.getInputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            res = mapper.readValue(out, Map.class);
+
+        } catch (IOException | InterruptedException e) {
+            throw new APIException("Failed to compile contract", e);
+        }
 
 		// res is a hash of contract name -> compiled result map
 		for (Entry<String, Object> contractRes : res.entrySet()) {
@@ -115,17 +138,8 @@ public class ContractServiceImpl implements ContractService {
             Map<String, Object> compiled = (Map<String, Object>) contractRes.getValue();
             //System.out.println(compiled);
 
-            // get binary
-            contract.setBinary((String) compiled.get("code"));
-
-            // get abi
-            Object abiObj = ((Map<String, Object>) compiled.get("info")).get("abiDefinition");
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                contract.setABI(mapper.writeValueAsString(abiObj));
-            } catch (JsonProcessingException e) {
-                throw new APIException("Unable to read ABI", e);
-            }
+            contract.setBinary((String) compiled.get("bin"));
+            contract.setABI((String) compiled.get("abi"));
 
             contracts.add(contract);
         }
