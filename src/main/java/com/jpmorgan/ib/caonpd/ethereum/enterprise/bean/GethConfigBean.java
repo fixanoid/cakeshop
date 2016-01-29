@@ -126,6 +126,8 @@ public class GethConfigBean {
         if (dataDirPath != null && dataDirPath.startsWith("/.")) {
             dataDirPath = expandPath(System.getProperty("user.home"), dataDirPath);
         }
+
+        //RpcUtil.puts(this);
     }
 
     /**

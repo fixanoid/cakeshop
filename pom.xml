@@ -213,6 +213,7 @@
                     <webResources>
                         <resource>
                             <!-- this is relative to the pom.xml directory -->
+                            <targetPath>geth-resources</targetPath>
                             <directory>geth-resources</directory>
                         </resource>
                     </webResources>
