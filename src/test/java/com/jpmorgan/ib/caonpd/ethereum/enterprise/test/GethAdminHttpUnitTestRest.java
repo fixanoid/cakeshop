@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
+
 import org.springframework.util.Assert;
 
 

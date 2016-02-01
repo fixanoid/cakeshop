@@ -3,14 +3,14 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TempFileManager;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TempFileManager;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;

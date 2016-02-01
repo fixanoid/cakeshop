@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 

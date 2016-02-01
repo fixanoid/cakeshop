@@ -1,4 +1,8 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
+
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebAppInit;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfig;
 
 import java.util.concurrent.Executor;
 

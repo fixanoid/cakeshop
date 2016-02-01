@@ -8,6 +8,8 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 import static org.springframework.http.MediaType.*;
 import static org.testng.Assert.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -18,8 +20,6 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.TestAppConfig;
 
 /**
  *
