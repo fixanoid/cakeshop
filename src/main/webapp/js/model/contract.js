@@ -17,7 +17,8 @@
         Client.post(Contract.prototype.url("compile"),
             {
                 code: code,
-                code_type: "solidity"
+                code_type: "solidity",
+                optimize: optimize
             }
         ).done(function(res, status, xhr) {
             if (res.data && _.isArray(res.data)) {

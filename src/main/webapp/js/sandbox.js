@@ -662,6 +662,7 @@
     	return funABI;
     };
 
+    // compile on page load (whatever is in buffer)
     $(function() {
         onChange();
     });
