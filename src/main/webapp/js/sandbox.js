@@ -243,22 +243,6 @@
     Sandbox.updateFiles = updateFiles;
     Sandbox.getFiles = getFiles;
 
-/* not allowing diff versions
-    // ----------------- version selector-------------
-
-    // var soljsonSources is provided by bin/list.js
-    $('option', '#versionSelector').remove();
-    $.each(soljsonSources, function(i, file) {
-    	if (file) {
-    		var version = file.replace(/soljson-(.*).js/, "$1");
-    		$('#versionSelector').append(new Option(version, file));
-    	}
-    });
-    $('#versionSelector').change(function() {
-    	loadVersion($('#versionSelector').val());
-    });
-*/
-
     // ----------------- resizeable ui ---------------
 
     var EDITOR_SIZE_CACHE_KEY = "editor-size-cache";
@@ -402,31 +386,6 @@
     	compileTimeout = window.setTimeout(compile, 300);
     };
 
-    var onCompilerLoaded = function() {
-    	if (worker === null) {
-    		var compile;
-    		if ('_compileJSONMulti' in Module) {
-    			compilerAcceptsMultipleFiles = true;
-    			compile = Module.cwrap("compileJSONMulti", "string", ["string", "number"]);
-    		} else {
-    			compilerAcceptsMultipleFiles = false;
-    			compile = Module.cwrap("compileJSON", "string", ["string", "number"]);
-    		}
-    		compileJSON = function(source, optimize, cb) {
-                var result;
-    			try {
-    				result = compile(source, optimize);
-    			} catch (exception) {
-    				result = JSON.stringify({error: 'Uncaught JavaScript exception:\n' + exception});
-    			}
-    			compilationFinished(result);
-    		};
-    		$('#version').text(Module.cwrap("version", "string", [])());
-    	}
-    	previousInput = '';
-    	onChange();
-    };
-
     var cachedRemoteFiles = {};
     function gatherImports(files, asyncCallback, needAsync) {
     	if (!compilerAcceptsMultipleFiles)
@@ -472,63 +431,6 @@
     		asyncCallback(input);
     	return input;
     }
-
-
-
-
-
-
-    /*
-    var initializeWorker = function() {
-    	if (worker !== null)
-    		worker.terminate();
-    	worker = new Worker('js/sandbox/worker.js');
-    	worker.addEventListener('message', function(msg) {
-    		var data = msg.data;
-    		switch (data.cmd) {
-    		case 'versionLoaded':
-    			$('#version').text(data.data);
-    			compilerAcceptsMultipleFiles = !!data.acceptsMultipleFiles;
-    			onCompilerLoaded();
-    			break;
-    		case 'compiled':
-    			compilationFinished(data.data);
-    			break;
-    		};
-    	});
-    	worker.onerror = function(msg) { console.log(msg.data); };
-    	worker.addEventListener('error', function(msg) { console.log(msg.data); });
-    	compileJSON = function(source, optimize) {
-    		worker.postMessage({cmd: 'compile', source: source, optimize: optimize});
-    	};
-    };
-    var worker = null;
-    var loadVersion = function(version) {
-    	$('#version').text("(loading)");
-    	var isFirefox = typeof InstallTrigger !== 'undefined';
-    	if (document.location.protocol != 'file:' && Worker !== undefined && isFirefox) {
-    		// Workers cannot load js on "file:"-URLs and we get a
-    		// "Uncaught RangeError: Maximum call stack size exceeded" error on Chromium,
-    		// resort to non-worker version in that case.
-    		initializeWorker();
-    		worker.postMessage({cmd: 'loadVersion', data: 'bin/' + version});
-    	} else {
-    		Module = null;
-    		compileJSON = function(source, optimize) { compilationFinished('{}'); };
-    		var newScript = document.createElement('script');
-    		newScript.type = 'text/javascript';
-    		newScript.src = 'bin/' + version;
-    		document.getElementsByTagName("head")[0].appendChild(newScript);
-    		var check = window.setInterval(function() {
-    			if (!Module) return;
-    			window.clearInterval(check);
-    			onCompilerLoaded();
-    		}, 200);
-    	}
-    };
-    loadVersion('soljson-latest.js');
-
-    */
 
     editor.getSession().on('change', onChange);
 
@@ -760,6 +662,8 @@
     	return funABI;
     };
 
-    //compileTimeout = window.setTimeout(compile, 300);
+    $(function() {
+        onChange();
+    });
 
 })();
