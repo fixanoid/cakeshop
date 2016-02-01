@@ -21,7 +21,7 @@ public interface ContractService {
 		serpent
 	}
 
-	public List<Contract> compile(String code, CodeType codeType) throws APIException;
+	public List<Contract> compile(String code, CodeType codeType, Boolean optimize) throws APIException;
 
 	public TransactionResult create(String code, CodeType codeType) throws APIException;
 

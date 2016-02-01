@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
@@ -99,10 +100,14 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
 	@SuppressWarnings("unchecked")
-    public List<Contract> compile(String code, CodeType codeType) throws APIException {
+    public List<Contract> compile(String code, CodeType codeType, Boolean optimize) throws APIException {
 
         if (codeType != CodeType.solidity) {
             throw new APIException("Only 'solidity' source is currently supported");
+        }
+
+        if (optimize == null) {
+            optimize = true; // default to true
         }
 
         List<Contract> contracts = new ArrayList<>();
@@ -110,9 +115,11 @@ public class ContractServiceImpl implements ContractService {
 
         Map<String, Object> res = null;
         try {
-            String args = SystemUtils.IS_OS_WINDOWS ? "--all" : "--ipc";
-            ProcessBuilder builder = ProcessUtils.createProcessBuilder(
-                    gethConfig, gethConfig.getSolcPath(), args);
+            List<String> args = Lists.newArrayList(
+                    gethConfig.getSolcPath(),
+                    SystemUtils.IS_OS_WINDOWS ? "--all" : "--ipc");
+
+            ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
 
             //RpcUtil.puts(builder);
             Process proc = builder.start();
@@ -158,7 +165,7 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
 	public TransactionResult create(String code, CodeType codeType) throws APIException {
-	    List<Contract> contracts = compile(code, codeType);
+	    List<Contract> contracts = compile(code, codeType, true); // always deploy optimized contracts
 	    Contract contract = contracts.get(0); // FIXME for now, assume we are only deploying a single contract
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();

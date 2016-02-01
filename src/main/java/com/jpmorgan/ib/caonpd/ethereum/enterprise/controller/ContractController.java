@@ -54,9 +54,10 @@ public class ContractController extends BaseController {
     @RequestMapping("/compile")
     public ResponseEntity<APIResponse> compile(
             @JsonBodyParam String code,
-            @JsonBodyParam String code_type) throws APIException {
+            @JsonBodyParam(required=false) String code_type,
+            @JsonBodyParam(required=false) Boolean optimize) throws APIException {
 
-        List<Contract> contracts = contractService.compile(code, CodeType.valueOf(code_type));
+        List<Contract> contracts = contractService.compile(code, CodeType.valueOf(code_type), optimize);
 
         APIResponse res = new APIResponse();
 
