@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -108,20 +108,29 @@ public class ContractServiceImpl implements ContractService {
         List<Contract> contracts = new ArrayList<>();
         long createdDate = System.currentTimeMillis() / 1000;
 
-
-        ProcessBuilder builder = ProcessUtils.createProcessBuilder(
-                gethConfig, gethConfig.getSolcPath(), "--ipc");
-
-		Map<String, Object> res = null;
+        Map<String, Object> res = null;
         try {
+            String args = SystemUtils.IS_OS_WINDOWS ? "--all" : "--ipc";
+            ProcessBuilder builder = ProcessUtils.createProcessBuilder(
+                    gethConfig, gethConfig.getSolcPath(), args);
+
+            //RpcUtil.puts(builder);
             Process proc = builder.start();
+
+            StreamGobbler stdout = StreamGobbler.create(proc.getInputStream());
+            StreamGobbler stderr = StreamGobbler.create(proc.getErrorStream());
+
             proc.getOutputStream().write(code.getBytes());;
             proc.getOutputStream().close();
+
             proc.waitFor();
 
-            String out = IOUtils.toString(proc.getInputStream());
+            if (proc.exitValue() != 0) {
+                throw new APIException("Failed to compile contract (solc exited with code " + proc.exitValue() + ")\n" + stderr.getString());
+            }
+
             ObjectMapper mapper = new ObjectMapper();
-            res = mapper.readValue(out, Map.class);
+            res = mapper.readValue(stdout.getString(), Map.class);
 
         } catch (IOException | InterruptedException e) {
             throw new APIException("Failed to compile contract", e);
