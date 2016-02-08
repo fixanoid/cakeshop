@@ -112,6 +112,10 @@ public class GethConfigBean {
         genesisBlockFilename = expandPath(baseResourcePath, genesisBlockFilename);
         if (SystemUtils.IS_OS_WINDOWS) {
             genesisBlockFilename = genesisBlockFilename.replaceAll(File.separator + File.separator, "/");
+            if (genesisBlockFilename.startsWith("/")) {
+                // fix filename like /C:/foo/bar/.../genesis_block.json
+                genesisBlockFilename = genesisBlockFilename.substring(1);
+            }
         }
 
         String genesisDir = new File(genesisBlockFilename).getParent();
