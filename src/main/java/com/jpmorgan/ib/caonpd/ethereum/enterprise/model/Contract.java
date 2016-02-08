@@ -2,6 +2,8 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -43,6 +45,21 @@ public class Contract {
      * Date and time the contract was created
      */
     private Long createdDate;
+
+    /**
+     * Gas estimates for each method
+     */
+    private Map<String, Object> gasEstimates;
+
+    /**
+     * Contract interface in solidity code
+     */
+    private String solidityInterface;
+
+    /**
+     * Hash of each method signaature (required for making EVM calls)
+     */
+    private Map<String, String> functionHashes;
 
 
     public Contract() {
@@ -117,5 +134,29 @@ public class Contract {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Map<String, Object> getGasEstimates() {
+        return gasEstimates;
+    }
+
+    public void setGasEstimates(Map<String, Object> gasEstimates) {
+        this.gasEstimates = gasEstimates;
+    }
+
+    public String getSolidityInterface() {
+        return solidityInterface;
+    }
+
+    public void setSolidityInterface(String solidityInterface) {
+        this.solidityInterface = solidityInterface;
+    }
+
+    public Map<String, String> getFunctionHashes() {
+        return functionHashes;
+    }
+
+    public void setFunctionHashes(Map<String, String> functionHashes) {
+        this.functionHashes = functionHashes;
     }
 }

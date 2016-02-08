@@ -136,6 +136,8 @@ public class ContractServiceImpl implements ContractService {
                 throw new APIException("Failed to compile contract (solc exited with code " + proc.exitValue() + ")\n" + stderr.getString());
             }
 
+            //System.out.println(stdout.getString());
+
             ObjectMapper mapper = new ObjectMapper();
             res = mapper.readValue(stdout.getString(), Map.class);
 
@@ -156,6 +158,9 @@ public class ContractServiceImpl implements ContractService {
 
             contract.setBinary((String) compiled.get("bin"));
             contract.setABI((String) compiled.get("abi"));
+            contract.setGasEstimates((Map<String, Object>) compiled.get("gas"));
+            contract.setFunctionHashes((Map<String, String>) compiled.get("hashes"));
+            contract.setSolidityInterface((String) compiled.get("interface"));
 
             contracts.add(contract);
         }

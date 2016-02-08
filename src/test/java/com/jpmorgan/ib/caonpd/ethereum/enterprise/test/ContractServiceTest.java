@@ -7,12 +7,15 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,49 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	@Autowired
 	GethHttpService geth;
+
+	@Test
+	public void testCompile() throws IOException {
+	    long time = System.currentTimeMillis() / 1000;
+        String code = readTestFile("contracts/simplestorage.sol");
+
+        List<Contract> contracts = contractService.compile(code, CodeType.solidity, true);
+        assertNotNull(contracts);
+        assertEquals(1, contracts.size());
+
+        Contract c = contracts.get(0);
+        RpcUtil.puts(c);
+
+        assertNotNull(c);
+        assertNull(c.getAddress()); // only this field should be null
+        assertNotEmptyString(c.getABI());
+        assertNotEmptyString(c.getBinary());
+        assertNotEmptyString(c.getCode());
+        assertNotEmptyString(c.getName());
+        assertEquals(c.getCodeType(), CodeType.solidity);
+        assertNotNull(c.getCreatedDate());
+        assertTrue(c.getCreatedDate() >= time);
+
+        assertNotNull(c.getFunctionHashes());
+        assertNotNull(c.getGasEstimates());
+
+        Map<String, Object> gasEstimates = c.getGasEstimates();
+        List<Long> creation = (List<Long>) gasEstimates.get("creation");
+        assertNotNull(creation);
+        assertEquals(creation.size(), 2);
+
+        assertNotEmptyString(c.getSolidityInterface());
+	}
+
+    static public void assertNotEmptyString(String str) {
+        assertTrue(str != null && str.length() > 0, null);
+    }
+
+    static public void assertNotEmptyString(String str, String message) {
+        assertTrue(str != null && str.length() > 0, message);
+    }
+
+
 
 	@Test
     public void testCreate() throws IOException {
