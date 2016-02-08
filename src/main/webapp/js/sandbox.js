@@ -529,6 +529,7 @@
 
         });
 
+        /*
     	var dapp = new UniversalDApp(udappContracts, {
     		vm: executionContext === 'vm',
     		removable: false,
@@ -536,16 +537,18 @@
     		removable_instances: true,
     		renderOutputModifier: function(contractName, $contractOutput) {
     			var contract = _.find(contracts, function(c) { return c.get("name").toLowerCase() === contractName.toLowerCase(); });
+                console.log($contractOutput);
     			return $contractOutput
     				.append(textRow('Bytecode', contract.get("binary")))
-    				.append(textRow('Interface', contract.get("abi")))
+    				.append(textRow('ABI', contract.get("abi")))
     				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(), contract.get("abi"), contract.get("binary")), 'deploy'))
-    				.append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
+    				// .append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
     				.append(getDetails(contract, source, contractName));
     		}});
     	var $contractOutput = dapp.render();
+        */
 
-
+        /*
     	$txOrigin = $('#txorigin');
     	if (executionContext === 'vm') {
     		$txOrigin.empty();
@@ -561,8 +564,29 @@
     			$txOrigin.val(accounts[0]);
     		} else $txOrigin.val('unknown');
     	});
+        */
 
         $('#output').append("<h2 class='output'>Compiler Output</h2>");
+
+        var $contractOutput = $('<div class="udapp" />');
+        contracts.forEach(function(contract) {
+            var $contractEl = $('<div class="contract"/>');
+            var $title = $('<span class="title"/>').text( contract.get("name") );
+            if (contract.get("binary")) {
+                $title.append($('<div class="size"/>').text((contract.get("binary").length / 2) + ' bytes'));
+            }
+            $contractEl.append($title); // .append( this.getCreateInterface( $contractEl, this.contracts[c]) );
+
+    		$contractEl
+				.append(textRow('Bytecode', contract.get("binary")))
+				.append(textRow('ABI', contract.get("abi")))
+				.append(textRow('Web3 deploy', gethDeploy(contract.get("name").toLowerCase(), contract.get("abi"), contract.get("binary")), 'deploy'))
+				// .append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
+				.append(getDetails(contract, source, contract.get("name")));
+
+            $contractOutput.append($contractEl);
+
+        });
 
     	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass('hide'); });
     	$('#output').append( $contractOutput );
@@ -578,7 +602,7 @@
     };
     var tableRow = function(description, data) {
     	return tableRowItems(
-    		$('<span/>').text(description),
+    		$('<strong/>').text(description),
     		$('<input readonly="readonly"/>').val(data));
     };
     var textRow = function(description, data, cls) {
@@ -587,26 +611,27 @@
     		$('<textarea readonly="readonly" class="gethDeployText"/>').val(data),
     		cls);
     };
+    var preRow = function(description, text) {
+    	return tableRowItems(
+    		$('<strong/>').text(description),
+    		$('<pre/>').text(text));
+    };
     var getDetails = function(contract, source, contractName) {
     	var button = $('<button>Toggle Details</button>');
+
+        // solidity interface
     	var details = $('<div style="display: none;"/>')
-    		.append(tableRow('Solidity Interface', contract.solidity_interface))
-    		.append(tableRow('Opcodes', contract.opcodes));
+    		.append(textRow('Solidity Interface', contract.get("solidityInterface")));
+
+        // function hashes
     	var funHashes = '';
-    	for (var fun in contract.functionHashes)
-    		funHashes += contract.functionHashes[fun] + ' ' + fun + '\n';
-    	details.append($('<span class="col1">Functions</span>'));
-    	details.append($('<pre/>').text(funHashes));
-    	details.append($('<span class="col1">Gas Estimates</span>'));
-    	details.append($('<pre/>').text(formatGasEstimates(contract.gasEstimates)));
-    	if (contract.runtimeBytecode && contract.runtimeBytecode.length > 0)
-    		details.append(tableRow('Runtime Bytecode', contract.runtimeBytecode));
-    	if (contract.assembly !== null)
-    	{
-    		details.append($('<span class="col1">Assembly</span>'));
-    		var assembly = $('<pre/>').text(formatAssemblyText(contract.assembly, '', source));
-    		details.append(assembly);
-    	}
+    	for (var fun in contract.get("functionHashes"))
+    		funHashes += contract.get("functionHashes")[fun] + ' ' + fun + '\n';
+    	details.append(preRow("Functions", funHashes));
+
+        // gas estimates
+    	details.append(preRow("Gas Estimates", formatGasEstimates(contract.get("gasEstimates"))));
+
     	button.click(function() { detailsOpen[contractName] = !detailsOpen[contractName]; details.toggle(); });
     	if (detailsOpen[contractName])
     		details.show();
