@@ -284,7 +284,13 @@ footer {
   }
 }
 
-h2.output {
+#output h2 {
     padding-left: 1em;
     text-decoration: underline;
+}
+
+#output h2 i {
+    float: right;
+    padding-right: 1em;
+    cursor: pointer;
 }

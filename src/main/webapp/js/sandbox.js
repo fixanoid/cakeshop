@@ -337,7 +337,7 @@
     	editor.getSession().clearAnnotations();
     	sourceAnnotations = [];
     	editor.getSession().removeMarker(errMarkerId);
-    	$('#output').empty(); // clear output window
+    	$('#output .compiler_output').empty(); // clear output window
 
     	var editorSource = editor.getValue();
     	window.localStorage.setItem(SOL_CACHE_FILE, editorSource);
@@ -450,7 +450,7 @@
     	var type = errortype(message);
     	var $pre = $("<pre />").text(message);
     	var $error = $('<div class="sol ' + type + '"><div class="close"><i class="fa fa-close"></i></div></div>').prepend($pre);
-    	$('#output').append( $error );
+    	$('#output compiler_output').append( $error );
     	var err = message.match(/^([^:]*):([0-9]*):(([0-9]*):)? /);
     	if (err) {
     		var errFile = err[1];
@@ -519,6 +519,8 @@
     };
 
     var renderContracts = function(contracts, source) {
+
+        /*
     	var udappContracts = [];
         contracts.forEach(function(contract) {
     		udappContracts.push({
@@ -529,7 +531,6 @@
 
         });
 
-        /*
     	var dapp = new UniversalDApp(udappContracts, {
     		vm: executionContext === 'vm',
     		removable: false,
@@ -566,7 +567,15 @@
     	});
         */
 
-        $('#output').append("<h2 class='output'>Compiler Output</h2>");
+        $("#output h2 i").click(function(ev) {
+            $("#output .compiler_output").slideToggle("fast", function() {
+                if ($(this).css("display") === "none") {
+                    $("#output h2 i").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+                } else {
+                    $("#output h2 i").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+                }
+            });
+        });
 
         var $contractOutput = $('<div class="udapp" />');
         contracts.forEach(function(contract) {
@@ -585,11 +594,10 @@
 				.append(getDetails(contract, source, contract.get("name")));
 
             $contractOutput.append($contractEl);
-
         });
 
     	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass('hide'); });
-    	$('#output').append( $contractOutput );
+    	$('#output .compiler_output').append( $contractOutput );
     	$('.col2 input,textarea').click(function() { this.select(); });
 
     }; // renderContracts
