@@ -97,7 +97,7 @@ body {
 }
 
 #output {
-    border-top: 3px solid #efefef;
+    /*border-top: 3px solid #efefef;*/
     display: block;
 }
 
@@ -147,8 +147,7 @@ body {
 }
 #header #optionViews.txView #txView { display: block; }
 #header #optionViews.settingsView #settingsView { display: block; }
-#header #optionViews.publishView #publishView { display: block; }
-#header #optionViews.envView #envView { display: block; }
+#header #optionViews.compilerView #compilerView { display: block; }
 
 #header #optionViews.txView input,
 #header #optionViews.txView select {
@@ -172,38 +171,6 @@ body {
     display: none;
 }
 
-#header .info {
-    font-family: monospace;
-    min-height: 6em;
-    padding: 0.25em 0;
-    padding-left: 6em;
-}
-
-#header #gist {
-    background-color: #efefef;
-    font-size: 12px;
-    padding: 0.25em;
-    color: black;
-    border:0 none;
-    border-radius: 3px;
-    width: 8em;
-    margin-right: 1em;
-    cursor: pointer;
-}
-
-
-#header .origin,
-#header #executionContext {
-    display: block;
-    word-wrap: break-word;
-}
-
-#header #versionSelector {
-    border: 0 none;
-    font-family: monospace;
-    background-color: transparent;
-}
-
 .col1 {
     width: 30%;
     float: left;
@@ -211,18 +178,6 @@ body {
 .col2 {
     width: 70%;
     float: left;
-}
-
-.contract.hide {
-    padding-bottom: 0;
-}
-
-.contract.hide {
-    margin: 0;
-}
-
-.contract.hide > *:not(.title) {
-    display: none;
 }
 
 .udapp .contract > .title {
@@ -236,7 +191,7 @@ body {
     font-size: 10px;
 }
 
-.contract.hide > .title:before {
+.contract.expand > .title:before {
     content: "\25B6";
 }
 

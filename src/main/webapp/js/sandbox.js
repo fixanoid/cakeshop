@@ -55,75 +55,6 @@
     	}
     });
 
-    // ----------------- execution context -------------
-
-    var $vmToggle = $('#vm');
-    var $web3Toggle = $('#web3');
-    var $web3endpoint = $('#web3Endpoint');
-
-    if (typeof web3 !== 'undefined')
-    {
-    	if (web3.providers && web3.currentProvider instanceof web3.providers.IpcProvider)
-    		$web3endpoint.val('ipc');
-    	web3 = new Web3(web3.currentProvider);
-    } else
-    	web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-
-    var executionContext = 'vm';
-    $vmToggle.get(0).checked = true;
-
-    $vmToggle.on('change', executionContextChange );
-    $web3Toggle.on('change', executionContextChange );
-    $web3endpoint.on('change', function() {
-    	var endpoint = $web3endpoint.val();
-    	if (endpoint == 'ipc')
-    		web3.setProvider(new Web3.providers.IpcProvider());
-    	else
-    		web3.setProvider(new Web3.providers.HttpProvider(endpoint));
-    	compile();
-    });
-
-    function executionContextChange (ev) {
-    	if (ev.target.value == 'web3' && !confirm("Are you sure you want to connect to a local ethereum node?") ) {
-    		$vmToggle.get(0).checked = true;
-    		executionContext = 'vm';
-    	} else executionContext = ev.target.value;
-    	compile();
-    }
-
-
-
-    // ------------------ gist publish --------------
-
-    $('#gist').click(function(){
-    	if (confirm("Are you sure you want to publish all your files anonymously as a public gist on github.com?")) {
-
-    		var files = {};
-    		var filesArr = getFiles();
-    		var description = "Created using soleditor: Realtime Ethereum Contract Compiler and Runtime. Load this file by pasting this gists URL or ID at https://chriseth.github.io/browser-solidity/?gist=";
-
-    		for(var f in filesArr) {
-    			files[fileNameFromKey(filesArr[f])] = {
-    				content: localStorage[filesArr[f]]
-    			};
-    		}
-
-    		$.ajax({
-    			url: 'https://api.github.com/gists',
-    			type: 'POST',
-    			data: JSON.stringify({
-    				description: description,
-    				public: true,
-    				files: files
-    			})
-    		}).done(function(response) {
-    			if (response.html_url && confirm("Created a gist at " + response.html_url + " Would you like to open it in a new window?")) {
-    				window.open( response.html_url, '_blank' );
-    			}
-    		});
-    	}
-    });
-
 
     // ----------------- file selector-------------
     var $filesEl = $('#files');
@@ -519,64 +450,6 @@
     };
 
     var renderContracts = function(contracts, source) {
-
-        /*
-    	var udappContracts = [];
-        contracts.forEach(function(contract) {
-    		udappContracts.push({
-                name:      contract.get("name"),
-                interface: contract.get("abi"),
-                bytecode:  contract.get("binary")
-    		});
-
-        });
-
-    	var dapp = new UniversalDApp(udappContracts, {
-    		vm: executionContext === 'vm',
-    		removable: false,
-    		getAddress: function(){ return $('#txorigin').val(); },
-    		removable_instances: true,
-    		renderOutputModifier: function(contractName, $contractOutput) {
-    			var contract = _.find(contracts, function(c) { return c.get("name").toLowerCase() === contractName.toLowerCase(); });
-                console.log($contractOutput);
-    			return $contractOutput
-    				.append(textRow('Bytecode', contract.get("binary")))
-    				.append(textRow('ABI', contract.get("abi")))
-    				.append(textRow('Web3 deploy', gethDeploy(contractName.toLowerCase(), contract.get("abi"), contract.get("binary")), 'deploy'))
-    				// .append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
-    				.append(getDetails(contract, source, contractName));
-    		}});
-    	var $contractOutput = dapp.render();
-        */
-
-        /*
-    	$txOrigin = $('#txorigin');
-    	if (executionContext === 'vm') {
-    		$txOrigin.empty();
-    		var addr = '0x' + dapp.address.toString('hex');
-    		$txOrigin.val(addr);
-    		$txOrigin.append($('<option />').val(addr).text(addr));
-    	} else web3.eth.getAccounts(function(err, accounts) {
-    		if (err)
-    			renderError(err.message);
-    		if (accounts && accounts[0]){
-    			$txOrigin.empty();
-    			for( var a in accounts) { $txOrigin.append($('<option />').val(accounts[a]).text(accounts[a])); }
-    			$txOrigin.val(accounts[0]);
-    		} else $txOrigin.val('unknown');
-    	});
-        */
-
-        $("#output h2 i").click(function(ev) {
-            $("#output .compiler_output").slideToggle("fast", function() {
-                if ($(this).css("display") === "none") {
-                    $("#output h2 i").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
-                } else {
-                    $("#output h2 i").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
-                }
-            });
-        });
-
         var $contractOutput = $('<div class="udapp" />');
         contracts.forEach(function(contract) {
             var $contractEl = $('<div class="contract"/>');
@@ -586,17 +459,18 @@
             }
             $contractEl.append($title); // .append( this.getCreateInterface( $contractEl, this.contracts[c]) );
 
-    		$contractEl
+    		var $detail = $('<div class="info"/>')
 				.append(textRow('Bytecode', contract.get("binary")))
 				.append(textRow('ABI', contract.get("abi")))
 				.append(textRow('Web3 deploy', gethDeploy(contract.get("name").toLowerCase(), contract.get("abi"), contract.get("binary")), 'deploy'))
 				// .append(textRow('uDApp', combined(contractName, contract.get("abi"), contract.get("binary")), 'deploy'))
 				.append(getDetails(contract, source, contract.get("name")));
 
+            $contractEl.append($detail);
             $contractOutput.append($contractEl);
         });
 
-    	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass('hide'); });
+    	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass("expand").find('.info').toggle(); });
     	$('#output .compiler_output').append( $contractOutput );
     	$('.col2 input,textarea').click(function() { this.select(); });
 
@@ -625,10 +499,8 @@
     		$('<pre/>').text(text));
     };
     var getDetails = function(contract, source, contractName) {
-    	var button = $('<button>Toggle Details</button>');
-
         // solidity interface
-    	var details = $('<div style="display: none;"/>')
+    	var details = $('<div class="contractDetails"/>')
     		.append(textRow('Solidity Interface', contract.get("solidityInterface")));
 
         // function hashes
@@ -640,10 +512,7 @@
         // gas estimates
     	details.append(preRow("Gas Estimates", formatGasEstimates(contract.get("gasEstimates"))));
 
-    	button.click(function() { detailsOpen[contractName] = !detailsOpen[contractName]; details.toggle(); });
-    	if (detailsOpen[contractName])
-    		details.show();
-    	return $('<div class="contractDetails"/>').append(button).append(details);
+    	return details;
     };
     var formatGasEstimates = function(data) {
         if (_.isNull(data) || _.isUndefined(data)) {
