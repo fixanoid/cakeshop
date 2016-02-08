@@ -41,6 +41,9 @@
 
     $('#options li').click(function(ev){
     	var $el = $(this);
+        if ($el.hasClass("docs")) {
+            return; // not a normal tab view
+        }
     	var cls = /[a-z]+View/.exec( $el.get(0).className )[0];
     	if (!$el.hasClass('active')) {
     		$el.parent().find('li').removeClass('active');
@@ -558,6 +561,8 @@
     			$txOrigin.val(accounts[0]);
     		} else $txOrigin.val('unknown');
     	});
+
+        $('#output').append("<h2 class='output'>Compiler Output</h2>");
 
     	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass('hide'); });
     	$('#output').append( $contractOutput );
