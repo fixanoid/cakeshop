@@ -13,15 +13,19 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,13 +33,18 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceImpl.class);
 
+    @Value("${config.path}")
+    private String CONFIG_ROOT;
+
     @Autowired
     private ContractService contractService;
 
     @Autowired
     private TransactionService transactionService;
 
+    @Value("${contract.registry.addr:}")
     private String contractRegistryAddress;
+
     private final ContractABI abi;
 
     public ContractRegistryServiceImpl() throws IOException {
@@ -51,6 +60,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
             TransactionResult txr = contractService.create(code, CodeType.solidity);
             Transaction tx = transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
             this.contractRegistryAddress = tx.getContractAddress();
+            saveContractRegistryAddress(this.contractRegistryAddress);
             return true;
 
         } catch (IOException | InterruptedException e) {
@@ -60,11 +70,25 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
         return false;
     }
 
+    private void saveContractRegistryAddress(String addr) {
+        String configPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream(configPath));
+            props.put("contract.registry.addr", addr);
+            props.store(new FileOutputStream(configPath), null);
+        } catch (IOException e) {
+            LOG.warn("Unable to update env.properties", e);
+        }
+    }
+
     @Override
     public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
 
         if (name.equalsIgnoreCase("ContractRegistry") ||
                 this.contractRegistryAddress == null || this.contractRegistryAddress.isEmpty()) {
+
+            LOG.warn("Not going to register contract since ContractRegistry address is null");
 
             return null; // FIXME return silently because registry hasn't yet been registered
         }
