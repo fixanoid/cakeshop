@@ -115,9 +115,11 @@ public class ContractServiceImpl implements ContractService {
 
         Map<String, Object> res = null;
         try {
-            List<String> args = Lists.newArrayList(
-                    gethConfig.getSolcPath(),
-                    SystemUtils.IS_OS_WINDOWS ? "--all" : "--ipc");
+            String solc = gethConfig.getSolcPath();
+            if (SystemUtils.IS_OS_WINDOWS) {
+                solc = solc + ".cmd";
+            }
+            List<String> args = Lists.newArrayList(solc, "--ipc");
 
             ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
 
