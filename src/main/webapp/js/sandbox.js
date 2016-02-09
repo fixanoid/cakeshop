@@ -3,259 +3,32 @@
 
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
-    var loadingFromGist = Sandbox.loadFromGist();
+
+    var getFiles = Sandbox.getFiles;
+    var updateFiles = Sandbox.updateFiles;
+    var fileNameFromKey = Sandbox.fileNameFromKey;
+
 
     // ----------------- editor ----------------------
 
     var SOL_CACHE_FILE_PREFIX = 'sol-cache-file-';
     var SOL_CACHE_UNTITLED = SOL_CACHE_FILE_PREFIX + 'Untitled';
-    var SOL_CACHE_FILE = null;
 
-    var editor = ace.edit("input");
-    var session = editor.getSession();
-    var Range = ace.require('ace/range').Range;
+    var editor = Sandbox.editor = Sandbox.initEditor();
     var errMarkerId = null;
 
-    var untitledCount = '';
-    if (!getFiles().length || window.localStorage['sol-cache']) {
-    	if(loadingFromGist) return;
-    	// Backwards-compatibility
-    	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-    		untitledCount = (untitledCount - 0) + 1;
-    	SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-    	window.localStorage[SOL_CACHE_FILE] = window.localStorage['sol-cache'] || BALLOT_EXAMPLE;
-    	window.localStorage.removeItem('sol-cache');
-    }
-
-    SOL_CACHE_FILE = getFiles()[0];
-
-    editor.setValue( window.localStorage[SOL_CACHE_FILE], -1);
-    editor.resize(true);
-    session.setMode("ace/mode/javascript");
-    session.setTabSize(4);
-    session.setUseSoftTabs(true);
-
-
-
-    // ----------------- tabbed menu -------------------
-
-    $('#options li').click(function(ev){
-    	var $el = $(this);
-        if ($el.hasClass("docs")) {
-            return; // not a normal tab view
-        }
-    	var cls = /[a-z]+View/.exec( $el.get(0).className )[0];
-    	if (!$el.hasClass('active')) {
-    		$el.parent().find('li').removeClass('active');
-    		$('#optionViews').attr('class', '').addClass(cls);
-    		$el.addClass('active');
-    	} else {
-    		$el.removeClass('active');
-    		$('#optionViews').removeClass(cls);
-    	}
-    });
-
-
-    // ----------------- file selector-------------
-    var $filesEl = $('#files');
-    $filesEl.on('click','.newFile', function() {
-    	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-    		untitledCount = (untitledCount - 0) + 1;
-    	SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-    	window.localStorage[SOL_CACHE_FILE] = '';
-    	updateFiles();
-    });
-
-    $filesEl.on('click', '.file:not(.active)', showFileHandler);
-
-    $filesEl.on('click', '.file.active', function(ev) {
-    	var $fileTabEl = $(this);
-    	var originalName = $fileTabEl.find('.name').text();
-    	ev.preventDefault();
-    	if ($(this).find('input').length > 0) return false;
-    	var $fileNameInputEl = $('<input value="'+originalName+'"/>');
-    	$fileTabEl.html($fileNameInputEl);
-    	$fileNameInputEl.focus();
-    	$fileNameInputEl.select();
-    	$fileNameInputEl.on('blur', handleRename);
-    	$fileNameInputEl.keyup(handleRename);
-
-    	function handleRename(ev) {
-    		ev.preventDefault();
-    		if (ev.which && ev.which !== 13) return false;
-    		var newName = ev.target.value;
-    		$fileNameInputEl.off('blur');
-    		$fileNameInputEl.off('keyup');
-
-    		if (newName !== originalName && confirm("Are you sure you want to rename: " + originalName + " to " + newName + '?')) {
-    			var content = window.localStorage.getItem( fileKey(originalName) );
-    			window.localStorage[fileKey( newName )] = content;
-    			window.localStorage.removeItem( fileKey( originalName) );
-    			SOL_CACHE_FILE = fileKey( newName );
-    		}
-
-    		updateFiles();
-    		return false;
-    	}
-
-    	return false;
-    });
-
-    $filesEl.on('click', '.file .remove', function(ev) {
-    	ev.preventDefault();
-    	var name = $(this).parent().find('.name').text();
-    	var index = getFiles().indexOf( fileKey(name) );
-
-    	if (confirm("Are you sure you want to remove: " + name + " from local storage?")) {
-    		window.localStorage.removeItem( fileKey( name ) );
-    		SOL_CACHE_FILE = getFiles()[ Math.max(0, index - 1)];
-    		updateFiles();
-    	}
-    	return false;
-    });
-
-    function showFileHandler(ev) {
-    	ev.preventDefault();
-    	SOL_CACHE_FILE = fileKey( $(this).find('.name').text() );
-    	updateFiles();
-    	return false;
-    }
-
-    function fileTabFromKey(key) {
-    	var name = fileNameFromKey(key);
-    	return $('#files .file').filter(function(){ return $(this).find('.name').text() == name; });
-    }
-
-
-    function updateFiles() {
-    	var $filesEl = $('#files');
-    	var files = getFiles();
-
-    	$filesEl.find('.file').remove();
-
-    	for (var f in files) {
-    		$filesEl.append(fileTabTemplate(files[f]));
-    	}
-
-    	if (SOL_CACHE_FILE) {
-    		var active = fileTabFromKey(SOL_CACHE_FILE);
-    		active.addClass('active');
-    		editor.setValue( window.localStorage[SOL_CACHE_FILE] || '', -1);
-    		editor.focus();
-    	}
-    	$('#input').toggle( !!SOL_CACHE_FILE );
-    	$('#output').toggle( !!SOL_CACHE_FILE );
-    }
-
-    function fileTabTemplate(key) {
-    	var name = fileNameFromKey(key);
-    	return $('<span class="file"><span class="name">'+name+'</span><span class="remove"><i class="fa fa-close"></i></span></span>');
-    }
-
-    function fileKey( name ) {
-    	return SOL_CACHE_FILE_PREFIX + name;
-    }
-
-    function fileNameFromKey(key) {
-    	return key.replace( SOL_CACHE_FILE_PREFIX, '' );
-    }
-
-    function getFiles() {
-    	var files = [];
-    	for (var f in localStorage ) {
-    		if (f.indexOf( SOL_CACHE_FILE_PREFIX, 0 ) === 0) {
-    			files.push(f);
-    		}
-    	}
-    	return files;
-    }
-
-    updateFiles();
-
-    // export methods
-    Sandbox.fileKey = fileKey;
-    Sandbox.updateFiles = updateFiles;
-    Sandbox.getFiles = getFiles;
-
-    // ----------------- resizeable ui ---------------
-
-    var EDITOR_SIZE_CACHE_KEY = "editor-size-cache";
-    var dragging = false;
-    $('#dragbar').mousedown(function(e){
-    	e.preventDefault();
-    	dragging = true;
-    	var main = $('#righthand-panel');
-    	var ghostbar = $('<div id="ghostbar">', {
-    		css: {
-    			top: main.offset().top,
-    			left: main.offset().left
-    		}
-    	}).prependTo('body');
-
-    	$(document).mousemove(function(e){
-    		ghostbar.css("left",e.pageX+2);
-    	});
-    });
-
-    var $body = $('body');
-
-    function setEditorSize (delta) {
-    	$('#righthand-panel').css("width", delta);
-    	$('#editor').css("right", delta);
-    	onResize();
-    }
-
-    function getEditorSize(){
-    	window.localStorage[EDITOR_SIZE_CACHE_KEY] = $('#righthand-panel').width();
-    }
-
-    $(document).mouseup(function(e){
-    	if (dragging) {
-    		var delta = $body.width() - e.pageX+2;
-    		$('#ghostbar').remove();
-    		$(document).unbind('mousemove');
-    		dragging = false;
-    		setEditorSize(delta);
-    		window.localStorage.setItem(EDITOR_SIZE_CACHE_KEY, delta);
-    	}
-    });
-
-    // set cached defaults
-    var cachedSize = window.localStorage.getItem(EDITOR_SIZE_CACHE_KEY);
-    if (cachedSize) setEditorSize(cachedSize);
-    else getEditorSize();
-
+    Sandbox.initFileTabs();
 
     // ----------------- toggle right hand panel -----------------
 
     var hidingRHP = false;
-    $('.toggleRHP').click(function(){
-       hidingRHP = !hidingRHP;
-       setEditorSize( hidingRHP ? 0 : window.localStorage[EDITOR_SIZE_CACHE_KEY] );
-       $('.toggleRHP').toggleClass('hiding', hidingRHP);
-       if (!hidingRHP) compile();
-    });
+    // $('.toggleRHP').click(function(){
+    //    hidingRHP = !hidingRHP;
+    //    setEditorSize( hidingRHP ? 0 : window.localStorage[EDITOR_SIZE_CACHE_KEY] );
+    //    $('.toggleRHP').toggleClass('hiding', hidingRHP);
+    //    if (!hidingRHP) compile();
+    // });
 
-
-    // ----------------- editor resize ---------------
-
-    function onResize() {
-    	editor.resize();
-    	session.setUseWrapMode(document.querySelector('#editorWrap').checked);
-    	if(session.getUseWrapMode()) {
-    		var characterWidth = editor.renderer.characterWidth;
-    		var contentWidth = editor.container.ownerDocument.getElementsByClassName("ace_scroller")[0].clientWidth;
-
-    		if(contentWidth > 0) {
-    			session.setWrapLimit(parseInt(contentWidth / characterWidth, 10));
-    		}
-    	}
-    }
-    window.onresize = onResize;
-    onResize();
-
-    document.querySelector('#editor').addEventListener('change', onResize);
-    document.querySelector('#editorWrap').addEventListener('change', onResize);
 
 
     // ----------------- compiler ----------------------
@@ -271,10 +44,10 @@
     	$('#output .compiler_output').empty(); // clear output window
 
     	var editorSource = editor.getValue();
-    	window.localStorage.setItem(SOL_CACHE_FILE, editorSource);
+    	window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, editorSource);
 
     	var files = {};
-    	files[fileNameFromKey(SOL_CACHE_FILE)] = editorSource;
+    	files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)] = editorSource;
     	var input = gatherImports(files, compile);
     	if (!input) {
             return;
@@ -310,7 +83,7 @@
     var onChange = function() {
     	var input = editor.getValue();
     	if (input === "") {
-    		window.localStorage.setItem(SOL_CACHE_FILE, '');
+    		window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, '');
     		return;
     	}
     	if (input === previousInput)
@@ -323,7 +96,7 @@
     var cachedRemoteFiles = {};
     function gatherImports(files, asyncCallback, needAsync) {
     	if (!compilerAcceptsMultipleFiles)
-    		return files[fileNameFromKey(SOL_CACHE_FILE)];
+    		return files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)];
     	var importRegex = /import\s[\'\"]([^\'\"]+)[\'\"];/g;
     	var reloop = false;
     	do {
@@ -367,7 +140,6 @@
     }
 
     editor.getSession().on('change', onChange);
-
     document.querySelector('#optimize').addEventListener('change', compile);
 
     // ----------------- compiler output renderer ----------------------
@@ -387,7 +159,7 @@
     		var errFile = err[1];
     		var errLine = parseInt(err[2], 10) - 1;
     		var errCol = err[4] ? parseInt(err[4], 10) : 0;
-    		if (errFile === '' || errFile === fileNameFromKey(SOL_CACHE_FILE)) {
+    		if (errFile === '' || errFile === fileNameFromKey(Sandbox.SOL_CACHE_FILE)) {
     			sourceAnnotations[sourceAnnotations.length] = {
     				row: errLine,
     				column: errCol,
@@ -397,9 +169,9 @@
     			editor.getSession().setAnnotations(sourceAnnotations);
     		}
     		$error.click(function(ev){
-    			if (errFile !== '' && errFile !== fileNameFromKey(SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
+    			if (errFile !== '' && errFile !== fileNameFromKey(Sandbox.SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
     				// Switch to file
-    				SOL_CACHE_FILE = fileKey(errFile);
+    				Sandbox.SOL_CACHE_FILE = fileKey(errFile);
     				updateFiles();
     				//@TODO could show some error icon in files with errors
     			}
@@ -468,6 +240,7 @@
 
             $contractEl.append($detail);
             $contractOutput.append($contractEl);
+            $contractOutput.append("<br/>");
         });
 
     	$contractOutput.find('.title').click(function(ev){ $(this).closest('.contract').toggleClass("expand").find('.info').toggle(); });
@@ -477,7 +250,7 @@
     }; // renderContracts
 
     var tableRowItems = function(first, second, cls) {
-    	return $('<div class="row"/>')
+    	return $('<div class="keyval-row"/>')
     		.addClass(cls)
     		.append($('<div class="col1">').append(first))
     		.append($('<div class="col2">').append(second));
@@ -485,12 +258,12 @@
     var tableRow = function(description, data) {
     	return tableRowItems(
     		$('<strong/>').text(description),
-    		$('<input readonly="readonly"/>').val(data));
+    		$('<input readonly="readonly" class="form-control"/>').val(data));
     };
     var textRow = function(description, data, cls) {
     	return tableRowItems(
     		$('<strong/>').text(description),
-    		$('<textarea readonly="readonly" class="gethDeployText"/>').val(data),
+    		$('<textarea readonly="readonly" class="form-control gethDeployText"/>').val(data),
     		cls);
     };
     var preRow = function(description, text) {
