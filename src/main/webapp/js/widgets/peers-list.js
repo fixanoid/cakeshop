@@ -40,6 +40,8 @@
 						rows.push( _this.templateRow({ o: peer }) );
 					});
 
+					$(document).trigger('WidgetInternalEvent', [ widget.name + '|fetch|' + JSON.stringify(info.data.attributes) ] );
+					
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 
 					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
@@ -55,7 +57,6 @@
 			this.fetch();
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
 		}
 	};
 

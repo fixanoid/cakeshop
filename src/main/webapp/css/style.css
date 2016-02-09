@@ -9,8 +9,7 @@ body {
 	line-height: normal;
 	font-size: 16px;
 	overflow-Y: scroll;
-	font-family: 'Roboto Condensed', "Helvetica Neue", Helvetica, Arial,
-		sans-serif;
+	font-family: 'Roboto Condensed', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased !important;
 }
 

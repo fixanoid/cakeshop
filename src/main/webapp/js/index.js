@@ -105,6 +105,7 @@ var Tower = {
 
 			Tower.screenManager.show({ widgetId: 'peers-add', section: 'peers' });
 			Tower.screenManager.show({ widgetId: 'peers-list', section: 'peers' });
+			Tower.screenManager.show({ widgetId: 'peers-neighborhood', section: 'peers', data: Tower.status.nodeIP });
 		},
 
 		'api': function() {

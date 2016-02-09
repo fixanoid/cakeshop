@@ -10,9 +10,9 @@
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 		 '<thead style="font-weight: bold;"><tr><td style="width:60px;">Block</td><td>Age</td><td style="width:45px;">TXNs</td></tr></thead>' +
-		 '<tbody><%= rows %><tbody></table>'),
+		 '<tbody><%= rows %></tbody></table>'),
 
-		templateRow: _.template('<tr><td>#<a href="#"><%= block.num %></a></td><td><%= moment.unix(block.age).fromNow() %><td <% if (block.txnCount == 0) { %>style="opacity: 0.2;"<% } %>><%= block.txnCount %></td></td></tr>'),
+		templateRow: _.template('<tr><td>#<a href="#"><%= block.num %></a></td><td><%= moment.unix(block.age).fromNow() %></td><td <% if (block.txnCount == 0) { %>style="opacity: 0.2;"<% } %>><%= block.txnCount %></td></tr>'),
 
 		ready: function() {
 			this.render();
