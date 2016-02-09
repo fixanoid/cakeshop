@@ -28,83 +28,119 @@
 		-->
 		<meta http-equiv="X-UA-Compatible" content="chrome=1">
 		<title>Solidity realtime compiler and runtime</title>
+
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/jquery-ui.min.css">
+
 		<link rel="stylesheet" href="css/sandbox.css">
 		<link rel="stylesheet" href="css/pygment_trac.css">
-		<link rel="stylesheet" href="css/universal-dapp.css">
-		<link rel="stylesheet" href="css/browser-solidity.css">
-		<link rel="stylesheet" href="css/font-awesome.min.css">
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
+		<!-- <link rel="stylesheet" href="css/universal-dapp.css"> -->
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 	</head>
 	<body>
 
+		<div class="container-fs">
+				<div class="editor" id="editor">
 
-		<div id="editor">
-			<div id="files">
-				<span class="newFile" title="New File"><i class="fa fa-file-text-o"></i></span>
-				<span class="toggleRHP" title="Toggle right hand panel"><i class="fa fa-columns"></i></span>
-			</div>
-			<div id="input"></div>
-			<div id="dragbar"></div>
-		</div>
-
-		<div id="righthand-panel">
-			<div id="header">
-				<div id="menu">
-					<ul id="options">
-						<li class="txView active"><i class="fa fa-send"></i></li>
-						<li class="compilerView" title="Compiler Output"><i class="fa fa-code"></i></li>
-						<li class="settingsView" title="Settings"><i class="fa fa-gear"></i></li>
-						<li class="docs">
-							<a href="https://solidity.readthedocs.org" target="_blank" class="fa fa-question" title="Solidity Documentation" class="fa fa-2x fa-question"></a>
+					<ul class="nav nav-tabs filetabs" role="tablist">
+						<li>
+							<a aria-controls="new_file" role="button" class="new_file button"><i class="fa fa-file-text-o"></i></a>
+						</li>
+						<li role="presentation" class="file">
+							<a role="tab" data-toggle="tab">
+								<span class="name">Untitled 1</span> <span class="remove"><i class="fa fa-close red"></i></span>
+							</a>
 						</li>
 					</ul>
-					<img id="solIcon" title="Solidity realtime compiler and runtime" src="img/sol.svg" alt="Solidity Sandbox">
+
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="editor_tab">
+							<div id="editor_input"></div>
+						</div>
+					</div>
+
 				</div>
-				<div id="optionViews" class="txView">
-					<div id="txView">
-						<div class="row">
+
+				<div class="sidebar" id="sidebar">
+
+					<ul class="nav nav-pills sidenav">
+					  <li role="presentation" class="active txView"><a href="#"><i class="fa fa-send"></i></a></li>
+					  <li role="presentation" class="compilerView"><a href="#"><i class="fa fa-code"></i></a></li>
+					  <li role="presentation" class="settingsView"><a href="#"><i class="fa fa-gear"></i></a></li>
+					</ul>
+
+					<div id="txView" class="tab">
+						<div>
 							<label for="txorigin"><select name="txorigin" id="txorigin"></select> Transaction origin</label>
 						</div>
-						<div class="row hide">
+						<div class=" hide">
 							<label for="gas"><input type="number" id="gas" value="0"> Gas</label>
 						</div>
-						<div class="row hide">
+						<div class=" hide">
 							<label for="gasPrice"><input type="number" id="gasPrice" value="0"> Gas Price</label>
 						</div>
-						<div class="row hide">
+						<div class=" hide">
 							<label for="value"><input type="number" id="value" value="0"> Value</label>
 						</div>
 					</div>
-					<div id="settingsView">
-						<div class="row">
-							<strong>Editor options:</strong>
-							<label for="editorWrap"><input id="editorWrap" type="checkbox">Text Wrap</label>
-						</div>
-						<div class="row">
-							<strong>Compiler options:</strong>
-							<label for="optimize"><input id="optimize" type="checkbox">Enable Optimization</label>
+
+					<div id="settingsView" class="start_hidden tab">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-sm-12">
+
+									<h4>Editor Options:</h4>
+									<div class="checkbox">
+										<label>
+											<input id="editorWrap" type="checkbox"> Text Wrap
+										</label>
+									</div>
+
+									<h4>Compiler Options:</h4>
+									<div class="checkbox">
+										<label>
+											<input id="optimize" type="checkbox">Enable Optimization
+										</label>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					<div id="compilerView">
-						<div id="output">
-					        <h2>Compiler Output</h2>
-							<div class="compiler_output"></div>
+
+					<div id="compilerView" class="start_hidden tab">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-sm-12">
+
+									<div id="output">
+								        <h3>Compiler Output</h3>
+										<div class="compiler_output"></div>
+									</div>
+
+								</div>
+							</div>
 						</div>
 					</div>
+
 				</div>
-			</div>
 		</div>
+
 
 		<!-- <script src="bin/list.js"></script> -->
 		<script src="js/vendor/base64.js"></script>
 		<script src="js/vendor/jquery-2.1.3.min.js"></script>
+		<script src="js/vendor/jquery-ui.min.js"></script>
 		<script src="js/vendor/ace.js"></script>
 		<script src="js/vendor/mode-solidity.js"></script>
 		<!-- <script src="js/vendor/ethereumjs-vm.js"></script> -->
 		<!-- <script src="js/vendor/universal-dapp.js"></script> -->
 		<!-- <script src="js/vendor/web3.min.js"></script> -->
 		<script src="js/vendor/ballot.sol.js"></script>
+
+		<script src="js/vendor/bootstrap.min.js" charset="utf-8"></script>
 
 		<!-- <script src="js/vendor/moment.min.js" charset="utf-8"></script> -->
 		<script src="js/vendor/underscore.min.js" charset="utf-8"></script>
@@ -113,6 +149,9 @@
 		<script src="js/client.js" charset="utf-8"></script>
 		<script src="js/model/contract.js" charset="utf-8"></script>
 
+		<script src="js/sandbox/filetabs.js" charset="utf-8"></script>
+		<script src="js/sandbox/editor.js" charset="utf-8"></script>
+		<script src="js/sandbox/sidebar.js" charset="utf-8"></script>
 		<script src="js/sandbox/gist.js" charset="utf-8"></script>
 		<script src="js/sandbox.js" charset="utf-8"></script>
 	</body>
