@@ -79,6 +79,13 @@
 }
 
 
+/* FILE TABS */
+.red {
+    color: red;
+}
+.filetabs li a {
+    cursor: pointer !important;
+}
 
 
 /* COMPILER OUTPUT */

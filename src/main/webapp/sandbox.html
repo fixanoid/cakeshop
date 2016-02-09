@@ -47,9 +47,13 @@
 
 					<ul class="nav nav-tabs filetabs" role="tablist">
 						<li>
-							<a aria-controls="new_file" role="button" class="button"><i class="fa fa-file-text-o"></i></a>
+							<a aria-controls="new_file" role="button" class="new_file button"><i class="fa fa-file-text-o"></i></a>
 						</li>
-						<li role="presentation" class="active"><a aria-controls="untitled1" role="tab" data-toggle="tab">Untitled 1</a></li>
+						<li role="presentation" class="file">
+							<a role="tab" data-toggle="tab">
+								<span class="name">Untitled 1</span> <span class="remove"><i class="fa fa-close red"></i></span>
+							</a>
+						</li>
 					</ul>
 
 					<div class="tab-content">
@@ -145,6 +149,7 @@
 		<script src="js/client.js" charset="utf-8"></script>
 		<script src="js/model/contract.js" charset="utf-8"></script>
 
+		<script src="js/sandbox/filetabs.js" charset="utf-8"></script>
 		<script src="js/sandbox/editor.js" charset="utf-8"></script>
 		<script src="js/sandbox/sidebar.js" charset="utf-8"></script>
 		<script src="js/sandbox/gist.js" charset="utf-8"></script>

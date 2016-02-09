@@ -3,154 +3,21 @@
 
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
-    var loadingFromGist = Sandbox.loadFromGist();
+
+    var getFiles = Sandbox.getFiles;
+    var updateFiles = Sandbox.updateFiles;
+    var fileNameFromKey = Sandbox.fileNameFromKey;
+
 
     // ----------------- editor ----------------------
 
     var SOL_CACHE_FILE_PREFIX = 'sol-cache-file-';
     var SOL_CACHE_UNTITLED = SOL_CACHE_FILE_PREFIX + 'Untitled';
-    var SOL_CACHE_FILE = null;
 
     var editor = Sandbox.editor = Sandbox.initEditor();
     var errMarkerId = null;
 
-    var untitledCount = '';
-    if (!getFiles().length || window.localStorage['sol-cache']) {
-    	if(loadingFromGist) return;
-    	// Backwards-compatibility
-    	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-    		untitledCount = (untitledCount - 0) + 1;
-    	SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-    	window.localStorage[SOL_CACHE_FILE] = window.localStorage['sol-cache'] || BALLOT_EXAMPLE;
-    	window.localStorage.removeItem('sol-cache');
-    }
-
-    SOL_CACHE_FILE = getFiles()[0];
-
-    editor.setValue( window.localStorage[SOL_CACHE_FILE], -1);
-
-
-    // ----------------- file selector-------------
-    var $filesEl = $('#files');
-    $filesEl.on('click','.newFile', function() {
-    	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-    		untitledCount = (untitledCount - 0) + 1;
-    	SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-    	window.localStorage[SOL_CACHE_FILE] = '';
-    	updateFiles();
-    });
-
-    $filesEl.on('click', '.file:not(.active)', showFileHandler);
-
-    $filesEl.on('click', '.file.active', function(ev) {
-    	var $fileTabEl = $(this);
-    	var originalName = $fileTabEl.find('.name').text();
-    	ev.preventDefault();
-    	if ($(this).find('input').length > 0) return false;
-    	var $fileNameInputEl = $('<input value="'+originalName+'"/>');
-    	$fileTabEl.html($fileNameInputEl);
-    	$fileNameInputEl.focus();
-    	$fileNameInputEl.select();
-    	$fileNameInputEl.on('blur', handleRename);
-    	$fileNameInputEl.keyup(handleRename);
-
-    	function handleRename(ev) {
-    		ev.preventDefault();
-    		if (ev.which && ev.which !== 13) return false;
-    		var newName = ev.target.value;
-    		$fileNameInputEl.off('blur');
-    		$fileNameInputEl.off('keyup');
-
-    		if (newName !== originalName && confirm("Are you sure you want to rename: " + originalName + " to " + newName + '?')) {
-    			var content = window.localStorage.getItem( fileKey(originalName) );
-    			window.localStorage[fileKey( newName )] = content;
-    			window.localStorage.removeItem( fileKey( originalName) );
-    			SOL_CACHE_FILE = fileKey( newName );
-    		}
-
-    		updateFiles();
-    		return false;
-    	}
-
-    	return false;
-    });
-
-    $filesEl.on('click', '.file .remove', function(ev) {
-    	ev.preventDefault();
-    	var name = $(this).parent().find('.name').text();
-    	var index = getFiles().indexOf( fileKey(name) );
-
-    	if (confirm("Are you sure you want to remove: " + name + " from local storage?")) {
-    		window.localStorage.removeItem( fileKey( name ) );
-    		SOL_CACHE_FILE = getFiles()[ Math.max(0, index - 1)];
-    		updateFiles();
-    	}
-    	return false;
-    });
-
-    function showFileHandler(ev) {
-    	ev.preventDefault();
-    	SOL_CACHE_FILE = fileKey( $(this).find('.name').text() );
-    	updateFiles();
-    	return false;
-    }
-
-    function fileTabFromKey(key) {
-    	var name = fileNameFromKey(key);
-    	return $('#files .file').filter(function(){ return $(this).find('.name').text() == name; });
-    }
-
-
-    function updateFiles() {
-    	var $filesEl = $('#files');
-    	var files = getFiles();
-
-    	$filesEl.find('.file').remove();
-
-    	for (var f in files) {
-    		$filesEl.append(fileTabTemplate(files[f]));
-    	}
-
-    	if (SOL_CACHE_FILE) {
-    		var active = fileTabFromKey(SOL_CACHE_FILE);
-    		active.addClass('active');
-    		editor.setValue( window.localStorage[SOL_CACHE_FILE] || '', -1);
-    		editor.focus();
-    	}
-    	$('#editor_input').toggle( !!SOL_CACHE_FILE );
-    	$('#output').toggle( !!SOL_CACHE_FILE );
-    }
-
-    function fileTabTemplate(key) {
-    	var name = fileNameFromKey(key);
-    	return $('<span class="file"><span class="name">'+name+'</span><span class="remove"><i class="fa fa-close"></i></span></span>');
-    }
-
-    function fileKey( name ) {
-    	return SOL_CACHE_FILE_PREFIX + name;
-    }
-
-    function fileNameFromKey(key) {
-    	return key.replace( SOL_CACHE_FILE_PREFIX, '' );
-    }
-
-    function getFiles() {
-    	var files = [];
-    	for (var f in localStorage ) {
-    		if (f.indexOf( SOL_CACHE_FILE_PREFIX, 0 ) === 0) {
-    			files.push(f);
-    		}
-    	}
-    	return files;
-    }
-
-    updateFiles();
-
-    // export methods
-    Sandbox.fileKey = fileKey;
-    Sandbox.updateFiles = updateFiles;
-    Sandbox.getFiles = getFiles;
-
+    Sandbox.initFileTabs();
 
     // ----------------- toggle right hand panel -----------------
 
@@ -177,10 +44,10 @@
     	$('#output .compiler_output').empty(); // clear output window
 
     	var editorSource = editor.getValue();
-    	window.localStorage.setItem(SOL_CACHE_FILE, editorSource);
+    	window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, editorSource);
 
     	var files = {};
-    	files[fileNameFromKey(SOL_CACHE_FILE)] = editorSource;
+    	files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)] = editorSource;
     	var input = gatherImports(files, compile);
     	if (!input) {
             return;
@@ -216,7 +83,7 @@
     var onChange = function() {
     	var input = editor.getValue();
     	if (input === "") {
-    		window.localStorage.setItem(SOL_CACHE_FILE, '');
+    		window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, '');
     		return;
     	}
     	if (input === previousInput)
@@ -229,7 +96,7 @@
     var cachedRemoteFiles = {};
     function gatherImports(files, asyncCallback, needAsync) {
     	if (!compilerAcceptsMultipleFiles)
-    		return files[fileNameFromKey(SOL_CACHE_FILE)];
+    		return files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)];
     	var importRegex = /import\s[\'\"]([^\'\"]+)[\'\"];/g;
     	var reloop = false;
     	do {
@@ -292,7 +159,7 @@
     		var errFile = err[1];
     		var errLine = parseInt(err[2], 10) - 1;
     		var errCol = err[4] ? parseInt(err[4], 10) : 0;
-    		if (errFile === '' || errFile === fileNameFromKey(SOL_CACHE_FILE)) {
+    		if (errFile === '' || errFile === fileNameFromKey(Sandbox.SOL_CACHE_FILE)) {
     			sourceAnnotations[sourceAnnotations.length] = {
     				row: errLine,
     				column: errCol,
@@ -302,9 +169,9 @@
     			editor.getSession().setAnnotations(sourceAnnotations);
     		}
     		$error.click(function(ev){
-    			if (errFile !== '' && errFile !== fileNameFromKey(SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
+    			if (errFile !== '' && errFile !== fileNameFromKey(Sandbox.SOL_CACHE_FILE) && getFiles().indexOf(fileKey(errFile)) !== -1) {
     				// Switch to file
-    				SOL_CACHE_FILE = fileKey(errFile);
+    				Sandbox.SOL_CACHE_FILE = fileKey(errFile);
     				updateFiles();
     				//@TODO could show some error icon in files with errors
     			}
