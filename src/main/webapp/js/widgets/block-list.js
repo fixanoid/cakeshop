@@ -33,6 +33,7 @@
 			this.ready();
 		},
 
+		BLOCKS_TO_SHOW: 100,
 		fetch: function() {
 			try {
 				if (this.lastBlockNum != Tower.status.latestBlock) {
@@ -42,10 +43,10 @@
 
 			var displayLimit, promizes = [], rows = [], _this = this;
 
-			if ( (this.lastBlockNum < 10) && (this.lastBlockNum >= 0) ) {
-				displayLimit = this.lastBlockNum;
+			if ( (this.lastBlockNum < this.BLOCKS_TO_SHOW) && (this.lastBlockNum >= 0) ) {
+				displayLimit = this.lastBlockNum + 1;
 			} else {
-				displayLimit = 100;
+				displayLimit = this.BLOCKS_TO_SHOW;
 			}
 
 			_.times(displayLimit,
