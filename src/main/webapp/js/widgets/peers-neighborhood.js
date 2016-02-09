@@ -54,7 +54,7 @@
 			var hood = [],
 			 last = this.ip.split('.').splice(3),
 			 split = this.ip.split('.').splice(0, 3).join('.');
-			
+
 			_.each(_.range(1, 256), function(i) {
 				var ip = split + '.' + i;
 
@@ -110,8 +110,14 @@
 		},
 
 		showNeighbor: function(status) {
-			if (status && status.nodeIP && status.nodeUrl)
-				$('#widget-' + this.shell.id + ' > table > tbody').append( this.templateRow({ neighbor: status }) );
+			if (!status || !status.nodeIP || !status.nodeUrl) 
+				return;
+			
+			if (_.indexOf(widget.knownPeers, status.nodeIP) >= 0) {
+				return;
+			}
+
+			$('#widget-' + this.shell.id + ' > table > tbody').append( this.templateRow({ neighbor: status }) );
 		}
 	};
 
