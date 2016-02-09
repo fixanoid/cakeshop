@@ -22,6 +22,16 @@ var Tower = {
 
 	screenManager: screenManager,
 
+	
+	init: function() {
+		// Adding event for sleep / wake
+		$(document).on('visibilitychange', function(e) {
+			$(document).trigger('WidgetInternalEvent', [ 'tower-control|sleep|' + document.hidden]);
+		});
+
+		this.socketInit();
+	},
+
 	socketInit: function() {
 		this.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
 		this.stomp.debug = null;
@@ -253,7 +263,7 @@ $(function() {
 
 
 	// ---------- INIT -----------
-	Tower.socketInit();
+	Tower.init();
 
 	// add dispatcher listener
 	// $(document).on('WidgetInternalEvent', function(ev, action) {
