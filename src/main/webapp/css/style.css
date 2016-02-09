@@ -1,4 +1,16 @@
-@import url(http://fonts.googleapis.com/css?family=Roboto+Condensed);
+/* @import url(http://fonts.googleapis.com/css?family=Roboto+Condensed);
+ */
+ 
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Condensed'), 
+  	local('RobotoCondensed-Regular'),
+  	url(../fonts/roboto.woff2) format('woff2'), 
+  	url(../fonts/roboto.woff) format('woff');
+}
+
 
 * {
 	box-sizing: border-box;
@@ -559,102 +571,6 @@ a:active {
 	overflow: hidden;
 }
 
-@
--webkit-keyframes rotating {from { -webkit-transform:rotate(0deg);
-	
-}
-
-to {
-	-webkit-transform: rotate(360deg);
-}
-
-}
-@
--webkit-keyframes flipInX { 0% {
-	-webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
-	-webkit-transition-timing-function: ease-in;
-	opacity: 0;
-}
-
-40%
-{
--webkit-transform
-:
- 
-perspective
-(400px)
- 
-rotate3d
-(1
-,
-0,
-0,
--20
-deg
-);
-
-    
--webkit-transition-timing-function
-:
- 
-ease-in
-;
-
-  
-}
-60%
-{
--webkit-transform
-:
- 
-perspective
-(400px)
- 
-rotate3d
-(1
-,
-0,
-0,
-10
-deg
-);
-
-    
-opacity
-:
- 
-1;
-}
-80%
-{
--webkit-transform
-:
- 
-perspective
-(400px)
- 
-rotate3d
-(1
-,
-0,
-0,
--5
-deg
-);
-
-  
-}
-100%
-{
--webkit-transform
-:
- 
-perspective
-(400px);
-
-  
-}
-}
 @media screen and (max-width: 450px) {
 	.rad-info-box i {
 		opacity: .3;
@@ -1226,19 +1142,16 @@ perspective
 	float: none !important;
 }
 
-.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li>ul.rad-dropmenu-item
-	{
+.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li>ul.rad-dropmenu-item {
 	left: 0;
 }
 
-.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li>ul.rad-dropmenu-item:before
-	{
+.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li>ul.rad-dropmenu-item:before {
 	left: 8px;
 	right: 100%;
 }
 
-.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li:first-child
-	{
+.flat-theme .rad-navigation .rad-top-nav-container .links:last-child>li:first-child {
 	margin-left: 30px;
 }
 
@@ -1372,8 +1285,7 @@ perspective
 	background: #ad102f !important;
 }
 
-.flat-theme.crimson .rad-dropmenu-footer, .flat-theme.crimson .rad-dropmenu-header
-	{
+.flat-theme.crimson .rad-dropmenu-footer, .flat-theme.crimson .rad-dropmenu-header {
 	background: #ad102f !important;
 }
 
@@ -1400,8 +1312,7 @@ perspective
 	}
 }
 
-.flat-theme.crimson.sticky .brand-icon, .flat-theme.crimson.sticky .rad-toggle-btn:hover
-	{
+.flat-theme.crimson.sticky .brand-icon, .flat-theme.crimson.sticky .rad-toggle-btn:hover {
 	background: crimson !important;
 	color: #fff !important;
 }
@@ -1418,8 +1329,7 @@ perspective
 	background: #188983 !important;
 }
 
-.flat-theme.teal .rad-dropmenu-footer, .flat-theme.teal .rad-dropmenu-header
-	{
+.flat-theme.teal .rad-dropmenu-footer, .flat-theme.teal .rad-dropmenu-header {
 	background: #188983 !important;
 }
 
@@ -1446,8 +1356,7 @@ perspective
 	}
 }
 
-.flat-theme.teal.sticky .brand-icon, .flat-theme.teal.sticky .rad-toggle-btn:hover
-	{
+.flat-theme.teal.sticky .brand-icon, .flat-theme.teal.sticky .rad-toggle-btn:hover {
 	background: #1fb5ad !important;
 	color: #fff !important;
 }
@@ -1464,8 +1373,7 @@ perspective
 	background: #ff220c !important;
 }
 
-.flat-theme.orange .rad-dropmenu-footer, .flat-theme.orange .rad-dropmenu-header
-	{
+.flat-theme.orange .rad-dropmenu-footer, .flat-theme.orange .rad-dropmenu-header {
 	background: #ff220c !important;
 }
 
@@ -1492,8 +1400,7 @@ perspective
 	}
 }
 
-.flat-theme.orange.sticky .brand-icon, .flat-theme.orange.sticky .rad-toggle-btn:hover
-	{
+.flat-theme.orange.sticky .brand-icon, .flat-theme.orange.sticky .rad-toggle-btn:hover {
 	background: #ff503f !important;
 	color: #fff !important;
 }
@@ -1510,8 +1417,7 @@ perspective
 	background: #4c2673 !important;
 }
 
-.flat-theme.purple .rad-dropmenu-footer, .flat-theme.purple .rad-dropmenu-header
-	{
+.flat-theme.purple .rad-dropmenu-footer, .flat-theme.purple .rad-dropmenu-header {
 	background: #4c2673 !important;
 }
 
@@ -1538,8 +1444,7 @@ perspective
 	}
 }
 
-.flat-theme.purple.sticky .brand-icon, .flat-theme.purple.sticky .rad-toggle-btn:hover
-	{
+.flat-theme.purple.sticky .brand-icon, .flat-theme.purple.sticky .rad-toggle-btn:hover {
 	background: rebeccapurple !important;
 	color: #fff !important;
 }
@@ -1584,8 +1489,7 @@ perspective
 	}
 }
 
-.flat-theme.twitter.sticky .brand-icon, .flat-theme.twitter.sticky .rad-toggle-btn:hover
-	{
+.flat-theme.twitter.sticky .brand-icon, .flat-theme.twitter.sticky .rad-toggle-btn:hover {
 	background: #55acee !important;
 	color: #fff !important;
 }
