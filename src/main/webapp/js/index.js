@@ -11,13 +11,24 @@ var demo = {
 }
 
 var Tower = {
+	ready: false,
 	stomp: null,
 	current: null,
 	status: {},
 
 	screenManager: screenManager,
 
-	
+	// Tower Control becomes ready only after the first status is received from the server
+	isReady: function() {
+		Tower.ready = true;
+		
+		// let everyone listening in know
+		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true']);
+
+		return true;
+	},
+
+
 	init: function() {
 		// Adding event for sleep / wake
 		$(document).on('visibilitychange', function(e) {
@@ -27,13 +38,15 @@ var Tower = {
 		// Adding event for hash changes
 		$(window).on('hashchange', this.processHash);
 
-		
+
 		this.processHash();
 		this.socketInit();
 	},
 
+
 	processHash: function() {
 		// http://localhost:8080/ethereum-enterprise/index.html#section=explorer&widgetId=txn-detail&data=0xd6398cb5cb5bac9d191de62665c1e7e4ef8cd9fe1e9ff94eec181a7b4046345c
+		// http://localhost:8080/ethereum-enterprise/index.html#section=explorer&widgetId=block-detail&data=2
 		if (window.location.hash) {
 			var params = {}, hash = window.location.hash.substring(1, window.location.hash.length);
 
@@ -42,16 +55,29 @@ var Tower = {
 				params[pair[0]] = pair[1];
 			});
 
-			Tower.debug(params);
-			if (params.section) {
-				$('.rad-sidebar #' + params.section).click();
-			}
+			var werk = function() {
+				if (params.section) {
+					$('.rad-sidebar #' + params.section).click();
+				}
 
-			if (params.widgetId) {
-				Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data });
+				if (params.widgetId) {
+					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
+				}
+			};
+
+			// do when ready
+			if (!Tower.ready) {
+				$(document).on('WidgetInternalEvent', function(ev, action) {
+					if (action.indexOf('tower-control|ready|') === 0) {
+						werk();
+					}
+				});
+			} else {
+				werk();
 			}
 		}
 	},
+
 
 	socketInit: function() {
 		this.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
@@ -69,6 +95,7 @@ var Tower = {
 			Tower.section['default']();
 		});
 	},
+
 
 	section: {
 		'default': function() {
@@ -93,6 +120,9 @@ var Tower = {
 				utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
 
 				Tower.status = status;
+
+				// Tower Control becomes ready only after the first status is received from the server
+				(!Tower.ready && Tower.isReady());
 			};
 
 			if (Tower.stomp && Tower.stomp.connected === true) {
@@ -159,11 +189,14 @@ var Tower = {
 		}
 	},
 
+
 	debug: function(message) {
 		var _ref;
 		return typeof window !== "undefined" && window !== null ? (_ref = window.console) != null ? _ref.log(message) : void 0 : void 0;
     }
 };
+
+
 
 $(function() {
 	$(window).on('scroll', function(e) {
