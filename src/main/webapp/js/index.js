@@ -13,12 +13,7 @@ var demo = {
 var Tower = {
 	stomp: null,
 	current: null,
-	status: {
-		peers: null,
-		latestBlock: null,
-		pedningTxn: null,
-		status: null
-	},
+	status: {},
 
 	screenManager: screenManager,
 
@@ -29,14 +24,40 @@ var Tower = {
 			$(document).trigger('WidgetInternalEvent', [ 'tower-control|sleep|' + document.hidden]);
 		});
 
+		// Adding event for hash changes
+		$(window).on('hashchange', this.processHash);
+
+		
+		this.processHash();
 		this.socketInit();
+	},
+
+	processHash: function() {
+		// http://localhost:8080/ethereum-enterprise/index.html#section=explorer&widgetId=txn-detail&data=0xd6398cb5cb5bac9d191de62665c1e7e4ef8cd9fe1e9ff94eec181a7b4046345c
+		if (window.location.hash) {
+			var params = {}, hash = window.location.hash.substring(1, window.location.hash.length);
+
+			_.each(hash.split('&'), function(pair) {
+				pair = pair.split('=');
+				params[pair[0]] = pair[1];
+			});
+
+			Tower.debug(params);
+			if (params.section) {
+				$('.rad-sidebar #' + params.section).click();
+			}
+
+			if (params.widgetId) {
+				Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data });
+			}
+		}
 	},
 
 	socketInit: function() {
 		this.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
 		this.stomp.debug = null;
 		this.stomp.connect({}, function(frame) {
-			// Connection succesful
+			// Connection successful
 
 			// Startup & Update perma-widgets
 			Tower.section['default']();

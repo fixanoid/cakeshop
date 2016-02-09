@@ -98,6 +98,8 @@
 		},
 
 		_handler: function(e) {
+			e.preventDefault();
+
 			var nodeUrl = $(this).data('enode'), _this = $(this);
 
 			$.when(
