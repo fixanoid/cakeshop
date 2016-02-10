@@ -5,6 +5,10 @@
 
     var activeContract;
 
+    function showTxView() {
+        loadContracts();
+    }
+
     function loadContracts() {
         // show deployed contracts (via registry)
         $("select.contracts").empty();
@@ -24,14 +28,77 @@
         }
     }
 
+    function wrapFunction(method) {
+        var s = '<form class="form-inline" data-method="' + method.name + '"><div class="form-group"><label>' + method.name + '</label> ';
+        method.inputs.forEach(function(input) {
+            s += '<input type="text" class="form-control" data-param="' + input.name + '" placeholder="' + input.name + '(' + input.type + ')"> ';
+        });
+		s += '<button class="btn btn-default send" type="submit">Send</button>';
+        s += '</div></form>';
+        return s;
+    }
+
     function showTransactForm() {
+        $(".transact .panel-body").empty();
+
+        var abi = getActiveAbi();
+        if (!abi) {
+            return;
+        }
+
+        abi.forEach(function(method) {
+            if (method.type !== "function") {
+                return;
+            }
+
+            $(".transact .panel-body").append(wrapFunction(method));
+        });
+
+        $(".transact .send").click(function(e) {
+            var form = $(e.target).parents("form");
+            var methodName = form.attr("data-method");
+            var method = getActiveMethod(methodName);
+            var params = {};
+            $(form).find("input").each(function(i, el) {
+                el = $(el);
+                params[el.attr("data-param")] = el.val();
+            });
+            doMethodCall(activeContract, method, params);
+        });
 
     }
 
-    function showTxView() {
-        console.log("showTxView");
-        loadContracts();
-        showTransactForm();
+    function doMethodCall(contract, method, params) {
+        var _params = _.map(params, function(v, k) { return v; });
+
+        if (method.constant === true) {
+            // use read
+            activeContract.read(method.name, _params).then(function(res) {
+                addTx("Called '" + method.name + "': " + JSON.stringify(res));
+            });
+
+        } else {
+            // use transact
+            activeContract.transact(method.name, _params).then(function(txId) {
+                addTx("Called '" + method.name + "': created tx " + wrapTx(txId));
+                Transaction.waitForTx(txId).then(function(tx) {
+                    addTx("Transaction " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
+                });
+            });
+        }
+    }
+
+    function trunc(addr) {
+        var len = addr.startsWith("0x") ? 10 : 8;
+        return addr.substring(0, len);
+    }
+
+    function wrapBlock(blockId) {
+        return '<a class="block" target="_blank" href="index.html#section=explorer&widgetId=block-detail&data=' + blockId + '">#' + blockId + '</a>';
+    }
+
+    function wrapTx(txId) {
+        return '<a class="tx" target="_blank" href="index.html#section=explorer&widgetId=txn-detail&data=' + txId + '" title="' + txId + '">' + trunc(txId) + '</a>';
     }
 
     function wrapAddr(addr) {
@@ -45,19 +112,19 @@
 		$(".papertape .panel-body").append(div);
     }
 
-
+    // Enter contract address
     $(".select_contract input.address").change(function(e) {
         var addr = $(e.target).val();
-        console.log("got new addr", addr);
         Contract.get(addr).then(function(c) {
-            console.log("got contract", c);
+            activeContract = c;
+            showTransactForm();
+            addTx("Using '" + c.get("name") + "' at " + wrapAddr(c.id));
         });
     });
 
     // Select already deployed contract
     $(".select_contract .contracts").change(function(e) {
         var addr = $(e.target).val();
-        console.log("selected ", addr);
         $(".select_contract input.address").val(addr).change();
     });
 
@@ -79,6 +146,7 @@
         });
     });
 
+    // Collapse 'select contract' form
     $(".select_contract .shrink").click(function(e) {
         var i = $(e.target);
         if (i.hasClass("fa-minus-square-o")) {
@@ -95,6 +163,22 @@
         }
         $(".select_contract .panel-body").toggle();
     });
+
+    function getActiveAbi() {
+        if (!activeContract) {
+            return null;
+        }
+
+        return JSON.parse(activeContract.get("abi"));
+    }
+
+    function getActiveMethod(methodName) {
+        var abi = getActiveAbi();
+        if (!abi) {
+            return;
+        }
+        return _.find(abi, function(m) { return m.type === "function" && m.name === methodName; });
+    }
 
     Sandbox.showTxView = showTxView;
 

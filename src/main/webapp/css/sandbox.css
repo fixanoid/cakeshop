@@ -83,7 +83,7 @@
     cursor: pointer;
 }
 
-.papertape .tx {
+.papertape div.tx {
     padding: 5px;
     border-bottom: 2px dotted transparent;
     color: #8a6d3b;
@@ -91,14 +91,14 @@
     border-color: #faebcc;
 }
 
-.papertape .tx .time {
+.papertape div.tx .time {
 	color: #9e9ea6;
 	font-size: 9pt;
 	font-family: source-sans-pro,pt sans,calibri,sans-serif;
 	padding-top: 2px;
 }
 
-.papertape .tx .addr {
+.papertape div.tx .addr, .papertape div.tx .tx, .papertape div.tx .block {
     font-weight: bold;
 }
 

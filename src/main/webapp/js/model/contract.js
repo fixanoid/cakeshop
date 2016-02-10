@@ -11,6 +11,52 @@
             this.id = this.get("address");
         },
 
+        /**
+         * Returns result of Read call via Promise
+         */
+        read: function(method, args) {
+            var contract = this;
+            return new Promise(function(resolve, reject) {
+                Client.post(contract.url("read"),
+                    {
+                        id: contract.id,
+                        method: method,
+                        args: args
+                    }
+                ).done(function(res, status, xhr) {
+                    resolve(res.data); // return read result
+
+                }).fail(function(xhr, status, errThrown) {
+                    console.log("READ FAILED!!", status, errThrown);
+                    reject(errThrown);
+                });
+
+            });
+        },
+
+        /**
+         * Returns a Transaction ID via Promise
+         */
+        transact: function(method, args) {
+            console.log("transact", method, args);
+            var contract = this;
+            return new Promise(function(resolve, reject) {
+                Client.post(contract.url("transact"),
+                    {
+                        id: contract.id,
+                        method: method,
+                        args: args
+                    }
+                ).done(function(res, status, xhr) {
+                    resolve(res.data.id); // return tx id
+
+                }).fail(function(xhr, status, errThrown) {
+                    console.log("TXN FAILED!!", status, errThrown);
+                    reject(errThrown);
+                });
+
+            });
+        },
     });
 
     Contract.deploy = function(code, optimize) {
