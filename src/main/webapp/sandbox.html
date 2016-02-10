@@ -73,18 +73,60 @@
 					</ul>
 
 					<div id="txView" class="tab">
-						<div>
-							<label for="txorigin"><select name="txorigin" id="txorigin"></select> Transaction origin</label>
+						<div class="panel panel-default select_contract">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<span class="title">Choose Contract</span>
+									<span class="pull-right shrink"><i class="fa fa-minus-square-o"></i></span>
+								</h3>
+							</div>
+							<div class="panel-body">
+								<div class="form-group">
+									<label>From Deployed Contracts:
+										<select class="form-control contracts"></select>
+									</label>
+								</div>
+
+								<div class="form-group">
+									<label>Or Deploy From Editor:
+										<select class="form-control compiled_contracts"></select>
+									</label>
+									<button class="btn btn-default deploy" type="submit">Deploy</button>
+								</div>
+
+								<div class="form-group">
+									<label>Or Enter Address:
+										<input type="text" class="form-control address" placeholder="address">
+									</label>
+								</div>
+							</div>
 						</div>
-						<div class=" hide">
-							<label for="gas"><input type="number" id="gas" value="0"> Gas</label>
+
+
+						<div class="panel panel-default papertape">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<span class="title">Paper Tape</span>
+									<span class="pull-right shrink"><i class="fa fa-minus-square-o"></i></span>
+								</h3>
+							</div>
+							<div class="panel-body">
+								<!-- <div class="tx">Deploy Contract 'Test' <span class="time pull-right">10:55:32 AM</span></div>
+								<div class="tx">Contract 'Test' deployed at 0xdeadbeef <span class="time pull-right">10:56:41 AM</span></div> -->
+							</div>
 						</div>
-						<div class=" hide">
-							<label for="gasPrice"><input type="number" id="gasPrice" value="0"> Gas Price</label>
+
+						<div class="panel panel-default transact">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<span class="title">Transact</span>
+									<span class="pull-right shrink"><i class="fa fa-minus-square-o"></i></span>
+								</h3>
+							</div>
+							<div class="panel-body">
+							</div>
 						</div>
-						<div class=" hide">
-							<label for="value"><input type="number" id="value" value="0"> Value</label>
-						</div>
+
 					</div>
 
 					<div id="settingsView" class="start_hidden tab">
@@ -142,13 +184,18 @@
 
 		<script src="js/vendor/bootstrap.min.js" charset="utf-8"></script>
 
-		<!-- <script src="js/vendor/moment.min.js" charset="utf-8"></script> -->
+		<script src="js/vendor/moment.min.js" charset="utf-8"></script>
 		<script src="js/vendor/underscore.min.js" charset="utf-8"></script>
 		<script src="js/vendor/backbone.js" charset="utf-8"></script>
+		<script src="js/vendor/bluebird.core.min.js" charset="utf-8"></script>
 
+		<script type="text/javascript" src="js/vendor/sockjs-0.3.4.min.js"></script>
+		<script type="text/javascript" src="js/vendor/stomp.min.js"></script>
 		<script src="js/client.js" charset="utf-8"></script>
 		<script src="js/model/contract.js" charset="utf-8"></script>
+		<script src="js/model/transaction.js" charset="utf-8"></script>
 
+		<script src="js/sandbox/tx.js" charset="utf-8"></script>
 		<script src="js/sandbox/filetabs.js" charset="utf-8"></script>
 		<script src="js/sandbox/editor.js" charset="utf-8"></script>
 		<script src="js/sandbox/sidebar.js" charset="utf-8"></script>

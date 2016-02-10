@@ -15,4 +15,14 @@
         });
     };
 
+	Client.connect = function() {
+		var stomp = Client.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
+		stomp.debug = null;
+		stomp.connect({},
+            function(frame) {},
+            function(err) {}
+        );
+	};
+
+    Client.connect();
 })();

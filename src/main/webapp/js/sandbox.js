@@ -19,6 +19,11 @@
 
     Sandbox.initFileTabs();
 
+    var _src = editor.getValue();
+    if (!_.isString(_src) || _src.length === 0) {
+        Sandbox.showTxView(); // load default view now since no compilation happening
+    }
+
     // ----------------- toggle right hand panel -----------------
 
     var hidingRHP = false;
@@ -74,6 +79,10 @@
         }
 
     	if (noFatalErrors && !hidingRHP) {
+            Sandbox.compiler_output = data;
+            if (Sandbox.getActiveSidebarTab() === "txView") {
+                Sandbox.showTxView();
+            }
             renderContracts(data, editor.getValue());
         }
 

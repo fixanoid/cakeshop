@@ -78,6 +78,30 @@
     height: 300px;
 }
 
+/* TX VIEW */
+.select_contract .shrink {
+    cursor: pointer;
+}
+
+.papertape .tx {
+    padding: 5px;
+    border-bottom: 2px dotted transparent;
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.papertape .tx .time {
+	color: #9e9ea6;
+	font-size: 9pt;
+	font-family: source-sans-pro,pt sans,calibri,sans-serif;
+	padding-top: 2px;
+}
+
+.papertape .tx .addr {
+    font-weight: bold;
+}
+
 
 /* FILE TABS */
 .red {
