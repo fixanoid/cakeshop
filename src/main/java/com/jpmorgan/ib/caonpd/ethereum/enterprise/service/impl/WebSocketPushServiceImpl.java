@@ -21,8 +21,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WebSocketPushService;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.map.LRUMap;
 
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,14 +62,14 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
     @Autowired
     private TransactionService transactionService;
-    
+
     @Autowired
     private WebSocketAsyncPushService asyncPushService;
 
     @Override
 //    @Scheduled(fixedDelay = 5000)
     public void pushContracts() throws APIException {
-        
+
         if (openedSessions > 0) {
             List<Contract> contracts = contractService.list();
             APIResponse apiResponse = new APIResponse();
@@ -84,7 +84,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
     @Override
     @Scheduled(fixedDelay = 5000)
     public void pushNodeStatus() throws APIException {
-        
+
         if (openedSessions > 0) {
             Node node = nodeService.get();
             APIResponse apiResponse = new APIResponse();
@@ -96,7 +96,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
     @Override
     @Scheduled(fixedDelay = 5000)
     public void pushLatestBlocks() throws APIException {
-        
+
         if (openedSessions > 0) {
             Block block = blockService.get(null, null, "latest");
             APIResponse apiResponse = new APIResponse();
@@ -114,7 +114,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
     @Override
 //    @Scheduled(fixedDelay = 5000)
     public void pushPendingTransactions() throws APIException {
-        
+
         if (openedSessions > 0) {
             List<Transaction> transactions = transactionService.pending();
             APIResponse apiResponse = new APIResponse();
@@ -126,9 +126,8 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
     }
 
     @Override
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 200)
     public void pushTransactions() throws APIException {
-        
         if (openedSessions > 0) {
             for (String transactionAddress : transactionsMap.keySet()) {
                 asyncPushService.pushTransactionAsync(transactionAddress, template, transactionsMap);
@@ -142,7 +141,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        StompHeaderAccessor accessor; 
+        StompHeaderAccessor accessor;
         if (event instanceof SessionConnectEvent) {
             openedSessions++;
         }

@@ -5,16 +5,16 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import static com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WebSocketPushService.*;
+
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WebSocketAsyncPushService;
-import static com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WebSocketPushService.TRANSACTION_TOPIC;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,22 +30,22 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class WebSocketAsyncPushServiceImpl implements WebSocketAsyncPushService {
-    
+
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketAsyncPushServiceImpl.class);
-    
+
     @Autowired
     private TransactionService transactionService;
 
     @Override
     @Async
-    public void pushTransactionAsync(final String transactionAddress, final SimpMessagingTemplate template, Map<String,Integer> transactions) {
+    public void pushTransactionAsync(final String transactionAddress, final SimpMessagingTemplate template,
+            Map<String, Integer> transactions) {
+
         try {
             Transaction transaction = transactionService.get(transactionAddress);
-            APIResponse apiResponse = new APIResponse();
 
-            if (StringUtils.isNotBlank(transaction.getId())) {
-                apiResponse.setData(transaction.toAPIData());
-            } else {
+            if (transaction == null || StringUtils.isBlank(transaction.getId())) {
+                APIResponse apiResponse = new APIResponse();
                 APIError err = new APIError();
                 err.setStatus("404");
                 err.setTitle("Transaction not found");
@@ -53,11 +53,20 @@ public class WebSocketAsyncPushServiceImpl implements WebSocketAsyncPushService 
                 if (null != transactions && !transactions.isEmpty()) {
                     transactions.remove(transactionAddress);
                 }
+                template.convertAndSend(TRANSACTION_TOPIC + transactionAddress, apiResponse);
+
+            } else if (transaction.getStatus() == Status.committed) {
+                APIResponse apiResponse = new APIResponse();
+                apiResponse.setData(transaction.toAPIData());
+                if (null != transactions && !transactions.isEmpty()) {
+                    transactions.remove(transactionAddress);
+                }
+                template.convertAndSend(TRANSACTION_TOPIC + transactionAddress, apiResponse);
             }
-            template.convertAndSend(TRANSACTION_TOPIC + transactionAddress, apiResponse);
+
         } catch (APIException ex) {
             LOG.error(ex.getMessage());
         }
     }
-    
+
 }
