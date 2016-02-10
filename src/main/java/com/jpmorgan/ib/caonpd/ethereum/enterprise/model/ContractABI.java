@@ -193,6 +193,15 @@ public class ContractABI {
         return functionMap.get(name);
     }
 
+    public Function getConstructor() {
+        for (Function f : this.functions) {
+            if (f.type == FunctionType.constructor) {
+                return f;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);

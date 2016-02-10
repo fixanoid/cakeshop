@@ -6,6 +6,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -192,13 +194,29 @@ public class ContractServiceImpl implements ContractService {
 
         } else {
             contract = contracts.get(0);
+        }
 
+
+        // handle constructor args
+        String data = contract.getBinary();
+        if (args != null && args.length > 0) {
+            try {
+                ContractABI abi = new ContractABI(contract.getABI());
+                Function constructor = abi.getConstructor();
+                if (constructor == null) {
+                    throw new APIException("Unable to locate constructor method in ABI");
+                }
+                data = data + Hex.toHexString(constructor.encodeArguments(args));
+
+            } catch (IOException e) {
+                throw new APIException("Failed to read contract ABI", e);
+            }
         }
 
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
-		contractArgs.put("data", contract.getBinary());
+		contractArgs.put("data", data);
 		contractArgs.put("gas", 3_141_592);
 
 		Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{ contractArgs });

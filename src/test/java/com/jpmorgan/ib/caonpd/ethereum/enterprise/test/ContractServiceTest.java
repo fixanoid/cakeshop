@@ -43,7 +43,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
         assertEquals(1, contracts.size());
 
         Contract c = contracts.get(0);
-        RpcUtil.puts(c);
+        //RpcUtil.puts(c);
 
         assertNotNull(c);
         assertNull(c.getAddress()); // only this field should be null
@@ -99,6 +99,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 		assertNotNull(contract.getBinary(), "Binary code should be present");
 	}
 
+	@Test
 	public void testReadByABI() throws InterruptedException, IOException {
 	    String contractAddress = createContract();
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
@@ -107,6 +108,20 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertEquals(val.intValue(), 100);
 	}
 
+	@Test
+	public void testConstructorArg() throws InterruptedException, IOException {
+    	String code = readTestFile("contracts/simplestorage2.sol");
+
+    	// create with constructor val 500
+    	String contractAddress = createContract(code, new Object[] { 500 });
+
+	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage2.abi.txt"));
+
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null);
+	    assertEquals(val.intValue(), 500);
+	}
+
+	@Test
 	public void testRead2ByABI() throws InterruptedException, IOException {
 	    String contractAddress = createContract();
 
@@ -142,6 +157,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertEquals(res2[2], json);
 	}
 
+	@Test
 	public void testTransactByABI() throws InterruptedException, IOException {
 
 	    String contractAddress = createContract();
