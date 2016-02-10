@@ -149,19 +149,42 @@
     // Collapse 'select contract' form
     $(".select_contract .shrink").click(function(e) {
         var i = $(e.target);
-        if (i.hasClass("fa-minus-square-o")) {
-            // collapse
-            i.removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+        if (toggleCollapseIcon(i)) {
+            $(".select_contract .panel-heading .title").text("Choose Contract");
+        } else {
             var addr = $(".select_contract input.address").val();
             if (addr) {
                 $(".select_contract .panel-heading .title").text("Using " + addr);
             }
+        }
+        $(".select_contract .panel-body").toggle();
+    });
+
+    /**
+     * Toggle the expand/collapse icon.
+     *
+     * @return [Boolean] true if panel is expanded
+     */
+    function toggleCollapseIcon(i) {
+        if (i.hasClass("fa-minus-square-o")) {
+            // collapse
+            i.removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+            return false;
         } else {
             // expand
             i.removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
-            $(".select_contract .panel-heading .title").text("Choose Contract");
+            return true;
         }
-        $(".select_contract .panel-body").toggle();
+    }
+
+    $(".papertape .shrink").click(function(e) {
+        toggleCollapseIcon($(e.target));
+        $(".papertape .panel-body").toggle();
+    }
+);
+    $(".transact .shrink").click(function(e) {
+        toggleCollapseIcon($(e.target));
+        $(".transact .panel-body").toggle();
     });
 
     function getActiveAbi() {
