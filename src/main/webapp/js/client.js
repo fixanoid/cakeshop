@@ -19,8 +19,13 @@
 		var stomp = Client.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
 		stomp.debug = null;
 		stomp.connect({},
-            function(frame) {},
-            function(err) {}
+            function(frame) {
+                console.log("Connected via STOMP!");
+            },
+            function(err) {
+                console.log("Lost STOMP connection??", err);
+                setTimeout(Client.connect, 1000); // always reconnect
+            }
         );
 	};
 
