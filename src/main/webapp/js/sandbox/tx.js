@@ -15,24 +15,33 @@
         $("select.contracts").append("<option value=''></option>");
         Contract.list(function(contracts) {
             contracts.forEach(function(c) {
-                $("select.contracts").append("<option value='" + c.get("address") + "'>" + (c.get("name") || c.get("address")) + "</option>");
+                var ts = moment.unix(c.get("createdDate")).format("YYYY-MM-DD hh:mm A");
+                var name = c.get("name") + " (" + trunc(c.id) + ", " + ts + ")";
+                $("select.contracts").append("<option value='" + c.id + "'>" + name + "</option>");
             });
         });
 
         // Show compiled contracts in dropdown
         if (Sandbox.compiler_output && _.isArray(Sandbox.compiler_output)) {
             $("select.compiled_contracts").empty();
+            $("select.compiled_contracts").append("<option value=''></option>");
             Sandbox.compiler_output.forEach(function(c) {
                 $("select.compiled_contracts").append("<option value='" + c.get("name") + "'>" + c.get("name") + "</option>");
             });
         }
     }
 
-    function wrapFunction(method) {
-        var s = '<form class="form-inline" data-method="' + method.name + '"><div class="form-group"><label>' + method.name + '</label> ';
+    function collectInputs(method) {
+        var s = "";
         method.inputs.forEach(function(input) {
             s += '<input type="text" class="form-control" data-param="' + input.name + '" placeholder="' + input.name + '(' + input.type + ')"> ';
         });
+        return s;
+    }
+
+    function wrapFunction(method) {
+        var s = '<form class="form-inline" data-method="' + method.name + '"><div class="form-group"><label>' + method.name + '</label> ';
+        s += collectInputs(method);
 		s += '<button class="btn btn-default send" type="submit">Send</button>';
         s += '</div></form>';
         return s;
@@ -50,7 +59,6 @@
             if (method.type !== "function") {
                 return;
             }
-
             $(".transact .panel-body").append(wrapFunction(method));
         });
 
@@ -128,23 +136,65 @@
         $(".select_contract input.address").val(addr).change();
     });
 
-    // Deploy selected contract
-    $(".select_contract .deploy").click(function(e) {
-        // find contract to deploy
-        var sel = $("select.compiled_contracts").val();
-        if (!sel) {
+    // Select contract to deploy
+    $(".select_contract .compiled_contracts").change(function(e) {
+        var sel = $(e.target).val();
+        var con = $(".select_contract .constructor");
+        con.empty();
+
+        var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
+
+        if (!sel || !contract) {
+            con.hide();
             return;
         }
 
-        var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
-        // take it and deploy it
-    	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
-        addTx("Deploy Contract '" + contract.get("name") + "'");
-        Contract.deploy(contract.get("code"), optimize).then(function(addr) {
-            addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
-            $(".select_contract input.address").val(addr).change();
+        var abi = JSON.parse(contract.get("abi"));
+        var conMethod = _.find(abi, function(m) { return m.type === "constructor"; });
+
+        if (!conMethod.inputs || conMethod.inputs.length === 0) {
+            con.append("(no constructor arguments)");
+        } else {
+            con.append(collectInputs(conMethod));
+        }
+
+		con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');
+        con.show();
+
+        // Deploy selected contract
+        $(".select_contract .deploy").click(function(e) {
+            // find contract to deploy
+            var sel = $("select.compiled_contracts").val();
+            if (!sel) {
+                return;
+            }
+
+            var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
+            // take it and deploy it
+        	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
+
+
+            var params = {};
+            $(".select_contract .constructor").find("input").each(function(i, el) {
+                el = $(el);
+                params[el.attr("data-param")] = el.val();
+            });
+            var _params = _.map(params, function(v, k) { return v; });
+
+            var _args = "";
+            if (_params.length > 0) {
+                _args = " (" + _params.join(", ") + ")";
+            }
+            addTx("Deploying Contract '" + contract.get("name") + "'" + _args);
+
+            Contract.deploy(contract.get("code"), optimize, _params).then(function(addr) {
+                addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
+                $(".select_contract input.address").val(addr).change();
+            });
         });
+
     });
+
 
     // Collapse 'select contract' form
     $(".select_contract .shrink").click(function(e) {
@@ -180,8 +230,8 @@
     $(".papertape .shrink").click(function(e) {
         toggleCollapseIcon($(e.target));
         $(".papertape .panel-body").toggle();
-    }
-);
+    });
+
     $(".transact .shrink").click(function(e) {
         toggleCollapseIcon($(e.target));
         $(".transact .panel-body").toggle();

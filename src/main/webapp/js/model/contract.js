@@ -59,13 +59,15 @@
         },
     });
 
-    Contract.deploy = function(code, optimize) {
+    Contract.deploy = function(code, optimize, args, binary) {
         return new Promise(function(resolve, reject) {
             Client.post(Contract.prototype.url("create"),
                 {
                     code: code,
                     code_type: "solidity",
-                    optimize: optimize
+                    optimize: optimize,
+                    args: args,
+                    binary: binary
                 }
             ).done(function(res, status, xhr) {
                 var txid = res.data.id;
