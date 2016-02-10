@@ -1,16 +1,21 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -18,9 +23,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JsonMethodArgumentResolver.class);
 
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
@@ -74,24 +79,31 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
         if(data == null){
             return null;
         }
-        
+
         JsonBodyParam jsonParam = parameter.getParameterAnnotation(JsonBodyParam.class);
         String param = jsonParam.value();
         if (param == null || param.isEmpty() || param.equals(jsonParam.defaultValue())) {
             param = parameter.getParameterName(); // fallback to name of param itself
         }
 
+        Class paramType = parameter.getParameterType();
         Object val = data.get(param);
-        if (val == null || parameter.getParameterType() != val.getClass()) {
-            //System.err.println("classes don't match!");
-            // if we don't return here, then spring will raise a
-            // java.lang.IllegalArgumentException: argument type mismatch
-            // instead of returning null, we should probably raise and handle this error with a proper
-            // http status code indicating the error
-            return null;
+        if (val == null || paramType == val.getClass()) {
+            return val; // null or types match exactly
         }
 
-        return val;
+        if (paramType.isArray()) {
+            if (val.getClass().isArray()) {
+                return val;
+            }
+
+            if (val instanceof List) {
+                return ((List) val).toArray();
+            }
+        }
+
+        LOG.warn("Param type mismatch for '" + parameter.getParameterName() + "'; got " + val.getClass().toString());
+        return null;
     }
 
 }
