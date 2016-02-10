@@ -23,7 +23,7 @@ public interface ContractService {
 
 	public List<Contract> compile(String code, CodeType codeType, Boolean optimize) throws APIException;
 
-	public TransactionResult create(String code, CodeType codeType) throws APIException;
+	public TransactionResult create(String code, CodeType codeType, Object[] args, String binary) throws APIException;
 
 	public TransactionResult delete() throws APIException;
 

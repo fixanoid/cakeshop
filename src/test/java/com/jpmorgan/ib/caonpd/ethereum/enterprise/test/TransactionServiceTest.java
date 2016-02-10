@@ -25,7 +25,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 	public void testGet() throws IOException {
 		String code = readTestFile("contracts/simplestorage.sol");
 
-		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
+		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
 		assertNotNull(result);
 		assertNotNull(result.getId());
 		assertTrue(!result.getId().isEmpty());

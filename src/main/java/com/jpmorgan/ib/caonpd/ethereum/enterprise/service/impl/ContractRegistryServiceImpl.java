@@ -57,7 +57,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         try {
             String code = FileUtils.readClasspathFile("contracts/ContractRegistry.sol");
-            TransactionResult txr = contractService.create(code, CodeType.solidity);
+            TransactionResult txr = contractService.create(code, CodeType.solidity, null, null);
             Transaction tx = transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
             this.contractRegistryAddress = tx.getContractAddress();
             saveContractRegistryAddress(this.contractRegistryAddress);

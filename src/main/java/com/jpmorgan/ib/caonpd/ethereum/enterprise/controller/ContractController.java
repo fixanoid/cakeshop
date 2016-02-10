@@ -77,9 +77,11 @@ public class ContractController extends BaseController {
     @RequestMapping("/create")
     public ResponseEntity<APIResponse> create(
             @JsonBodyParam String code,
-            @JsonBodyParam String code_type) throws APIException {
+            @JsonBodyParam String code_type,
+            @JsonBodyParam Object[] args,
+            @JsonBodyParam String binary) throws APIException {
 
-        TransactionResult tx = contractService.create(code, CodeType.valueOf(code_type));
+        TransactionResult tx = contractService.create(code, CodeType.valueOf(code_type), args, binary);
 
         APIResponse res = new APIResponse();
 

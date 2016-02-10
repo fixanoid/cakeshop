@@ -171,9 +171,30 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-	public TransactionResult create(String code, CodeType codeType) throws APIException {
-	    List<Contract> contracts = compile(code, codeType, true); // always deploy optimized contracts
-	    Contract contract = contracts.get(0); // FIXME for now, assume we are only deploying a single contract
+    public TransactionResult create(String code, CodeType codeType, Object[] args, String binary) throws APIException {
+
+        List<Contract> contracts = compile(code, codeType, true); // always deploy optimized contracts
+
+        Contract contract = null;
+        if (binary != null && binary.length() > 0) {
+            // look for binary in compiled output, comparing first 64 chars of binary
+            String bin = binary.trim().substring(0, 63);
+            for (Contract c : contracts) {
+                if (c.getBinary().trim().startsWith(bin)) {
+                    contract = c;
+                    break;
+                }
+            }
+
+            if (contract == null) {
+                throw new APIException("Binary does not match given code");
+            }
+
+        } else {
+            contract = contracts.get(0);
+
+        }
+
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);

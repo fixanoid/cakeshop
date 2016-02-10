@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
+import static com.jpmorgan.ib.caonpd.ethereum.enterprise.test.Assert.*;
 import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
@@ -65,26 +66,29 @@ public class ContractServiceTest extends BaseGethRpcTest {
         assertNotEmptyString(c.getSolidityInterface());
 	}
 
-    static public void assertNotEmptyString(String str) {
-        assertTrue(str != null && str.length() > 0, null);
-    }
-
-    static public void assertNotEmptyString(String str, String message) {
-        assertTrue(str != null && str.length() > 0, message);
-    }
-
-
-
 	@Test
     public void testCreate() throws IOException {
         String code = readTestFile("contracts/simplestorage.sol");
 
-        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity);
+        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());
 
     }
+
+	@Test
+	public void testCreateWithBinary() throws IOException {
+        String code = readTestFile("contracts/simplestorage.sol");
+        List<Contract> contracts = contractService.compile(code, CodeType.solidity, true);
+        Contract c = contracts.get(0);
+        assertNotNull(c);
+
+        TransactionResult result = contractService.create(code, CodeType.solidity, null, c.getBinary());
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        assertTrue(!result.getId().isEmpty());
+	}
 
 	@Test
 	public void testGet() throws IOException, InterruptedException {
