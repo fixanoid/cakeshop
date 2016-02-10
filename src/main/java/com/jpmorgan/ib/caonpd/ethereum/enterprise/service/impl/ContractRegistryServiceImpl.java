@@ -109,6 +109,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         return new Contract(
                 RpcUtil.addrToHex((BigInteger) res[0]),
+                (String) res[1],
                 (String) res[2],
                 (String) res[3],
                 CodeType.valueOf((String) res[4]),

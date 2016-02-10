@@ -65,8 +65,9 @@ public class Contract {
     public Contract() {
     }
 
-    public Contract(String address, String abi, String code, CodeType codeType, String binary, Long createdDate) {
+    public Contract(String address, String name, String abi, String code, CodeType codeType, String binary, Long createdDate) {
         this.address = address;
+        this.name = name;
         this.abi = abi;
         this.code = code;
         this.codeType = codeType;
