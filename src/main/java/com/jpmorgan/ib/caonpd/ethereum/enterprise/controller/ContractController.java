@@ -33,9 +33,9 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getContract(
-            @JsonBodyParam String address) throws APIException {
+            @JsonBodyParam String id) throws APIException {
 
-        Contract contract = contractService.get(address);
+        Contract contract = contractService.get(id);
 
         APIResponse res = new APIResponse();
 

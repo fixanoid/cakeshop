@@ -27,11 +27,16 @@ public class BlockController extends BaseController {
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getBlock(
+            @JsonBodyParam(required=false) String id,
             @JsonBodyParam(required=false) String hash,
             @JsonBodyParam(required=false) Integer number,
             @JsonBodyParam(required=false) String tag) throws APIException {
 
-        Block block = blockService.get(hash, number, tag);
+        if (id == null && hash != null) {
+            id = hash; // backwards compat
+        }
+
+        Block block = blockService.get(id, number, tag);
         //System.out.println(block);
 
         APIResponse res = new APIResponse();
