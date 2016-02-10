@@ -197,9 +197,9 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public Contract get(String address) throws APIException {
-		Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
+		Contract contract = contractRegistry.getById(address);
 
-		Contract contract = new Contract();
+		Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
 		contract.setBinary((String) contractRes.get("_result"));
 
 		return contract;
