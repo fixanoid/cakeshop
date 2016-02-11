@@ -146,6 +146,26 @@ var screenManager = {
 		delete this.initData[widget.name];
 	},
 
+	showSection: function(section, widgets) {
+		// reset screen, load widgets
+		screenManager.clear();
+
+		// show registered section widgets
+		_.each(widgets,
+			function(val) {
+				val.section = section;
+
+				screenManager.show(val);
+			});
+
+		// show un-registered section widgets
+		_.each(
+			_.filter(screenManager.loaded, function(widget) { return widget.section === section }),
+			function(val) {
+				screenManager.show({ widgetId: val.name, section: section });
+			});
+	},
+
 	show: function(opts) {
 		if ((!opts) || (!opts.widgetId)) {
 			return;
