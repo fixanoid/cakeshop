@@ -11,11 +11,14 @@
     padding-left: 0;
     padding-right: 0;
     display: inline-block;
+    min-width: 500px;
 }
 
 #sidebar {
+    padding-left: 15px;
     padding-right: 0;
     display: inline-block;
+    min-width: 330px;
 }
 
 .editor {
