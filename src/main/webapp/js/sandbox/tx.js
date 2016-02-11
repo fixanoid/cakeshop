@@ -48,6 +48,7 @@
     }
 
     function showTransactForm() {
+        $(".transact .send").off("click");
         $(".transact .panel-body").empty();
 
         var abi = getActiveAbi();
@@ -140,6 +141,8 @@
     $(".select_contract .compiled_contracts").change(function(e) {
         var sel = $(e.target).val();
         var con = $(".select_contract .constructor");
+
+        $(".select_contract .deploy").off("click");
         con.empty();
 
         var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
