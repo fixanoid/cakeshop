@@ -46,6 +46,10 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketPushServiceImpl.class);
 	private Integer openedSessions = 0;
+
+	/**
+	 * Transaction ID -> # of subscribers
+	 */
 	private final Map<String, Integer> transactionsMap = new LRUMap(500);
 
 	@Autowired(required = false)

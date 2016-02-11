@@ -76,7 +76,11 @@
 
         if (!loadingFromGist && Filer.list().length === 0) {
             // Load default file
-            Filer.add(Filer.new(), BALLOT_EXAMPLE);
+            Sandbox.loadContract("Ballot.txt").then(function(source) {
+                Filer.add(Filer.new(), source);
+                drawFileTabs();
+                activateTab(Filer.list()[0]); // activate first tab
+            });
         }
 
         // ----------------- file selector-------------
@@ -145,8 +149,10 @@
         	return false;
         });
 
-        drawFileTabs();
-        activateTab(Filer.list()[0]); // activate first tab
+        if (Filer.list().length > 0) {
+            drawFileTabs();
+            activateTab(Filer.list()[0]); // activate first tab
+        }
     }
 
     function getFileTab(key) {
