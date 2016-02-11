@@ -21,9 +21,9 @@ var Tower = {
 	// Tower Control becomes ready only after the first status is received from the server
 	isReady: function() {
 		Tower.ready = true;
-		
+
 		// let everyone listening in know
-		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true']);
+		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true' ]);
 
 		return true;
 	},
