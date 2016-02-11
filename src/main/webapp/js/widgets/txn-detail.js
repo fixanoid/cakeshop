@@ -7,6 +7,7 @@
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="width: 160px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
+		templateBlockRow: _.template('<tr><td style="width: 160px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><a href="#"><%= value %></a></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -68,7 +69,14 @@
 						return;
 					}
 
-					var template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+					var template;
+
+					if (val == 'blockNumber') {
+						template = _this.templateBlockRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+					} else {
+						var template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+					}
+
 
 					if (val in mainTable) {
 						mainRows.push( template );
@@ -94,6 +102,13 @@
 			this.fetch();
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
+
+
+			$('#widget-' + this.shell.id).on('click', 'a', function(e) {
+				e.preventDefault();
+
+				Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: $(this).text(), refetch: true });
+			});
 		}
 	};
 

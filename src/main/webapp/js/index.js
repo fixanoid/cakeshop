@@ -21,9 +21,9 @@ var Tower = {
 	// Tower Control becomes ready only after the first status is received from the server
 	isReady: function() {
 		Tower.ready = true;
-		
+
 		// let everyone listening in know
-		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true']);
+		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true' ]);
 
 		return true;
 	},
@@ -152,40 +152,41 @@ var Tower = {
 		},
 
 		'console': function() {
-			// reset screen, load widgets
-			Tower.screenManager.clear();
+			var widgets = [
+				{ widgetId: 'node-info' },
+				{ widgetId: 'node-control' },
+				{ widgetId: 'node-settings' }
+			];
 
-			Tower.screenManager.show({ widgetId: 'node-info', section: 'console' });
-			Tower.screenManager.show({ widgetId: 'node-control', section: 'console' });
-			Tower.screenManager.show({ widgetId: 'node-settings', section: 'console' });
+			Tower.screenManager.showSection('console', widgets);
 		},
 
 		'peers': function() {
-			// reset screen, load widgets
-			Tower.screenManager.clear();
+			var widgets = [
+				{ widgetId: 'peers-add' },
+				{ widgetId: 'peers-list' },
+				{ widgetId: 'peers-neighborhood', data: Tower.status.nodeIP }
+			];
 
-			Tower.screenManager.show({ widgetId: 'peers-add', section: 'peers' });
-			Tower.screenManager.show({ widgetId: 'peers-list', section: 'peers' });
-			Tower.screenManager.show({ widgetId: 'peers-neighborhood', section: 'peers', data: Tower.status.nodeIP });
+			Tower.screenManager.showSection('peers', widgets);
 		},
 
 		'api': function() {
-			// reset screen, load widgets
-			Tower.screenManager.clear();
+			Tower.screenManager.showSection('api', []);
 		},
 
 		'contracts': function() {
-			// reset screen, load widgets
-			Tower.screenManager.clear();
+			Tower.screenManager.showSection('contracts', []);
 		},
 
 		'explorer': function() {
-			// reset screen, load widgets
-			Tower.screenManager.clear();
+			var widgets = [
+				{ widgetId: 'block-detail', data: Tower.status.latestBlock },
+				{ widgetId: 'block-list', data: Tower.status.latestBlock },
+				{ widgetId: 'block-view' }
+			];
 
-			Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: Tower.status.latestBlock });
-			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer', data: Tower.status.latestBlock });
-			Tower.screenManager.show({ widgetId: 'block-view', section: 'explorer' });
+			Tower.screenManager.showSection('explorer', widgets);
 		}
 	},
 
