@@ -112,6 +112,9 @@ var screenManager = {
 	// widget id to widget mapping
 	idMap: {},
 
+	// widgets that have been queued for load
+	queued: [],
+
 	// widgets that have been loaded
 	loaded: {},
 
@@ -123,7 +126,14 @@ var screenManager = {
 		widget.init(this.initData[widget.name]);
 
 		// set section widget belongs to
-		widget.section = _.invert(this.sectionMap)[widget.name];
+		_.each(Tower.screenManager.sectionMap, function(val, section) {
+			_.each(val, function(v) {
+				if (widget.name == v) {
+					widget.section = section;
+				}
+			});
+		});
+
 
 		// to overwrite when the widget starts if we don't want it to render
 		// right away.
@@ -132,6 +142,7 @@ var screenManager = {
 		this.loaded[widget.name] = widget;
 		this.idMap[widget.shell.id] = widget;
 
+		this.queued = _.without(this.queued, widget.name);
 		delete this.initData[widget.name];
 	},
 
@@ -164,14 +175,29 @@ var screenManager = {
 				this.initData[opts.widgetId] = opts.data;
 			}
 
+			// if queued to load, exit here
+			if ( this.queued.indexOf(opts.widgetId) >= 0) {
+				return;
+			}
+
+			// mark as being queued
+			this.queued.push(opts.widgetId);
+
+
+			if (!screenManager.sectionMap[opts.section]) {
+				screenManager.sectionMap[opts.section] = [];
+			}
+
+			screenManager.sectionMap[opts.section].push(opts.widgetId);
+
 			// load widget and then run its payload
-			$.getScript('js/widgets/' + opts.widgetId + '.js').then(
+			$.getScript('js/widgets/' + opts.widgetId + '.js').fail(
 				function(jqxhr, settings, e) {
-					screenManager.sectionMap[opts.section] = opts.widgetId;
-				}).fail(function(jqxhr, settings, e) {
-				delete screenManager.sectionMap[opts.section];
-				console.log(opts.widgetId + ' loading failed with: ' + e);
-			});
+					screenManager.sectionMap[opts.section] = _.without(screenManager.sectionMap[opts.section], opts.widgetId);
+					screenManager.queued = _.without(screenManager.queued, opts.widgetId);
+
+					Tower.debug(opts.widgetId + ' loading failed with: ' + e);
+				});
 		}
 	},
 
