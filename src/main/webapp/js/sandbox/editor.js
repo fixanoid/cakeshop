@@ -9,7 +9,7 @@
         var session = editor.getSession();
         var Range = ace.require('ace/range').Range;
 
-        editor.resize(true);
+        editor.$blockScrolling = Infinity;
         session.setMode("ace/mode/javascript");
         session.setTabSize(2);
         session.setUseSoftTabs(true);
@@ -21,16 +21,16 @@
         var SIDEBAR_MIN_WIDTH = 330;
 
         function resizeEditor(width) {
-            // set Ace editor height
-            var editorHeight = fs.height() - $(".filetabs").height() - 5;
-            $("#editor_input").height(editorHeight);
-        	editor.resize();
-            $(".sidebar .tab").height(editorHeight-10);
-
             // set editor div width
             width = width || (fs.width() - sb.width() - 30);
             ed.width(width);
-            $("#editor").resizable("option", { maxWidth: fs.width() - SIDEBAR_MIN_WIDTH - 10 });
+            ed.resizable("option", { maxWidth: fs.width() - SIDEBAR_MIN_WIDTH - 10 });
+
+            // set Ace editor height
+            var editorHeight = fs.height() - $(".filetabs").height() - 5;
+            $("#editor_input").height(editorHeight);
+        	editor.resize(true);
+            $(".sidebar .tab").height(editorHeight - 10);
         }
 
         function resizeSidebar() {
@@ -49,7 +49,7 @@
             resizeSidebar();
         });
 
-        $("#editor").resizable({
+        ed.resizable({
             handles: "e",
         	minWidth: 500,
             resize: resizeSidebar, // expand sidebar based on new editor width

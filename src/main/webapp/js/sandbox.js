@@ -24,17 +24,6 @@
         Sandbox.showTxView(); // load default view now since no compilation happening
     }
 
-    // ----------------- toggle right hand panel -----------------
-
-    var hidingRHP = false;
-    // $('.toggleRHP').click(function(){
-    //    hidingRHP = !hidingRHP;
-    //    setEditorSize( hidingRHP ? 0 : window.localStorage[EDITOR_SIZE_CACHE_KEY] );
-    //    $('.toggleRHP').toggleClass('hiding', hidingRHP);
-    //    if (!hidingRHP) compile();
-    // });
-
-
 
     // ----------------- compiler ----------------------
     var compileJSON;
@@ -42,6 +31,7 @@
 
     var previousInput = '';
     var sourceAnnotations = [];
+    
     var compile = function() {
     	editor.getSession().clearAnnotations();
     	sourceAnnotations = [];
@@ -78,7 +68,7 @@
         	}
         }
 
-    	if (noFatalErrors && !hidingRHP) {
+    	if (noFatalErrors) {
             Sandbox.compiler_output = data;
             if (Sandbox.getActiveSidebarTab() === "txView") {
                 Sandbox.showTxView();
