@@ -38,7 +38,6 @@
          * Returns a Transaction ID via Promise
          */
         transact: function(method, args) {
-            console.log("transact", method, args);
             var contract = this;
             return new Promise(function(resolve, reject) {
                 Client.post(contract.url("transact"),
