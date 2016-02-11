@@ -7,41 +7,92 @@
     var SOL_CACHE_UNTITLED = SOL_CACHE_FILE_PREFIX + 'Untitled';
     Sandbox.SOL_CACHE_FILE = null;
 
+    var Filer = Sandbox.Filer = {
+        untitledCount: 0,
+
+        init: function() {
+            var u = localStorage.untitled_count;
+            if (u !== undefined && u !== null) {
+                this.untitledCount = parseInt(u);
+            }
+        },
+
+        new: function() {
+            localStorage.untitled_count = ++this.untitledCount;
+            return "Untitled " + this.untitledCount;
+        },
+
+        // Get a list of file names (without prefix)
+        list: function() {
+        	var files = [];
+        	for (var f in localStorage) {
+        		if (f.startsWith(SOL_CACHE_FILE_PREFIX) === true) {
+        			files.push(f.replace(SOL_CACHE_FILE_PREFIX, ""));
+        		}
+        	}
+        	return files;
+        },
+
+        // Get the source for a given file key
+        get: function(key) {
+            if (_.isNumber(key)) {
+                key = this.list()[key];
+            }
+            if (localStorage[key]) {
+                return localStorage[key];
+            }
+            return localStorage[SOL_CACHE_FILE_PREFIX + key];
+        },
+
+        // Add a new file to storage
+        add: function(key, source) {
+            localStorage[SOL_CACHE_FILE_PREFIX + key] = source;
+        },
+
+        remove: function(key) {
+            localStorage.removeItem(SOL_CACHE_FILE_PREFIX + key);
+        },
+
+        getActiveFile: function() {
+            return localStorage.active_file;
+        },
+
+        setActiveFile: function(file) {
+            localStorage.active_file = file;
+        },
+
+        saveActiveFile: function(source) {
+            this.add(this.getActiveFile(), source);
+        },
+    };
+    Filer.init();
+
     var editor;
-    var untitledCount = '';
 
     function initFileTabs() {
         editor = Sandbox.editor;
 
         var loadingFromGist = Sandbox.loadFromGist();
 
-        // ------ load default file ------------------------
-        if (!getFiles().length || window.localStorage['sol-cache']) {
-        	if(loadingFromGist) return;
-        	// Backwards-compatibility
-        	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-        		untitledCount = (untitledCount - 0) + 1;
-        	Sandbox.SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-        	window.localStorage[Sandbox.SOL_CACHE_FILE] = window.localStorage['sol-cache'] || BALLOT_EXAMPLE;
-        	window.localStorage.removeItem('sol-cache');
+        if (!loadingFromGist && Filer.list().length === 0) {
+            // Load default file
+            Filer.add(Filer.new(), BALLOT_EXAMPLE);
         }
-
-        Sandbox.SOL_CACHE_FILE = getFiles()[0];
-
-        editor.setValue( window.localStorage[Sandbox.SOL_CACHE_FILE], -1);
-
 
         // ----------------- file selector-------------
         var $filesEl = $('ul.filetabs');
         $filesEl.on('click','.new_file', function() {
-        	while (window.localStorage[SOL_CACHE_UNTITLED + untitledCount])
-        		untitledCount = (untitledCount - 0) + 1;
-        	Sandbox.SOL_CACHE_FILE = SOL_CACHE_UNTITLED + untitledCount;
-        	window.localStorage[Sandbox.SOL_CACHE_FILE] = '';
-        	updateFiles();
+            var key = Filer.new();
+            Filer.add(key, "");
+            addFileTab(key, true);
         });
 
-        $filesEl.on('click', '.file:not(.active)', showFileHandler);
+        $filesEl.on('click', '.file:not(.active)', function(e) {
+            e.preventDefault();
+            var filename = $(this).find('.name').text();
+            activateTab(filename);
+            return false;
+        });
 
         $filesEl.on('click', '.file.active', function(ev) {
         	var $fileTabEl = $(this);
@@ -62,98 +113,73 @@
         		$fileNameInputEl.off('blur');
         		$fileNameInputEl.off('keyup');
 
+    			var content = Filer.get(originalName);
         		if (newName !== originalName && confirm("Are you sure you want to rename: " + originalName + " to " + newName + '?')) {
-        			var content = window.localStorage.getItem( fileKey(originalName) );
-        			window.localStorage[fileKey( newName )] = content;
-        			window.localStorage.removeItem( fileKey( originalName) );
-        			Sandbox.SOL_CACHE_FILE = fileKey( newName );
+                    // rename tab/file
+        			Filer.add(newName, content);
+                    Filer.remove(originalName);
+                    Filer.setActiveFile(newName);
         		}
 
-        		updateFiles();
+                drawFileTabs();
+                activateTab(Filer.getActiveFile());
+                Filer.saveActiveFile(content); // save again, workaround for zero-out bug
+
         		return false;
         	}
 
         	return false;
         });
 
-        $filesEl.on('click', '.file .remove', function(ev) {
-        	ev.preventDefault();
-        	var name = $(this).parent().find('.name').text();
+        $filesEl.on('click', '.file .remove', function(e) {
+        	e.preventDefault();
 
-        	var index = getFiles().indexOf( fileKey(name) );
+        	var name = $(this).parent().find('.name').text();
+        	var index = Filer.list().indexOf(name);
 
         	if (confirm("Are you sure you want to remove: " + name + " from local storage?")) {
-        		window.localStorage.removeItem( fileKey( name ) );
-        		Sandbox.SOL_CACHE_FILE = getFiles()[ Math.max(0, index - 1)];
-        		updateFiles();
+                Filer.remove(name);
+                getFileTab(name).remove();
+                activateTab(Filer.list()[ Math.max(0, index - 1) ]); // activate previous file in list
         	}
         	return false;
         });
 
-        updateFiles();
+        drawFileTabs();
+        activateTab(Filer.list()[0]); // activate first tab
     }
 
-    function showFileHandler(ev) {
-    	ev.preventDefault();
-    	Sandbox.SOL_CACHE_FILE = fileKey( $(this).find('.name').text() );
-    	updateFiles();
-    	return false;
+    function getFileTab(key) {
+    	return $('.filetabs li').filter(function(){ return $(this).find('.name').text() === key; });
     }
 
-    function fileTabFromKey(key) {
-    	var name = fileNameFromKey(key);
-    	return $('.filetabs li').filter(function(){ return $(this).find('.name').text() === name; });
+    function activateTab(filename) {
+        Filer.setActiveFile(filename);
+        var t = getFileTab(filename);
+        $(".filetabs li").removeClass("active");
+        t.addClass("active");
+		editor.setValue(Filer.get(filename), -1);
+		editor.focus();
     }
 
-    function updateFiles() {
-    	var files = getFiles();
+    function addFileTab(filename, activate) {
+        var t = $('<li role="presentation" class="file"><a role="tab" data-toggle="tab"><span class="name">' + filename + '</span> <span class="remove"><i class="fa fa-close red"></i></span></a></li>');
+		$(".filetabs").append(t);
+        if (activate === true) {
+            activateTab(filename);
+        }
+    }
+
+    function drawFileTabs() {
+    	var files = Filer.list();
 
     	$(".filetabs li.file").remove();
-    	for (var f in files) {
-    		$(".filetabs").append(fileTabTemplate(files[f]));
-    	}
-
-    	if (Sandbox.SOL_CACHE_FILE) {
-    		var active = fileTabFromKey(Sandbox.SOL_CACHE_FILE);
-    		active.addClass('active');
-    		editor.setValue( window.localStorage[Sandbox.SOL_CACHE_FILE] || '', -1);
-    		editor.focus();
-    	}
-    	$('#editor_input').toggle( !!Sandbox.SOL_CACHE_FILE );
-    	$('#output').toggle( !!Sandbox.SOL_CACHE_FILE );
+    	files.forEach(function(filename) {
+            addFileTab(filename);
+        });
     }
-
-    function fileTabTemplate(key) {
-    	var name = fileNameFromKey(key);
-        var t = '<li role="presentation" class="file"><a role="tab" data-toggle="tab"><span class="name">' + name + '</span> <span class="remove"><i class="fa fa-close red"></i></span></a></li>';
-    	return $(t);
-    }
-
-    function fileKey( name ) {
-    	return SOL_CACHE_FILE_PREFIX + name;
-    }
-
-    function fileNameFromKey(key) {
-    	return key.replace( SOL_CACHE_FILE_PREFIX, '' );
-    }
-
-    function getFiles() {
-    	var files = [];
-    	for (var f in localStorage ) {
-    		if (f.indexOf( SOL_CACHE_FILE_PREFIX, 0 ) === 0) {
-    			files.push(f);
-    		}
-    	}
-    	return files;
-    }
-
-    // updateFiles();
 
     // export methods
-    Sandbox.fileNameFromKey = fileNameFromKey;
-    Sandbox.fileKey = fileKey;
-    Sandbox.updateFiles = updateFiles;
-    Sandbox.getFiles = getFiles;
     Sandbox.initFileTabs = initFileTabs;
 
 })();

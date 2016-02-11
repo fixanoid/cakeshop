@@ -3,16 +3,7 @@
 
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
-
-    var getFiles = Sandbox.getFiles;
-    var updateFiles = Sandbox.updateFiles;
-    var fileNameFromKey = Sandbox.fileNameFromKey;
-
-
     // ----------------- editor ----------------------
-
-    var SOL_CACHE_FILE_PREFIX = 'sol-cache-file-';
-    var SOL_CACHE_UNTITLED = SOL_CACHE_FILE_PREFIX + 'Untitled';
 
     var editor = Sandbox.editor = Sandbox.initEditor();
     var errMarkerId = null;
@@ -27,11 +18,11 @@
 
     // ----------------- compiler ----------------------
     var compileJSON;
-    var compilerAcceptsMultipleFiles;
+    var compilerAcceptsMultipleFiles = false; // by default?
 
     var previousInput = '';
     var sourceAnnotations = [];
-    
+
     var compile = function() {
     	editor.getSession().clearAnnotations();
     	sourceAnnotations = [];
@@ -39,10 +30,10 @@
     	$('#output .compiler_output').empty(); // clear output window
 
     	var editorSource = editor.getValue();
-    	window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, editorSource);
+        Sandbox.Filer.saveActiveFile(editorSource);
 
     	var files = {};
-    	files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)] = editorSource;
+    	files[Sandbox.Filer.getActiveFile()] = editorSource;
     	var input = gatherImports(files, compile);
     	if (!input) {
             return;
@@ -82,7 +73,7 @@
     var onChange = function() {
     	var input = editor.getValue();
     	if (input === "") {
-    		window.localStorage.setItem(Sandbox.SOL_CACHE_FILE, '');
+            Sandbox.Filer.saveActiveFile("");
     		return;
     	}
     	if (input === previousInput)
@@ -94,8 +85,10 @@
 
     var cachedRemoteFiles = {};
     function gatherImports(files, asyncCallback, needAsync) {
+
     	if (!compilerAcceptsMultipleFiles)
-    		return files[fileNameFromKey(Sandbox.SOL_CACHE_FILE)];
+    		return files[Sandbox.Filer.getActiveFile()];
+
     	var importRegex = /import\s[\'\"]([^\'\"]+)[\'\"];/g;
     	var reloop = false;
     	do {
