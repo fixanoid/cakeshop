@@ -186,6 +186,13 @@ var Tower = {
 			Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: Tower.status.latestBlock });
 			Tower.screenManager.show({ widgetId: 'block-list', section: 'explorer', data: Tower.status.latestBlock });
 			Tower.screenManager.show({ widgetId: 'block-view', section: 'explorer' });
+
+			// TODO: needs work
+			_.each(
+				_.filter(Tower.screenManager.loaded, function(widget) { return widget.section === 'explorer' }),
+				function(val) {
+					Tower.screenManager.show({ widgetId: val.name, section: 'explorer' });
+				});
 		}
 	},
 

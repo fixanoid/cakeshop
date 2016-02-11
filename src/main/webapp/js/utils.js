@@ -216,9 +216,10 @@ var screenManager = {
 		var _this = this;
 
 		_.each(this.loaded, function(val, key) {
-			// TODO: limit the scan to the currently visible section only?
-			_this.hide(val);
-		})
+			if (Tower.current != val.section) {
+				_this.hide(val);
+			}
+		});
 	}
 }
 
