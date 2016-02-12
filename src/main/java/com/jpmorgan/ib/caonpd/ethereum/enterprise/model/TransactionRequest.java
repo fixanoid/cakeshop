@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class TransactionRequest {
 
-    public static final int DEFAULT_GAS = 3_141_590;
+    public static final int DEFAULT_GAS = 10_000_000;
 
     private String fromAddress;
 
