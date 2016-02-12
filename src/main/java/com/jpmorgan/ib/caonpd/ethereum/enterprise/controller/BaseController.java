@@ -1,6 +1,12 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,15 +15,16 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
-
 @Controller
 public class BaseController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BaseController.class);
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIResponse> handleException(APIException ex) {
+    public ResponseEntity<APIResponse> handleException(Exception ex) {
+
+        LOG.warn("Caught exception: " + ex.getMessage(), ex);
+
         APIResponse res = new APIResponse();
         String rootCause = ExceptionUtils.getRootCauseMessage(ex);
 

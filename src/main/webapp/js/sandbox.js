@@ -38,7 +38,7 @@
     	if (!input) {
             return;
         }
-    	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
+    	var optimize = document.querySelector('#optimize').checked;
 
         Contract.compile(input, optimize, compilationFinished);
     };
@@ -70,7 +70,7 @@
     };
 
     var compileTimeout = null;
-    var onChange = function() {
+    var onChange = _.debounce(function() {
     	var input = editor.getValue();
     	if (input === "") {
             Sandbox.Filer.saveActiveFile("");
@@ -79,9 +79,8 @@
     	if (input === previousInput)
     		return;
     	previousInput = input;
-    	if (compileTimeout) window.clearTimeout(compileTimeout);
-    	compileTimeout = window.setTimeout(compile, 300);
-    };
+        compile();
+    }, 300);
 
     var cachedRemoteFiles = {};
     function gatherImports(files, asyncCallback, needAsync) {

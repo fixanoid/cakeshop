@@ -64,6 +64,7 @@
         });
 
         $(".transact .send").click(function(e) {
+            e.preventDefault();
             var form = $(e.target).parents("form");
             var methodName = form.attr("data-method");
             var method = getActiveMethod(methodName);
@@ -73,6 +74,7 @@
                 params[el.attr("data-param")] = el.val();
             });
             doMethodCall(activeContract, method, params);
+            return false;
         });
 
     }
@@ -84,6 +86,8 @@
             // use read
             activeContract.read(method.name, _params).then(function(res) {
                 addTx("Called '" + method.name + "': " + JSON.stringify(res));
+            }, function(err) {
+                addTx("Called '" + method.name + "': [ERROR]" + err);
             });
 
         } else {
@@ -166,15 +170,16 @@
 
         // Deploy selected contract
         $(".select_contract .deploy").click(function(e) {
+            e.preventDefault();
             // find contract to deploy
             var sel = $("select.compiled_contracts").val();
             if (!sel) {
-                return;
+                return false;
             }
 
             var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
             // take it and deploy it
-        	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
+        	var optimize = document.querySelector('#optimize').checked;
 
 
             var params = {};
@@ -194,6 +199,8 @@
                 addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
                 $(".select_contract input.address").val(addr).change();
             });
+
+            return false;
         });
 
     });

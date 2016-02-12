@@ -1,12 +1,20 @@
+
 contract SimpleStorage {
-    uint storedData;
+
+    uint public storedData;
+    address public owner;
+
     function SimpleStorage(uint initVal) {
-        storedData = initVal;
+      owner = msg.sender;
+      storedData = initVal;
     }
+
     function set(uint x) {
         storedData = x;
     }
+
     function get() constant returns (uint retVal) {
         return storedData;
     }
+    
 }

@@ -10,7 +10,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -108,7 +107,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 new Object[] { id });
 
         return new Contract(
-                RpcUtil.addrToHex((BigInteger) res[0]),
+                (String) res[0],
                 (String) res[1],
                 (String) res[2],
                 (String) res[3],
@@ -132,8 +131,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         List<Contract> contracts = new ArrayList<>();
         for (int i = 0; i < res.length; i++) {
-            BigInteger intAddr = (BigInteger) res[i];
-            String addr = RpcUtil.addrToHex(intAddr);
+            String addr = (String) res[i];
             try {
                 contracts.add(getById(addr));
             } catch (APIException ex) {
