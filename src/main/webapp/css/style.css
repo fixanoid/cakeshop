@@ -1,13 +1,10 @@
-/* @import url(http://fonts.googleapis.com/css?family=Roboto+Condensed);
- */
- 
 @font-face {
   font-family: 'Roboto Condensed';
   font-style: normal;
   font-weight: 400;
-  src: local('Roboto Condensed'), 
+  src: local('Roboto Condensed'),
   	local('RobotoCondensed-Regular'),
-  	url(../fonts/roboto.woff2) format('woff2'), 
+  	url(../fonts/roboto.woff2) format('woff2'),
   	url(../fonts/roboto.woff) format('woff');
 }
 
@@ -748,6 +745,11 @@ a:active {
 	font-weight: 600;
 	font-size: 13px;
 	color: #515d6e;
+
+	width: 85%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .overlay {
@@ -786,6 +788,8 @@ a:active {
 	list-style: none;
 	display: inline-block;
 	float: right;
+	font-size: 13px;
+	margin-top: -15px;
 }
 
 .rad-panel-action li {
