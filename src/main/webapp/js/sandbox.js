@@ -38,7 +38,7 @@
     	if (!input) {
             return;
         }
-    	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
+    	var optimize = document.querySelector('#optimize').checked;
 
         Contract.compile(input, optimize, compilationFinished);
     };

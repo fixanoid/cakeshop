@@ -174,7 +174,7 @@
 
             var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
             // take it and deploy it
-        	var optimize = document.querySelector('#optimize').checked ? 1 : 0;
+        	var optimize = document.querySelector('#optimize').checked;
 
 
             var params = {};
