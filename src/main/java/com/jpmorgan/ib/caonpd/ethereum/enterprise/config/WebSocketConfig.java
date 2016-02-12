@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -39,12 +34,15 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
         registry.setApplicationDestinationPrefixes("/app");
     }
-    
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         //String [] endpoints = {"/node", "/block", "transaction"};
-        registry.addEndpoint("ws").setAllowedOrigins("*").withSockJS();
-        
+        registry
+            .addEndpoint("ws")
+            .setAllowedOrigins("*")
+            .withSockJS()
+            .setClientLibraryUrl("/ethereum-enterprise/js/vendor/sockjs-1.0.3.min.js");
     }
-    
+
 }
