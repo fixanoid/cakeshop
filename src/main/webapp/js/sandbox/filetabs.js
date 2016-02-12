@@ -187,5 +187,6 @@
 
     // export methods
     Sandbox.initFileTabs = initFileTabs;
+    Sandbox.addFileTab = addFileTab;
 
 })();

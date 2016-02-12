@@ -186,3 +186,9 @@ input[readonly] {
     display: block;
     width: 100%;
 }
+
+/* CONTRACT LIBRARY */
+
+#libView a.contract {
+    cursor: pointer;
+}
