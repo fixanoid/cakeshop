@@ -217,7 +217,7 @@ public class ContractServiceImpl implements ContractService {
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
 		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
 		contractArgs.put("data", data);
-		contractArgs.put("gas", 10000000);
+		contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
 
 		Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{ contractArgs });
 
