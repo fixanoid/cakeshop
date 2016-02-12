@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -46,6 +41,10 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketPushServiceImpl.class);
 	private Integer openedSessions = 0;
+
+	/**
+	 * Transaction ID -> # of subscribers
+	 */
 	private final Map<String, Integer> transactionsMap = new LRUMap(500);
 
 	@Autowired(required = false)
@@ -66,7 +65,11 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Autowired
 	private WebSocketAsyncPushService asyncPushService;
 
+	// For tracking status changes
 	private Node previousNodeStatus;
+
+	// For tracking block changes
+	private Block previousBlock;
 
 	@Override
 	// @Scheduled(fixedDelay = 5000)
@@ -110,9 +113,17 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 		}
 
         Block block = blockService.get(null, null, "latest");
+
+        if (previousBlock != null && block.equals(previousBlock)) {
+            return; // did not change
+        }
+        previousBlock = block;
+
         APIResponse apiResponse = new APIResponse();
         apiResponse.setData(block.toAPIData());
-        template.convertAndSend(BLOCK_TOPIC, apiResponse);
+        template.convertAndSend(BLOCK_TOPIC, apiResponse); // push block info
+
+        // Also try to push tx info if block contains one we are watching
         List<String> transactions = block.getTransactions();
         for (String transaction : transactions) {
             if (transactionsMap.containsKey(transaction)) {

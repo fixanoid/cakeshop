@@ -67,9 +67,10 @@
 				<div class="sidebar" id="sidebar">
 
 					<ul class="nav nav-pills sidenav">
-					  <li role="presentation" class="active txView"><a href="#"><i class="fa fa-send"></i></a></li>
-					  <li role="presentation" class="compilerView"><a href="#"><i class="fa fa-code"></i></a></li>
-					  <li role="presentation" class="settingsView"><a href="#"><i class="fa fa-gear"></i></a></li>
+					  <li role="presentation" class="active txView"><a title="Transaction Playground"><i class="fa fa-send"></i></a></li>
+					  <li role="presentation" class="libView"><a title="Contract Library"><i class="fa fa-bank"></i></a></li>
+					  <li role="presentation" class="compilerView"><a title="Compiler Output"><i class="fa fa-code"></i></a></li>
+					  <li role="presentation" class="settingsView"><a title="Settings"><i class="fa fa-gear"></i></a></li>
 					</ul>
 
 					<div id="txView" class="tab">
@@ -128,6 +129,9 @@
 
 					</div>
 
+					<div id="libView" class="tab start_hidden">
+					</div>
+
 					<div id="settingsView" class="start_hidden tab">
 						<div class="container-fluid">
 							<div class="row">
@@ -176,10 +180,6 @@
 		<script src="js/vendor/jquery-ui.min.js"></script>
 		<script src="js/vendor/ace.js"></script>
 		<script src="js/vendor/mode-solidity.js"></script>
-		<!-- <script src="js/vendor/ethereumjs-vm.js"></script> -->
-		<!-- <script src="js/vendor/universal-dapp.js"></script> -->
-		<!-- <script src="js/vendor/web3.min.js"></script> -->
-		<script src="js/vendor/ballot.sol.js"></script>
 
 		<script src="js/vendor/bootstrap.min.js" charset="utf-8"></script>
 
@@ -188,12 +188,13 @@
 		<script src="js/vendor/backbone.js" charset="utf-8"></script>
 		<script src="js/vendor/bluebird.core.min.js" charset="utf-8"></script>
 
-		<script type="text/javascript" src="js/vendor/sockjs-0.3.4.min.js"></script>
-		<script type="text/javascript" src="js/vendor/stomp.min.js"></script>
+		<script src="js/vendor/sockjs-1.0.3.min.js" charset="utf-8"></script>
+		<script src="js/vendor/stomp.min.js" charset="utf-8"></script>
 		<script src="js/client.js" charset="utf-8"></script>
 		<script src="js/model/contract.js" charset="utf-8"></script>
 		<script src="js/model/transaction.js" charset="utf-8"></script>
 
+		<script src="js/sandbox/lib.js" charset="utf-8"></script>
 		<script src="js/sandbox/tx.js" charset="utf-8"></script>
 		<script src="js/sandbox/filetabs.js" charset="utf-8"></script>
 		<script src="js/sandbox/editor.js" charset="utf-8"></script>
