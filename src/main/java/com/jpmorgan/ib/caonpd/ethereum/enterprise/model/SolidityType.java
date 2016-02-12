@@ -303,6 +303,15 @@ public abstract class SolidityType {
             }
             return addr;
         }
+
+        @Override
+        public Object decode(byte[] encoded, int offset) {
+            BigInteger addrInt = (BigInteger) super.decode(encoded, offset);
+            if (addrInt != null) {
+                return RpcUtil.addrToHex(addrInt);
+            }
+            return addrInt;
+        }
     }
 
     public static class IntType extends SolidityType {

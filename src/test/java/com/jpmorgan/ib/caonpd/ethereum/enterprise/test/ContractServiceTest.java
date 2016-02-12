@@ -119,6 +119,10 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null);
 	    assertEquals(val.intValue(), 500);
+
+
+	    String owner = (String) contractService.read(contractAddress, abi, "owner", null);
+	    assertEquals(owner, "0x2e219248f44546d966808cdd20cb6c36df6efa82");
 	}
 
 	@Test
@@ -140,7 +144,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	            "echo_2",
 	            new Object[] { addr, str });
 
-	    String hexAddr = RpcUtil.addrToHex((BigInteger) res[0]);
+	    String hexAddr = (String) res[0];
 	    assertEquals(hexAddr, addr);
 	    assertEquals(res[1], str);
 
