@@ -99,6 +99,21 @@ var utils = {
 
 			$(this).selectText();
 		});
+	},
+
+	subscribe: function(topic, handler) {
+		if (Tower.stomp && Tower.stomp.connected === true) {
+			Tower.debug('STOMP subscribing to ' + topic);
+
+			return Tower.stomp.subscribe(topic, function(res) {
+				var status = JSON.parse(res.body);
+				status = status.data.attributes;
+
+				handler(status);
+			});
+		}
+
+		return false;
 	}
 };
 

@@ -19,6 +19,7 @@
 		},
 
 		url: 'api/block/get',
+		topic: '/topic/block',
 
 		setData: function(data) {
 			this.lastBlockNum = data;
@@ -31,6 +32,19 @@
 
 			this.initialized = true;
 			this.ready();
+
+			// subscribe to get new blocks
+			utils.subscribe(this.topic, this.onNewBlock);
+		},
+
+		onNewBlock: function(data) {
+			var b = {
+				num: data.number,
+				age: data.timestamp,
+				txnCount: data.transactions.length,
+			};
+
+			$('#widget-' + widget.shell.id + ' > table > tbody').prepend( widget.templateRow({ block: b }) );
 		},
 
 		BLOCKS_TO_SHOW: 100,
@@ -75,8 +89,6 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rowsOut.join('') }) );
-
-				$('#widget-' + _this.shell.id + ' a').click(_this.showBlock);
 			});
 		},
 
@@ -86,6 +98,8 @@
 			this.fetch();
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
+
+			$('#widget-' + this.shell.id).on('click', 'a', this.showBlock);
 		},
 
 		showBlock: function(e) {

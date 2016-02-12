@@ -125,15 +125,8 @@ var Tower = {
 				(!Tower.ready && Tower.isReady());
 			};
 
-			if (Tower.stomp && Tower.stomp.connected === true) {
-				Tower.debug('STOMPING');
-				Tower.stomp.subscribe('/topic' + STATUS_END_POINT, function(res) {
-					var status = JSON.parse(res.body);
-					status = status.data.attributes;
 
-					statusUpdate(status);
-				});
-			} else {
+			if (!utils.subscribe('/topic' + STATUS_END_POINT, statusUpdate)) {
 				Tower.debug('FALLBACK');
 
 				var def = function() {
