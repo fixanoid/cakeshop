@@ -65,7 +65,11 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Autowired
 	private WebSocketAsyncPushService asyncPushService;
 
+	// For tracking status changes
 	private Node previousNodeStatus;
+
+	// For tracking block changes
+	private Block previousBlock;
 
 	@Override
 	// @Scheduled(fixedDelay = 5000)
@@ -109,9 +113,17 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 		}
 
         Block block = blockService.get(null, null, "latest");
+
+        if (previousBlock != null && block.equals(previousBlock)) {
+            return; // did not change
+        }
+        previousBlock = block;
+
         APIResponse apiResponse = new APIResponse();
         apiResponse.setData(block.toAPIData());
-        template.convertAndSend(BLOCK_TOPIC, apiResponse);
+        template.convertAndSend(BLOCK_TOPIC, apiResponse); // push block info
+
+        // Also try to push tx info if block contains one we are watching
         List<String> transactions = block.getTransactions();
         for (String transaction : transactions) {
             if (transactionsMap.containsKey(transaction)) {
