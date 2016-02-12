@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -46,6 +41,10 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketPushServiceImpl.class);
 	private Integer openedSessions = 0;
+
+	/**
+	 * Transaction ID -> # of subscribers
+	 */
 	private final Map<String, Integer> transactionsMap = new LRUMap(500);
 
 	@Autowired(required = false)
@@ -66,73 +65,98 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Autowired
 	private WebSocketAsyncPushService asyncPushService;
 
+	// For tracking status changes
+	private Node previousNodeStatus;
+
+	// For tracking block changes
+	private Block previousBlock;
+
 	@Override
 	// @Scheduled(fixedDelay = 5000)
 	public void pushContracts() throws APIException {
-
-		if (openedSessions > 0) {
-			List<Contract> contracts = contractService.list();
-			APIResponse apiResponse = new APIResponse();
-			APIData data = new APIData();
-			data.setAttributes(contracts);
-			apiResponse.setData(data);
-			template.convertAndSend(CONTRACT_TOPIC, apiResponse);
-			LOG.info("Sending websocket contract reponse");
+		if (openedSessions <= 0) {
+		    return;
 		}
+
+        List<Contract> contracts = contractService.list();
+        APIResponse apiResponse = new APIResponse();
+        APIData data = new APIData();
+        data.setAttributes(contracts);
+        apiResponse.setData(data);
+        template.convertAndSend(CONTRACT_TOPIC, apiResponse);
 	}
 
 	@Override
 	@Scheduled(fixedDelay = 5000)
 	public void pushNodeStatus() throws APIException {
-
-		if (openedSessions > 0) {
-			Node node = nodeService.get();
-			APIResponse apiResponse = new APIResponse();
-			apiResponse.setData(new APIData(node.getId(), "node", node));
-			template.convertAndSend(NODE_TOPIC, apiResponse);
+		if (openedSessions <= 0) {
+		    return;
 		}
+
+        Node node = nodeService.get();
+
+        if (previousNodeStatus != null && node.equals(previousNodeStatus)) {
+            return; // status has not changed...
+        }
+        previousNodeStatus = node;
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setData(new APIData(node.getId(), "node", node));
+        template.convertAndSend(NODE_TOPIC, apiResponse);
 	}
 
 	@Override
 	@Scheduled(fixedDelay = 5000)
 	public void pushLatestBlocks() throws APIException {
-
-		if (openedSessions > 0) {
-			Block block = blockService.get(null, null, "latest");
-			APIResponse apiResponse = new APIResponse();
-			apiResponse.setData(block.toAPIData());
-			template.convertAndSend(BLOCK_TOPIC, apiResponse);
-			List<String> transactions = block.getTransactions();
-			for (String transaction : transactions) {
-				if (transactionsMap.containsKey(transaction)) {
-					asyncPushService.pushTransactionAsync(transaction, template, null);
-				}
-			}
+		if (openedSessions <= 0) {
+		    return;
 		}
+
+        Block block = blockService.get(null, null, "latest");
+
+        if (previousBlock != null && block.equals(previousBlock)) {
+            return; // did not change
+        }
+        previousBlock = block;
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setData(block.toAPIData());
+        template.convertAndSend(BLOCK_TOPIC, apiResponse); // push block info
+
+        // Also try to push tx info if block contains one we are watching
+        List<String> transactions = block.getTransactions();
+        for (String transaction : transactions) {
+            if (transactionsMap.containsKey(transaction)) {
+                asyncPushService.pushTransactionAsync(transaction, template, null);
+            }
+        }
 	}
 
 	@Override
-	// @Scheduled(fixedDelay = 5000)
+	//@Scheduled(fixedDelay = 5000)
 	public void pushPendingTransactions() throws APIException {
-
-		if (openedSessions > 0) {
-			List<Transaction> transactions = transactionService.pending();
-			APIResponse apiResponse = new APIResponse();
-			APIData data = new APIData();
-			data.setAttributes(transactions);
-			apiResponse.setData(data);
-			template.convertAndSend(PENDING_TRANSACTIONS_TOPIC, apiResponse);
+		if (openedSessions <= 0) {
+		    return;
 		}
+
+        List<Transaction> transactions = transactionService.pending();
+        APIResponse apiResponse = new APIResponse();
+        APIData data = new APIData();
+        data.setAttributes(transactions);
+        apiResponse.setData(data);
+        template.convertAndSend(PENDING_TRANSACTIONS_TOPIC, apiResponse);
 	}
 
 	@Override
 	@Scheduled(fixedDelay = 200)
 	public void pushTransactions() throws APIException {
-		if (openedSessions > 0) {
-			for (String transactionAddress : transactionsMap.keySet()) {
-				asyncPushService.pushTransactionAsync(transactionAddress, template, transactionsMap);
-			}
+		if (openedSessions <= 0 || transactionsMap.isEmpty()) {
+		    return;
 		}
+
+        for (String transactionAddress : transactionsMap.keySet()) {
+            asyncPushService.pushTransactionAsync(transactionAddress, template, transactionsMap);
+        }
 	}
 
 	public Integer getOpenedConnections() {
@@ -141,69 +165,80 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		StompHeaderAccessor accessor;
 
 		if (event instanceof SessionConnectEvent) {
 			openedSessions++;
 		}
 
-
-		if (event instanceof SessionSubscribeEvent) {
-			SessionSubscribeEvent subscribeEvent = (SessionSubscribeEvent) event;
-			accessor = StompHeaderAccessor.wrap(subscribeEvent.getMessage());
-
-			if (StringUtils.isNotBlank(accessor.getDestination()) && accessor.getDestination().startsWith(TRANSACTION_TOPIC)) {
-				String transactionKey = accessor.getDestination().substring(accessor.getDestination().lastIndexOf("/") + 1, accessor.getDestination().length());
-				Integer subscribers;
-				
-				if (transactionsMap.containsKey(transactionKey)) {
-					subscribers = transactionsMap.get(transactionKey);
-					transactionsMap.put(transactionKey, subscribers++);
-				} else {
-					transactionsMap.put(transactionKey, 1);
-				}
-			}
-
-			// send status as soon as there is a subscription
-			if (StringUtils.isNotBlank(accessor.getDestination()) && accessor.getDestination().startsWith(NODE_TOPIC)) {
-				try {
-					Node node = nodeService.get();
-					
-					APIResponse apiResponse = new APIResponse();
-					apiResponse.setData(new APIData(node.getId(), "node", node));
-					
-					template.convertAndSend(NODE_TOPIC, apiResponse);
-				} catch (APIException e) {
-					
-				}
-			}
-		}
-
-
-		if (event instanceof SessionUnsubscribeEvent) {
-			SessionUnsubscribeEvent unsubscribeEvent = (SessionUnsubscribeEvent) event;
-			accessor = StompHeaderAccessor.wrap(unsubscribeEvent.getMessage());
-
-			if (StringUtils.isNotBlank(accessor.getSubscriptionId()) && accessor.getSubscriptionId().startsWith(TRANSACTION_TOPIC)) {
-				String transactionKey = accessor.getSubscriptionId().substring(accessor.getSubscriptionId().lastIndexOf("/") + 1, accessor.getSubscriptionId().length());
-				Integer subscribers;
-
-				if (transactionsMap.containsKey(transactionKey)) {
-					subscribers = transactionsMap.get(transactionKey);
-					subscribers--;
-					if (subscribers <= 0) {
-						transactionsMap.remove(transactionKey);
-					} else {
-						transactionsMap.put(transactionKey, subscribers);
-					}
-				}
-			}
-		}
-
 		if (event instanceof SessionDisconnectEvent && openedSessions > 0) {
 			openedSessions--;
-		} else if (event instanceof SessionDisconnectEvent && openedSessions <= 0 && !transactionsMap.isEmpty()) {
-			transactionsMap.clear();
+            if (openedSessions <= 0 && !transactionsMap.isEmpty()) {
+                transactionsMap.clear();
+            }
 		}
+
+		if (event instanceof SessionSubscribeEvent) {
+			onSessionSubscribe(event);
+		}
+
+		if (event instanceof SessionUnsubscribeEvent) {
+			onSessionUnsubscribe(event);
+		}
+
 	}
+
+    private void onSessionUnsubscribe(ApplicationEvent event) {
+        SessionUnsubscribeEvent unsubscribeEvent = (SessionUnsubscribeEvent) event;
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(unsubscribeEvent.getMessage());
+
+        String dest = accessor.getSubscriptionId();
+        if (StringUtils.isBlank(dest)) {
+            return;
+        }
+
+        if (dest.startsWith(TRANSACTION_TOPIC)) {
+        	String transactionKey = dest.substring(dest.lastIndexOf("/") + 1);
+        	Integer subscribers;
+
+        	if (transactionsMap.containsKey(transactionKey)) {
+        		subscribers = transactionsMap.get(transactionKey);
+        		subscribers--;
+        		if (subscribers <= 0) {
+        			transactionsMap.remove(transactionKey);
+        		} else {
+        			transactionsMap.put(transactionKey, subscribers);
+        		}
+        	}
+        }
+    }
+
+    private void onSessionSubscribe(ApplicationEvent event) {
+        SessionSubscribeEvent subscribeEvent = (SessionSubscribeEvent) event;
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(subscribeEvent.getMessage());
+
+        String dest = accessor.getDestination();
+        if (StringUtils.isBlank(dest)) {
+            return;
+        }
+
+        if (dest.startsWith(TRANSACTION_TOPIC)) {
+        	String transactionKey = dest.substring(dest.lastIndexOf("/") + 1);
+
+        	if (transactionsMap.containsKey(transactionKey)) {
+        		Integer subscribers = transactionsMap.get(transactionKey);
+        		transactionsMap.put(transactionKey, subscribers++);
+        	} else {
+        		transactionsMap.put(transactionKey, 1);
+        	}
+        }
+
+        // send status as soon as there is a subscription
+        if (dest.startsWith(NODE_TOPIC)) {
+            try {
+                previousNodeStatus = null; // force push
+                pushNodeStatus();
+            } catch (APIException e) {
+            }
+        }
+    }
 }

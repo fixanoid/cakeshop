@@ -16,7 +16,8 @@
 
     Transaction.waitForTx = function(txId) {
         return new Promise(function(resolve, reject) {
-            Client.stomp.subscribe("/topic/transaction/" + txId, function(res) {
+            var sub = Client.stomp.subscribe("/topic/transaction/" + txId, function(res) {
+                sub.unsubscribe(); // stop listening to this tx
                 var txRes = JSON.parse(res.body);
                 if (txRes.data && txRes.data.id === txId) {
                     resolve(new Transaction(txRes.data.attributes));

@@ -31,7 +31,7 @@
         }
     }
 
-    function collectInputs(method) {
+    function wrapInputs(method) {
         var s = "";
         method.inputs.forEach(function(input) {
             s += '<input type="text" class="form-control" data-param="' + input.name + '" placeholder="' + input.name + '(' + input.type + ')"> ';
@@ -41,13 +41,14 @@
 
     function wrapFunction(method) {
         var s = '<form class="form-inline" data-method="' + method.name + '"><div class="form-group"><label>' + method.name + '</label> ';
-        s += collectInputs(method);
+        s += wrapInputs(method);
 		s += '<button class="btn btn-default send" type="submit">Send</button>';
         s += '</div></form>';
         return s;
     }
 
     function showTransactForm() {
+        $(".transact .send").off("click");
         $(".transact .panel-body").empty();
 
         var abi = getActiveAbi();
@@ -102,11 +103,11 @@
     }
 
     function wrapBlock(blockId) {
-        return '<a class="block" target="_blank" href="index.html#section=explorer&widgetId=block-detail&data=' + blockId + '">#' + blockId + '</a>';
+        return '<a class="block" target="_explorer" href="index.html#section=explorer&widgetId=block-detail&data=' + blockId + '">#' + blockId + '</a>';
     }
 
     function wrapTx(txId) {
-        return '<a class="tx" target="_blank" href="index.html#section=explorer&widgetId=txn-detail&data=' + txId + '" title="' + txId + '">' + trunc(txId) + '</a>';
+        return '<a class="tx" target="_explorer" href="index.html#section=explorer&widgetId=txn-detail&data=' + txId + '" title="' + txId + '">' + trunc(txId) + '</a>';
     }
 
     function wrapAddr(addr) {
@@ -140,6 +141,8 @@
     $(".select_contract .compiled_contracts").change(function(e) {
         var sel = $(e.target).val();
         var con = $(".select_contract .constructor");
+
+        $(".select_contract .deploy").off("click");
         con.empty();
 
         var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
@@ -155,7 +158,7 @@
         if (!conMethod.inputs || conMethod.inputs.length === 0) {
             con.append("(no constructor arguments)");
         } else {
-            con.append(collectInputs(conMethod));
+            con.append(wrapInputs(conMethod));
         }
 
 		con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');

@@ -42,6 +42,7 @@ public class WebAppInit implements WebApplicationInitializer {
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
         dispatcher.setInitParameter("spring.profiles.active", "container");
+        dispatcher.setAsyncSupported(true);
     }
 
 }

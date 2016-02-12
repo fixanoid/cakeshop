@@ -228,4 +228,13 @@ public class Block {
         data.setAttributes(this);
         return data;
     }
+
+    /**
+     * Blocks are considered equal if their IDs (hashes) are the same
+     */
+    @Override
+    public boolean equals(Object obj) {
+        Block otherBlock = (Block) obj;
+        return this.id.contentEquals(otherBlock.getId());
+    }
 }

@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Node  {
 
@@ -27,7 +28,7 @@ public class Node  {
     *True if miner is running on the node
     */
     private boolean mining;
-    
+
     /*
     *Node Address
     */
@@ -88,7 +89,7 @@ public class Node  {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getNodeUrl() {
         return nodeUrl;
     }
@@ -104,15 +105,15 @@ public class Node  {
     public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
     }
-    
+
     public void setNodeIP(String ip) {
         this.nodeIP = ip;
     }
-    
+
     public String getNodeIP() {
         return nodeIP;
     }
-    
+
     @Override
     public String toString()  {
       StringBuilder sb = new StringBuilder();
@@ -130,6 +131,9 @@ public class Node  {
       return sb.toString();
     }
 
-    
-  
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, false);
+    }
+
 }
