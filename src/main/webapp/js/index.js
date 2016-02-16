@@ -295,6 +295,10 @@ $(function() {
 
 	// Navigation menu handler
 	$('.rad-sidebar li').click(function(e) {
+		if ($(this).attr('id') === 'sandbox') {
+			return;
+		}
+
 		e.preventDefault();
 
 		Tower.current = $(this).attr('id');
