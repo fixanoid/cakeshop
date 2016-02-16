@@ -11,7 +11,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -156,7 +155,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	            "echo_contract",
 	            new Object[] { contractAddress, "SimpleStorage", json, code, "solidity" });
 
-	    assertEquals(RpcUtil.addrToHex((BigInteger) res2[0]), contractAddress);
+	    assertEquals(res2[0], contractAddress);
 	    assertEquals(res2[1], "SimpleStorage");
 	    assertEquals(res2[2], json);
 	}
