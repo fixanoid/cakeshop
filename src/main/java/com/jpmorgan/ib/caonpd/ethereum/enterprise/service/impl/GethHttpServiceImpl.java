@@ -9,6 +9,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
@@ -65,6 +67,12 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Autowired
     private GethConfigBean gethConfig;
+
+    @Autowired
+    private BlockDAO blockDAO;
+
+    @Autowired
+    private TransactionDAO txDAO;
 
     private ApplicationContext applicationContext;
 
@@ -135,8 +143,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     @Override
-    public Boolean stopGeth() {
-
+    public Boolean stop() {
         LOG.info("Stopping geth");
 
         try {
@@ -145,6 +152,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             }
 
             return killProcess(readPidFromFile(gethConfig.getGethPidFilename()), "geth.exe");
+
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot shutdown process " + ex.getMessage());
             return false;
@@ -152,20 +160,27 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     @Override
-    public Boolean deleteEthDatabase(String eth_datadir) {
-        // FIXME do we need this param here??
-        if (eth_datadir == null) {
-            return false;
+    public Boolean reset() {
+
+        boolean stopped = this.stop();
+        if (!stopped) {
+            return stopped;
         }
 
+        this.deletePid();
+
         try {
-            FileUtils.deleteDirectory(new File(eth_datadir));
-            return true;
+            FileUtils.deleteDirectory(new File(gethConfig.getDataDirPath()));
         } catch (IOException ex) {
             LOG.error("Cannot delete directory " + ex.getMessage());
             return false;
-
         }
+
+        // delete db
+        blockDAO.reset();
+        txDAO.reset();
+
+        return this.start();
     }
 
     @PostConstruct
@@ -179,8 +194,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean deletePid() {
-        File pidFile = new File(gethConfig.getGethPidFilename());
-        return pidFile.delete();
+        return new File(gethConfig.getGethPidFilename()).delete();
     }
 
     @Override
@@ -227,7 +241,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @PreDestroy
     protected void autoStop () {
         if (gethConfig.isAutoStop()) {
-            stopGeth();
+            stop();
             deletePid();
         }
     }
@@ -250,6 +264,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--datadir", dataDir, "--genesis", genesisFile,
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
+                //"--jpmtest",
                 "--solc", gethConfig.getSolcPath(),
                 "--nat", "none", "--nodiscover",
                 "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),

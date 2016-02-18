@@ -31,4 +31,9 @@ public class TransactionDAO {
         hibernateTemplate.save(tx);
     }
 
+    public void reset() {
+        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Transaction_logs\"").executeUpdate();
+        getCurrentSession().createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
+    }
+
 }

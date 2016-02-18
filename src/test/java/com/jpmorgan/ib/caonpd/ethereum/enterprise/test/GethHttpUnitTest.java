@@ -67,15 +67,14 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 
     //@Test(dependsOnMethods = "testService")
     public void testStop() {
-        Boolean stopped = service.stopGeth();
+        Boolean stopped = service.stop();
         assertEquals(stopped, true);
         System.out.println("Server stopped :" + stopped);
     }
 
     //@Test(dependsOnMethods = "testStop")
     public void testDeleteEthDatabase() {
-        String eth_datadir = System.getProperty("user.home") + datadir + "-test";
-        Boolean deleted = service.deleteEthDatabase(eth_datadir);
+        Boolean deleted = service.reset();
         assertEquals(deleted, true);
         System.out.println("Database deleted :" + deleted);
     }

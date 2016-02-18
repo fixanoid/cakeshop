@@ -65,4 +65,10 @@ public class BlockDAO {
         hibernateTemplate.save(block);
     }
 
+    public void reset() {
+        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Block_transactions\"").executeUpdate();
+        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Block_uncles\"").executeUpdate();
+        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.BLOCKS").executeUpdate();
+    }
+
 }

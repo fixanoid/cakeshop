@@ -57,48 +57,41 @@ public class GethController extends BaseController {
         RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
         Gson gson = new Gson();
         String response = gethService.executeGethCall(gson.toJson(request));
-        return new ResponseEntity(APIResponse.newSimpleResponse(response), HttpStatus.OK);
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(response), HttpStatus.OK);
     }
 
     @RequestMapping("/node/start")
     protected @ResponseBody
     ResponseEntity<APIResponse> startGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
         Boolean started = gethService.start(startupParams);
-        return new ResponseEntity(APIResponse.newSimpleResponse(started), HttpStatus.OK);
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(started), HttpStatus.OK);
     }
 
     @RequestMapping("/node/stop")
     protected @ResponseBody
     ResponseEntity<APIResponse> stopGeth() {
-        Boolean stopped = gethService.stopGeth();
+        Boolean stopped = gethService.stop();
         gethService.deletePid();
-        return new ResponseEntity(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
     }
 
     @RequestMapping("/node/restart")
     protected @ResponseBody
     ResponseEntity<APIResponse> restartGeth(HttpServletRequest request) {
-        Boolean stopped = gethService.stopGeth();
+        Boolean stopped = gethService.stop();
         Boolean deleted = gethService.deletePid();
         Boolean restarted = false;
         if (stopped && deleted) {
             restarted = gethService.start();
         }
-        return new ResponseEntity(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
     }
 
     @RequestMapping("/node/reset")
     protected @ResponseBody
     ResponseEntity<APIResponse> resetGeth(HttpServletRequest request, @RequestParam(value = "start_params", required = false) String[] startupParams) {
-        String eth_datadir = datadir.startsWith("/.") ? System.getProperty("user.home") + datadir : datadir;
-        Boolean stopped = gethService.stopGeth();
-        gethService.deletePid();
-        Boolean deletedDaraDir = gethService.deleteEthDatabase(eth_datadir);
-        Boolean reset = false;
-        if (stopped && deletedDaraDir) {
-            reset = gethService.start();
-        }
-        return new ResponseEntity(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
+        Boolean reset = gethService.reset();
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
 
 

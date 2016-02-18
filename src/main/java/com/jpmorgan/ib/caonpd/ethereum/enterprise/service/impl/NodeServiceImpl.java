@@ -216,7 +216,7 @@ public class NodeServiceImpl implements NodeService {
 
     private void restart() {
 
-        gethService.stopGeth();
+        gethService.stop();
         gethService.deletePid();
         gethService.start();
 

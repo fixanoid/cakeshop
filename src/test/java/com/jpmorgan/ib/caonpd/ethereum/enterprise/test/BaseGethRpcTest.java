@@ -78,7 +78,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         springTestContextPrepareTestInstance();
 
         assertTrue(_startGeth());
-        assertTrue(geth.stopGeth());
+        assertTrue(geth.stop());
 
         // once geth has bootstrapped, copy it to a new location
         try {
@@ -145,7 +145,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
 
     private void _stopGeth() {
-        geth.stopGeth();
+        geth.stop();
         try {
             FileUtils.deleteDirectory(new File(ethDataDir));
         } catch (IOException e) {
