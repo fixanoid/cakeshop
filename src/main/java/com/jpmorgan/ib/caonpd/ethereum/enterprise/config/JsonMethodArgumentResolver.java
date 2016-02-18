@@ -92,6 +92,17 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
             return val; // null or types match exactly
         }
 
+        if ((paramType == Long.class || paramType == Integer.class)
+                && (val instanceof Long || val instanceof Integer)) {
+
+            // flip type of val
+            if (paramType == Long.class) {
+                return new Integer((int) val).longValue();
+            } else {
+                return new Long((long) val).intValue();
+            }
+        }
+
         if (paramType.isArray()) {
             if (val.getClass().isArray()) {
                 return val;
