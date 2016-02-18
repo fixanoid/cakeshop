@@ -19,10 +19,14 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
@@ -61,6 +65,10 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private GethConfigBean gethConfig;
+
+    @Autowired
+    @Qualifier("hsql")
+    private DataSource embeddedDb;
 
     private static final String GETH_TEMPLATE = TempFileManager.getTempPath();
 
@@ -151,6 +159,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         } catch (IOException e) {
             logger.warn(e);
         }
+        ((EmbeddedDatabase) embeddedDb).shutdown();
     }
 
     /**
