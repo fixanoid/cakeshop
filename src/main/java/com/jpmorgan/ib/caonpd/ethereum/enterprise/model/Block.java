@@ -3,29 +3,48 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+@Entity
+@Table(name="BLOCKS", schema="PUBLIC")
 public class Block {
 
     public static final String API_DATA_TYPE = "block";
 
-    private Long number = null;
-    private String id = null;
-    private String parentId = null;
-    private String nonce = null;
-    private String sha3Uncles = null;
-    private String logsBloom = null;
-    private String transactionsRoot = null;
-    private String stateRoot = null;
-    private String miner = null;
-    private Long difficulty = null;
-    private Long totalDifficulty = null;
-    private String extraData = null;
-    private Long gasLimit = null;
-    private Long gasUsed = null;
-    private Long timestamp = null;
+    @Id
+    private String id;
+
+    private String parentId;
+    private Long number;
+
+    private String nonce;
+    private String sha3Uncles;
+
+    @Lob
+    @Column(length=4096)
+    private String logsBloom;
+    private String transactionsRoot;
+    private String stateRoot;
+    private String miner;
+    private Long difficulty;
+    private Long totalDifficulty;
+    private String extraData;
+    private Long gasLimit;
+    private Long gasUsed;
+    private Long timestamp;
+
+    @ElementCollection
     private List<String> transactions = new ArrayList<String>();
+
+    @ElementCollection
     private List<String> uncles = new ArrayList<String>();
 
     /**

@@ -5,6 +5,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 
 public interface BlockService {
 
-    public Block get(String hash, Integer number, String tag) throws APIException;
+    public Block get(String hash, Long number, String tag) throws APIException;
 
 }

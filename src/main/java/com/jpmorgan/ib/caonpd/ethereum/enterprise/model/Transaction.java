@@ -2,9 +2,16 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import java.util.List;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+@Entity
+@Table(name="TRANSACTIONS", schema="PUBLIC")
 public class Transaction {
 
     public static final String API_DATA_TYPE = "transaction";
@@ -14,6 +21,7 @@ public class Transaction {
 		committed
 	}
 
+	@Id
 	private String id;
 
 	private Status status;
@@ -39,6 +47,7 @@ public class Transaction {
 
 	private String contractAddress;
 
+	@ElementCollection
 	private List<String> logs;
 
 

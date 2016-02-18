@@ -29,7 +29,7 @@ public class BlockController extends BaseController {
     public ResponseEntity<APIResponse> getBlock(
             @JsonBodyParam(required=false) String id,
             @JsonBodyParam(required=false) String hash,
-            @JsonBodyParam(required=false) Integer number,
+            @JsonBodyParam(required=false) Long number,
             @JsonBodyParam(required=false) String tag) throws APIException {
 
         if (id == null && hash != null) {

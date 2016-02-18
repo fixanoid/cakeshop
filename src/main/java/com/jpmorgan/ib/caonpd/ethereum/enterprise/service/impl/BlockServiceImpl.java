@@ -2,16 +2,16 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 @Service
 public class BlockServiceImpl implements BlockService {
@@ -20,7 +20,7 @@ public class BlockServiceImpl implements BlockService {
     private GethHttpService gethService;
 
     @Override
-    public Block get(String hash, Integer number, String tag) throws APIException {
+    public Block get(String hash, Long number, String tag) throws APIException {
 
         String method = null;
         Object input = null;

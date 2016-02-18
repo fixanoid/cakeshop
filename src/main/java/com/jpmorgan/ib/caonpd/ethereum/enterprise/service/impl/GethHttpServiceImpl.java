@@ -12,6 +12,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
 import java.io.BufferedWriter;
@@ -66,6 +67,8 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     private GethConfigBean gethConfig;
 
     private ApplicationContext applicationContext;
+
+    private BlockScanner blockScanner;
 
     @Override
     public String executeGethCall(String json) throws APIException {
@@ -133,7 +136,14 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @Override
     public Boolean stopGeth() {
+
+        LOG.info("Stopping geth");
+
         try {
+            if (blockScanner != null) {
+                blockScanner.shutdown();
+            }
+
             return killProcess(readPidFromFile(gethConfig.getGethPidFilename()), "geth.exe");
         } catch (IOException | InterruptedException ex) {
             LOG.error("Cannot shutdown process " + ex.getMessage());
@@ -307,6 +317,9 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             LOG.error("Cannot start process: " + ex.getMessage());
             started = false;
         }
+
+        this.blockScanner = applicationContext.getBean(BlockScanner.class);
+        blockScanner.start();
 
         if (started) {
             LOG.info("Ethereum started ...");
