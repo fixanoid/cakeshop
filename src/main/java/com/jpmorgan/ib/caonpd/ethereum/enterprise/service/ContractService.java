@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 
 import java.util.List;
@@ -30,6 +31,8 @@ public interface ContractService {
 	public Contract get(String address) throws APIException;
 
 	public List<Contract> list() throws APIException;
+
+	public List<Transaction> listTransactions(String contractId) throws APIException;
 
 	public TransactionResult migrate() throws APIException;
 

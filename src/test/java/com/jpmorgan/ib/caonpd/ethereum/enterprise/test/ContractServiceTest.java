@@ -7,6 +7,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -24,13 +25,16 @@ import org.testng.annotations.Test;
 public class ContractServiceTest extends BaseGethRpcTest {
 
 	@Autowired
-	ContractService contractService;
+	private ContractService contractService;
 
 	@Autowired
-	TransactionService transactionService;
+	private TransactionService transactionService;
 
 	@Autowired
-	GethHttpService geth;
+	private GethHttpService geth;
+
+	@Autowired
+	private BlockScanner blockScanner;
 
 	@Test
 	public void testCompile() throws IOException {
@@ -178,6 +182,30 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    // should now be 200
 	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, "get", null);
 	    assertEquals(val2.intValue(), 200);
+	}
+
+	public void testListTransactions() throws InterruptedException, IOException {
+
+	    String contractAddress = createContract();
+
+	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
+
+	    // 100 to start
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null);
+	    assertEquals(val.intValue(), 100);
+
+	    // modify value
+	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
+	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
+
+	    ((TestBlockScanner) blockScanner).manualRun();
+
+	    List<Transaction> txns = contractService.listTransactions(contractAddress);
+
+	    assertNotNull(txns);
+	    assertTrue(!txns.isEmpty());
+	    assertEquals(txns.size(), 2);
+
 	}
 
 }

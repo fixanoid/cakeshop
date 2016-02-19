@@ -2,9 +2,12 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -40,14 +43,19 @@ public class Transaction {
 	private Long value;
 	private Long gas;
 	private Long gasPrice;
+
+	@Lob
+	@Column(length=Integer.MAX_VALUE)
 	private String input;
+
+
 
 	private Long cumulativeGasUsed;
 	private Long gasUsed;
 
 	private String contractAddress;
 
-	@ElementCollection
+	@ElementCollection(fetch=FetchType.EAGER)
 	private List<String> logs;
 
 

@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
@@ -95,6 +96,9 @@ public class ContractServiceImpl implements ContractService {
 
 	@Autowired
 	private TransactionService transactionService;
+
+	@Autowired
+	private TransactionDAO transactionDAO;
 
 	@Autowired
 	@Qualifier("asyncExecutor")
@@ -285,6 +289,11 @@ public class ContractServiceImpl implements ContractService {
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
 	    return new TransactionResult((String) readRes.get("_result"));
+	}
+
+	@Override
+	public List<Transaction> listTransactions(String contractId) throws APIException {
+	    return transactionDAO.listForContractId(contractId);
 	}
 
 	private ContractABI lookupABI(String id) throws APIException {

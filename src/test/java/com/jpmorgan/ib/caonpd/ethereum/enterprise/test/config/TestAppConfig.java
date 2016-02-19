@@ -3,11 +3,15 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.BlockScannerImpl;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.TestBlockScanner;
 
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
@@ -21,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
     excludeFilters = {
         @ComponentScan.Filter(
               type = FilterType.ASSIGNABLE_TYPE,
-              value = { WebConfig.class, WebAppInit.class }
+              value = { WebConfig.class, WebAppInit.class, BlockScannerImpl.class }
         )
     }
 )
@@ -50,6 +54,11 @@ public class TestAppConfig extends AppConfig {
     @Override
     public Executor getAsyncExecutor() {
         return new SyncTaskExecutor();
+    }
+
+    @Bean
+    public BlockScanner createBlockScanner() {
+        return new TestBlockScanner();
     }
 
 }
