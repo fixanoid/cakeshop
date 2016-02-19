@@ -6,6 +6,7 @@ import static org.testng.Assert.*;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Input;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
@@ -205,6 +206,14 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertNotNull(txns);
 	    assertTrue(!txns.isEmpty());
 	    assertEquals(txns.size(), 2);
+
+	    Transaction txSet = txns.get(1);
+	    Input decodedInput = txSet.getDecodedInput();
+	    assertNotNull(decodedInput);
+	    assertEquals(decodedInput.getMethod(), "set");
+
+	    val = (BigInteger) decodedInput.getArgs()[0];
+	    assertEquals(val.intValue(), 200);
 
 	}
 

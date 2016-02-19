@@ -293,7 +293,22 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public List<Transaction> listTransactions(String contractId) throws APIException {
-	    return transactionDAO.listForContractId(contractId);
+
+	    Contract contract = get(contractId);
+	    ContractABI abi;
+	    try {
+	        abi = new ContractABI(contract.getABI());
+	    } catch (IOException e) {
+	        throw new APIException("Failed to load ABI for contract", e);
+	    }
+
+	    List<Transaction> txns = transactionDAO.listForContractId(contractId);
+
+	    for (Transaction tx : txns) {
+	        tx.decodeInput(abi);
+	    }
+
+	    return txns;
 	}
 
 	private ContractABI lookupABI(String id) throws APIException {

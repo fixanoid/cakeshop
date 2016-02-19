@@ -112,6 +112,11 @@ public class ContractABI {
             return ret;
         }
 
+        public Object[] decodeHex(String encoded) {
+            // TODO validate input
+            return decode(Hex.decode(encoded.substring(2))); // chop off the leading 0x
+        }
+
         public Object[] decode(byte[] encoded) {
             return decode(subarray(encoded, 4, encoded.length), inputs);
         }
@@ -200,6 +205,10 @@ public class ContractABI {
             }
         }
         return null;
+    }
+
+    public Function[] getFunctions() {
+        return functions;
     }
 
     @Override

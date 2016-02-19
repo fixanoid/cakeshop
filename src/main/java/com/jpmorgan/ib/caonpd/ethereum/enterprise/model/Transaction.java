@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
+
 import java.util.List;
 
 import javax.persistence.Column;
@@ -9,13 +11,41 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.bouncycastle.util.encoders.Hex;
 
 @Entity
 @Table(name="TRANSACTIONS", schema="PUBLIC")
 public class Transaction {
+
+    public class Input {
+        private String method;
+        private Object[] args;
+
+        public Input(String method, Object[] args) {
+            this.method = method;
+            this.args = args;
+        }
+
+        public String getMethod() {
+            return method;
+
+        }
+        public void setMethod(String method) {
+            this.method = method;
+        }
+
+        public Object[] getArgs() {
+            return args;
+        }
+
+        public void setArgs(Object[] args) {
+            this.args = args;
+        }
+    }
 
     public static final String API_DATA_TYPE = "transaction";
 
@@ -48,7 +78,8 @@ public class Transaction {
 	@Column(length=Integer.MAX_VALUE)
 	private String input;
 
-
+	@Transient
+	private Input decodedInput;
 
 	private Long cumulativeGasUsed;
 	private Long gasUsed;
@@ -198,6 +229,33 @@ public class Transaction {
         data.setType(API_DATA_TYPE);
         data.setAttributes(this);
         return data;
+    }
+
+    public void decodeInput(ContractABI abi) {
+        if (getContractAddress() != null || getTo() == null
+                || getInput() == null || getInput().isEmpty()) {
+
+            return;
+        }
+
+        String input = getInput();
+        System.out.println(input);
+
+        for (Function func : abi.getFunctions()) {
+            String sig = "0x" + Hex.toHexString(func.encodeSignature());
+            if (input.startsWith(sig)) {
+                decodedInput = new Input(func.name, func.decodeHex(input));
+                return;
+            }
+        }
+    }
+
+    public Input getDecodedInput() {
+        return decodedInput;
+    }
+
+    public void setDecodedInput(Input decodedInput) {
+        this.decodedInput = decodedInput;
     }
 
 }

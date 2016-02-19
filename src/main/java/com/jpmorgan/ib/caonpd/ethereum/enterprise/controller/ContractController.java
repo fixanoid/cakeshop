@@ -6,10 +6,10 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,16 +125,30 @@ public class ContractController extends BaseController {
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
 
-        RpcUtil.puts(id);
-        RpcUtil.puts(method);
-        RpcUtil.puts(args);
-
         TransactionResult tr = contractService.transact(id, method, args);
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 
         return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
     }
+
+    @RequestMapping("/transactions/list")
+    public ResponseEntity<APIResponse> listTransactions(
+            @JsonBodyParam String id) throws APIException {
+
+        List<Transaction> txns = contractService.listTransactions(id);
+
+        List<APIData> data = new ArrayList<>();
+        for (Transaction tx : txns) {
+            data.add(tx.toAPIData());
+        }
+
+        APIResponse res = new APIResponse();
+        res.setData(data);
+
+        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+    }
+
 
     private APIData toAPIData(Contract c) {
         return new APIData(c.getAddress(), Contract.API_DATA_TYPE, c);
