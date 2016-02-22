@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -43,6 +44,7 @@ public class TransactionDAO {
     private List<Transaction> getContractTransactions(String id) {
         Criteria c = getCurrentSession().createCriteria(Transaction.class);
         c.add(Restrictions.eq("to", id));
+        c.addOrder(Order.asc("blockNumber"));
         return c.list();
     }
 
