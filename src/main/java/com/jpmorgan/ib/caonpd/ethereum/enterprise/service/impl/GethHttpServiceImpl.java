@@ -386,7 +386,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                     break;
                 }
             } catch (IOException ex) {
-                LOG.debug(ex.getMessage());
+                //LOG.debug(ex.getMessage());
                 if (System.currentTimeMillis() - timeStart >= 10000) {
                     // Something went wrong and RPC did not start within 10
                     // sec
