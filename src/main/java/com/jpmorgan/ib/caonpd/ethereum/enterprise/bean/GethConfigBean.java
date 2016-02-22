@@ -7,6 +7,7 @@ import java.io.File;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,6 +130,13 @@ public class GethConfigBean {
         // Clean up data dir path for default config (not an absolute path)
         if (dataDirPath != null && dataDirPath.startsWith("/.")) {
             dataDirPath = expandPath(System.getProperty("user.home"), dataDirPath);
+        }
+
+        if (StringUtils.isBlank(identity)) {
+            identity = System.getenv("USER");
+            if (StringUtils.isBlank(identity)) {
+                identity = System.getenv("USERNAME");
+            }
         }
 
         //RpcUtil.puts(this);
