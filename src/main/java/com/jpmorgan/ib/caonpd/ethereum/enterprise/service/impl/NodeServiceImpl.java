@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
@@ -9,21 +10,14 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -36,8 +30,6 @@ import org.springframework.web.client.ResourceAccessException;
 public class NodeServiceImpl implements NodeService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
-    public static final String ADMIN_MINER_START = "miner_start";
-    public static final String ADMIN_MINER_STOP = "miner_stop";
 
     @Value("${config.path}")
     private String CONFIG_ROOT;
@@ -45,6 +37,8 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private GethHttpService gethService;
 
+    @Autowired
+    private GethConfigBean gethConfig;
 
     @Override
     public Node get() throws APIException {
@@ -89,22 +83,34 @@ public class NodeServiceImpl implements NodeService {
                     throw new APIException(ex.getMessage());
                 }
             }
+
             //check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, new Object[]{ input, true });
             Boolean mining = (Boolean)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
+
             //peer count
             data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT, new Object[]{ input, true });
             String peerCount = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
+
             //get last block number
             data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER, new Object[]{ input, true });
             String blockNumber = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
+
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending == null ? 0 : pending);
+
+            try {
+                node.setConfig(createNodeInfo());
+            } catch (IOException e) {
+                throw new APIException("Failed to read genesis block file", e);
+            }
+
+            node.setPeers(peers());
 
         } catch (APIException ex) {
             Throwable cause = ex.getCause();
@@ -126,100 +132,99 @@ public class NodeServiceImpl implements NodeService {
         return node;
     }
 
-    @Override
-    public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
-
-        Map<String, Object> data=null;
-        Map<String,String> nodeProp = null;
-
-        String args[] = null;
-
-        if (logLevel != null || networkID != null || !StringUtils.isEmpty(identity)) {
-
-            nodeProp = new HashMap<>();
-
-            if (logLevel != null) {
-                nodeProp.put("geth.verbosity", logLevel.toString());
-            }
-
-            if (networkID != null) {
-                nodeProp.put("geth.networkid", networkID.toString());
-            }
-
-            if (StringUtils.isNotEmpty(identity)) {
-                nodeProp.put("geth.identity", identity);
-            }
-
-            gethService.setNodeInfo(identity, mining, logLevel, networkID);
-            updateNodeInfo(nodeProp, true);
-        }
-
-        if (mining != null) {
-            nodeProp = new HashMap<>();
-            nodeProp.put("geth.mining",mining.toString());
-
-            if (mining == true) {
-                args = new String[]{"1"};
-                data = gethService.executeGethCall(ADMIN_MINER_START, args);
-            } else {
-                data = gethService.executeGethCall(ADMIN_MINER_STOP, args);
-            }
-
-            gethService.setNodeInfo(identity, mining, logLevel, networkID);
-            updateNodeInfo(nodeProp, false);
-        }
-
-        return gethService.getNodeInfo();
+    private NodeInfo createNodeInfo() throws IOException {
+        return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(),
+                gethConfig.getVerbosity(), gethConfig.getGenesisBlock(), gethConfig.getExtraParams());
     }
 
-
     @Override
-    public void updateNodeInfo(Map<String, String> newProps,Boolean requiresRestart) throws APIException {
+    public NodeInfo update(
+            Integer logLevel, Integer networkID, String identity, Boolean mining,
+            String extraParams, String genesisBlock) throws APIException {
 
-        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
+        boolean restart = false;
+        boolean reset = false;
+
+        if (networkID != null && networkID != gethConfig.getNetworkId()) {
+            gethConfig.setNetworkId(networkID);
+            restart = true;
+        }
+
+        if (StringUtils.isNotEmpty(identity) && !identity.contentEquals(gethConfig.getIdentity())) {
+            gethConfig.setIdentity(identity);
+            restart = true;
+        }
+
+        if (logLevel != null && logLevel != gethConfig.getVerbosity()) {
+            gethConfig.setVerbosity(logLevel);
+            if (!restart) {
+                // make it live immediately
+                gethService.executeGethCall(AdminBean.ADMIN_VERBOSITY, new Object[]{ logLevel });
+            }
+        }
+
+        if (StringUtils.isNotBlank(extraParams) && (gethConfig.getExtraParams() == null || !extraParams.contentEquals(gethConfig.getExtraParams()))) {
+            gethConfig.setExtraParams(extraParams);
+            restart = true;
+        }
+
         try {
-            InputStream input = new FileInputStream(prpsPath);
-            Properties props = new Properties();
-            props.load(input);
-            Boolean needUpdate = false;
-            for (String key : newProps.keySet()) {
-                if (props.containsKey(key) && !props.getProperty(key).equalsIgnoreCase(newProps.get(key))) {
-                    props.setProperty(key, newProps.get(key));
-                    needUpdate = true;
-                }
+            if (StringUtils.isNotBlank(genesisBlock) && !genesisBlock.contentEquals(gethConfig.getGenesisBlock())) {
+                gethConfig.setGenesisBlock(genesisBlock);
+                reset = true;
             }
-            if (needUpdate) {
-                try (FileOutputStream out = new FileOutputStream(prpsPath)) {
-                    props.store(out, null);
-                }
-                if(requiresRestart)
-                    restart();
-            }
-        } catch (IOException ex) {
-
-            LOG.error(ex.getMessage());
-            throw new APIException(ex.getMessage());
-
+        } catch (IOException e) {
+            throw new APIException("Failed to update genesis block", e);
         }
 
+        if (mining != null && mining != gethConfig.isMining()) {
+            gethConfig.setMining(mining);
+
+            if (!restart) {
+                // make it live immediately
+                if (mining == true) {
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_START, new String[]{"1"});
+                } else {
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_STOP, null);
+                }
+            }
+        }
+
+        NodeInfo nodeInfo;
+        try {
+            gethConfig.save();
+            nodeInfo = createNodeInfo();
+        } catch (IOException e) {
+            LOG.error("Error saving config", e);
+            throw new APIException("Error saving config", e);
+        }
+
+        if (reset) {
+            gethService.reset();
+        } else if (restart) {
+            restart();
+        }
+
+        return nodeInfo;
     }
 
     @Override
-    public Boolean resetNodeInfo() {
+    public Boolean reset() {
+        try {
+            gethConfig.initFromVendorConfig();
+        } catch (IOException e) {
+            LOG.warn("Failed to reset config file", e);
+            return false;
+        }
 
-        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
-        Boolean deleted = new File(prpsPath).delete();
         restart();
-
-        return deleted;
+        return true;
     }
 
     private void restart() {
-
         gethService.stop();
         gethService.deletePid();
         gethService.start();
-
     }
 
     @Override
@@ -253,7 +258,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public List<Peer> peers() throws APIException{
         String args[] = null;
-        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS,args );
+        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS, args);
         List peers = null;
         List<Peer> peerList = new ArrayList<>();
 

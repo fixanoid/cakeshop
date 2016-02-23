@@ -5,28 +5,24 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
+import static org.springframework.http.MediaType.*;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import static org.springframework.http.MediaType.*;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-
-import org.springframework.beans.factory.annotation.Value;
-
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
-
-import org.springframework.util.Assert;
 
 
 /**
@@ -37,18 +33,15 @@ import org.springframework.util.Assert;
 @ContextConfiguration(classes = TestAppConfig.class ,loader = AnnotationConfigContextLoader.class)
 public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests {
 
-    
+
     public static final String MINER_URL="http://localhost:8080/ethereum-enterprise/miner/";
     public static final String NODE_URL="http://localhost:8080/ethereum-enterprise/node/";
-    
-    @Value("${geth.genesis}")
-    private String genesis;
-    
+
     //@Value("${geth.peer.addr}")
     private String peerAddress;
-    
+
     private static JsonParser jsonParser;
-    
+
 
     @BeforeTest
     public static void setEnv() {
@@ -62,7 +55,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         jsonParser = null;
     }
 
-    
+
     @Test(enabled = false)
     public void testNodeInfo() {
         String url = NODE_URL+AdminBean.ADMIN_NODE_INFO_KEY;
@@ -100,7 +93,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         Assert.notNull(jsonResult.get("result"));
 
     }
-    
+
     @Test(enabled = false)
 
     public void testNodeVerbosity() {
@@ -141,10 +134,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         Assert.notNull(jsonResult.get("result"));
 
     }
-  
+
    @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testMinerStart() {        
+    public void testMinerStart() {
 
         String url = MINER_URL+AdminBean.ADMIN_MINER_START_KEY;
         String funcArgs = " ";
@@ -153,7 +146,7 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        
+
         body.add("func_args", funcArgs);
         String result = restTemplate.postForObject(url, body, String.class);
         Assert.notNull(result);
@@ -162,10 +155,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         System.out.println("Miner func call miner start :" + result);
 
     }
-    
+
     @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testMinerStop() {        
+    public void testMinerStop() {
 
         String url = MINER_URL+AdminBean.ADMIN_MINER_STOP_KEY;
         String funcArgs = " ";
@@ -181,12 +174,12 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         JsonObject jsonResult = jsonParser.parse(result).getAsJsonObject();
         Assert.notNull(jsonResult.get("result"));
         Assert.isTrue(Boolean.parseBoolean(jsonResult.get("result").toString()));
-        
+
     }
-    
+
     @Test(enabled=false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testMinerStatus() {        
+    public void testMinerStatus() {
 
         String url = MINER_URL+AdminBean.ADMIN_MINER_MINING_KEY;
         String funcArgs = " ";
@@ -202,10 +195,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         JsonObject jsonResult = jsonParser.parse(result).getAsJsonObject();
         Assert.notNull(jsonResult.get("result"));
     }
-    
+
      @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testAddPeer() {        
+    public void testAddPeer() {
         Assert.notNull(peerAddress);
         String url = MINER_URL+AdminBean.ADMIN_ADD_PEER_KEY;
         //This has to be updated to have a valid peer
@@ -223,10 +216,10 @@ public class GethAdminHttpUnitTestRest extends AbstractTestNGSpringContextTests 
         Assert.notNull(jsonResult.get("result"));
         Assert.isTrue(Boolean.parseBoolean(jsonResult.get("result").toString()));
     }
-    
+
      @Test(enabled = false)
     //To run test - comment out (enabled = false) from Test annotation
-    public void testGetNodeInfo() {        
+    public void testGetNodeInfo() {
         String url = "http://localhost:8090/ethereum-enterprise/node/node-info";
 
         RestTemplate restTemplate = new RestTemplate();

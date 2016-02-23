@@ -34,7 +34,7 @@ public class AppConfig implements AsyncConfigurer {
     public static final String API_VERSION = "1.0";
 
     protected static final String ENV = System.getProperty("eth.environment");
-    protected static final String CONFIG_FILE = "env.properties";
+    public static final String CONFIG_FILE = "env.properties";
 
     public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
@@ -65,7 +65,7 @@ public class AppConfig implements AsyncConfigurer {
             }
 
             LOG.info("Initializing new config from " + vendorEnvConfigFile.getPath());
-            org.apache.commons.io.FileUtils.copyFile(vendorEnvConfigFile, configFile);
+            FileUtils.copyFile(vendorEnvConfigFile, configFile);
 
         } else {
             Properties mergedProps = new Properties();

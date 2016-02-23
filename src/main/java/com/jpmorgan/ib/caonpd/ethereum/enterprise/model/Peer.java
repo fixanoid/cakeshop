@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Peer  {
 
@@ -11,7 +12,7 @@ public class Peer  {
     *Node ID
     */
     private String id;
-    
+
     /*
     *Node Address
     */
@@ -40,7 +41,7 @@ public class Peer  {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getNodeUrl() {
         return nodeUrl;
     }
@@ -56,15 +57,15 @@ public class Peer  {
     public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
     }
-    
+
     public void setNodeIP(String ip) {
         this.nodeIP = ip;
     }
-    
+
     public String getNodeIP() {
         return nodeIP;
     }
-    
+
     @Override
     public String toString()  {
       StringBuilder sb = new StringBuilder();
@@ -78,6 +79,9 @@ public class Peer  {
       return sb.toString();
     }
 
-    
-  
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, false);
+    }
+
 }

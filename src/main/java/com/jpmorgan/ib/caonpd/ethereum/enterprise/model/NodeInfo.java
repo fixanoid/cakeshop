@@ -5,22 +5,28 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 /**
  *
  * @author I629630
  */
 public class NodeInfo {
-    
+
     private String identity;
     private Boolean committingTransactions;
     private Integer networkId;
     private Integer logLevel;
-    
-    public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity) {
+    private String genesisBlock;
+    private String extraParams;
+
+    public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity, String genesisBlock, String extraParams) {
         this.identity = identity;
         this.committingTransactions = mining;
         this.networkId = networkid;
         this.logLevel = verbosity;
+        this.setGenesisBlock(genesisBlock);
+        this.setExtraParams(extraParams);
     }
 
     /**
@@ -78,7 +84,23 @@ public class NodeInfo {
     public void setLogLevel(Integer logLevel) {
         this.logLevel = logLevel;
     }
-    
+
+    public String getGenesisBlock() {
+        return genesisBlock;
+    }
+
+    public void setGenesisBlock(String genesisBlock) {
+        this.genesisBlock = genesisBlock;
+    }
+
+    public String getExtraParams() {
+        return extraParams;
+    }
+
+    public void setExtraParams(String extraParams) {
+        this.extraParams = extraParams;
+    }
+
     public APIData toAPIData() {
         APIData data = new APIData();
         data.setId(null);
@@ -86,5 +108,10 @@ public class NodeInfo {
         data.setAttributes(this);
         return data;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, false);
+    }
+
 }

@@ -27,6 +27,10 @@ public class TransactionServiceImpl implements TransactionService {
 
 
 		Map<String, Object> txData = geth.executeGethCall("eth_getTransactionByHash", new Object[]{ address });
+		if (txData == null) {
+		    return null;
+		}
+
 		Map<String, Object> txReceiptData = geth.executeGethCall("eth_getTransactionReceipt", new Object[]{ address });
 
 		if (txReceiptData != null) {

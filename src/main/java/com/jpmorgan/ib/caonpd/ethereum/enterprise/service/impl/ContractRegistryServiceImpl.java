@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
@@ -12,14 +13,11 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
@@ -43,6 +41,9 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     @Value("${contract.registry.addr:}")
     private String contractRegistryAddress;
+
+    @Autowired
+    private GethConfigBean gethConfig;
 
     private final ContractABI abi;
 
@@ -69,15 +70,13 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
         return false;
     }
 
-    private void saveContractRegistryAddress(String addr) {
-        String configPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
-        Properties props = new Properties();
+    private void saveContractRegistryAddress(String addr) throws APIException {
         try {
-            props.load(new FileInputStream(configPath));
-            props.put("contract.registry.addr", addr);
-            props.store(new FileOutputStream(configPath), null);
+            gethConfig.setProperty("contract.registry.addr", addr);
+            gethConfig.save();
         } catch (IOException e) {
             LOG.warn("Unable to update env.properties", e);
+            throw new APIException("Unable to update env.properties", e);
         }
     }
 
