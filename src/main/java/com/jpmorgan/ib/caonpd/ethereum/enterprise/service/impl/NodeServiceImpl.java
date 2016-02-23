@@ -10,11 +10,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -128,23 +123,19 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
 
-        Properties changedSettings = new Properties();
         boolean restart = false;
 
         if (networkID != null && networkID != gethConfig.getNetworkId()) {
-            changedSettings.put("geth.networkid", networkID.toString());
             gethConfig.setNetworkId(networkID);
             restart = true;
         }
 
         if (StringUtils.isNotEmpty(identity) && !identity.contentEquals(gethConfig.getIdentity())) {
-            changedSettings.put("geth.identity", identity);
             gethConfig.setIdentity(identity);
             restart = true;
         }
 
         if (logLevel != null && logLevel != gethConfig.getVerbosity()) {
-            changedSettings.put("geth.verbosity", logLevel.toString());
             gethConfig.setVerbosity(logLevel);
             if (!restart) {
                 // make it live immediately
@@ -153,7 +144,6 @@ public class NodeServiceImpl implements NodeService {
         }
 
         if (mining != null && mining != gethConfig.isMining()) {
-            changedSettings.put("geth.mining", mining.toString());
             gethConfig.setMining(mining);
 
             if (!restart) {
@@ -166,7 +156,12 @@ public class NodeServiceImpl implements NodeService {
             }
         }
 
-        saveNodeSettings(changedSettings);
+        try {
+            gethConfig.save();
+        } catch (IOException e) {
+            LOG.error("Error saving config", e);
+            throw new APIException("Error saving config", e);
+        }
 
         if (restart) {
             restart();
@@ -175,44 +170,23 @@ public class NodeServiceImpl implements NodeService {
         return gethService.getNodeInfo();
     }
 
-
-    private void saveNodeSettings(Properties newProps) throws APIException {
-
-        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
+    @Override
+    public Boolean reset() {
         try {
-            Properties props = new Properties();
-            props.load(new FileInputStream(prpsPath));
-            props.putAll(newProps);
-
-            try (FileOutputStream out = new FileOutputStream(prpsPath)) {
-                props.store(out, null);
-            }
-
-        } catch (IOException ex) {
-
-            LOG.error(ex.getMessage());
-            throw new APIException(ex.getMessage());
-
+            gethConfig.initFromVendorConfig();
+        } catch (IOException e) {
+            LOG.warn("Failed to reset config file", e);
+            return false;
         }
 
-    }
-
-    @Override
-    public Boolean resetNodeInfo() {
-
-        String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
-        Boolean deleted = new File(prpsPath).delete();
         restart();
-
-        return deleted;
+        return true;
     }
 
     private void restart() {
-
         gethService.stop();
         gethService.deletePid();
         gethService.start();
-
     }
 
     @Override

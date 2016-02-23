@@ -219,13 +219,12 @@ public class NodeController extends BaseController {
 
     @RequestMapping("/settings/reset")
     protected @ResponseBody ResponseEntity<APIResponse> resetNodeInfo() {
-        Boolean reset = nodeService.resetNodeInfo();
+        Boolean reset = nodeService.reset();
         return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
 
     @RequestMapping("/settings")
     protected @ResponseBody ResponseEntity<APIResponse> getNodeInfo() throws APIException {
-        //NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
         NodeInfo nodeInfo = new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(), gethConfig.getVerbosity());
 
         APIResponse res = new APIResponse();

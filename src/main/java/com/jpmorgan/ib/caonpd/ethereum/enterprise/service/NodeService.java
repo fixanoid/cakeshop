@@ -17,7 +17,7 @@ public interface NodeService {
     public Node get() throws APIException;
     public NodeInfo update(Integer logLevel,Integer networkID,String identity,Boolean mining) throws APIException;
     public APIData getAPIData(Map data);
-    public Boolean resetNodeInfo();
+    public Boolean reset();
     public List<Peer> peers() throws APIException;
 
 }
