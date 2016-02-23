@@ -6,6 +6,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
@@ -17,9 +18,9 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
+
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -51,6 +53,9 @@ public class NodeController extends BaseController {
 
     @Autowired
     private AdminBean adminBean;
+
+    @Autowired
+    private GethConfigBean gethConfig;
 
     @RequestMapping({"/{funcName}", "/miner/{funcName}"})
     protected ResponseEntity<APIResponse> adminFuncCall(@PathVariable String funcName,
@@ -91,20 +96,20 @@ public class NodeController extends BaseController {
             APIData apiData = nodeService.getAPIData(data);
             apiResponse.setData(apiData);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-        
+
         } else if(AdminBean.ADMIN_PEERS.equalsIgnoreCase(gethFunctionName)){
-            
+
             data = new HashMap<>();
             return new ResponseEntity<>(APIResponse.newSimpleResponse(data), HttpStatus.OK);
-            
-        } else {    
-            
+
+        } else {
+
             apiResponse.addError(new APIError(null, "500", "Empty response from server"));
             return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
         }
 
     }
-    
+
     @RequestMapping("/update")
 	public ResponseEntity<APIResponse> update(@JsonBodyParam(required = false, value = "logLevel") String logLevel,
 			@JsonBodyParam(required = false, value = "networkId") String networkID,
@@ -116,28 +121,30 @@ public class NodeController extends BaseController {
         Boolean isMining = null;
 
         try {
-        	Integer logLevelInt = null, 
-        			networkIDInt = null;
-        	
-        	if ( !StringUtils.isEmpty(logLevel) ) {
-                    logLevelInt = Integer.parseInt(logLevel);
-        	}
 
-        	if (!StringUtils.isEmpty(networkID)) {
-                    networkIDInt = Integer.parseInt(networkID);
-                }
-                
-                if(!StringUtils.isEmpty(mining)){
-                    isMining = Boolean.parseBoolean(mining);
-                }
-        	
-        	NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity,isMining);
+            Integer logLevelInt = null,
+                    networkIDInt = null;
 
-        	if (updates != null) {
-        		data.setAttributes(updates);
-        		res.setData(data);
-        		return new ResponseEntity<>(res, HttpStatus.OK);
-        	}
+            if (!StringUtils.isEmpty(logLevel)) {
+                logLevelInt = Integer.parseInt(logLevel);
+            }
+
+            if (!StringUtils.isEmpty(networkID)) {
+                networkIDInt = Integer.parseInt(networkID);
+            }
+
+            if(!StringUtils.isEmpty(mining)){
+                isMining = Boolean.parseBoolean(mining);
+            }
+
+            NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, isMining);
+
+            if (updates != null) {
+                data.setAttributes(updates);
+                res.setData(data);
+                return new ResponseEntity<>(res, HttpStatus.OK);
+            }
+
         } catch (NumberFormatException ne) {
             APIError err = new APIError();
             err.setStatus("400");
@@ -147,7 +154,7 @@ public class NodeController extends BaseController {
 
             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
-        
+
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
@@ -156,27 +163,75 @@ public class NodeController extends BaseController {
 
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
-    
+
     @RequestMapping("/peers")
     public ResponseEntity<APIResponse> peers() throws APIException {
 
         APIResponse res = new APIResponse();
         APIData data = new APIData();
-        
+
         List<Peer> nodes = nodeService.peers();
-        
+
         if(nodes != null){
             data.setAttributes(nodes);
             data.setType("peer");
             res.setData(data);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
-        
+
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
         res.addError(err);
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
+
+    @RequestMapping("/start")
+    protected @ResponseBody ResponseEntity<APIResponse> startGeth() {
+        Boolean started = gethService.start();
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(started), HttpStatus.OK);
+    }
+
+    @RequestMapping("/stop")
+    protected @ResponseBody ResponseEntity<APIResponse> stopGeth() {
+        Boolean stopped = gethService.stop();
+        gethService.deletePid();
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
+    }
+
+    @RequestMapping("/restart")
+    protected @ResponseBody ResponseEntity<APIResponse> restartGeth() {
+        Boolean stopped = gethService.stop();
+        Boolean deleted = gethService.deletePid();
+        Boolean restarted = false;
+        if (stopped && deleted) {
+            restarted = gethService.start();
+        }
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
+    }
+
+    @RequestMapping("/reset")
+    protected @ResponseBody ResponseEntity<APIResponse> resetGeth() {
+        // @RequestParam(value = "start_params", required = false) String[] startupParams
+        Boolean reset = gethService.reset();
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
+    }
+
+    @RequestMapping("/settings/reset")
+    protected @ResponseBody ResponseEntity<APIResponse> resetNodeInfo() {
+        Boolean reset = nodeService.resetNodeInfo();
+        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
+    }
+
+    @RequestMapping("/settings")
+    protected @ResponseBody ResponseEntity<APIResponse> getNodeInfo() throws APIException {
+        //NodeInfo nodeInfo = new NodeInfo(identity, mining, networkid, verbosity);
+        NodeInfo nodeInfo = new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(), gethConfig.getVerbosity());
+
+        APIResponse res = new APIResponse();
+        res.setData(nodeInfo.toAPIData());
+        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+    }
+
 
 }

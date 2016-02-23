@@ -198,29 +198,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     }
 
     @Override
-    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkId) {
-        if (null != networkId) {
-            gethConfig.setNetworkId(networkId);
-        }
-
-        if (null != mining) {
-            gethConfig.setMining(mining);
-        }
-
-        if (null != verbosity) {
-            gethConfig.setVerbosity(verbosity);
-        } else if (null == gethConfig.getVerbosity()) {
-            gethConfig.setVerbosity(0);
-        }
-
-        if (StringUtils.isNotEmpty(identity)) {
-            gethConfig.setIdentity(identity);
-        } else if (null == gethConfig.getIdentity()) {
-            gethConfig.setIdentity("");
-        }
-    }
-
-    @Override
     public NodeInfo getNodeInfo() {
         return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(),
                 gethConfig.getNetworkId(), gethConfig.getVerbosity());

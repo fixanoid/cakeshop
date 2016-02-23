@@ -30,7 +30,5 @@ public interface GethHttpService {
 
     public Boolean deletePid();
 
-    public void setNodeInfo(String identity, Boolean mining, Integer verbosity, Integer networkid);
-
     public NodeInfo getNodeInfo();
 }

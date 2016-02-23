@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
@@ -15,11 +16,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,6 @@ import org.springframework.web.client.ResourceAccessException;
 public class NodeServiceImpl implements NodeService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
-    public static final String ADMIN_MINER_START = "miner_start";
-    public static final String ADMIN_MINER_STOP = "miner_stop";
 
     @Value("${config.path}")
     private String CONFIG_ROOT;
@@ -45,6 +42,8 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private GethHttpService gethService;
 
+    @Autowired
+    private GethConfigBean gethConfig;
 
     @Override
     public Node get() throws APIException {
@@ -129,72 +128,66 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
 
-        Map<String, Object> data=null;
-        Map<String,String> nodeProp = null;
+        Properties changedSettings = new Properties();
+        boolean restart = false;
 
-        String args[] = null;
-
-        if (logLevel != null || networkID != null || !StringUtils.isEmpty(identity)) {
-
-            nodeProp = new HashMap<>();
-
-            if (logLevel != null) {
-                nodeProp.put("geth.verbosity", logLevel.toString());
-            }
-
-            if (networkID != null) {
-                nodeProp.put("geth.networkid", networkID.toString());
-            }
-
-            if (StringUtils.isNotEmpty(identity)) {
-                nodeProp.put("geth.identity", identity);
-            }
-
-            gethService.setNodeInfo(identity, mining, logLevel, networkID);
-            updateNodeInfo(nodeProp, true);
+        if (networkID != null && networkID != gethConfig.getNetworkId()) {
+            changedSettings.put("geth.networkid", networkID.toString());
+            gethConfig.setNetworkId(networkID);
+            restart = true;
         }
 
-        if (mining != null) {
-            nodeProp = new HashMap<>();
-            nodeProp.put("geth.mining",mining.toString());
+        if (StringUtils.isNotEmpty(identity) && !identity.contentEquals(gethConfig.getIdentity())) {
+            changedSettings.put("geth.identity", identity);
+            gethConfig.setIdentity(identity);
+            restart = true;
+        }
 
-            if (mining == true) {
-                args = new String[]{"1"};
-                data = gethService.executeGethCall(ADMIN_MINER_START, args);
-            } else {
-                data = gethService.executeGethCall(ADMIN_MINER_STOP, args);
+        if (logLevel != null && logLevel != gethConfig.getVerbosity()) {
+            changedSettings.put("geth.verbosity", logLevel.toString());
+            gethConfig.setVerbosity(logLevel);
+            if (!restart) {
+                // make it live immediately
+                gethService.executeGethCall(AdminBean.ADMIN_VERBOSITY, new Object[]{ logLevel });
             }
+        }
 
-            gethService.setNodeInfo(identity, mining, logLevel, networkID);
-            updateNodeInfo(nodeProp, false);
+        if (mining != null && mining != gethConfig.isMining()) {
+            changedSettings.put("geth.mining", mining.toString());
+            gethConfig.setMining(mining);
+
+            if (!restart) {
+                // make it live immediately
+                if (mining == true) {
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_START, new String[]{"1"});
+                } else {
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_STOP, null);
+                }
+            }
+        }
+
+        saveNodeSettings(changedSettings);
+
+        if (restart) {
+            restart();
         }
 
         return gethService.getNodeInfo();
     }
 
 
-    @Override
-    public void updateNodeInfo(Map<String, String> newProps,Boolean requiresRestart) throws APIException {
+    private void saveNodeSettings(Properties newProps) throws APIException {
 
         String prpsPath = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
         try {
-            InputStream input = new FileInputStream(prpsPath);
             Properties props = new Properties();
-            props.load(input);
-            Boolean needUpdate = false;
-            for (String key : newProps.keySet()) {
-                if (props.containsKey(key) && !props.getProperty(key).equalsIgnoreCase(newProps.get(key))) {
-                    props.setProperty(key, newProps.get(key));
-                    needUpdate = true;
-                }
+            props.load(new FileInputStream(prpsPath));
+            props.putAll(newProps);
+
+            try (FileOutputStream out = new FileOutputStream(prpsPath)) {
+                props.store(out, null);
             }
-            if (needUpdate) {
-                try (FileOutputStream out = new FileOutputStream(prpsPath)) {
-                    props.store(out, null);
-                }
-                if(requiresRestart)
-                    restart();
-            }
+
         } catch (IOException ex) {
 
             LOG.error(ex.getMessage());
@@ -253,7 +246,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public List<Peer> peers() throws APIException{
         String args[] = null;
-        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS,args );
+        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS, args);
         List peers = null;
         List<Peer> peerList = new ArrayList<>();
 
