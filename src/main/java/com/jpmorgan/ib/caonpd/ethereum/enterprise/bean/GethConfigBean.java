@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.bean;
 
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils.*;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils.*;
+import static org.apache.commons.io.FileUtils.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
@@ -38,7 +39,6 @@ public class GethConfigBean {
 
     private String configFile;
 
-
     private String baseResourcePath;
 
     private String binPath;
@@ -49,6 +49,10 @@ public class GethConfigBean {
 
     private String gethPasswordFile;
 
+    private String genesisBlockFilename;
+
+    private String keystorePath;
+
     private String solcPath;
 
     private Properties props;
@@ -57,7 +61,6 @@ public class GethConfigBean {
 
     private final String GETH_DATA_DIR = "geth.datadir";
     private final String GETH_LOG_DIR = "geth.log";
-    private final String GETH_GENESIS_FILE = "geth.genesis";
     private final String GETH_RPC_URL = "geth.url";
     private final String GETH_RPC_PORT = "geth.rpcport";
     private final String GETH_RPCAPI_LIST = "geth.rpcapi.list";
@@ -70,7 +73,7 @@ public class GethConfigBean {
     private final String GETH_VERBOSITY = "geth.verbosity";
     private final String GETH_MINING = "geth.mining";
     private final String GETH_IDENTITY = "geth.identity";
-
+    private final String GETH_EXTRA_PARAMS = "geth.params.extra";
 
     public GethConfigBean() {
     }
@@ -120,26 +123,33 @@ public class GethConfigBean {
 
         gethPidFilename = expandPath(CONFIG_ROOT, "meth.pid");
 
-        String genesisBlockFilename = getGenesisBlockFilename();
-        if (StringUtils.isBlank(genesisBlockFilename) || !new File(genesisBlockFilename).exists()) {
-            // use default genesis file
-            genesisBlockFilename = expandPath(baseResourcePath, "/genesis/genesis_block.json");
-            if (SystemUtils.IS_OS_WINDOWS) {
-                genesisBlockFilename = genesisBlockFilename.replaceAll(File.separator + File.separator, "/");
-                if (genesisBlockFilename.startsWith("/")) {
-                    // fix filename like /C:/foo/bar/.../genesis_block.json
-                    genesisBlockFilename = genesisBlockFilename.substring(1);
-                }
-            }
-            setGenesisBlockFilename(genesisBlockFilename);
+
+        // init genesis block file (using vendor copy if necessary)
+        String vendorGenesisDir = expandPath(baseResourcePath, "/genesis");
+        String vendorGenesisBlockFile = expandPath(vendorGenesisDir, "genesis_block.json");
+
+        genesisBlockFilename = expandPath(CONFIG_ROOT, "genesis_block.json");
+        if (!new File(genesisBlockFilename).exists()) {
+            copyFile(new File(vendorGenesisBlockFile), new File(genesisBlockFilename));
         }
 
-        String genesisDir = new File(genesisBlockFilename).getParent();
-        gethPasswordFile = expandPath(genesisDir, "geth_pass.txt");
+        if (SystemUtils.IS_OS_WINDOWS) {
+            genesisBlockFilename = genesisBlockFilename.replaceAll(File.separator + File.separator, "/");
+            if (genesisBlockFilename.startsWith("/")) {
+                // fix filename like /C:/foo/bar/.../genesis_block.json
+                genesisBlockFilename = genesisBlockFilename.substring(1);
+            }
+        }
 
-        String solcDir = expandPath(genesisDir, "..", "solc", "node_modules", ".bin");
+        // set password file
+        gethPasswordFile = expandPath(vendorGenesisDir, "geth_pass.txt");
+
+        // set keystore path
+        keystorePath = expandPath(vendorGenesisDir, "keystore");
+
+        // configure solc
+        String solcDir = expandPath(vendorGenesisDir, "..", "solc", "node_modules", ".bin");
         ensureNodeBins(binPath, solcDir);
-
         solcPath = solcDir + File.separator + "solc";
 
         // Clean up data dir path for default config (not an absolute path)
@@ -204,11 +214,11 @@ public class GethConfigBean {
     }
 
     public String getGenesisBlockFilename() {
-        return props.getProperty(GETH_GENESIS_FILE);
+        return genesisBlockFilename;
     }
 
     public void setGenesisBlockFilename(String genesisBlockFilename) {
-        props.setProperty(GETH_GENESIS_FILE, genesisBlockFilename);
+        this.genesisBlockFilename = genesisBlockFilename;
     }
 
     public String getRpcUrl() {
@@ -307,12 +317,36 @@ public class GethConfigBean {
         this.gethPasswordFile = gethPasswordFile;
     }
 
+    public String getKeystorePath() {
+        return keystorePath;
+    }
+
+    public void setKeystorePath(String keystorePath) {
+        this.keystorePath = keystorePath;
+    }
+
     public String getSolcPath() {
         return solcPath;
     }
 
     public void setSolcPath(String solcPath) {
         this.solcPath = solcPath;
+    }
+
+    public String getExtraParams() {
+        return props.getProperty(GETH_EXTRA_PARAMS);
+    }
+
+    public void setExtraParams(String extraParams) {
+        props.setProperty(GETH_EXTRA_PARAMS, extraParams);
+    }
+
+    public String getGenesisBlock() throws IOException {
+        return FileUtils.readFileToString(new File(genesisBlockFilename));
+    }
+
+    public void setGenesisBlock(String genesisBlock) throws IOException {
+        FileUtils.writeStringToFile(new File(genesisBlockFilename), genesisBlock);
     }
 
     /**

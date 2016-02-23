@@ -129,9 +129,12 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException {
+    public NodeInfo update(
+            Integer logLevel, Integer networkID, String identity, Boolean mining,
+            String extraParams, String genesisBlock) throws APIException {
 
         boolean restart = false;
+        boolean reset = false;
 
         if (networkID != null && networkID != gethConfig.getNetworkId()) {
             gethConfig.setNetworkId(networkID);
@@ -149,6 +152,20 @@ public class NodeServiceImpl implements NodeService {
                 // make it live immediately
                 gethService.executeGethCall(AdminBean.ADMIN_VERBOSITY, new Object[]{ logLevel });
             }
+        }
+
+        if (StringUtils.isNotBlank(extraParams) && (gethConfig.getExtraParams() == null || !extraParams.contentEquals(gethConfig.getExtraParams()))) {
+            gethConfig.setExtraParams(extraParams);
+            restart = true;
+        }
+
+        try {
+            if (StringUtils.isNotBlank(genesisBlock) && !genesisBlock.contentEquals(gethConfig.getGenesisBlock())) {
+                gethConfig.setGenesisBlock(genesisBlock);
+                reset = true;
+            }
+        } catch (IOException e) {
+            throw new APIException("Failed to update genesis block", e);
         }
 
         if (mining != null && mining != gethConfig.isMining()) {
@@ -171,7 +188,9 @@ public class NodeServiceImpl implements NodeService {
             throw new APIException("Error saving config", e);
         }
 
-        if (restart) {
+        if (reset) {
+            gethService.reset();
+        } else if (restart) {
             restart();
         }
 

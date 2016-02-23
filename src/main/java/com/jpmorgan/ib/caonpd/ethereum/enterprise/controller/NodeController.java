@@ -6,7 +6,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
@@ -53,9 +52,6 @@ public class NodeController extends BaseController {
 
     @Autowired
     private AdminBean adminBean;
-
-    @Autowired
-    private GethConfigBean gethConfig;
 
     @RequestMapping({"/{funcName}", "/miner/{funcName}"})
     protected ResponseEntity<APIResponse> adminFuncCall(@PathVariable String funcName,
@@ -111,10 +107,13 @@ public class NodeController extends BaseController {
     }
 
     @RequestMapping("/update")
-	public ResponseEntity<APIResponse> update(@JsonBodyParam(required = false, value = "logLevel") String logLevel,
-			@JsonBodyParam(required = false, value = "networkId") String networkID,
-			@JsonBodyParam(required = false, value = "identity") String identity,
-			@JsonBodyParam(required = false, value = "committingTransactions") String mining) throws APIException {
+	public ResponseEntity<APIResponse> update(
+	        @JsonBodyParam(required = false) String logLevel,
+			@JsonBodyParam(required = false) String networkId,
+			@JsonBodyParam(required = false) String identity,
+			@JsonBodyParam(required = false) String committingTransactions,
+			@JsonBodyParam(required = false) String extraParams,
+			@JsonBodyParam(required = false) String genesisBlock) throws APIException {
 
         APIResponse res = new APIResponse();
         APIData data = new APIData();
@@ -129,15 +128,16 @@ public class NodeController extends BaseController {
                 logLevelInt = Integer.parseInt(logLevel);
             }
 
-            if (!StringUtils.isEmpty(networkID)) {
-                networkIDInt = Integer.parseInt(networkID);
+            if (!StringUtils.isEmpty(networkId)) {
+                networkIDInt = Integer.parseInt(networkId);
             }
 
-            if(!StringUtils.isEmpty(mining)){
-                isMining = Boolean.parseBoolean(mining);
+            if(!StringUtils.isEmpty(committingTransactions)){
+                isMining = Boolean.parseBoolean(committingTransactions);
             }
 
-            NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, isMining);
+            NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, isMining,
+                    extraParams, genesisBlock);
 
             if (updates != null) {
                 data.setAttributes(updates);

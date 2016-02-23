@@ -25,14 +25,20 @@ public interface NodeService {
     /**
      * Update node configuration (may trigger restart)
      *
-     * @param logLevel
+     * @param logLevel     Log level (0 = least verbose, 6 = most verbose)
      * @param networkID
      * @param identity
      * @param mining
      * @return
      * @throws APIException
      */
-    public NodeInfo update(Integer logLevel, Integer networkID, String identity, Boolean mining) throws APIException;
+    public NodeInfo update(
+            Integer logLevel,
+            Integer networkID,
+            String identity,
+            Boolean mining,
+            String extraParams,
+            String genesisBlock) throws APIException;
 
     public APIData getAPIData(Map data);
 

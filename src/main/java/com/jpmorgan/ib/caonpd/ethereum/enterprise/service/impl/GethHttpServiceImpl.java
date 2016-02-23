@@ -269,6 +269,16 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             commands.add(gethConfig.getIdentity());
         }
 
+        // add custom params
+        if (StringUtils.isNotBlank(gethConfig.getExtraParams())) {
+            String[] params = gethConfig.getExtraParams().split(" ");
+            for (String param : params) {
+                if (StringUtils.isNotBlank(param)) {
+                    commands.add(param);
+                }
+            }
+        }
+
         ProcessBuilder builder = createProcessBuilder(gethConfig, commands);
         builder.inheritIO();
 
@@ -284,8 +294,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
             File keystoreDir = new File(dataDir + File.separator + "keystore");
             if (!keystoreDir.exists()) {
-                String keystoreSrcPath = new File(genesisFile).getParent() + File.separator + "keystore";
-                FileUtils.copyDirectory(new File(keystoreSrcPath), new File(dataDir + File.separator + "keystore"));
+                FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
                 newGethInstall = true;
             }
 
