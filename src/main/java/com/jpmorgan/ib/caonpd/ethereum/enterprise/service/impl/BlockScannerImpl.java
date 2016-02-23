@@ -141,9 +141,9 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
                 Block latestBlock = blockService.get(null, null, "latest");
 
                 if (previousBlock == null || !previousBlock.equals(latestBlock)) {
-                    if (previousBlock != null && latestBlock.getNumber() - previousBlock.getNumber() > 1) {
+                    if (previousBlock != null && (latestBlock.getNumber() - previousBlock.getNumber()) > 1) {
                         // block was just polled is ahead of what we have in our DB
-                        fillBlockRange(previousBlock.getNumber(), latestBlock.getNumber() - 1);
+                        fillBlockRange(previousBlock.getNumber() + 1, latestBlock.getNumber() - 1);
                     }
 
                     LOG.debug("Saving new block #" + latestBlock.getNumber());
