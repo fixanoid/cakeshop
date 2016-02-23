@@ -5,41 +5,48 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 public class Node  {
 
     /**
-    *Node status
-    */
+     * Node status
+     */
     private String status;
+
     /**
-    *Node ID
-    */
+     * Node ID
+     */
     private String id;
+
     /**
-    *Number of peers connected to node
-    */
+     * Number of peers connected to node
+     */
     private int peerCount;
+
     /**
-    *Last mined block
-    */
+     * Last mined block
+     */
     private long latestBlock;
+
     /**
-    *Pending transactions in txpool
-    */
+     * Pending transactions in txpool
+     */
     private long pendingTxn;
+
     /**
-    *True if miner is running on the node
-    */
+     * True if miner is running on the node
+     */
     private boolean mining;
 
-    /*
-    *Node Address
-    */
+    /**
+     * Node Address
+     */
     private String nodeUrl;
-    /*
-    *Node Name
-    */
+
+    /**
+     * Node Name
+     */
     private String nodeName;
-    /*
-    *Node IP
-    */
+
+    /**
+     * Node IP
+     */
     private String nodeIP;
 
     public String getStatus() {
