@@ -212,7 +212,6 @@ public class NodeController extends BaseController {
 
     @RequestMapping("/reset")
     protected @ResponseBody ResponseEntity<APIResponse> resetGeth() {
-        // @RequestParam(value = "start_params", required = false) String[] startupParams
         Boolean reset = gethService.reset();
         return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
@@ -222,15 +221,5 @@ public class NodeController extends BaseController {
         Boolean reset = nodeService.reset();
         return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
-
-    @RequestMapping("/settings")
-    protected @ResponseBody ResponseEntity<APIResponse> getNodeInfo() throws APIException {
-        NodeInfo nodeInfo = new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(), gethConfig.getVerbosity());
-
-        APIResponse res = new APIResponse();
-        res.setData(nodeInfo.toAPIData());
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
-    }
-
 
 }

@@ -83,22 +83,30 @@ public class NodeServiceImpl implements NodeService {
                     throw new APIException(ex.getMessage());
                 }
             }
+
             //check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, new Object[]{ input, true });
             Boolean mining = (Boolean)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
+
             //peer count
             data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT, new Object[]{ input, true });
             String peerCount = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
+
             //get last block number
             data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER, new Object[]{ input, true });
             String blockNumber = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
+
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, new Object[]{ input, true });
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending == null ? 0 : pending);
+
+            NodeInfo nodeInfo = new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(), gethConfig.getVerbosity());
+            node.setConfig(nodeInfo);
+            node.setPeers(peers());
 
         } catch (APIException ex) {
             Throwable cause = ex.getCause();

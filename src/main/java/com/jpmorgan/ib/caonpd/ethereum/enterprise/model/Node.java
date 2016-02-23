@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Node  {
@@ -48,6 +50,17 @@ public class Node  {
      * Node IP
      */
     private String nodeIP;
+
+    /**
+     * Node configuration
+     */
+    private NodeInfo config;
+
+    /**
+     * Connected peer list
+     */
+    private List<Peer> peers;
+
 
     public String getStatus() {
          return status;
@@ -119,6 +132,22 @@ public class Node  {
 
     public String getNodeIP() {
         return nodeIP;
+    }
+
+    public NodeInfo getConfig() {
+        return config;
+    }
+
+    public void setConfig(NodeInfo config) {
+        this.config = config;
+    }
+
+    public List<Peer> getPeers() {
+        return peers;
+    }
+
+    public void setPeers(List<Peer> peers) {
+        this.peers = peers;
     }
 
     @Override
