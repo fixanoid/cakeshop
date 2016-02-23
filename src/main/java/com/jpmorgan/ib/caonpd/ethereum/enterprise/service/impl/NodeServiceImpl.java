@@ -104,8 +104,12 @@ public class NodeServiceImpl implements NodeService {
             Integer pending = (Integer)data.get("pending");
             node.setPendingTxn(pending == null ? 0 : pending);
 
-            NodeInfo nodeInfo = new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(), gethConfig.getVerbosity());
-            node.setConfig(nodeInfo);
+            try {
+                node.setConfig(createNodeInfo());
+            } catch (IOException e) {
+                throw new APIException("Failed to read genesis block file", e);
+            }
+
             node.setPeers(peers());
 
         } catch (APIException ex) {
@@ -126,6 +130,11 @@ public class NodeServiceImpl implements NodeService {
         }
 
         return node;
+    }
+
+    private NodeInfo createNodeInfo() throws IOException {
+        return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(),
+                gethConfig.getVerbosity(), gethConfig.getGenesisBlock(), gethConfig.getExtraParams());
     }
 
     @Override
@@ -181,8 +190,10 @@ public class NodeServiceImpl implements NodeService {
             }
         }
 
+        NodeInfo nodeInfo;
         try {
             gethConfig.save();
+            nodeInfo = createNodeInfo();
         } catch (IOException e) {
             LOG.error("Error saving config", e);
             throw new APIException("Error saving config", e);
@@ -194,7 +205,7 @@ public class NodeServiceImpl implements NodeService {
             restart();
         }
 
-        return gethService.getNodeInfo();
+        return nodeInfo;
     }
 
     @Override

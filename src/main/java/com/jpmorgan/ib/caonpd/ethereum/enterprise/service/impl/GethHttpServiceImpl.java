@@ -7,12 +7,10 @@ import static org.springframework.http.MediaType.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -195,24 +193,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public Boolean deletePid() {
         return new File(gethConfig.getGethPidFilename()).delete();
-    }
-
-    @Override
-    public NodeInfo getNodeInfo() {
-        return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(),
-                gethConfig.getNetworkId(), gethConfig.getVerbosity());
-    }
-
-    private String getNodeIdentity() throws APIException {
-        Map<String, Object> data = null;
-
-        data = this.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[] { null, true });
-
-        if (data != null) {
-            return (String) data.get("Name");
-        }
-
-        return null;
     }
 
     @PreDestroy

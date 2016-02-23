@@ -17,12 +17,16 @@ public class NodeInfo {
     private Boolean committingTransactions;
     private Integer networkId;
     private Integer logLevel;
+    private String genesisBlock;
+    private String extraParams;
 
-    public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity) {
+    public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity, String genesisBlock, String extraParams) {
         this.identity = identity;
         this.committingTransactions = mining;
         this.networkId = networkid;
         this.logLevel = verbosity;
+        this.setGenesisBlock(genesisBlock);
+        this.setExtraParams(extraParams);
     }
 
     /**
@@ -79,6 +83,22 @@ public class NodeInfo {
      */
     public void setLogLevel(Integer logLevel) {
         this.logLevel = logLevel;
+    }
+
+    public String getGenesisBlock() {
+        return genesisBlock;
+    }
+
+    public void setGenesisBlock(String genesisBlock) {
+        this.genesisBlock = genesisBlock;
+    }
+
+    public String getExtraParams() {
+        return extraParams;
+    }
+
+    public void setExtraParams(String extraParams) {
+        this.extraParams = extraParams;
     }
 
     public APIData toAPIData() {
