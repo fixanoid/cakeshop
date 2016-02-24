@@ -241,9 +241,20 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public Contract get(String address) throws APIException {
 		Contract contract = contractRegistry.getById(address);
-
 		Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
-		contract.setBinary((String) contractRes.get("_result"));
+
+		String bin = (String) contractRes.get("_result");
+		if (bin.contentEquals("0x")) {
+		    return null;
+		}
+
+		if (contract == null) {
+		    // not [yet] in registry. only binary code will be returned (assuming it exists)
+		    contract = new Contract();
+		    contract.setAddress(address);
+		}
+
+		contract.setBinary(bin);
 
 		return contract;
 	}

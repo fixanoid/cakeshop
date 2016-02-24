@@ -105,6 +105,11 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 "getById",
                 new Object[] { id });
 
+        long createdDate = ((BigInteger) res[5]).longValue();
+        if (((String) res[0]).contentEquals("0x00") || createdDate == 0) {
+            return null; // contract is not [yet] registered
+        }
+
         return new Contract(
                 (String) res[0],
                 (String) res[1],
@@ -112,7 +117,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 (String) res[3],
                 CodeType.valueOf((String) res[4]),
                 null,
-                ((BigInteger) res[5]).longValue());
+                createdDate);
     }
 
     @Override

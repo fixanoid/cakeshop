@@ -60,6 +60,13 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(val.intValue(), 100);
 	}
 
+	@Test
+	public void testGetInvalidId() throws APIException  {
+	    Contract contract = contractRegistry.getById("0xdeadbeef");
+	    assertNull(contract);
+	}
+
+
     private void registerContract(String addr, String abi, String code, Long createdDate)
             throws APIException, InterruptedException {
         TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
