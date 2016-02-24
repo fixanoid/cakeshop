@@ -22,6 +22,21 @@ var utils = {
 		return $.ajax(config);
 	},
 
+	subscribe: function(topic, handler) {
+		if (Tower.stomp && Tower.stomp.connected === true) {
+			Tower.debug('STOMP subscribing to ' + topic);
+
+			return Tower.stomp.subscribe(topic, function(res) {
+				var status = JSON.parse(res.body);
+				status = status.data.attributes;
+
+				handler(status);
+			});
+		}
+
+		return false;
+	},
+
 	prettyUpdate: function(oldValue, newValue, el) {
 		if (oldValue !== newValue) {
 			el.css({
@@ -101,21 +116,25 @@ var utils = {
 		});
 	},
 
-	subscribe: function(topic, handler) {
-		if (Tower.stomp && Tower.stomp.connected === true) {
-			Tower.debug('STOMP subscribing to ' + topic);
+	truncAddress: function(addr) {
+        var len = addr.startsWith("0x") ? 10 : 8;
 
-			return Tower.stomp.subscribe(topic, function(res) {
-				var status = JSON.parse(res.body);
-				status = status.data.attributes;
+        return addr.substring(0, len);
+    }
+};
 
-				handler(status);
-			});
+
+var Client = {
+	post: function(url, data) {
+		var options = {
+			url: url,
+			data: data
 		}
 
-		return false;
+		return utils.load(options);
 	}
 };
+
 
 var screenManager = {
 	// DOM anchor for the widget field
