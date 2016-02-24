@@ -35,6 +35,9 @@ public class AdminBean {
     public static final String ADMIN_NET_PEER_COUNT="net_peerCount";
     public static final String ADMIN_ETH_BLOCK_NUMBER="eth_blockNumber";
     public static final String ADMIN_TXPOOL_STATUS = "txpool_status";
+    public static final String PERSONAL_LIST_ACCOUNTS_KEY= "list_accounts";
+    public static final String PERSONAL_LIST_ACCOUNTS= "personal_listAccounts";
+    
        
     private Map<String,String> functionNames = new HashMap();
     
