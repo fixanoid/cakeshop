@@ -197,7 +197,24 @@
 
             Contract.deploy(contract.get("code"), optimize, _params).then(function(addr) {
                 addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
-                $(".select_contract input.address").val(addr).change();
+                $(".select_contract input.address").val(addr);
+
+                addTx("Waiting for contract to be registered");
+                var registered = false;
+                function waitForRegistration() {
+                    // TODO use contract event topic for registry ??
+                    Contract.get(addr).then(function(c) {
+                        if (c === null || c.get("name") === null) {
+                            setTimeout(waitForRegistration, 1000); // poll every 1s til done
+                            return;
+                        }
+                        registered = true;
+                        activeContract = c;
+                        showTransactForm();
+                        addTx("Using '" + c.get("name") + "' at " + wrapAddr(c.id));
+                    });
+                }
+                setTimeout(waitForRegistration, 200);
             });
 
             return false;
