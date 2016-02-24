@@ -10,7 +10,7 @@
 		 '<thead style="font-weight: bold;"><tr><td style="width: 90px;">ID</td><td>Contract</td><td>Deploy Date</td><td style="width: 210px;">Actions</td></tr></thead>' +
 		 '<tbody><%= rows %></tbody></table>'),
 
-		templateRow: _.template('<tr><td><%= utils.truncAddress(contract.id) %></td><td><%= contract.name %></td><td><%= contract.date %></td><td data-id="<%= contract.id %>"><button class="btn btn-primary btn-xs deets" data-widget="contract-detail">Details</button> <button class="btn btn-primary btn-xs tape">Paper Tape</button> <button class="btn btn-primary btn-xs state">Current State</button></td></tr>'),
+		templateRow: _.template('<tr><td><%= utils.truncAddress(contract.id) %></td><td><%= contract.name %></td><td><%= contract.date %></td><td data-id="<%= contract.id %>" data-name="<%= contract.name %>"><button class="btn btn-primary btn-xs deets" data-widget="contract-detail">Details</button> <button class="btn btn-primary btn-xs tape" data-widget="contract-paper-tape">Paper Tape</button> <button class="btn btn-primary btn-xs state" data-widget="contract-current-state">Current State</button></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -56,7 +56,7 @@
 		showContractDetail: function(e) {
 			e.preventDefault();
 
-			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data('id'), refetch: true });
+			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data(), refetch: true });
 		}
 	};
 

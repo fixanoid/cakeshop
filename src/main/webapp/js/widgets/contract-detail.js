@@ -15,7 +15,7 @@
 		},
 
 		setData: function(data) {
-			this.contractId = data;
+			this.contractId = data.id;
 		},
 
 		init: function(data) {
