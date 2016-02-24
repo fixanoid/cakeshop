@@ -169,7 +169,11 @@ var Tower = {
 		},
 
 		'contracts': function() {
-			Tower.screenManager.showSection('contracts', []);
+			var widgets = [
+				{ widgetId: 'contract-list' }
+			];
+
+			Tower.screenManager.showSection('contracts', widgets);
 		},
 
 		'explorer': function() {
