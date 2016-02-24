@@ -7,10 +7,10 @@
 		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
-		 '<thead style="font-weight: bold;"><tr><td>ID</td><td>Contract</td><td>Deploy Date</td></tr></thead>' +
+		 '<thead style="font-weight: bold;"><tr><td style="width: 90px;">ID</td><td>Contract</td><td>Deploy Date</td><td style="width: 210px;">Actions</td></tr></thead>' +
 		 '<tbody><%= rows %></tbody></table>'),
 
-		templateRow: _.template('<tr><td><a href="#" data-id="<%= contract.id %>"><%= utils.truncAddress(contract.id) %></a></td><td><%= contract.name %></td><td><%= contract.date %></td></tr>'),
+		templateRow: _.template('<tr><td><%= utils.truncAddress(contract.id) %></td><td><%= contract.name %></td><td><%= contract.date %></td><td data-id="<%= contract.id %>"><button class="btn btn-primary btn-xs deets" data-widget="contract-detail">Details</button> <button class="btn btn-primary btn-xs tape">Paper Tape</button> <button class="btn btn-primary btn-xs state">Current State</button></td></tr>'),
 
 		ready: function() {
 			this.render();
@@ -50,13 +50,13 @@
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
 
-			$('#widget-' + this.shell.id).on('click', 'a', this.showContractDetail);
+			$('#widget-' + this.shell.id).on('click', 'button', this.showContractDetail);
 		},
 
 		showContractDetail: function(e) {
 			e.preventDefault();
 
-			Tower.screenManager.show({ widgetId: 'contract-detail', section: 'contracts', data: $(this).data('id'), refetch: true });
+			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data('id'), refetch: true });
 		}
 	};
 
