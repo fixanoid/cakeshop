@@ -103,7 +103,8 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
         Object[] res = (Object[]) contractService.read(
                 contractRegistryAddress, this.abi,
                 "getById",
-                new Object[] { id });
+                new Object[] { id },
+                null);
 
         long createdDate = ((BigInteger) res[5]).longValue();
         if (((String) res[0]).contentEquals("0x00") || createdDate == 0) {
@@ -131,7 +132,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         Object[] res = (Object[]) contractService.read(
                 contractRegistryAddress, this.abi,
-                "listAddrs", null);
+                "listAddrs", null, null);
 
         List<Contract> contracts = new ArrayList<>();
         for (int i = 0; i < res.length; i++) {

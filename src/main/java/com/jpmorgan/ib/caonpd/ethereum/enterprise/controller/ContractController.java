@@ -110,9 +110,10 @@ public class ContractController extends BaseController {
     public ResponseEntity<APIResponse> read(
             @JsonBodyParam String id,
             @JsonBodyParam String method,
-            @JsonBodyParam Object[] args) throws APIException {
+            @JsonBodyParam Object[] args,
+            @JsonBodyParam(required=false) Object blockNumber) throws APIException {
 
-        Object result = contractService.read(id, method, args);
+        Object result = contractService.read(id, method, args, blockNumber);
         APIResponse res = new APIResponse();
         res.setData(result);
 

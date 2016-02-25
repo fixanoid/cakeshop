@@ -36,9 +36,9 @@ public interface ContractService {
 
 	public TransactionResult migrate() throws APIException;
 
-	public Object read(String id, String method, Object[] args) throws APIException;
+	public Object read(String id, String method, Object[] args, Object blockNumber) throws APIException;
 
-	public Object read(String id, ContractABI abi, String method, Object[] args) throws APIException;
+	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException;
 
 	public TransactionResult transact(String id, String method, Object[] args) throws APIException;
 

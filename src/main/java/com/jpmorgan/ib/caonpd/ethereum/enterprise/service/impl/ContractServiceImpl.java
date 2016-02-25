@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,7 +78,7 @@ public class ContractServiceImpl implements ContractService {
         }
     }
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContractServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContractServiceImpl.class);
 
     @Value("${contract.poll.delay.millis}")
     Long pollDelayMillis;
@@ -270,13 +271,20 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	@Override
-	public Object read(String id, String method, Object[] args) throws APIException {
-	    return read(id, lookupABI(id), method, args);
+	public Object read(String id, String method, Object[] args, Object blockNumber) throws APIException {
+	    return read(id, lookupABI(id), method, args, blockNumber);
 	}
 
 	@Override
-	public Object read(String id, ContractABI abi, String method, Object[] args) throws APIException {
+	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
 	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
+
+	    if (blockNumber != null) {
+	        if (!(blockNumber instanceof Number)) {
+	            throw new APIException("Invalid value for blockNumber: must be long or string");
+	        }
+	        req.setBlockNumber(blockNumber);
+	    }
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
 	    String res = (String) readRes.get("_result");

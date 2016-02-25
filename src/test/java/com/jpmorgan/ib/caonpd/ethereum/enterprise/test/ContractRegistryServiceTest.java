@@ -56,7 +56,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(contract.getCreatedDate(), createdDate);
 	    assertEquals(contract.getName(), "SimpleStorage");
 
-	    BigInteger val = (BigInteger) contractService.read(addr, "get", null);
+	    BigInteger val = (BigInteger) contractService.read(addr, "get", null, null);
 	    assertEquals(val.intValue(), 100);
 	}
 
