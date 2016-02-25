@@ -39,6 +39,9 @@ var Tower = {
 		$(window).on('hashchange', this.processHash);
 
 
+		// event handler registration for clipboard fuckery
+		$('#_clipboard_button').on('click', utils.copyToClipboard);
+
 		this.processHash();
 		this.socketInit();
 	},
@@ -273,6 +276,21 @@ $(function() {
 
 					(Tower.screenManager.idMap[wid].fetch && Tower.screenManager.idMap[wid].fetch());
 				}, 2000);
+			} else if ( el.hasClass('fa-link') ) {
+				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
+				 params = {
+					section: Tower.screenManager.idMap[wid].section,
+					widgetId: Tower.screenManager.idMap[wid].name,
+					data: Tower.screenManager.idMap[wid].data
+				 },
+				 link = document.location.protocol + '//' + document.location.host + document.location.pathname + '#';
+
+				link += $.param(params);
+
+				// TODO: add tooltip & data support
+
+				$('#_clipboard').val(link);
+				$('#_clipboard_button').click();
 			}
 		}
 	});

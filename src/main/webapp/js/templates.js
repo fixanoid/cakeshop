@@ -6,6 +6,7 @@ Tower.TEMPLATES._widget = function(opts) {
 			'		<div class="panel-heading">\n'+
 			'			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n'+
 			'			<ul class="rad-panel-action">\n'+
+			'				<li><i class="fa fa-link"></i></li>\n'+
 			'				<li><i class="fa fa-chevron-down"></i></li>\n'+
 			'				<li><i class="fa fa-rotate-right"></i></li>\n'+
 			'				<li><i class="fa fa-close"></i></li>\n'+

@@ -117,8 +117,26 @@ var utils = {
 		});
 	},
 
+	copyToClipboard: function(e) {
+	    var t = e.target,
+		 c = t.dataset.copytarget,
+		 inp = (c ? document.querySelector(c) : null);
+
+	    // is element selectable?
+	    if (inp && inp.select) {
+	        // select text
+	        inp.select();
+
+	        try {
+	    		// copy text
+	        	document.execCommand('copy');
+	        	inp.blur();
+	        } catch (err) {}
+	    }
+	},
+
 	truncAddress: function(addr) {
-        var len = addr.startsWith("0x") ? 10 : 8;
+        var len = addr.startsWith('0x') ? 10 : 8;
 
         return addr.substring(0, len);
     }
