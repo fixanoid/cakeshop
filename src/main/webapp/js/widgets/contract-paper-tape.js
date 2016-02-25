@@ -7,7 +7,7 @@
 		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed; background-color: #fcf8e3;" class="table"><%= rows %></table>'),
-		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td class="value"><%= text %></td></tr>'),
+		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td><%= text %></td></tr>'),
 
 		url: 'api/contract/transactions/list',
 
@@ -56,8 +56,6 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
-
-				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 			});
 		},
 

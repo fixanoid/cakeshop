@@ -1506,3 +1506,10 @@ a:active {
 	width: 100%;
 	margin: 2px;
 }
+
+
+pre {
+	background-color: inherit;
+    border: 0px;
+	padding: 0px;
+}

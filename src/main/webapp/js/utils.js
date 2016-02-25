@@ -76,7 +76,8 @@ var utils = {
 
 		if ( (ret.toLowerCase() === 'id') ||
 			(ret.toLowerCase() === 'url') ||
-			(ret.toLowerCase() === 'txn') ) {
+			(ret.toLowerCase() === 'txn') ||
+			(ret.toLowerCase() === 'abi') ) {
 			ret = ret.toUpperCase();
 		} else if (ret.toLowerCase().indexOf(' url') >= 0) {
 			ret = ret.substring(0, ret.indexOf(' Url')) +
