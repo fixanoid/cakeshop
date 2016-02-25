@@ -9,6 +9,37 @@
 
         initialize: function() {
             this.id = this.get('address');
+            if (this.get("abi") && this.get("abi").length > 0) {
+                this.abi = JSON.parse(this.get("abi"));
+            }
+        },
+
+        getMethod: function(methodName) {
+            if (!this.abi) {
+                return null;
+            }
+            return _.find(this.abi, function(m) { return m.type === "function" && m.name === methodName; });
+        },
+
+        readState: function() {
+            var contract = this;
+            return new Promise(function(resolve, reject) {
+                if (!contract.abi) {
+                    return reject();
+                }
+
+                var promises = [];
+                contract.abi.forEach(function(method) {
+                    if (method.constant === true && method.inputs.length === 0) {
+                        promises.push(new Promise(function(resolve, reject) {
+                            contract.read(method.name).then(function(res) {
+                                resolve({method: method.name, result: res});
+                            });
+                        }));
+                    }
+                });
+                Promise.all(promises).then(resolve, reject);
+            });
         },
 
         /**
