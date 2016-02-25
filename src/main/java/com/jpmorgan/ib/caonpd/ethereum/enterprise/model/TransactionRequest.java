@@ -20,6 +20,8 @@ public class TransactionRequest {
 
     private Map<String, Object> args;
 
+    private Object blockNumber;
+
     public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args) throws APIException {
 
         this.fromAddress = fromAddress;
@@ -40,7 +42,11 @@ public class TransactionRequest {
     }
 
     public Object[] getArgsArray() {
-        return new Object[] { getArgs() };
+        if (blockNumber == null) {
+            return new Object[] { getArgs() };
+        } else {
+            return new Object[] { getArgs(), blockNumber };
+        }
     }
 
     public String getFromAddress() {
@@ -81,6 +87,14 @@ public class TransactionRequest {
 
     public void setArgs(Map<String, Object> args) {
         this.args = args;
+    }
+
+    public Object getBlockNumber() {
+        return blockNumber;
+    }
+
+    public void setBlockNumber(Object blockNumber) {
+        this.blockNumber = blockNumber;
     }
 
 }
