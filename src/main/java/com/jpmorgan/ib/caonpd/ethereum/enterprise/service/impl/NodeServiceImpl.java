@@ -164,10 +164,7 @@ public class NodeServiceImpl implements NodeService {
         }
 
         String currExtraParams = gethConfig.getExtraParams();
-        if ((StringUtils.isNotBlank(currExtraParams) && StringUtils.isBlank(extraParams)) ||
-                (currExtraParams == null ||
-                    (extraParams != null && !extraParams.contentEquals(currExtraParams)))) {
-
+        if (extraParams != null && (currExtraParams == null || !extraParams.contentEquals(currExtraParams))) {
             gethConfig.setExtraParams(extraParams);
             restart = true;
         }
@@ -203,6 +200,7 @@ public class NodeServiceImpl implements NodeService {
             throw new APIException("Error saving config", e);
         }
 
+        // TODO reset/restart in background?
         if (reset) {
             gethService.reset();
         } else if (restart) {
