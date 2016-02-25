@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.test.Assert.*;
 import static org.testng.Assert.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
@@ -101,6 +102,12 @@ public class ContractServiceTest extends BaseGethRpcTest {
 		Contract contract = contractService.get(contractAddress);
 		assertNotNull(contract);
 		assertNotNull(contract.getBinary(), "Binary code should be present");
+	}
+
+	@Test
+	public void testGetInvalidId() throws APIException {
+		Contract contract = contractService.get("0xdeadbeef");
+		assertNull(contract);
 	}
 
 	@Test

@@ -163,7 +163,11 @@ public class NodeServiceImpl implements NodeService {
             }
         }
 
-        if (StringUtils.isNotBlank(extraParams) && (gethConfig.getExtraParams() == null || !extraParams.contentEquals(gethConfig.getExtraParams()))) {
+        String currExtraParams = gethConfig.getExtraParams();
+        if ((StringUtils.isNotBlank(currExtraParams) && StringUtils.isBlank(extraParams)) ||
+                (currExtraParams == null ||
+                    (extraParams != null && !extraParams.contentEquals(currExtraParams)))) {
+
             gethConfig.setExtraParams(extraParams);
             restart = true;
         }
