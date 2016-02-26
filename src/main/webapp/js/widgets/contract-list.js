@@ -50,10 +50,10 @@
 
 			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
 
-			$('#widget-' + this.shell.id).on('click', 'button', this.showContractDetail);
+			$('#widget-' + this.shell.id).on('click', 'button', this._handleButton);
 		},
 
-		showContractDetail: function(e) {
+		_handleButton: function(e) {
 			e.preventDefault();
 
 			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data(), refetch: true });

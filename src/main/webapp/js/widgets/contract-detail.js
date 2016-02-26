@@ -33,7 +33,7 @@
 			var _this = this;
 
 			Contract.get(this.contractId).done(function(contract) {
-				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html('Contract ' + contract.get('name'));
+				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(contract.get('name') + ' Contract');
 
 				var rows = [],
 				 keys = _.keys(contract.attributes);
