@@ -8,6 +8,11 @@
 
 		template: _.template('<table style="width: 100%; table-layout: fixed; background-color: #fcf8e3;" class="table"><%= rows %></table>'),
 		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td><%= text %></td></tr>'),
+		templateHeader: _.template('<span>[<a href="#" data-widget="block-detail" data-id="<%= txn.blockNumber %>">#<%= txn.blockNumber %></a>]</span>'),
+
+		header: function(txn) {
+			return this.templateHeader({txn: txn});
+		},
 
 		setData: function(data) {
 			this.data = data;
@@ -34,9 +39,9 @@
 
 					if (!txn.decodedInput) {
 						// Contract creation
-						text = _this.contractName + ' created at <a href="#">' + utils.truncAddress(txn.contractAddress) + '</a> on block <a href="#">' + txn.blockNumber + '</a>';
+						text = _this.header(txn) + ' Contract \'<a href="#" data-widget="contract-detail" data-id="' + txn.contractAddress +'">' + _this.contractName + '</a>\' created';
 					} else {
-						text = 'Called \'<span style="font-weight: bold; color: #375067;">' + txn.decodedInput.method +'</span>(<span style="font-weight: bold; color: #375067;">' + txn.decodedInput.args.join('</span>, <span style="font-weight: bold; color: #375067;">') + '</span>)\' that was committed on block #<a href="#">' + txn.blockNumber + '</a>';
+						text = _this.header(txn) + ' TXN <a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' + utils.truncAddress(txn.id) + '</a>: <span style="font-weight: bold; color: #375067;">' + txn.decodedInput.method +'</span>(<span style="font-weight: bold; color: #375067;">' + txn.decodedInput.args.join('</span>, <span style="font-weight: bold; color: #375067;">') + '</span>)';
 					}
 
 					rows.push( _this.templateRow({ text: text }) );
@@ -44,6 +49,22 @@
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 			});
+		},
+
+		postRender: function() {
+			$('#widget-' + this.shell.id).on('click', 'a', this._handle);
+		},
+
+		_handle: function(e) {
+			e.preventDefault();
+
+			var data = $(this).data('id');
+
+			if ($(this).data('widget') === 'contract-detail') {
+				data = $(this).data();
+			}
+
+			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: data, refetch: true });
 		}
 	};
 
