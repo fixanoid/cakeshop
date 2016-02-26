@@ -280,14 +280,22 @@ $(function() {
 				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
 				 params = {
 					section: Tower.screenManager.idMap[wid].section,
-					widgetId: Tower.screenManager.idMap[wid].name,
-					data: Tower.screenManager.idMap[wid].data
+					widgetId: Tower.screenManager.idMap[wid].name
 				 },
 				 link = document.location.protocol + '//' + document.location.host + document.location.pathname + '#';
 
+				if (Tower.screenManager.idMap[wid].data) {
+					params.data = Tower.screenManager.idMap[wid].data;
+				}
+
 				link += $.param(params);
 
-				// TODO: add tooltip & data support
+				// Notification tooltip
+				$(el).tooltip({ placement: 'top' }).tooltip('show');
+
+				setTimeout(function() {
+					$(el).tooltip('destroy');
+				}, 1000);
 
 				$('#_clipboard').val(link);
 				$('#_clipboard_button').click();
