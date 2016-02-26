@@ -69,7 +69,7 @@
 					);
 			 	});
 
-			$.when.apply($, promizes).done(function() {
+			Promise.all(promizes).then(function() {
 				var rowsOut = [];
 				rows = _.sortBy(rows, function(o) { return o.num; }).reverse();
 

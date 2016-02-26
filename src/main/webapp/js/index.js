@@ -30,6 +30,8 @@ var Tower = {
 
 
 	init: function() {
+		this.screenManager.widgetControls();
+
 		// Adding event for sleep / wake
 		$(document).on('visibilitychange', function(e) {
 			$(document).trigger('WidgetInternalEvent', [ 'tower-control|sleep|' + document.hidden]);
@@ -208,118 +210,12 @@ $(function() {
 		}
 	});
 
-	$(document).on('click', function(e) {
-		var $item = $('.rad-dropmenu-item');
-
-		if ($item.hasClass('active')) {
-			$item.removeClass('active');
-		}
-	});
-
-
 
 	// Menu (burger) handler
 	$('.rad-toggle-btn').on('click', function() {
 		$('.rad-logo-container').toggleClass('rad-nav-min');
 		$('.rad-sidebar').toggleClass('rad-nav-min');
 		$('.rad-body-wrapper').toggleClass('rad-nav-min');
-
-		setTimeout(function() {
-
-		}, 200);
-	});
-
-	// Theme handler / switcher
-	$('li.rad-dropdown > a.rad-menu-item').on('click', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		$('.rad-dropmenu-item').removeClass('active');
-		$(this).next('.rad-dropmenu-item').toggleClass('active');
-	});
-
-
-	$(document).on('click', function(e) {
-		var el = $(e.target);
-
-		if ( el.parent().parent().hasClass('rad-panel-action') ) {
-
-			// Widget collapse / expand handler
-			if ( el.hasClass('fa-chevron-down') ) {
-				var $ele = el.parents('.panel-heading');
-
-				$ele.siblings('.panel-footer').toggleClass('rad-collapse');
-				$ele.siblings('.panel-body').toggleClass('rad-collapse', function() {
-					setTimeout(function() {
-
-					}, 200);
-				});
-
-			// Widget close handler
-			} else if ( el.hasClass('fa-close') ) {
-				var $ele = el.parents('.panel');
-				$ele.addClass('panel-close');
-
-				setTimeout(function() {
-					$ele.parent().css({ 'display': 'none'});
-				}, 210);
-
-			// Widget refresh handler
-			} else if ( el.hasClass('fa-rotate-right') ) {
-				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
-				 $ele = el.parents('.panel-heading').siblings('.panel-body');
-
-				$ele.append('<div class="overlay"><div class="overlay-content"><i class="fa fa-refresh fa-2x fa-spin"></i></div></div>');
-
-				setTimeout(function() {
-					$ele.find('.overlay').remove();
-
-					(Tower.screenManager.idMap[wid].fetch && Tower.screenManager.idMap[wid].fetch());
-				}, 2000);
-			} else if ( el.hasClass('fa-link') ) {
-				var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
-				 params = {
-					section: Tower.screenManager.idMap[wid].section,
-					widgetId: Tower.screenManager.idMap[wid].name
-				 },
-				 link = document.location.protocol + '//' + document.location.host + document.location.pathname + '#';
-
-				if (Tower.screenManager.idMap[wid].data) {
-					params.data = JSON.stringify(Tower.screenManager.idMap[wid].data);
-				}
-
-				link += $.param(params);
-
-				// Notification tooltip
-				$(el).tooltip({ placement: 'top' }).tooltip('show');
-
-				setTimeout(function() {
-					$(el).tooltip('destroy');
-				}, 1000);
-
-				$('#_clipboard').val(link);
-				$('#_clipboard_button').click();
-			}
-		}
-	});
-
-
-	// Settings collapse / expand handler
-	$('.rad-chk-pin input[type=checkbox]').change(function(e) {
-		$('body').toggleClass('flat-theme');
-		$('#rad-color-opts').toggleClass('hide');
-	});
-
-	// Theme checkbox handlers
-	$('.rad-color-swatch input[type=radio]').change(function(e) {
-		if ($('.rad-chk-pin input[type=checkbox]').is(':checked')){
-			$('body').removeClass().addClass('flat-theme').addClass(this.value);
-			$('.rad-color-swatch label').removeClass('rad-option-selected');
-			$(this).parent().addClass('rad-option-selected');
-			$(window).scrollTop(0);
-		} else {
-			return false;
-		}
 	});
 
 
