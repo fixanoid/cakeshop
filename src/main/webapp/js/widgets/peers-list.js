@@ -4,6 +4,8 @@
 		title: 'Peer List',
 		size: 'medium',
 
+		hideLink: true,
+
 		url: 'api/node/peers',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),

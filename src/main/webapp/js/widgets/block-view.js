@@ -4,6 +4,9 @@
 		title: 'Find Block / Transaction',
 		size: 'small',
 
+		hideLink: true,
+		hideRefresh: true,
+
 		template: _.template(
 			'  <div class="form-group">' +
 			'    <label for="block-id">Identifier [number, hash, tag]</label>' +

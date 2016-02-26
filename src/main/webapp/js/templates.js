@@ -6,9 +6,12 @@ Tower.TEMPLATES._widget = function(opts) {
 			'		<div class="panel-heading">\n'+
 			'			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n'+
 			'			<ul class="rad-panel-action">\n'+
-			'				<li><i data-toggle="tooltip" title="Copied!" class="fa fa-link"></i></li>\n'+
+
+			( opts.hideLink === true ? '' : '				<li><i data-toggle="tooltip" data-title="Copied!" class="fa fa-link"></i></li>\n') +
+
 			'				<li><i class="fa fa-chevron-down"></i></li>\n'+
-			'				<li><i class="fa fa-rotate-right"></i></li>\n'+
+			( opts.hideRefresh === true ? '' : '				<li><i class="fa fa-rotate-right"></i></li>\n') +
+
 			'				<li><i class="fa fa-close"></i></li>\n'+
 			'			</ul>\n'+
 			'		</div>\n'+
@@ -18,17 +21,16 @@ Tower.TEMPLATES._widget = function(opts) {
 			'</div>'
 }
 
-Tower.TEMPLATES.widget = function(title, size) {
-	var opts = {
-		title: title,
+Tower.TEMPLATES.widget = function(o) {
+	var opts = _.extend({
 		id: Math.ceil(Math.random() * 100000000),
 
 		largeColumn: 3,
 		mediumColumn: 4,
 		smallColumn: 12
-	};
+	}, o);
 
-	switch (size) {
+	switch (opts.size) {
 		case 'medium':
 			opts.largeColumn = 6;
 			opts.mediumColumn = 12;
@@ -49,7 +51,7 @@ Tower.TEMPLATES.widget = function(title, size) {
 			opts.smallColumn = 12;
 
 			break;
-	}
+	};
 
 	return {
 		id: opts.id,

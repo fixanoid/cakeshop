@@ -6,6 +6,8 @@
 		knownPeers: [],
 		ip: null,
 
+		hideLink: true,
+
 		url: 'api/node/add_peer',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +

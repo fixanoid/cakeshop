@@ -4,6 +4,9 @@
 		title: 'Node Control',
 		size: 'small',
 
+		hideLink: true,
+		hideRefresh: true,
+
 		url: {
 			nodeControl: 'api/node',
 			minerControl: 'api/node/miner'

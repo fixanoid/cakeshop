@@ -1,4 +1,7 @@
 var widgetRoot = {
+	hideLink: false,
+	hideRefresh: false,
+
 	initialized: false,
 
 	ready: function() {
@@ -17,7 +20,12 @@ var widgetRoot = {
 			this.setData(data);
 		}
 
-		this.shell = Tower.TEMPLATES.widget(this.title, this.size);
+		this.shell = Tower.TEMPLATES.widget({
+			title: this.title,
+			size: this.size,
+			hideLink: this.hideLink,
+			hideRefresh: this.hideRefresh
+		});
 
 		this.initialized = true;
 		this.ready();

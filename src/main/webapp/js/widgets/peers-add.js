@@ -4,6 +4,9 @@
 		title: 'Add Peer',
 		size: 'small',
 
+		hideLink: true,
+		hideRefresh: true,
+
 		url: 'api/node/add_peer',
 
 		template: _.template(

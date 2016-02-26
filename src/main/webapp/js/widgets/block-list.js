@@ -7,6 +7,8 @@
 		url: 'api/block/get',
 		topic: '/topic/block',
 
+		hideLink: true,
+
 		lastBlockNum: null,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +

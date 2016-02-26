@@ -4,6 +4,8 @@
 		title: 'Node Settings',
 		size: 'small',
 
+		hideLink: true,
+
 		url: 'api/node/update',
 
 		template: _.template(
