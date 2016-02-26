@@ -7,32 +7,40 @@
 		url: 'api/node/update',
 
 		template: _.template(
-			'  <div class="form-group">' +
-			'    <label for="committingTransactions">Commiting Transactions</label>' +
-			'	 <select id="committingTransactions" class="form-control">' +
-			'	  <option value="true">Yes</option>' +
-			'	  <option value="false">No</option>' +
+			'<div class="form-group">' +
+			'	<label for="committingTransactions">Commiting Transactions</label>' +
+			'	<select id="committingTransactions" class="form-control">' +
+			'		<option value="true">Yes</option>' +
+			'		<option value="false">No</option>' +
 			'	</select>' +
-			'  </div>' +
-			'  <div class="form-group">' +
-			'    <label for="networkId">Network ID</label>' +
-			'    <input type="text" class="form-control" id="networkId">' +
-			'  </div>' +
-			'  <div class="form-group">' +
-			'    <label for="identity">Identity</label>' +
-			'    <input type="text" class="form-control" id="identity">' +
-			'  </div>' +
-			'  <div class="form-group">' +
-			'    <label for="logLevel">Log Level</label>' +
+			'</div>' +
+			'<div class="form-group">' +
+			'	<label for="networkId">Network ID</label>' +
+			'	<input type="text" class="form-control" id="networkId">' +
+			'</div>' +
+			'<div class="form-group">' +
+			'	<label for="identity">Identity</label>' +
+			'	<input type="text" class="form-control" id="identity">' +
+			'</div>' +
+			'<div class="form-group">' +
+			'	<label for="logLevel">Log Level</label>' +
 			'	<select id="logLevel" class="form-control">' +
-			'	  <option value="6">TRACE</option>' +
-			'	  <option value="5">DEBUG</option>' +
-			'	  <option value="4">INFO</option>' +
-			'	  <option value="3">WARN</option>' +
-			'	  <option value="2">ERROR</option>' +
-			'	  <option value="1">FATAL</option>' +
+			'		<option value="6">TRACE</option>' +
+			'		<option value="5">DEBUG</option>' +
+			'		<option value="4">INFO</option>' +
+			'		<option value="3">WARN</option>' +
+			'		<option value="2">ERROR</option>' +
+			'		<option value="1">FATAL</option>' +
 			'	</select>' +
-			'  </div>'),
+			'</div>' +
+			'<div class="form-group">' +
+			'	<label for="extraParams">Extra Start-up Params</label>' +
+			'	<input type="text" class="form-control" id="extraParams">' +
+			'</div>' +
+			'<div class="form-group">' +
+			'	<label for="genesisBlock">Genesis Block</label>' +
+			'	<textarea class="form-control" rows="5" id="genesisBlock"></textarea>' +
+			'</div>'),
 
 
 		fetch: function() {
@@ -45,6 +53,8 @@
 				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.identity ? info.data.attributes.identity : '' );
 				$('#widget-' + _this.shell.id + ' #logLevel').val( info.data.attributes.logLevel ? info.data.attributes.logLevel : '4' );
 				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.committingTransactions ? 'true' : 'false' );
+				$('#widget-' + _this.shell.id + ' #extraParams').val( info.data.attributes.extraParams ? info.data.attributes.extraParams : '' );
+				$('#widget-' + _this.shell.id + ' #genesisBlock').val( info.data.attributes.genesisBlock ? info.data.attributes.genesisBlock : '' );
 			});
 		},
 
@@ -55,8 +65,7 @@
 				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })
 				.html( this.template({}) );
 
-			$('#widget-' + this.shell.id + ' input').change(this._handler);
-			$('#widget-' + this.shell.id + ' select').change(this._handler);
+			$('#widget-' + this.shell.id + ' .form-control').change(this._handler);
 
 			this.fetch();
 		},

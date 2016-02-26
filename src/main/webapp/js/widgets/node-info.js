@@ -50,6 +50,9 @@
 
 				keys = utils.idAlwaysFirst(keys);
 
+				// objects not shown in this widget
+				keys = _.without(keys, 'config', 'peers');
+
 
 				_.each(keys, function(val, key) {
 					rows.push( _this.templateRow({ key: utils.camelToRegularForm(val), value: info.data.attributes[val] }) );
