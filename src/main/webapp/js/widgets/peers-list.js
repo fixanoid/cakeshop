@@ -1,10 +1,10 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'peers-list',
 		title: 'Peer List',
 		size: 'medium',
 
-		initialized: false,
+		url: 'api/node/peers',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 10px;">' +
@@ -14,18 +14,6 @@
 			//'	<tr><td style="font-weight: bold;">IPs</td><td><%= o.nodeIP %></td><td><%= o.status %></td></tr>' +
 			'</table></td></tr>'),
 
-		ready: function() {
-			this.render();
-		},
-
-		url: 'api/node/peers',
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-		},
 
 		fetch: function() {
 			var _this = this;
@@ -41,7 +29,7 @@
 					});
 
 					$(document).trigger('WidgetInternalEvent', [ widget.name + '|fetch|' + JSON.stringify(info.data.attributes) ] );
-					
+
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 
 					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
@@ -49,17 +37,11 @@
 					// no peers
 				}
 			});
-		},
-
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

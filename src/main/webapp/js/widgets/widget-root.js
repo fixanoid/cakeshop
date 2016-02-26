@@ -10,6 +10,7 @@ var widgetRoot = {
 	},
 
 	fetch: function() { },
+	subscribe: function() { },
 
 	init: function(data) {
 		if (data) {
@@ -20,6 +21,8 @@ var widgetRoot = {
 
 		this.initialized = true;
 		this.ready();
+
+		this.subscribe();
 	},
 
 	render: function() {
@@ -33,5 +36,9 @@ var widgetRoot = {
 			'overflow-x': 'hidden',
 			'width': '100%'
 		});
-	}
+
+		this.postRender();
+	},
+
+	postRender: function() { },
 };

@@ -1,11 +1,10 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'node-settings',
 		title: 'Node Settings',
 		size: 'small',
 
-		initialized: false,
-		shell: null,
+		url: 'api/node/update',
 
 		template: _.template(
 			'  <div class="form-group">' +
@@ -34,16 +33,7 @@
 			'	  <option value="1">FATAL</option>' +
 			'	</select>' +
 			'  </div>'),
-			// '  <div class="pull-right form-group">' +
-			// '    <a href="#"> <i class="fa fa-download"></i> Download Genesis Block</a>' +
-			// '  </div>'),
 
-		// this may be overwritten by main runner
-		ready: function() {
-			this.render();
-		},
-
-		url: 'api/node/update',
 
 		fetch: function() {
 			var _this = this;
@@ -56,13 +46,6 @@
 				$('#widget-' + _this.shell.id + ' #logLevel').val( info.data.attributes.logLevel ? info.data.attributes.logLevel : '4' );
 				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.committingTransactions ? 'true' : 'false' );
 			});
-		},
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
 		},
 
 		render: function() {
@@ -95,6 +78,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

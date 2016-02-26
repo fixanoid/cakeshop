@@ -1,10 +1,26 @@
+/**
+ *	Widget template.
+ *
+ *	Loading flow:
+ *		1. Register in a section for displaying
+ *		2. Widget is pulled down
+ *		3. addWidget called on screenManager
+ *		4. screenManager calls widget.init
+ *			5. widget.setData is called by widget.init
+ *			6. widget.initialized is toggled
+ *			7. widget.ready is called by widget.init
+ *				8. widget.render is called by widget.init
+ *					9. widget.fetch is called by widget.render
+ *					10. widget.postRender is called by widget.render
+ *			11. widget.subscribe is called by widget.init
+ */
 (function() {
-	var widget = {
+	var extended = {
 		name: 'widget-id',
 		title: 'Widget Name That Appears on it',
-		size: 'small', // 'small', 'medium', 'large', 'third'
+		size: 'medium', // 'small', 'medium', 'large', 'third'
 
-		initialized: false,
+		// url: 'TBD', // fill if needed
 
 		template: _.template('<ul class="widget-node-control">'+ // internal template
 				'<li>List item 1</li>'+
@@ -13,31 +29,7 @@
 				'<li>List item 2</li>'+
 			'</ul>'),
 
-		// this may be overwritten by main runner
-		ready: function() {	// executed when the widget is preped and ready
-			this.render();
-		},
-
-		url: 'TBD',
-
-		setData: function(data) {
-			// set up my dataset and reload if needed.
-			// this.fetch();
-		},
-
-		init: function(data) { // executed by screen manager when registered
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);	// external template shell
-
-			this.initialized = true;
-			this.ready();
-
-			// pass the data to the setData
-			// this.setData(data);
-		},
-
-		render: function() { // executed when placing on screen
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
+		postRender: function() { // executed when placing on screen
 			$('#widget-' + this.shell.id).html(this.template({}));
 			$('#widget-' + this.shell.id + ' button').click(this._handler);
 		},
@@ -47,6 +39,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

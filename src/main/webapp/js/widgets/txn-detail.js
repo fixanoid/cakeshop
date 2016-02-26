@@ -1,33 +1,20 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'txn-detail',
 		size: 'medium',
 
-		initialized: false,
+		url: 'api/transaction/get',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="width: 160px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 		templateBlockRow: _.template('<tr><td style="width: 160px;"><%= key %></td><td style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><a href="#"><%= value %></a></td></tr>'),
 
-		ready: function() {
-			this.render();
-		},
-
-		url: 'api/transaction/get',
 
 		setData: function(data) {
+			this.data = data;
 			this.txnAddy = data;
 
 			this.title = 'Transaction #' + this.txnAddy;
-		},
-
-		init: function(data) {
-			this.setData(data);
-
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
 		},
 
 		fetch: function() {
@@ -96,14 +83,7 @@
 			});
 		},
 
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
-
+		postRender: function() {
 			$('#widget-' + this.shell.id).on('click', 'a', function(e) {
 				e.preventDefault();
 
@@ -112,6 +92,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

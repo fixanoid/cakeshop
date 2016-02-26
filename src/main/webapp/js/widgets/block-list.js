@@ -1,10 +1,11 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'block-list',
 		title: 'Block List',
 		size: 'small',
 
-		initialized: false,
+		url: 'api/block/get',
+		topic: '/topic/block',
 
 		lastBlockNum: null,
 
@@ -14,25 +15,13 @@
 
 		templateRow: _.template('<tr><td>#<a href="#"><%= block.num %></a></td><td><%= moment.unix(block.age).fromNow() %></td><td <% if (block.txnCount == 0) { %>style="opacity: 0.2;"<% } %>><%= block.txnCount %></td></tr>'),
 
-		ready: function() {
-			this.render();
-		},
-
-		url: 'api/block/get',
-		topic: '/topic/block',
-
 		setData: function(data) {
+			this.data = data;
+
 			this.lastBlockNum = data;
 		},
 
-		init: function(data) {
-			this.setData(data);
-
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-
+		subscribe: function(data) {
 			// subscribe to get new blocks
 			utils.subscribe(this.topic, this.onNewBlock);
 		},
@@ -92,13 +81,7 @@
 			});
 		},
 
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
+		postRender: function() {
 			$('#widget-' + this.shell.id).on('click', 'a', this.showBlock);
 		},
 
@@ -109,6 +92,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

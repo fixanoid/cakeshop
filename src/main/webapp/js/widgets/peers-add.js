@@ -1,11 +1,10 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'peers-add',
 		title: 'Add Peer',
 		size: 'small',
 
-		initialized: false,
-		shell: null,
+		url: 'api/node/add_peer',
 
 		template: _.template(
 			'  <div class="form-group">' +
@@ -18,30 +17,9 @@
 			'  <div id="notification">' +
 			'  </div>'),
 
-		// this may be overwritten by main runner
-		ready: function() {
-			this.render();
-		},
 
-		url: 'api/node/add_peer',
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-		},
-
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			$('#widget-' + this.shell.id)
-				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })
-				.html( this.template({}) );
-				// .slimScroll({
-				// 		height: '240px',
-				// 		color: '#c6c6c6'
-				// 	});
+		postRender: function() {
+			$('#widget-' + this.shell.id).html( this.template({}) );
 
 			$('#widget-' + this.shell.id + ' button').click(this._handler);
 		},
@@ -82,6 +60,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

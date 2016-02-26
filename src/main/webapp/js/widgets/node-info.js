@@ -1,26 +1,16 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'node-info',
 		title: 'Node Client Info',
 		size: 'medium',
 
-		initialized: false,
+		url: 'api/node/get',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
-		ready: function() {
-			this.render();
-		},
 
-		url: 'api/node/get',
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-
+		subscribe: function() {
 			// adding listener to reload the widget if identity is updated
 			$(document).on('WidgetInternalEvent', function(ev, action) {
 				if (action === 'node-settings|updated|identity') {
@@ -69,18 +59,11 @@
 
 				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 			});
-		},
-
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

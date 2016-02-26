@@ -55,7 +55,7 @@ var Tower = {
 
 			_.each(hash.split('&'), function(pair) {
 				pair = pair.split('=');
-				params[pair[0]] = pair[1];
+				params[pair[0]] = decodeURIComponent(pair[1]);
 			});
 
 			var werk = function() {
@@ -64,7 +64,7 @@ var Tower = {
 				}
 
 				if (params.widgetId) {
-					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
+					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: JSON.parse(params.data), refetch: true });
 				}
 			};
 
@@ -285,9 +285,9 @@ $(function() {
 				 link = document.location.protocol + '//' + document.location.host + document.location.pathname + '#';
 
 				if (Tower.screenManager.idMap[wid].data) {
-					params.data = Tower.screenManager.idMap[wid].data;
+					params.data = JSON.stringify(Tower.screenManager.idMap[wid].data);
 				}
-
+console.log('[create]', params)
 				link += $.param(params);
 
 				// Notification tooltip

@@ -1,11 +1,13 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'node-control',
 		title: 'Node Control',
 		size: 'small',
 
-		initialized: false,
-		shell: null,
+		url: {
+			nodeControl: 'api/node',
+			minerControl: 'api/node/miner'
+		},
 
 		template: _.template('<ul class="widget-node-control">'+
 				'<li><button type="button" class="btn btn-default" id="restart">Restart Node</button></li>'+
@@ -14,23 +16,6 @@
 				'<li><button type="button" class="btn btn-default" id="reset">Create New Chain</button></li>'+
 				//'<li><button type="button" class="btn btn-default" id="miner">Toggle Mining</button></li>'+
 			'</ul>'),
-
-		// this may be overwritten by main runner
-		ready: function() {
-			widget.render();
-		},
-
-		url: {
-			nodeControl: 'api/node',
-			minerControl: 'api/node/miner'
-		},
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-		},
 
 		render: function() {
 			Tower.screenManager.grounds.append(this.shell.tpl);
@@ -68,6 +53,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence
 	Tower.screenManager.addWidget(widget);

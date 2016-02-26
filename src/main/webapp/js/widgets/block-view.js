@@ -1,11 +1,8 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'block-view',
 		title: 'Find Block / Transaction',
 		size: 'small',
-
-		initialized: false,
-		shell: null,
 
 		template: _.template(
 			'  <div class="form-group">' +
@@ -30,28 +27,16 @@
 			'  <div id="notification">' +
 			'  </div>'),
 
-		// this may be overwritten by main runner
-		ready: function() {
-			this.render();
-		},
-
-		init: function() {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-		},
-
 		render: function() {
 			Tower.screenManager.grounds.append(this.shell.tpl);
 
 			$('#widget-' + this.shell.id)
-				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })
+				.css({
+					'height': '240px',
+					'margin-bottom': '10px',
+					'overflow': 'auto'
+				})
 				.html( this.template({}) );
-				// .slimScroll({
-				// 		height: '240px',
-				// 		color: '#c6c6c6'
-				// 	});
 
 			$('#widget-' + this.shell.id + ' button').click(this._handler);
 		},
@@ -68,6 +53,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

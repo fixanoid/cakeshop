@@ -1,27 +1,14 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'contract-list',
 		title: 'Deployed Contract List',
 		size: 'medium',
-
-		initialized: false,
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 		 '<thead style="font-weight: bold;"><tr><td style="width: 90px;">ID</td><td>Contract</td><td>Deploy Date</td><td style="width: 210px;">Actions</td></tr></thead>' +
 		 '<tbody><%= rows %></tbody></table>'),
 
 		templateRow: _.template('<tr><td><%= utils.truncAddress(contract.id) %></td><td><%= contract.name %></td><td><%= contract.date %></td><td data-id="<%= contract.id %>" data-name="<%= contract.name %>"><button class="btn btn-primary btn-xs deets" data-widget="contract-detail">Details</button> <button class="btn btn-primary btn-xs tape" data-widget="contract-paper-tape">Paper Tape</button> <button class="btn btn-primary btn-xs state" data-widget="contract-current-state">Current State</button></td></tr>'),
-
-		ready: function() {
-			this.render();
-		},
-
-		init: function(data) {
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
-		},
 
 
 		fetch: function() {
@@ -43,13 +30,7 @@
 	        });
 		},
 
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
+		postRender: function() {
 			$('#widget-' + this.shell.id).on('click', 'button', this._handleButton);
 		},
 
@@ -60,6 +41,8 @@
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

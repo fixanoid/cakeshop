@@ -1,33 +1,19 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'block-detail',
 		size: 'medium',
 
-		initialized: false,
+		url: 'api/block/get',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 		templateTxnRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td style="text-overflow: ellipsis; overflow: hidden;"><%= value %></td></tr>'),
 
-		ready: function() {
-			this.render();
-		},
-
-		url: 'api/block/get',
-
 		setData: function(data) {
+			this.data = data;
 			this.blockNumber = data;
 
 			this.title = 'Block #' + this.blockNumber;
-		},
-
-		init: function(data) {
-			this.setData(data);
-
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
 		},
 
 		fetch: function() {
@@ -91,18 +77,11 @@
 					Tower.screenManager.show({ widgetId: 'txn-detail', section: 'explorer', data: $(this).text(), refetch: true });
 				});
 			});
-		},
-
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
-
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);

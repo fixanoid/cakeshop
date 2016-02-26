@@ -1,32 +1,19 @@
 (function() {
-	var widget = {
+	var extended = {
 		name: 'contract-paper-tape',
 		title: 'Contract Paper Tape',
 		size: 'small',
 
-		initialized: false,
+		url: 'api/contract/transactions/list',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed; background-color: #fcf8e3;" class="table"><%= rows %></table>'),
 		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td><%= text %></td></tr>'),
 
-		url: 'api/contract/transactions/list',
-
-		ready: function() {
-			this.render();
-		},
-
 		setData: function(data) {
+			this.data = data;
+
 			this.contractName = data.name;
 			this.contractId = data.id;
-		},
-
-		init: function(data) {
-			this.setData(data);
-
-			this.shell = Tower.TEMPLATES.widget(this.title, this.size);
-
-			this.initialized = true;
-			this.ready();
 		},
 
 		fetch: function() {
@@ -57,17 +44,11 @@
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 			});
-		},
-
-		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
-
-			this.fetch();
-
-			$('#widget-' + this.shell.id).css({ 'height': '240px', 'margin-bottom': '10px', 'overflow-x': 'hidden', 'width': '100%' });
 		}
 	};
 
+
+	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
 	Tower.screenManager.addWidget(widget);
