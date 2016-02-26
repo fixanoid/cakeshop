@@ -287,7 +287,7 @@ $(function() {
 				if (Tower.screenManager.idMap[wid].data) {
 					params.data = JSON.stringify(Tower.screenManager.idMap[wid].data);
 				}
-console.log('[create]', params)
+
 				link += $.param(params);
 
 				// Notification tooltip
