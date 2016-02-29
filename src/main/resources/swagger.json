@@ -31,7 +31,7 @@
                 "tags": [
                     "block"
                 ],
-                "description": "Retrieve a block by number, hash or tag",
+                "description": "Retrieve a block by id, number or tag",
                 "operationId": "postBlock",
                 "consumes": [
                     "application/json"
@@ -46,18 +46,18 @@
                         "required": true,
                         "schema": {
                             "properties": {
+                                "id": {
+                                    "description": "Block ID (hash) to retrieve",
+                                    "type": "string",
+                                    "required": false
+                                },
                                 "number": {
                                     "description": "Block number to retrieve",
                                     "type": "integer",
                                     "required": false
                                 },
-                                "hash": {
-                                    "description": "Block hash to retrieve",
-                                    "type": "string",
-                                    "required": false
-                                },
                                 "tag": {
-                                    "description": "\"earliest\", \"latest\" or \"pending\"",
+                                    "description": "One of \"earliest\", \"latest\" or \"pending\"",
                                     "type": "string",
                                     "required": false
                                 }
@@ -73,9 +73,9 @@
                         }
                     },
                     {
-                        "name": "Get block by hash",
+                        "name": "Get block by ID",
                         "parameters": {
-                            "body": "{\n\n  \"hash\":\n\"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"\n}\n"
+                            "body": "{\n\n  \"id\":\n\"0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c\"\n}\n"
                         }
                     },
                     {
@@ -154,13 +154,12 @@
                 }
             }
         },
-        "/contract/create": {
+        "/contract/compile": {
             "post": {
                 "tags": [
                     "contract"
                 ],
-                "description": "Create a new Contract",
-                "operationId": "postContractCreate",
+                "description": "Compile the given source code into EVM binary",
                 "consumes": [
                     "application/json"
                 ],
@@ -174,22 +173,6 @@
                         "required": true,
                         "schema": {
                             "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                },
-                                "keys": {
-                                    "type": "array",
-                                    "description": "Pubkeys that can access contract.",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "abi": {
-                                    "type": "string",
-                                    "description": "Contract ABI"
-                                },
                                 "code": {
                                     "type": "string",
                                     "description": "Contract source code"
@@ -204,6 +187,147 @@
                                         "llvm",
                                         "serpent"
                                     ]
+                                },
+                                "optimize": {
+                                    "type": "boolean",
+                                    "required": false,
+                                    "description": "Generate optimized code",
+                                    "default": false
+                                }
+                            }
+                        }
+                    }
+                ],
+                "examples": [
+                    {
+                        "name": "Compile SimpleStorage contract",
+                        "parameters": {
+                            "body": "{\n\n  \"code\": \"contract SimpleStorage { uint storedData; function\nset(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }\",\n\n  \"code_type\": \"solidity\"\n\n}\n"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object",
+                                    "description": "response data",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "n/a for compile"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "resource type identifier, 'contract'"
+                                        },
+                                        "attributes": {
+                                            "$ref": "#/definitions/Contract"
+                                        }
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    },
+                    "4xx": {
+                        "description": "Error with the request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    },
+                    "5xx": {
+                        "description": "Error processing the request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/APIError"
+                                    }
+                                },
+                                "meta": {
+                                    "type": "object",
+                                    "description": "Extra metadata, such as API version"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/create": {
+            "post": {
+                "tags": [
+                    "contract"
+                ],
+                "description": "Deploy the given contract onto the chain and add it to the Contract Registry",
+                "operationId": "postContractCreate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "code": {
+                                    "type": "string",
+                                    "description": "Contract source code"
+                                },
+                                "code_type": {
+                                    "type": "string",
+                                    "description": "Type of code being submitted",
+                                    "default": "solidity",
+                                    "enum": [
+                                        "solidity",
+                                        "binary",
+                                        "llvm",
+                                        "serpent"
+                                    ]
+                                },
+                                "args": {
+                                    "type": "array",
+                                    "required": false,
+                                    "description": "Constructor arguments (if needed)",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                },
+                                "binary": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "If multiple contracts are specified in the source code, a specific binary to deploy can be passed here"
+                                },
+                                "optimize": {
+                                    "type": "boolean",
+                                    "required": false,
+                                    "description": "Generate optimized code",
+                                    "default": false
                                 }
                             }
                         }
@@ -286,109 +410,13 @@
                 }
             }
         },
-        "/contract/delete": {
-            "post": {
-                "tags": [
-                    "contract"
-                ],
-                "description": "Delete a contract by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "required": true,
-                        "schema": {
-                            "properties": {
-                                "id": {
-                                    "type": "string",
-                                    "description": "ID (address) of contract to delete",
-                                    "example": "0x01f999deef030a0f3c55cec46e6693c06c6b01f8"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "type": "object",
-                                    "description": "response data",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "description": "Transaction ID for delete operation"
-                                        },
-                                        "type": {
-                                            "type": "string",
-                                            "description": "resource type identifier, 'transaction_result'"
-                                        },
-                                        "attributes": {
-                                            "$ref": "#/definitions/TransactionResult"
-                                        }
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "4xx": {
-                        "description": "Error with the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "5xx": {
-                        "description": "Error processing the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/contract/get": {
             "post": {
                 "tags": [
                     "contract"
                 ],
                 "operationId": "postContractGet",
+                "description": "Get information about the contract at the given address",
                 "consumes": [
                     "application/json"
                 ],
@@ -413,7 +441,7 @@
                 ],
                 "examples": [
                     {
-                        "name": "Create SimpleStorage contract",
+                        "name": "Get info about SimpleStorage contract",
                         "parameters": {
                             "body": "{\n  \"address\": \"<ENTER ADDRESS HERE>\"\n}\n"
                         }
@@ -500,27 +528,6 @@
                 "produces": [
                     "application/json"
                 ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "required": true,
-                        "schema": {
-                            "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey. Endpoint will only return contracts visible to sender."
-                                },
-                                "key": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "Filter contracts by those visible to this key"
-                                }
-                            }
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -593,32 +600,12 @@
                 }
             }
         },
-        "/contract/migrate": {
-            "post": {
-                "tags": [
-                    "contract"
-                ],
-                "description": "TODO migrate a contract to a new address (redeploy the code)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/contract/read": {
             "post": {
                 "tags": [
                     "contract"
                 ],
-                "description": "Execute a non-transactional method of a contract, usually to read some data (synchronously)",
+                "description": "Read contract data using the given method and arguments (does not create a transaction). Optionally read historical state data by passing a block number in the past.",
                 "operationId": "postContractRead",
                 "consumes": [
                     "application/json"
@@ -633,15 +620,10 @@
                         "required": true,
                         "schema": {
                             "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                },
                                 "id": {
                                     "type": "string",
                                     "required": true,
-                                    "description": "Contract ID (address) to read from",
+                                    "description": "Contract ID (address hash) to read from",
                                     "example": ""
                                 },
                                 "method": {
@@ -657,41 +639,10 @@
                                         "type": "object"
                                     }
                                 },
-                                "code": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "TODO run the given code direclty in the EVM"
-                                },
-                                "code_type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "solidity",
-                                        "binary",
-                                        "llvm",
-                                        "serpent"
-                                    ]
-                                },
-                                "from": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "the address for the sending account",
-                                    "default": "TODO server coinbase?"
-                                },
-                                "gas": {
+                                "blockNumber": {
                                     "type": "integer",
                                     "required": false,
-                                    "description": "the amount of gas to use for the transaction",
-                                    "default": 3141592
-                                },
-                                "gasPrice": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "the price of gas for this transaction in wei, defaults to the mean network gas price"
-                                },
-                                "value": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "amount of Ether to transfer to contract"
+                                    "description": "Block from which to read the state from"
                                 }
                             }
                         }
@@ -768,7 +719,7 @@
                 "tags": [
                     "contract"
                 ],
-                "description": "Execute a transactional method of a contract (asynchronously)",
+                "description": "Call a transactional method on the given contract. No state will change until the transaction is committed into a Block.",
                 "operationId": "postContractTransact",
                 "consumes": [
                     "application/json"
@@ -783,15 +734,10 @@
                         "required": true,
                         "schema": {
                             "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                },
                                 "id": {
                                     "type": "string",
                                     "required": true,
-                                    "description": "Contract ID (address) to read from",
+                                    "description": "Contract ID (address hash) to transact with",
                                     "example": ""
                                 },
                                 "method": {
@@ -806,42 +752,6 @@
                                     "items": {
                                         "type": "object"
                                     }
-                                },
-                                "code": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "TODO run the given code direclty in the EVM"
-                                },
-                                "code_type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "solidity",
-                                        "binary",
-                                        "llvm",
-                                        "serpent"
-                                    ]
-                                },
-                                "from": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "the address for the sending account",
-                                    "default": "TODO server coinbase?"
-                                },
-                                "gas": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "the amount of gas to use for the transaction",
-                                    "default": 3141592
-                                },
-                                "gasPrice": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "the price of gas for this transaction in wei, defaults to the mean network gas price"
-                                },
-                                "value": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "amount of Ether to transfer to contract"
                                 }
                             }
                         }
@@ -921,7 +831,7 @@
                 "tags": [
                     "transaction"
                 ],
-                "description": "Retrieve a transaction by txid",
+                "description": "Get transaction information for the given ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -935,15 +845,10 @@
                         "required": true,
                         "schema": {
                             "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                },
                                 "id": {
                                     "type": "string",
                                     "required": true,
-                                    "description": "Transaction ID (address) to retrieve",
+                                    "description": "Transaction ID (hash) to retrieve",
                                     "example": ""
                                 }
                             }
@@ -954,7 +859,7 @@
                     {
                         "name": "Retrieve Transaction information",
                         "parameters": {
-                            "body": "{\n  \"address\": \"<ENTER ADDRESS HERE>\"\n}\n"
+                            "body": "{\n  \"id\": \"<ENTER HASH HERE>\"\n}\n"
                         }
                     }
                 ],
@@ -1027,222 +932,12 @@
                 }
             }
         },
-        "/transaction/list": {
-            "post": {
-                "tags": [
-                    "transaction"
-                ],
-                "description": "Query for transactions",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "required": true,
-                        "schema": {
-                            "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                },
-                                "block_number": {
-                                    "type": "integer",
-                                    "required": false,
-                                    "description": "Block number"
-                                },
-                                "block_hash": {
-                                    "type": "string",
-                                    "required": false,
-                                    "description": "Block hash (address)"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "description": "response data",
-                                        "properties": {
-                                            "id": {
-                                                "type": "string",
-                                                "description": "Transaction ID"
-                                            },
-                                            "type": {
-                                                "type": "string",
-                                                "description": "resource type identifier, 'transaction'"
-                                            },
-                                            "attributes": {
-                                                "$ref": "#/definitions/Transaction"
-                                            }
-                                        }
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "4xx": {
-                        "description": "Error with the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "5xx": {
-                        "description": "Error processing the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/transaction/pending": {
-            "post": {
-                "tags": [
-                    "transaction"
-                ],
-                "description": "TODO Query for pending transactions",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "required": true,
-                        "schema": {
-                            "properties": {
-                                "sender": {
-                                    "type": "string",
-                                    "required": true,
-                                    "description": "Request sender pubkey"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "description": "response data",
-                                        "properties": {
-                                            "id": {
-                                                "type": "string",
-                                                "description": "Transaction ID"
-                                            },
-                                            "type": {
-                                                "type": "string",
-                                                "description": "resource type identifier, 'transaction'"
-                                            },
-                                            "attributes": {
-                                                "$ref": "#/definitions/Transaction"
-                                            }
-                                        }
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "4xx": {
-                        "description": "Error with the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    },
-                    "5xx": {
-                        "description": "Error processing the request",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/APIError"
-                                    }
-                                },
-                                "meta": {
-                                    "type": "object",
-                                    "description": "Extra metadata, such as API version"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/node/get": {
             "post": {
                 "tags": [
                     "node"
                 ],
-                "description": "Retrieve information on the node you are connecting to.",
+                "description": "Get node information",
                 "consumes": [
                     "application/json"
                 ],
@@ -1401,7 +1096,7 @@
                 "tags": [
                     "node"
                 ],
-                "description": "Start ethereum node",
+                "description": "Start node",
                 "consumes": [
                     "application/json"
                 ],
@@ -1479,7 +1174,7 @@
                 "tags": [
                     "node"
                 ],
-                "description": "Stop ethereum node",
+                "description": "Stop node",
                 "consumes": [
                     "application/json"
                 ],
@@ -1633,7 +1328,7 @@
                 "tags": [
                     "node"
                 ],
-                "description": "Update node configuration",
+                "description": "Update node configuration. May cause node to restart or even reset.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1647,25 +1342,35 @@
                         "required": true,
                         "schema": {
                             "properties": {
-                                "log_level": {
+                                "logLevel": {
                                     "type": "integer",
                                     "required": false,
                                     "description": "Set log level (0-6, 6 is most verbose)"
                                 },
-                                "network_id": {
+                                "networkId": {
                                     "type": "integer",
                                     "required": false,
-                                    "description": "Network ID (any integer value)"
+                                    "description": "Network ID (any integer value; node will restart)"
                                 },
                                 "identity": {
                                     "type": "string",
                                     "required": false,
-                                    "description": "Change node identity"
+                                    "description": "Change node identity (node will restart)"
                                 },
-                                "committing_transactions": {
+                                "committingTransactions": {
                                     "type": "boolean",
                                     "required": false,
-                                    "description": "Whether or not the node should commit incoming transactions (i.e. toggle mining)"
+                                    "description": "Whether or not the node should commit incoming transactions (i.e., toggle mining)"
+                                },
+                                "extraParams": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "Extra parameters to pass to the node (startup flags; node will restart)"
+                                },
+                                "genesisBlock": {
+                                    "type": "string",
+                                    "required": false,
+                                    "description": "Genesis block to use for the chain (modifying this will reset the chain)"
                                 }
                             }
                         }
@@ -2005,15 +1710,15 @@
                     "type": "string",
                     "description": "Friendly node name which gets included in the full node Name"
                 },
-                "mining": {
+                "committingTransactions": {
                     "type": "boolean",
                     "description": "Indicates whether the node is commiting transactions or not"
                 },
-                "networkid": {
+                "networkId": {
                     "type": "integer",
                     "description": "Network identifier"
                 },
-                "verbosity": {
+                "logLevel": {
                     "type": "integer",
                     "description": "Logging verbosity: 0-6 (0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=debug detail)"
                 }
