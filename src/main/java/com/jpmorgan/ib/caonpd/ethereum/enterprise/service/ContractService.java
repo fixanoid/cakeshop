@@ -114,7 +114,7 @@ public interface ContractService {
 	 * @param abi                 Contract ABI
 	 * @param method              Method name
 	 * @param args                Optional method arguments
-	 * @param blockNumber         Block from which to read state from (Optional, defaults to latest)
+	 * @param blockNumber         Block from which to read the state from (Optional, defaults to latest)
 	 *
 	 * @return {@link Object}     Return value(s) as defined in the method's ABI
 	 *
