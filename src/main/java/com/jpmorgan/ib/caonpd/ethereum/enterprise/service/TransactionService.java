@@ -9,10 +9,31 @@ import java.util.concurrent.TimeUnit;
 
 public interface TransactionService {
 
-	public Transaction get(String address) throws APIException;
+    /**
+     * Get transaction information for the given ID
+     *
+     * @param id
+     * @return
+     * @throws APIException
+     */
+	public Transaction get(String id) throws APIException;
 
+	/**
+	 * List transactions in the given block
+	 *
+	 * @param blockHash
+	 * @param blockNumber
+	 * @return
+	 * @throws APIException
+	 */
 	public List<Transaction> list(String blockHash, Integer blockNumber) throws APIException;
 
+	/**
+	 * Fetch transactions in a pending state (not yet committed)
+	 *
+	 * @return
+	 * @throws APIException
+	 */
 	public List<Transaction> pending() throws APIException;
 
 	/**

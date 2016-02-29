@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
 import java.io.IOException;
 import java.io.InputStream;

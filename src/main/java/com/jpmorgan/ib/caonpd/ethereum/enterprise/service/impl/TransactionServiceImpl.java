@@ -23,15 +23,15 @@ public class TransactionServiceImpl implements TransactionService {
 	GethHttpService geth;
 
 	@Override
-	public Transaction get(String address) throws APIException {
+	public Transaction get(String id) throws APIException {
 
 
-		Map<String, Object> txData = geth.executeGethCall("eth_getTransactionByHash", new Object[]{ address });
+		Map<String, Object> txData = geth.executeGethCall("eth_getTransactionByHash", new Object[]{ id });
 		if (txData == null) {
 		    return null;
 		}
 
-		Map<String, Object> txReceiptData = geth.executeGethCall("eth_getTransactionReceipt", new Object[]{ address });
+		Map<String, Object> txReceiptData = geth.executeGethCall("eth_getTransactionReceipt", new Object[]{ id });
 
 		if (txReceiptData != null) {
 			txData.putAll(txReceiptData);

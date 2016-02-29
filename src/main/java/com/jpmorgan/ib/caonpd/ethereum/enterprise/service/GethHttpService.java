@@ -18,15 +18,44 @@ public interface GethHttpService {
     public static final String GETH_API_VERSION = "2.0";
     public static final String USER_ID = "enterprise-ethereum";
 
-    public String executeGethCall(String json) throws APIException;
+    /**
+     * Call the given Geth RPC method
+     *
+     * @param funcName             RPC function name
+     * @param args                 Optional args
+     *
+     * @return
+     * @throws APIException
+     */
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException;
 
+    /**
+     * Start the Geth node
+     *
+     * @param additionalParams
+     * @return
+     */
     public Boolean start(String... additionalParams);
 
+    /**
+     * Stop the Geth node, if already running
+     *
+     * @return
+     */
     public Boolean stop();
 
+    /**
+     * Reset the Geth data directory and restart the node
+     *
+     * @return
+     */
     public Boolean reset();
 
+    /**
+     * Delete the PID file
+     *
+     * @return
+     */
     public Boolean deletePid();
 
 }

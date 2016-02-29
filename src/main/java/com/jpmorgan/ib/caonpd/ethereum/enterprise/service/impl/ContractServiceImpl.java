@@ -16,6 +16,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
 
 import java.io.IOException;
 import java.util.ArrayList;

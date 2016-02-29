@@ -2,14 +2,6 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.junit.Assert.*;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-import com.google.gson.Gson;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
 
@@ -56,6 +48,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
     }
 
     //@Test(dependsOnMethods = "testStart")
+    /*
     public void testService() throws APIException {
         String funcName = "admin_peers";
         String funcArgs = " ";
@@ -64,6 +57,7 @@ public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
         String response = service.executeGethCall(gson.toJson(request));
         System.out.println("Geth func call response :" + response);
     }
+    */
 
     //@Test(dependsOnMethods = "testService")
     public void testStop() {

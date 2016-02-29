@@ -76,8 +76,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     private BlockScanner blockScanner;
 
-    @Override
-    public String executeGethCall(String json) throws APIException {
+    private String executeGethCall(String json) throws APIException {
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();

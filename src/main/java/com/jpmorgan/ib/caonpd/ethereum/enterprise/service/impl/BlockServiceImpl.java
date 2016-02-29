@@ -20,14 +20,14 @@ public class BlockServiceImpl implements BlockService {
     private GethHttpService gethService;
 
     @Override
-    public Block get(String hash, Long number, String tag) throws APIException {
+    public Block get(String id, Long number, String tag) throws APIException {
 
         String method = null;
         Object input = null;
 
-        if (hash != null && !hash.isEmpty()) {
+        if (id != null && !id.isEmpty()) {
             method = "eth_getBlockByHash";
-            input = hash;
+            input = id;
         } else if (number != null && number >= 0) {
             method = "eth_getBlockByNumber";
             input = number;
