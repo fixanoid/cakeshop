@@ -25,23 +25,21 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              id:
-                description: Block ID (hash) to retrieve
-                type: string
-                required: false
-              number:
-                description: Block number to retrieve
-                type: integer
-                required: false
-              tag:
-                description: 'One of "earliest", "latest" or "pending"'
-                type: string
-                required: false
+        - name: id
+          description: Block ID (hash) to retrieve
+          type: string
+          required: false
+          in: body
+        - name: number
+          description: Block number to retrieve
+          type: integer
+          required: false
+          in: body
+        - name: tag
+          description: 'One of "earliest", "latest" or "pending"'
+          type: string
+          required: false
+          in: body
       examples:
         - name: Get block by number
           parameters:
@@ -53,10 +51,7 @@ paths:
           parameters:
             body: >
               {
-
-                "id":
-              "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c"
-
+                "id "0x8564f939768d96f6fc0ba1334ed083ab6538da76f17b6d264082cb69aadc7b4c"
               }
         - name: Get latest block
           parameters:
@@ -109,7 +104,6 @@ paths:
               meta:
                 type: object
                 description: 'Extra metadata, such as API version'
-
   /contract/compile:
     post:
       tags:
@@ -120,28 +114,25 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - name: code
+          type: string
+          description: Contract source code
           required: true
-          schema:
-            properties:
-              code:
-                type: string
-                description: Contract source code
-              code_type:
-                type: string
-                description: Type of code being submitted
-                default: solidity
-                enum:
-                  - solidity
-                  - binary
-                  - llvm
-                  - serpent
-              optimize:
-                type: boolean
-                required: false
-                description: Generate optimized code
-                default: false
+          in: body
+        - name: code_type
+          type: string
+          in: body
+          description: Type of code being submitted
+          required: false
+          default: solidity
+          enum:
+            - solidity
+        - name: optimize
+          type: boolean
+          required: false
+          in: body
+          description: Generate optimized code
+          default: false
       examples:
         - name: Compile SimpleStorage contract
           parameters:
@@ -211,38 +202,36 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              code:
-                type: string
-                description: Contract source code
-              code_type:
-                type: string
-                description: Type of code being submitted
-                default: solidity
-                enum:
-                  - solidity
-                  - binary
-                  - llvm
-                  - serpent
-              args:
-                type: array
-                required: false
-                description: Constructor arguments (if needed)
-                items:
-                  type: object
-              binary:
-                type: string
-                required: false
-                description: If multiple contracts are specified in the source code, a specific binary to deploy can be passed here
-              optimize:
-                type: boolean
-                required: false
-                description: Generate optimized code
-                default: false
+        - name: code
+          type: string
+          description: Contract source code
+          in: body
+        - name: code_type
+          type: string
+          description: Type of code being submitted
+          required: false
+          default: solidity
+          in: body
+          enum:
+            - solidity
+        - name: args
+          type: array
+          required: false
+          in: body
+          description: Constructor arguments (if needed)
+          items:
+            type: object
+        - name: binary
+          type: string
+          required: false
+          in: body
+          description: If multiple contracts are specified in the source code, a specific binary to deploy can be passed here
+        - name: optimize
+          type: boolean
+          required: false
+          default: false
+          in: body
+          description: Generate optimized code
       examples:
         - name: Create SimpleStorage contract
           parameters:
@@ -312,15 +301,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              id:
-                type: string
-                description: ID (address) of Contract to retrieve
-                example: '0x01f999deef030a0f3c55cec46e6693c06c6b01f8'
+        - name: id
+          type: string
+          description: ID (address) of Contract to retrieve
+          example: '0x01f999deef030a0f3c55cec46e6693c06c6b01f8'
+          in: body
       examples:
         - name: Get info about SimpleStorage contract
           parameters:
@@ -377,6 +362,7 @@ paths:
     post:
       tags:
         - contract
+      description: List all deployed contracts on the chain
       operationId: postContractList
       consumes:
         - application/json
@@ -440,30 +426,29 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - name: id
+          type: string
           required: true
-          schema:
-            properties:
-              id:
-                type: string
-                required: true
-                description: Contract ID (address hash) to read from
-                example: ''
-              method:
-                type: string
-                required: true
-                description: Method name to call
-              args:
-                type: array
-                required: false
-                description: Method arguments (if needed)
-                items:
-                  type: object
-              blockNumber:
-                type: integer
-                required: false
-                description: Block from which to read the state from
+          description: Contract ID (address hash) to read from
+          example: ''
+          in: body
+        - name: method
+          type: string
+          required: true
+          description: Method name to call
+          in: body
+        - name: args
+          type: array
+          required: false
+          description: Method arguments (if needed)
+          in: body
+          items:
+            type: object
+        - name: blockNumber
+          type: integer
+          required: false
+          description: Block from which to read the state from
+          in: body
       responses:
         '200':
           description: Success
@@ -517,26 +502,24 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - name: id
+          type: string
           required: true
-          schema:
-            properties:
-              id:
-                type: string
-                required: true
-                description: Contract ID (address hash) to transact with
-                example: ''
-              method:
-                type: string
-                required: true
-                description: Method name to call
-              args:
-                type: array
-                required: false
-                description: Method arguments (if needed)
-                items:
-                  type: object
+          description: Contract ID (address hash) to transact with
+          example: ''
+          in: body
+        - name: method
+          type: string
+          required: true
+          in: body
+          description: Method name to call
+        - name: args
+          type: array
+          required: false
+          description: Method arguments (if needed)
+          in: body
+          items:
+            type: object
       responses:
         '200':
           description: Success
@@ -592,16 +575,12 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - name: id
+          type: string
           required: true
-          schema:
-            properties:
-              id:
-                type: string
-                required: true
-                description: Transaction ID (hash) to retrieve
-                example: ''
+          description: Transaction ID (hash) to retrieve
+          example: ''
+          in: body
       examples:
         - name: Retrieve Transaction information
           parameters:
@@ -768,12 +747,6 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties: null
       responses:
         '200':
           description: Success
@@ -819,12 +792,6 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties: null
       responses:
         '200':
           description: Success
@@ -870,7 +837,6 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters: null
       responses:
         '200':
           description: Success
@@ -922,35 +888,36 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              logLevel:
-                type: integer
-                required: false
-                description: 'Set log level (0-6, 6 is most verbose)'
-              networkId:
-                type: integer
-                required: false
-                description: Network ID (any integer value; node will restart)
-              identity:
-                type: string
-                required: false
-                description: Change node identity (node will restart)
-              committingTransactions:
-                type: boolean
-                required: false
-                description: Whether or not the node should commit incoming transactions (i.e., toggle mining)
-              extraParams:
-                type: string
-                required: false
-                description: Extra parameters to pass to the node (startup flags; node will restart)
-              genesisBlock:
-                type: string
-                required: false
-                description: Genesis block to use for the chain (modifying this will reset the chain)
+        - name: logLevel
+          type: integer
+          required: false
+          description: 'Set log level (0-6, 6 is most verbose)'
+          in: body
+        - name: networkId
+          type: integer
+          required: false
+          description: Network ID (any integer value; node will restart)
+          in: body
+        - name: identity
+          type: string
+          required: false
+          description: Change node identity (node will restart)
+          in: body
+        - name: committingTransactions
+          type: boolean
+          required: false
+          description: Whether or not the node should commit incoming transactions (i.e., toggle mining)
+          in: body
+        - name: extraParams
+          type: string
+          required: false
+          description: Extra parameters to pass to the node (startup flags; node will restart)
+          in: body
+        - name: genesisBlock
+          type: string
+          required: false
+          description: Genesis block to use for the chain (modifying this will reset the chain)
+          in: body
       responses:
         '200':
           description: Success
@@ -1033,9 +1000,6 @@ definitions:
         default: solidity
         enum:
           - solidity
-          - binary
-          - llvm
-          - serpent
   TransactionResult:
     required:
       - id
