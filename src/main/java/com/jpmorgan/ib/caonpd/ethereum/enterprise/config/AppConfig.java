@@ -33,7 +33,7 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String API_VERSION = "1.0";
 
-    protected static final String ENV = System.getProperty("eth.environment");
+    protected static final String ENV = initENV();
     public static final String CONFIG_FILE = "env.properties";
 
     public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
@@ -43,6 +43,15 @@ public class AppConfig implements AsyncConfigurer {
 
     public String getConfigPath() {
         return CONFIG_ROOT;
+    }
+
+    public static String initENV() {
+        String env = System.getProperty("eth.environment");
+        if (ENV == null || ENV.trim().isEmpty()) {
+            // FIXME only default to local based on a flag passed down from maven build
+            return "local";
+        }
+        return env;
     }
 
     @Bean
