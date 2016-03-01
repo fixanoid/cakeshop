@@ -79,7 +79,8 @@ public class ContractController extends BaseController {
             @JsonBodyParam String code,
             @JsonBodyParam String code_type,
             @JsonBodyParam Object[] args,
-            @JsonBodyParam String binary) throws APIException {
+            @JsonBodyParam String binary,
+            @JsonBodyParam(required=false) Boolean optimize) throws APIException {
 
         TransactionResult tx = contractService.create(code, CodeType.valueOf(code_type), args, binary);
 
