@@ -170,7 +170,11 @@ var Tower = {
 		},
 
 		'api': function() {
-			Tower.screenManager.showSection('api', []);
+			var widgets = [
+				{ widgetId: 'doc-frame' }
+			];
+
+			Tower.screenManager.showSection('api', widgets);
 		},
 
 		'contracts': function() {
