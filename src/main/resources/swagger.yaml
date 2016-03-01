@@ -711,7 +711,6 @@ paths:
   /node/peers:
     post:
       tags:
-        - peer
         - node
       description: Retrieve information on the peers connected to the node.
       consumes:
