@@ -7,7 +7,6 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -19,8 +18,6 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class EEUtils {
@@ -56,8 +53,7 @@ public class EEUtils {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
-
+    
     public static List<IP> getAllIPs() throws APIException {
 
         List<IP> ips = new ArrayList<>();
@@ -68,11 +64,10 @@ public class EEUtils {
                 NetworkInterface iface = interfaces.nextElement();
 
                 // filter out some interfaces
-                if (SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en")) {
+                if ((SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en"))
+                        || ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth"))) {
                     continue;
-                } else if ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth")) {
-                    continue;
-                }
+                } 
 
                 // collect IPs
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
