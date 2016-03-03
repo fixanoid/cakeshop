@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -7,9 +8,10 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -33,15 +35,20 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
     private TransactionDAO txDAO;
 
     @Autowired
+    private NodeService nodeService;
+
+    @Autowired
     private BlockService blockService;
 
     @Autowired
     private TransactionService txService;
 
     @Autowired
-    private ContractService contractService;
+    private GethConfigBean gethConfig;
 
     private Block previousBlock;
+
+    private Integer previousPeerCount;
 
     private boolean stopped;
     private Object wakeup;
@@ -123,6 +130,55 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
         }
     }
 
+    private void handleChainReorg() {
+
+        // Search for ContractRegistry address in first two blocks
+        boolean found = false;
+        for (int i = 1; i < 3; i++) {
+            try {
+                Block block = blockService.get(null, Integer.valueOf(i).longValue(), null);
+                if (block.getTransactions() != null && !block.getTransactions().isEmpty()) {
+                    String txId = block.getTransactions().get(0);
+                    Transaction tx = txService.get(txId);
+                    if (tx != null && tx.getContractAddress() != null) {
+                        // found it!
+                        LOG.info("Found new ContractRegistry address " + tx.getContractAddress() + " at block #" + i);
+                        saveContractRegistryAddress(tx.getContractAddress());
+                        found = true;
+                        break;
+                    }
+                }
+
+            } catch (APIException e) {
+                LOG.warn("Failed to read block", e);
+            }
+        }
+
+        if (!found) {
+            LOG.error("Couldn't find ContractRegistry address after chain reorg event");
+            // TODO how to recover from this? Try again after a timeout?
+        }
+
+        // flush db
+        LOG.info("Flushing DB");
+        blockDAO.reset();
+        txDAO.reset();
+
+        // fill
+        LOG.info("Backfilling blocks with new chain");
+        backfillBlocks();
+    }
+
+    private void saveContractRegistryAddress(String addr) throws APIException {
+        try {
+            gethConfig.setProperty("contract.registry.addr", addr);
+            gethConfig.save();
+        } catch (IOException e) {
+            LOG.warn("Unable to update env.properties", e);
+            throw new APIException("Unable to update env.properties", e);
+        }
+    }
+
     @Override
     public void run() {
 
@@ -138,11 +194,34 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
             }
 
             try {
+                Integer latestPeerCount = nodeService.peers().size();
+                if (previousPeerCount != null && latestPeerCount > previousPeerCount) {
+                    // peer count increased, try to detect chain re-org
+
+                    // 10sec sleep while blocks sync up a bit
+                    synchronized(this.wakeup) {
+                        try {
+                            TimeUnit.SECONDS.timedWait(this.wakeup, 10);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
+
+                    Block firstChainBlock = blockService.get(null, 1L, null);
+                    Block firstKnownBlock = blockDAO.getByNumber(1L);
+                    if (firstKnownBlock != null && firstChainBlock != null && !firstKnownBlock.equals(firstChainBlock)) {
+                        // if block #1 changed, we have a reorg
+                        LOG.warn("Detected chain reorganization do to new peer connection!");
+                        handleChainReorg();
+                        previousBlock = null;
+                    }
+                }
+
                 Block latestBlock = blockService.get(null, null, "latest");
 
                 if (previousBlock == null || !previousBlock.equals(latestBlock)) {
                     if (previousBlock != null && (latestBlock.getNumber() - previousBlock.getNumber()) > 1) {
-                        // block was just polled is ahead of what we have in our DB
+                        // block that was just polled is ahead of what we have in our DB
                         fillBlockRange(previousBlock.getNumber() + 1, latestBlock.getNumber() - 1);
                     }
 
@@ -150,6 +229,8 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
                     saveBlock(latestBlock);
                     previousBlock = latestBlock;
                 }
+
+                previousPeerCount = latestPeerCount;
 
             } catch (APIException e1) {
                 LOG.warn("Error fetching block: " + e1.getMessage());
