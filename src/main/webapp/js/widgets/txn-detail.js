@@ -33,8 +33,9 @@
 					'blockId': 2,
 					'blockNumber': 3,
 					'contractAddress': 4,
-					'gasUsed': 5,
-					'cumulativeGasUsed': 6
+					'transactionIndex': 5,
+					'gasUsed': 6,
+					'cumulativeGasUsed': 7
 				},
 				mainRows = [],
 				secRows = [],
@@ -52,7 +53,7 @@
 				keys = utils.idAlwaysFirst(keys);
 
 				_.each(keys, function(val, key) {
-					if (!res.data.attributes[val]) {
+					if (res.data.attributes[val] == null) {
 						return;
 					}
 
