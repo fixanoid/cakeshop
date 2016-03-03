@@ -31,9 +31,13 @@
 			}).done(function(txns) {
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.contractName + ' Paper Tape');
 
-				var rows = [];
+				var rows = [],
+				 data = _.sortBy(txns.data,
+					function(txn) {
+						return parseInt(txn.attributes.blockNumber + '' + txn.attributes.transactionIndex);
+					});
 
-				_.each(txns.data, function(val, key) {
+				_.each(data, function(val, key) {
 					var txn = val.attributes,
 					 text = '';
 
