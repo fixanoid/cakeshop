@@ -14,7 +14,7 @@
 				 '<thead style="font-weight: bold;"><tr><td>Neighbor</td><td style="width: 50px;">Blocks</td><td style="width: 50px;">Add</td></tr></thead>' +
 				 '<tbody></tbody></table>'),
 
-		templateRow: _.template('<tr><td><%= neighbor.nodeIP %></td><td><%= neighbor.latestBlock %></td><td><a class="btn btn-primary btn-sm" href="#" data-enode="<%= neighbor.nodeUrl %>" id="neighbor-add"><i class="fa fa-plus"></i></a></td></tr>'),
+		templateRow: _.template('<tr><td><%= neighbor.nodeName %> <span style="font-size: smaller">[<%= neighbor.nodeIP %>]</span></td><td><%= neighbor.latestBlock %></td><td><a class="btn btn-primary btn-sm" href="#" data-enode="<%= neighbor.nodeUrl %>" id="neighbor-add"><i class="fa fa-plus"></i></a></td></tr>'),
 
 		setData: function(data) {
 			this.data = data;
@@ -40,21 +40,25 @@
 		fetch: function() {
 			$('#widget-' + this.shell.id + ' > table > tbody').empty();
 
-			var hood = [],
-			 last = this.ip.split('.').splice(3),
-			 split = this.ip.split('.').splice(0, 3).join('.');
+			var hood = [];
 
-			_.each(_.range(1, 256), function(i) {
-				var ip = split + '.' + i;
+			this.ip.split(',').forEach(function(ip) {
+				var last = ip.split('.').splice(3),
+					split = ip.split('.').splice(0, 3).join('.');
 
-				if (last == i) {
-					return;
-				} else if (_.indexOf(widget.knownPeers, ip) >= 0) {
-					return;
-				}
+				_.each(_.range(1, 256), function(i) {
+					var ip = split + '.' + i;
 
-				hood.push(ip);
+					if (last == i) {
+						return;
+					} else if (_.indexOf(widget.knownPeers, ip) >= 0) {
+						return;
+					}
+
+					hood.push(ip);
+				});
 			});
+
 
 			_.each(hood, function(ep) {
 				var ep = window.location.protocol + '//' + ep + (window.location.port ? ':' + window.location.port : '') + '/ethereum-enterprise/ws',

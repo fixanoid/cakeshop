@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -10,6 +11,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils.IP;
 
 import java.io.IOException;
 import java.net.URI;
@@ -64,10 +66,10 @@ public class NodeServiceImpl implements NodeService {
                     if(StringUtils.isEmpty(host) || "[::]".equals(host) ||  "0.0.0.0".equalsIgnoreCase(host)){
 
                         try {
-                            String ip = EEUtils.getLocalIP();
-                            uri = new URI(uri.getScheme(), uri.getUserInfo(), ip, uri.getPort(), null, uri.getQuery(), null);
+                            List<IP> ips = EEUtils.getAllIPs();
+                            uri = new URI(uri.getScheme(), uri.getUserInfo(), ips.get(0).getAddr(), uri.getPort(), null, uri.getQuery(), null);
                             node.setNodeUrl(uri.toString());
-                            node.setNodeIP(ip);
+                            node.setNodeIP(Joiner.on(",").join(ips));
 
                         } catch (APIException ex) {
                             LOG.error(ex.getMessage());
@@ -243,7 +245,8 @@ public class NodeServiceImpl implements NodeService {
         //if no IP address is set, default is local host
         if( ipAddress != null && ("::".equalsIgnoreCase(ipAddress) || "0.0.0.0".equalsIgnoreCase(ipAddress) ) ){
             try {
-                String ip = EEUtils.getLocalIP();
+                List<IP> ips = EEUtils.getAllIPs();
+                String ip = ips.get(0).getAddr();
                 if( ip != null ){
                     data.put("IP",ip);
                 }
