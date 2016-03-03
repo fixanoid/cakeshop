@@ -129,11 +129,11 @@
     }
 
     function wrapBlock(blockId) {
-        return '<a class="block" target="_explorer" href="index.html#section=explorer&widgetId=block-detail&data=' + blockId + '">#' + blockId + '</a>';
+        return '<a class="block" target="_explorer" href="index.html#section=explorer&widgetId=block-detail&data=' + encodeURIComponent(blockId) + '">#' + blockId + '</a>';
     }
 
     function wrapTx(txId) {
-        return '<a class="tx" target="_explorer" href="index.html#section=explorer&widgetId=txn-detail&data=' + txId + '" title="' + txId + '">' + trunc(txId) + '</a>';
+        return '<a class="tx" target="_explorer" href="index.html#section=explorer&widgetId=txn-detail&data=' + encodeURIComponent(txId) + '" title="' + txId + '">' + trunc(txId) + '</a>';
     }
 
     function wrapAddr(addr) {

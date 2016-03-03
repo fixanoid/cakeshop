@@ -65,8 +65,14 @@ var Tower = {
 					$('.rad-sidebar #' + params.section).click();
 				}
 
+				if (params.data) {
+					try {
+						params.data = JSON.parse(params.data);
+					} catch (err) {}
+				}
+
 				if (params.widgetId) {
-					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: JSON.parse(params.data), refetch: true });
+					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
 				}
 			};
 
