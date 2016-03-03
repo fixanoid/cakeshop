@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -53,7 +54,7 @@ public class EEUtils {
         }
     }
 
-    
+
     public static List<IP> getAllIPs() throws APIException {
 
         List<IP> ips = new ArrayList<>();
@@ -67,7 +68,7 @@ public class EEUtils {
                 if ((SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en"))
                         || ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth"))) {
                     continue;
-                } 
+                }
 
                 // collect IPs
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
@@ -82,7 +83,7 @@ public class EEUtils {
             // sort by interface name
             // we want the lowest (en0 or eth0) interface which is probably the ethernet adapter (vs WIFI)
             // (on MAC, at least the interfaces come back in a weird order)
-            ips.sort(new Comparator<IP>() {
+            Collections.sort(ips, new Comparator<IP>() {
                 @Override
                 public int compare(IP o1, IP o2) {
                     return o1.getIface().compareTo(o2.getIface());
