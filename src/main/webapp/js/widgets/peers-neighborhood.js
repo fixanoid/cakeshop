@@ -14,7 +14,7 @@
 				 '<thead style="font-weight: bold;"><tr><td>Neighbor</td><td style="width: 50px;">Blocks</td><td style="width: 50px;">Add</td></tr></thead>' +
 				 '<tbody></tbody></table>'),
 
-		templateRow: _.template('<tr><td><span style="font-size: smaller"><%= neighbor.nodeName %> [<%= neighbor.nodeIP %>]</span></td><td><%= neighbor.latestBlock %></td><td><a class="btn btn-primary btn-sm" href="#" data-enode="<%= neighbor.nodeUrl %>" id="neighbor-add"><i class="fa fa-plus"></i></a></td></tr>'),
+		templateRow: _.template('<tr><td><span style="font-size: smaller"><%= nodeName %> [<%= nodeIP %>]</span></td><td><%= latestBlock %></td><td><a class="btn btn-primary btn-sm" href="#" data-enode="<%= nodeUrl %>" id="neighbor-add"><i class="fa fa-plus"></i></a></td></tr>'),
 
 		setData: function(data) {
 			this.data = data;
@@ -112,7 +112,16 @@
 				return;
 			}
 
-			$('#widget-' + this.shell.id + ' > table > tbody').append( this.templateRow({ neighbor: status }) );
+			status.nodeIP.split(',').forEach(function(ip) {
+				var url = status.nodeUrl.replace(/@[\d.]+/, "@" + ip); // replace correct IP in url
+				var ctx = {
+					nodeName: status.nodeName,
+					nodeIP: ip,
+					nodeUrl: url,
+					latestBlock: status.latestBlock
+				};
+				$('#widget-' + widget.shell.id + ' > table > tbody').append( widget.templateRow(ctx) );
+			});
 		}
 	};
 
