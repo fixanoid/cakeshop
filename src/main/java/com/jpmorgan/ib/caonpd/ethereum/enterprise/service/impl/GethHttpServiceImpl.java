@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.FileUtils;
@@ -41,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +54,7 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware {
+public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
@@ -75,6 +76,8 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     private ApplicationContext applicationContext;
 
     private BlockScanner blockScanner;
+
+    private boolean autoStartFired;
 
     private String executeGethCall(String json) throws APIException {
         try {
@@ -180,7 +183,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         return this.start();
     }
 
-    @PostConstruct
     public void autoStart() {
         if (!gethConfig.isAutoStart()) {
             return;
@@ -389,5 +391,14 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (autoStartFired) {
+            return;
+        }
+        autoStartFired = true;
+        autoStart();
     }
 }

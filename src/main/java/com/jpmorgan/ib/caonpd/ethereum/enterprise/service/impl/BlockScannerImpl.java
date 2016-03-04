@@ -179,10 +179,27 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
         }
     }
 
+    private void checkDbSync() throws APIException {
+        Block firstChainBlock = blockService.get(null, 1L, null);
+        Block firstKnownBlock = blockDAO.getByNumber(1L);
+        if (firstKnownBlock != null && firstChainBlock != null && !firstKnownBlock.equals(firstChainBlock)) {
+            // if block #1 changed, we have a reorg
+            LOG.warn("Detected chain reorganization do to new peer connection!");
+            handleChainReorg();
+            previousBlock = null;
+        }
+    }
+
     @Override
     public void run() {
 
         this.wakeup = new Object();
+
+        try {
+            checkDbSync();
+        } catch (APIException e) {
+            LOG.warn("Failed to check sync status", e);
+        }
 
         backfillBlocks();
 
@@ -207,14 +224,7 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
                         }
                     }
 
-                    Block firstChainBlock = blockService.get(null, 1L, null);
-                    Block firstKnownBlock = blockDAO.getByNumber(1L);
-                    if (firstKnownBlock != null && firstChainBlock != null && !firstKnownBlock.equals(firstChainBlock)) {
-                        // if block #1 changed, we have a reorg
-                        LOG.warn("Detected chain reorganization do to new peer connection!");
-                        handleChainReorg();
-                        previousBlock = null;
-                    }
+                    checkDbSync();
                 }
 
                 Block latestBlock = blockService.get(null, null, "latest");

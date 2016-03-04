@@ -7,20 +7,18 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.GethHttpServiceImpl;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class EEUtils {
@@ -56,7 +54,6 @@ public class EEUtils {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
 
     public static List<IP> getAllIPs() throws APIException {
 
@@ -68,9 +65,8 @@ public class EEUtils {
                 NetworkInterface iface = interfaces.nextElement();
 
                 // filter out some interfaces
-                if (SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en")) {
-                    continue;
-                } else if ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth")) {
+                if ((SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en"))
+                        || ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth"))) {
                     continue;
                 }
 
@@ -87,7 +83,7 @@ public class EEUtils {
             // sort by interface name
             // we want the lowest (en0 or eth0) interface which is probably the ethernet adapter (vs WIFI)
             // (on MAC, at least the interfaces come back in a weird order)
-            ips.sort(new Comparator<IP>() {
+            Collections.sort(ips, new Comparator<IP>() {
                 @Override
                 public int compare(IP o1, IP o2) {
                     return o1.getIface().compareTo(o2.getIface());
