@@ -14,6 +14,8 @@ public class Account {
     *Ethereum account address
     */
     String address;
+    
+    String balance;
 
     public String getAddress() {
         return address;
@@ -21,6 +23,14 @@ public class Account {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getBalance() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
     }
     
     @Override

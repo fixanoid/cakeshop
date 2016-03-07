@@ -37,6 +37,7 @@ public class AdminBean {
     public static final String ADMIN_TXPOOL_STATUS = "txpool_status";
     public static final String PERSONAL_LIST_ACCOUNTS_KEY= "list_accounts";
     public static final String PERSONAL_LIST_ACCOUNTS= "personal_listAccounts";
+    public static final String PERSONAL_GET_ACCOUNT_BALANCE = "eth_getBalance";
     
        
     private Map<String,String> functionNames = new HashMap();
