@@ -729,7 +729,6 @@ a:active {
 
 .panel-body {
 	position: relative;
-	-webkit-transition: all .2s linear;
 	height: 250px;
 }
 
@@ -1512,4 +1511,32 @@ pre {
 	background-color: inherit;
     border: 0px;
 	padding: 0px;
+}
+
+
+
+.is-dragging, .is-positioning-post-drag {
+	z-index: 200; /* keep dragged item on top */
+}
+
+.packery-drop-placeholder {
+	z-index: 0;
+	outline: 3px dashed #CCC;
+	outline-offset: -15px;
+	transition: transform 0.2s;
+}
+
+.ui-draggable-dragging {
+	z-index: 2;
+}
+
+.ui-resizable-handle {
+	right: 12px;
+	z-index: 90;
+	bottom: 17px;
+	opacity: 0.1;
+}
+
+.ui-resizable-handle:hover {
+	opacity: 1;
 }

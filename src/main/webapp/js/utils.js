@@ -158,6 +158,13 @@ var Client = {
 var screenManager = {
 	// DOM anchor for the widget field
 	grounds: $('#grounds'),
+	grid: $('#grounds').packery({
+		columnWidth: '.widget-sizer',
+		//rowHeight: '.widget-sizer',
+		percentPosition: true,
+		itemSelector: '.widget-shell',
+		gutter: 0
+	}),
 
 	// section to widget mapping
 	sectionMap: {},
@@ -173,6 +180,10 @@ var screenManager = {
 
 	// init data for widgets
 	initData: {},
+
+	refresh: _.debounce(function() {
+		screenManager.grid.packery('layout');
+	}, 0),
 
 	addWidget: function(widget) {
 		// shared injects
@@ -197,6 +208,28 @@ var screenManager = {
 
 		this.queued = _.without(this.queued, widget.name);
 		delete this.initData[widget.name];
+
+		this.grid.packery('appended', $('#widget-shell-' + widget.shell.id)[0] );
+
+		$('#widget-shell-' + widget.shell.id)
+			.draggable({ handle: '.panel-heading' })
+			.resizable({
+				grid: [ 10, 10 ],
+				resize: function( event, ui ) {
+					// console.log(ui.element.attr('id'), ui.size);
+					$('#widget-' + widget.shell.id).css({
+						height: ui.size.height - 76,
+						width: ui.size.width - 35
+					});
+
+					screenManager.refresh();
+				}
+			});
+
+		this.grid.packery( 'bindUIDraggableEvents', $('#widget-shell-' + widget.shell.id) );
+
+
+		this.refresh();
 	},
 
 	showSection: function(section, widgets) {
@@ -243,6 +276,8 @@ var screenManager = {
 					this.loaded[opts.widgetId].fetch();
 				}
 			}
+
+			this.refresh();
 		} else {
 			if (opts.data) {
 				this.initData[opts.widgetId] = opts.data;
