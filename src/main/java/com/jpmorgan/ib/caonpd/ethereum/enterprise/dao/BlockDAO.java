@@ -38,7 +38,7 @@ public class BlockDAO {
         List list = c.list();
 
         if (list == null || list.isEmpty()) {
-            // TODO
+            return null;
         }
 
         Block block = (Block) list.get(0);
