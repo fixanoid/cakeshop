@@ -54,10 +54,10 @@ public class NodeServiceImpl implements NodeService {
             //check if node is available
             data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO, new Object[]{ input, true });
 
-            node.setId((String)data.get("NodeID"));
-            node.setStatus(StringUtils.isEmpty((String)data.get("NodeID")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
-            node.setNodeName((String)data.get("Name"));
-            String nodeURI = (String)data.get("NodeUrl");
+            node.setId((String)data.get("id"));
+            node.setStatus(StringUtils.isEmpty((String)data.get("id")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
+            node.setNodeName((String)data.get("name"));
+            String nodeURI = (String)data.get("enode");
             if(StringUtils.isNotEmpty(nodeURI)){
                 try {
                     URI uri = new URI(nodeURI);
@@ -290,11 +290,11 @@ public class NodeServiceImpl implements NodeService {
 
             peer = new Peer();
             peer.setStatus("running");
-            String id = (String)data.get("ID");
+            String id = (String)data.get("id");
             peer.setId(id);
-            String name = (String)data.get("Name");
+            String name = (String)data.get("name");
             peer.setNodeName(name);
-            String remoteAddress = (String)data.get("RemoteAddress");
+            String remoteAddress = (String)((Map<String, Object>) data.get("network")).get("remoteAddress");
             try {
                 URI remoteURI = new URI("enode://" + remoteAddress);
 
