@@ -25,6 +25,8 @@
 				$('#widget-' + _this.shell.id).html( '<h3 style="text-align: center;margin-top: 70px;">Unable to load block</h3>' );
 
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html('Block Detail');
+
+				_this.postFetch();
 			}).done(function(res) {
 				var rows = [],
 				 keys = _.sortBy(_.keys(res.data.attributes), function(key) {
@@ -76,6 +78,8 @@
 
 					Tower.screenManager.show({ widgetId: 'txn-detail', section: 'explorer', data: $(this).text(), refetch: true });
 				});
+
+				_this.postFetch();
 			});
 		}
 	};

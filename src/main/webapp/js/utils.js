@@ -359,7 +359,11 @@ var screenManager = {
 				// Widget refresh handler
 				} else if ( el.hasClass('fa-rotate-right') ) {
 					var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
-					 $ele = el.parents('.panel-heading').siblings('.panel-body');
+					 $ele = el.parents('.panel-heading').siblings('.panel-body'),
+					 postFetchFunc = function() {
+ 						$ele.find('.overlay').remove();
+ 						$ele.css('overflow-y', 'auto');
+ 					 };
 
 
 					$ele
@@ -367,12 +371,11 @@ var screenManager = {
 						.scrollTop(0)
 						.css('overflow-y', 'hidden');
 
-					setTimeout(function() {
-						$ele.find('.overlay').remove();
-						$ele.css('overflow-y', 'auto');
 
-						(Tower.screenManager.idMap[wid].fetch && Tower.screenManager.idMap[wid].fetch());
-					}, 2000);
+					Tower.screenManager.idMap[wid].postFetch = postFetchFunc;
+					(Tower.screenManager.idMap[wid].fetch && Tower.screenManager.idMap[wid].fetch());
+
+					setTimeout(postFetchFunc, 2000);
 				} else if ( el.hasClass('fa-link') ) {
 					var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
 					 params = {

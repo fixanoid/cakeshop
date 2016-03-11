@@ -26,6 +26,8 @@
 				$('#widget-' + _this.shell.id).html( '<h3 style="text-align: center;margin-top: 70px;">Unable to load transaction</h3>' );
 
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html('Transaction Detail');
+
+				_this.postFetch();
 			}).done(function(res) {
 				var mainTable = {
 					'id': 0,
@@ -81,6 +83,8 @@
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.title);
 
 				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
+
+				_this.postFetch();
 			});
 		},
 

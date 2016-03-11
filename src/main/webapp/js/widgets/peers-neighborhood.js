@@ -78,6 +78,8 @@
 						widget.showNeighbor(status);
 					});
 				});
+
+				_this.postFetch();
 			});
 		},
 

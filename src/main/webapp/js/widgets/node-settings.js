@@ -57,6 +57,8 @@
 				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.committingTransactions ? 'true' : 'false' );
 				$('#widget-' + _this.shell.id + ' #extraParams').val( info.data.attributes.extraParams ? info.data.attributes.extraParams : '' );
 				$('#widget-' + _this.shell.id + ' #genesisBlock').val( info.data.attributes.genesisBlock ? info.data.attributes.genesisBlock : '' );
+
+				_this.postFetch();
 			});
 		},
 

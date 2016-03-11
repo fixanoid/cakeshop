@@ -12,7 +12,12 @@ var widgetRoot = {
 		this.data = data;
 	},
 
-	fetch: function() { },
+	fetch: function() {
+		this.postFetch();
+	},
+
+	postFetch: function() { },
+
 	subscribe: function() { },
 
 	init: function(data) {

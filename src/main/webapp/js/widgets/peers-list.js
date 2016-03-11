@@ -38,6 +38,8 @@
 				} else {
 					// no peers
 				}
+
+				_this.postFetch();
 			});
 		}
 	};
