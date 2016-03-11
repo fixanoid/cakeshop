@@ -32,10 +32,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
 
-@Test
 @ContextConfiguration(classes = {TestAppConfig.class})
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
@@ -67,43 +64,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Qualifier("hsql")
     private DataSource embeddedDb;
 
-    private static final String GETH_TEMPLATE = TempFileManager.getTempPath();
-
     public boolean runGeth() {
         return true;
-    }
-
-    /**
-     * Initialize geth once for re-use across tests since it can be quite slow
-     * @throws Exception
-     * @throws IOException
-     */
-    @BeforeSuite
-    public void bootstrapGeth() throws Exception {
-        springTestContextPrepareTestInstance();
-
-        assertTrue(_startGeth());
-        assertTrue(geth.stop());
-
-        // once geth has bootstrapped, copy it to a new location
-        try {
-            FileUtils.copyDirectory(new File(ethDataDir), new File(GETH_TEMPLATE));
-            FileUtils.deleteDirectory(new File(ethDataDir));
-        } catch (IOException e) {
-            try {
-                _stopGeth();
-                FileUtils.deleteDirectory(new File(GETH_TEMPLATE));
-            } catch (IOException e1) {
-            }
-            throw new RuntimeException("Failed to copy geth template", e);
-        }
     }
 
     @AfterSuite
     public void cleanupTempPaths() {
         try {
             FileUtils.deleteDirectory(new File(CONFIG_ROOT));
-            FileUtils.deleteDirectory(new File(GETH_TEMPLATE));
             TempFileManager.cleanupTempPaths();
         } catch (IOException e) {
         }
@@ -122,19 +90,13 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         this.ethDataDir = FileUtils.getTempPath(); // ignore the path configured in properties and use a temp dir
         ethDataDir = ethDataDir.replaceAll(File.separator + File.separator, "/");
         TempFileManager.tempFiles.add(ethDataDir);
-
-        File gethTemplate = new File(GETH_TEMPLATE);
-        if (gethTemplate.exists()) {
-            // copy from template
-            LOG.debug("Bootstrapping GETH from TEMPLATE!");
-            FileUtils.copyDirectory(gethTemplate, new File(ethDataDir));
-
-        } else {
-            new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
-        }
-
+        new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
         gethConfig.setDataDirPath(ethDataDir);
-        return geth.start("--jpmtest"); // , "--verbosity", "6"
+
+        gethConfig.setGenesisBlockFilename(getTestFile("genesis_block.json").getAbsolutePath());
+        gethConfig.setKeystorePath(getTestFile("keystore").getAbsolutePath());
+
+        return geth.start("--jpmtest", "--nokdf"); // , "--verbosity", "6"
     }
 
     /**
@@ -159,6 +121,12 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         ((EmbeddedDatabase) embeddedDb).shutdown();
     }
 
+    protected File getTestFile(String path) {
+    	URL url = this.getClass().getClassLoader().getResource(path);
+    	File file = FileUtils.toFile(url);
+    	return file;
+    }
+
     /**
      * Read the given test resource file
      *
@@ -167,9 +135,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
      * @throws IOException
      */
     protected String readTestFile(String path) throws IOException {
-    	URL url = this.getClass().getClassLoader().getResource(path);
-    	File file = FileUtils.toFile(url);
-    	return FileUtils.readFileToString(file);
+    	return FileUtils.readFileToString(getTestFile(path));
     }
 
     /**

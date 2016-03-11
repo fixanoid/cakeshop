@@ -15,6 +15,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryServic
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
 
@@ -84,9 +85,6 @@ public class ContractServiceImpl implements ContractService {
     @Value("${contract.poll.delay.millis}")
     Long pollDelayMillis;
 
-    // FIXME remove hardcoded FROM address
-    public static final String DEFAULT_FROM_ADDRESS = "0x2e219248f44546d966808cdd20cb6c36df6efa82";
-
     @Autowired
     private GethConfigBean gethConfig;
 
@@ -101,6 +99,9 @@ public class ContractServiceImpl implements ContractService {
 
 	@Autowired
 	private TransactionDAO transactionDAO;
+
+	@Autowired
+	private WalletService walletService;
 
 	@Autowired
 	@Qualifier("asyncExecutor")
@@ -221,7 +222,7 @@ public class ContractServiceImpl implements ContractService {
 
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
-		contractArgs.put("from", DEFAULT_FROM_ADDRESS);
+		contractArgs.put("from", walletService.list().get(0).getAddress());
 		contractArgs.put("data", data);
 		contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
 
@@ -278,7 +279,7 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
-	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
+	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args);
 
 	    if (blockNumber != null) {
 	        if (!(blockNumber instanceof Number)) {
@@ -305,7 +306,7 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public TransactionResult transact(String id, ContractABI abi, String method, Object[] args) throws APIException {
-	    TransactionRequest req = new TransactionRequest(DEFAULT_FROM_ADDRESS, id, abi, method, args);
+	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
 	    return new TransactionResult((String) readRes.get("_result"));

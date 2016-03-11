@@ -40,8 +40,6 @@ public class TestAppConfig extends AppConfig {
         System.setProperty("eth.environment", "test");
     }
 
-    private static final String ENV = System.getProperty("eth.environment");
-
     private String tempConfigPath;
 
     @Override
