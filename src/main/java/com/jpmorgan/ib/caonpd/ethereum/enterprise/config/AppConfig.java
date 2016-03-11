@@ -33,30 +33,29 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String API_VERSION = "1.0";
 
-    protected static final String ENV = initENV();
     public static final String CONFIG_FILE = "env.properties";
 
     public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
     protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
-    protected static final String CONFIG_ROOT = FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", ENV);
 
-    public String getConfigPath() {
-        return CONFIG_ROOT;
-    }
-
-    public static String initENV() {
+    public String getEnv() {
         String env = System.getProperty("eth.environment");
-        if (ENV == null || ENV.trim().isEmpty()) {
+        if (env == null || env.trim().isEmpty()) {
             // FIXME only default to local based on a flag passed down from maven build
             return "local";
         }
         return env;
     }
 
+    public String getConfigPath() {
+        return FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", getEnv());
+    }
+
     @Bean
     public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
 
+        String ENV = getEnv();
         if (ENV == null || ENV.trim().isEmpty()) {
             throw new IOException("ENV var 'eth.environment' not set; unable to load config");
         }
