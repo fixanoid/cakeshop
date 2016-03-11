@@ -10,7 +10,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryServic
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -93,8 +92,8 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    List<Contract> list = contractRegistry.list();
 	    //System.out.println(list);
 
-	    RpcUtil.puts(list.size());
-	    RpcUtil.puts(list);
+//	    RpcUtil.puts(list.size());
+//	    RpcUtil.puts(list);
 
 	    assertNotNull(list);
 	    assertTrue(!list.isEmpty());

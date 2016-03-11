@@ -18,7 +18,7 @@ public class GethRpcTest extends BaseGethRpcTest {
         assertNotNull(data.get("hash"));
 
 
-        String expectedHash = "0xd93b8da4c2f48c98e2cb76bef403ec22cada28331946218487b0fd1335e52bdd";
+        String expectedHash = "0x4c5dc2805d90a33fa4e5358346d5335d4f6aeefd7e839952ef4e070e3a8412d2";
 
         data = geth.executeGethCall(method, new Object[]{ 0, false });
         assertEquals(data.get("hash"), expectedHash);
