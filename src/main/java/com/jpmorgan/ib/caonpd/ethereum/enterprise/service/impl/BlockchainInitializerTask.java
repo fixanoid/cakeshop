@@ -60,7 +60,7 @@ public class BlockchainInitializerTask implements Runnable {
             LOG.info("Deploying ContractRegistry to chain");
             contractRegistry.deploy();
 
-            LOG.debug("Turning off mining");
+            //LOG.debug("Turning off mining");
             //nodeService.update(null, null, "", false);
 
         } catch (APIException e) {
