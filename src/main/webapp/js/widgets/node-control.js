@@ -21,7 +21,7 @@
 			'</ul>'),
 
 		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
+			Dashboard.grounds.append(this.shell.tpl);
 
 			$('#widget-' + this.shell.id).html(widget.template({}));
 			$('#widget-' + this.shell.id + ' button').click(widget._handler);
@@ -60,5 +60,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();

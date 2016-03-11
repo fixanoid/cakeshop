@@ -41,7 +41,7 @@
 		_handleButton: function(e) {
 			e.preventDefault();
 
-			Tower.screenManager.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data(), refetch: true });
+			Dashboard.show({ widgetId: $(this).data('widget'), section: 'contracts', data: $(this).parent().data(), refetch: true });
 		}
 	};
 
@@ -49,5 +49,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();

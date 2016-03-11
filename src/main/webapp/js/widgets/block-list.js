@@ -92,7 +92,7 @@
 		showBlock: function(e) {
 			e.preventDefault();
 
-			Tower.screenManager.show({ widgetId: 'block-detail', section: 'explorer', data: $(this).text(), refetch: true });
+			Dashboard.show({ widgetId: 'block-detail', section: 'explorer', data: $(this).text(), refetch: true });
 		}
 	};
 
@@ -100,5 +100,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();

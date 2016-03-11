@@ -63,7 +63,7 @@
 		},
 
 		render: function() {
-			Tower.screenManager.grounds.append(this.shell.tpl);
+			Dashboard.grounds.append(this.shell.tpl);
 
 			$('#widget-' + this.shell.id)
 				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })
@@ -95,5 +95,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();

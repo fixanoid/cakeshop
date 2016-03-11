@@ -1,0 +1,266 @@
+var Dashboard = {
+/*
+	// DOM anchor for the widget field
+	grounds: $('#grounds'),
+	grid: $('#grounds').packery({
+		columnWidth: '.widget-sizer',
+		//rowHeight: '.widget-sizer',
+		percentPosition: true,
+		itemSelector: '.widget-shell',
+		gutter: 0
+	}),
+*/
+	// section to widget mapping
+	sectionMap: {},
+
+	// widget id to widget mapping
+	idMap: {},
+
+	// widgets that have been queued for load
+	queued: [],
+
+	// widgets that have been loaded
+	loaded: {},
+
+	// init data for widgets
+	initData: {},
+
+	refresh: _.debounce(function() {
+		Dashboard.grid.packery('layout');
+	}, 0),
+
+	setGrounds: function(el) {
+		Dashboard.grounds = el;
+		Dashboard.grid = el.packery({
+			columnWidth: '.widget-sizer',
+			//rowHeight: '.widget-sizer',
+			percentPosition: true,
+			itemSelector: '.widget-shell',
+			gutter: 0
+		});
+	},
+
+	addWidget: function(widget) {
+		// shared injects
+		widget.init(this.initData[widget.name]);
+
+		// set section widget belongs to
+		_.each(this.sectionMap, function(val, section) {
+			_.each(val, function(v) {
+				if (widget.name == v) {
+					widget.section = section;
+				}
+			});
+		});
+
+
+		// to overwrite when the widget starts if we don't want it to render
+		// right away.
+		// widget.ready = function() { widget.render(); };
+
+		this.loaded[widget.name] = widget;
+		this.idMap[widget.shell.id] = widget;
+
+		this.queued = _.without(this.queued, widget.name);
+		delete this.initData[widget.name];
+
+		this.grid.packery('appended', $('#widget-shell-' + widget.shell.id)[0] );
+
+		$('#widget-shell-' + widget.shell.id)
+			.draggable({ handle: '.panel-heading' })
+			.resizable({
+				grid: [ 10, 10 ],
+				resize: function( event, ui ) {
+					// console.log(ui.element.attr('id'), ui.size);
+					$('#widget-' + widget.shell.id).css({
+						height: ui.size.height - 76,
+						width: ui.size.width - 35
+					});
+
+					Dashboard.refresh();
+				}
+			});
+
+		this.grid.packery( 'bindUIDraggableEvents', $('#widget-shell-' + widget.shell.id) );
+
+
+		this.refresh();
+	},
+
+	showSection: function(section, widgets) {
+		// reset screen, load widgets
+		Dashboard.clear();
+
+		// show registered section widgets
+		_.each(widgets,
+			function(val) {
+				val.section = section;
+
+				Dashboard.show(val);
+			});
+
+		// show un-registered section widgets
+		_.each(
+			_.filter(Dashboard.loaded, function(widget) { return widget.section === section }),
+			function(val) {
+				Dashboard.show({ widgetId: val.name, section: section });
+			});
+	},
+
+	show: function(opts) {
+		if ((!opts) || (!opts.widgetId)) {
+			return;
+		}
+
+		if (this.loaded[opts.widgetId]) {
+			// been loaded, execute?
+			if ($('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css('display') === 'none') {
+				// Remove .panel-close
+				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id)
+					.children().removeClass('panel-close');
+
+				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css({
+					'display': 'block'
+				});
+			}
+
+			if ( (opts.data) && this.loaded[opts.widgetId].setData ) {
+				this.loaded[opts.widgetId].setData(opts.data);
+
+				if (opts.refetch) {
+					this.loaded[opts.widgetId].fetch();
+				}
+			}
+
+			this.refresh();
+		} else {
+			if (opts.data) {
+				this.initData[opts.widgetId] = opts.data;
+			}
+
+			// if queued to load, exit here
+			if ( this.queued.indexOf(opts.widgetId) >= 0) {
+				return;
+			}
+
+			// mark as being queued
+			this.queued.push(opts.widgetId);
+
+
+			if (!Dashboard.sectionMap[opts.section]) {
+				Dashboard.sectionMap[opts.section] = [];
+			}
+
+			Dashboard.sectionMap[opts.section].push(opts.widgetId);
+
+			// load widget and then run its payload
+			$.getScript('js/widgets/' + opts.widgetId + '.js').fail(
+				function(jqxhr, settings, e) {
+					Dashboard.sectionMap[opts.section] = _.without(Dashboard.sectionMap[opts.section], opts.widgetId);
+					Dashboard.queued = _.without(Dashboard.queued, opts.widgetId);
+
+					Dashboard.Utils.debug(opts.widgetId + ' loading failed with: ' + e);
+				});
+		}
+	},
+
+	hide: function(widget) {
+		if ($('#widget-shell-' + widget.shell.id).css('display') !== 'none') {
+			$('#widget-shell-' + widget.shell.id).css({
+				'display': 'none'
+			});
+		}
+	},
+
+	// clear the grounds of any displayed widgets
+	// TODO: using show/hide CSS fuckery. Could be easier in the long run to
+	// remove from DOM
+	clear: function(currentSection) {
+		var _this = this;
+
+		_.each(this.loaded, function(val, key) {
+			if (currentSection != val.section) {
+				_this.hide(val);
+			}
+		});
+	},
+
+	widgetControls: function() {
+		$(document).on('click', function(e) {
+			var el = $(e.target);
+
+			if ( el.parent().parent().hasClass('rad-panel-action') ) {
+
+				// Widget collapse / expand handler
+				if ( el.hasClass('fa-chevron-down') ) {
+					var $ele = el.parents('.panel-heading');
+
+					$ele.siblings('.panel-footer').toggleClass('rad-collapse');
+					$ele.siblings('.panel-body').toggleClass('rad-collapse', function() {
+						setTimeout(function() {
+
+						}, 200);
+					});
+
+				// Widget close handler
+				} else if ( el.hasClass('fa-close') ) {
+					var $ele = el.parents('.panel');
+					$ele.addClass('panel-close');
+
+					setTimeout(function() {
+						$ele.parent().css({ 'display': 'none'});
+					}, 210);
+
+				// Widget refresh handler
+				} else if ( el.hasClass('fa-rotate-right') ) {
+					var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
+					 $ele = el.parents('.panel-heading').siblings('.panel-body'),
+					 postFetchFunc = function() {
+ 						$ele.find('.overlay').remove();
+ 						$ele.css('overflow-y', 'auto');
+ 					 };
+
+
+					$ele
+						.append('<div class="overlay"><div class="overlay-content"><i class="fa fa-refresh fa-2x fa-spin"></i></div></div>')
+						.scrollTop(0)
+						.css('overflow-y', 'hidden');
+
+
+					Dashboard.idMap[wid].postFetch = postFetchFunc;
+					(Dashboard.idMap[wid].fetch && Dashboard.idMap[wid].fetch());
+
+					setTimeout(postFetchFunc, 2000);
+				} else if ( el.hasClass('fa-link') ) {
+					var wid = el.parents('.panel').parent().attr('id').replace('widget-shell-', ''),
+					 params = {
+						section: Dashboard.idMap[wid].section,
+						widgetId: Dashboard.idMap[wid].name
+					 },
+					 link = document.location.protocol + '//' + document.location.host + document.location.pathname + '#';
+
+					if (Dashboard.idMap[wid].data) {
+						params.data = JSON.stringify(Dashboard.idMap[wid].data);
+					}
+
+					link += $.param(params);
+
+					// Notification tooltip
+					$(el).tooltip({ placement: 'top' }).tooltip('show');
+
+					setTimeout(function() {
+						$(el).tooltip('destroy');
+					}, 1000);
+
+					$('#_clipboard').val(link);
+					$('#_clipboard_button').click();
+				}
+			}
+		});
+	}
+}
+
+// INIT
+$(function() {
+	Dashboard.widgetControls();
+});

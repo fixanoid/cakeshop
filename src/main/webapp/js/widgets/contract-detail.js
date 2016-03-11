@@ -65,5 +65,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();

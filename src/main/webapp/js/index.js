@@ -16,8 +16,6 @@ var Tower = {
 	current: null,
 	status: {},
 
-	screenManager: screenManager,
-
 	// Tower Control becomes ready only after the first status is received from the server
 	isReady: function() {
 		Tower.ready = true;
@@ -30,7 +28,7 @@ var Tower = {
 
 
 	init: function() {
-		this.screenManager.widgetControls();
+		Dashboard.setGrounds($('#grounds'));
 
 		// Adding event for sleep / wake
 		$(document).on('visibilitychange', function(e) {
@@ -72,7 +70,7 @@ var Tower = {
 				}
 
 				if (params.widgetId) {
-					Tower.screenManager.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
+					Dashboard.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
 				}
 			};
 
@@ -162,7 +160,7 @@ var Tower = {
 				{ widgetId: 'node-settings' }
 			];
 
-			Tower.screenManager.showSection('console', widgets);
+			Dashboard.showSection('console', widgets);
 		},
 
 		'peers': function() {
@@ -172,7 +170,7 @@ var Tower = {
 				{ widgetId: 'peers-neighborhood', data: Tower.status.nodeIP }
 			];
 
-			Tower.screenManager.showSection('peers', widgets);
+			Dashboard.showSection('peers', widgets);
 		},
 
 		'api': function() {
@@ -180,7 +178,7 @@ var Tower = {
 				{ widgetId: 'doc-frame' }
 			];
 
-			Tower.screenManager.showSection('api', widgets);
+			Dashboard.showSection('api', widgets);
 		},
 
 		'contracts': function() {
@@ -188,7 +186,7 @@ var Tower = {
 				{ widgetId: 'contract-list' }
 			];
 
-			Tower.screenManager.showSection('contracts', widgets);
+			Dashboard.showSection('contracts', widgets);
 		},
 
 		'explorer': function() {
@@ -198,7 +196,7 @@ var Tower = {
 				{ widgetId: 'block-view' }
 			];
 
-			Tower.screenManager.showSection('explorer', widgets);
+			Dashboard.showSection('explorer', widgets);
 		}
 	},
 

@@ -76,7 +76,7 @@
 				$('#widget-' + _this.shell.id + ' a').click(function(e) {
 					e.preventDefault();
 
-					Tower.screenManager.show({ widgetId: 'txn-detail', section: 'explorer', data: $(this).text(), refetch: true });
+					Dashboard.show({ widgetId: 'txn-detail', section: 'explorer', data: $(this).text(), refetch: true });
 				});
 
 				_this.postFetch();
@@ -88,5 +88,5 @@
 	var widget = _.extend({}, widgetRoot, extended);
 
 	// register presence with screen manager
-	Tower.screenManager.addWidget(widget);
+	Dashboard.addWidget(widget);
 })();
