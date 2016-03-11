@@ -60,9 +60,10 @@
 			});
 
 
-			_.each(hood, function(ep) {
-				var ep = window.location.protocol + '//' + ep + (window.location.port ? ':' + window.location.port : '') + '/ethereum-enterprise/ws',
-				 stomp = Stomp.over(new SockJS(ep));
+			_.each(hood, function(ip) {
+				var port = (window.location.port ? ':' + window.location.port : ''),
+					ep = window.location.protocol + '//' + ip + port + '/ethereum-enterprise/ws',
+					stomp = Stomp.over(new SockJS(ep));
 
 				stomp.debug = null;
 
