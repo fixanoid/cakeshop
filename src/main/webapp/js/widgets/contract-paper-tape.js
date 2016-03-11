@@ -28,6 +28,7 @@
 				utils.load({ url: _this.url, data: { id: _this.contractId } })
 			).fail(function(err) {
 				// TODO: Error will robinson!
+				_this.postFetch();
 			}).done(function(txns) {
 				$('#widget-shell-' + _this.shell.id + ' .panel-title span').html(_this.contractName + ' Paper Tape');
 
@@ -52,6 +53,8 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
+
+				_this.postFetch();
 			});
 		},
 

@@ -80,6 +80,8 @@
 				});
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rowsOut.join('') }) );
+
+				_this.postFetch();
 			});
 		},
 

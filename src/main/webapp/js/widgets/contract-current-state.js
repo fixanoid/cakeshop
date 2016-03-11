@@ -35,6 +35,8 @@
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 
 					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
+
+					_this.postFetch();
 				});
 			});
 		}
