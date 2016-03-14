@@ -256,4 +256,17 @@ var Dashboard = {
 // INIT
 $(function() {
 	Dashboard.widgetControls();
+
+	// misc hallo
+	try {
+		console.log(
+			' _______ __________________   \n'+
+			' \\      \\\\______   \\______ \\  \n'+
+			' /   |   \\|     ___/|    |  \\ \n'+
+			'/    |    \\    |    |    `   \\ \n'+
+			'\\____|__  /____|   /_______  / \n'+
+			'        \\/                 \\/ \n' +
+			'This app is a product of NPD. \n'+
+			'Interested? Ping R556615. Bye! ');
+	} catch(e) {}
 });
