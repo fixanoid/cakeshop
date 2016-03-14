@@ -40,7 +40,7 @@
 		fetch: function() {
 			$('#widget-' + this.shell.id + ' > table > tbody').empty();
 
-			var hood = [];
+			var hood = [], _this = this;
 
 			this.ip.split(',').forEach(function(ip) {
 				var last = ip.split('.').splice(3),
