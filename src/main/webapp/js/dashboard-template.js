@@ -4,7 +4,7 @@ Dashboard.TEMPLATES = {
 				'	<div class="panel panel-default">\n'+
 				'		<div class="panel-heading">\n'+
 				'			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n'+
-				'			<ul class="rad-panel-action">\n'+
+				'			<ul class="panel-action">\n'+
 
 				( opts.hideLink === true ? '' : '				<li><i data-toggle="tooltip" data-title="Copied!" class="fa fa-link"></i></li>\n') +
 

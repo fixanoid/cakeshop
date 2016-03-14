@@ -1,15 +1,4 @@
 var Dashboard = {
-/*
-	// DOM anchor for the widget field
-	grounds: $('#grounds'),
-	grid: $('#grounds').packery({
-		columnWidth: '.widget-sizer',
-		//rowHeight: '.widget-sizer',
-		percentPosition: true,
-		itemSelector: '.widget-shell',
-		gutter: 0
-	}),
-*/
 	// section to widget mapping
 	sectionMap: {},
 
@@ -25,10 +14,13 @@ var Dashboard = {
 	// init data for widgets
 	initData: {},
 
+
+	// debounced refreshing of the packery layout
 	refresh: _.debounce(function() {
 		Dashboard.grid.packery('layout');
 	}, 0),
 
+	// DOM anchor for the widget field and packery grid
 	setGrounds: function(el) {
 		Dashboard.grounds = el;
 		Dashboard.grid = el.packery({
@@ -64,6 +56,7 @@ var Dashboard = {
 		this.queued = _.without(this.queued, widget.name);
 		delete this.initData[widget.name];
 
+		// packery registration, and draggable + resizable init
 		this.grid.packery('appended', $('#widget-shell-' + widget.shell.id)[0] );
 
 		$('#widget-shell-' + widget.shell.id)
@@ -189,14 +182,14 @@ var Dashboard = {
 		$(document).on('click', function(e) {
 			var el = $(e.target);
 
-			if ( el.parent().parent().hasClass('rad-panel-action') ) {
+			if ( el.parent().parent().hasClass('panel-action') ) {
 
 				// Widget collapse / expand handler
 				if ( el.hasClass('fa-chevron-down') ) {
 					var $ele = el.parents('.panel-heading');
 
-					$ele.siblings('.panel-footer').toggleClass('rad-collapse');
-					$ele.siblings('.panel-body').toggleClass('rad-collapse', function() {
+					$ele.siblings('.panel-footer').toggleClass('panel-collapse');
+					$ele.siblings('.panel-body').toggleClass('panel-collapse', function() {
 						setTimeout(function() {
 
 						}, 200);

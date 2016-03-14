@@ -60,7 +60,7 @@ var Tower = {
 
 			var werk = function() {
 				if (params.section) {
-					$('.rad-sidebar #' + params.section).click();
+					$('.tower-sidebar #' + params.section).click();
 				}
 
 				if (params.data) {
@@ -114,14 +114,14 @@ var Tower = {
 					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
 					$('#default-node-status').parent().find('.fa')
-					 .removeClass('fa-pause rad-txt-danger')
-					 .addClass('fa-play rad-txt-success');
+					 .removeClass('fa-pause tower-txt-danger')
+					 .addClass('fa-play tower-txt-success');
 				} else {
 					$('#default-node-status').html( $('<span>', { html: utils.capitalize(status.status) }) );
 
 					$('#default-node-status').parent().find('.fa')
-					 .removeClass('fa-play rad-txt-success')
-					 .addClass('fa-pause rad-txt-danger');
+					 .removeClass('fa-play tower-txt-success')
+					 .addClass('fa-pause tower-txt-danger');
 				}
 
 				utils.prettyUpdate(Tower.status.peerCount, status.peerCount + demo.add(), $('#default-peers'));
@@ -220,15 +220,15 @@ $(function() {
 
 
 	// Menu (burger) handler
-	$('.rad-toggle-btn').on('click', function() {
-		$('.rad-logo-container').toggleClass('rad-nav-min');
-		$('.rad-sidebar').toggleClass('rad-nav-min');
-		$('.rad-body-wrapper').toggleClass('rad-nav-min');
+	$('.tower-toggle-btn').on('click', function() {
+		$('.tower-logo-container').toggleClass('tower-nav-min');
+		$('.tower-sidebar').toggleClass('tower-nav-min');
+		$('.tower-body-wrapper').toggleClass('tower-nav-min');
 	});
 
 
 	// Navigation menu handler
-	$('.rad-sidebar li').click(function(e) {
+	$('.tower-sidebar li').click(function(e) {
 		if ($(this).attr('id') === 'sandbox') {
 			return;
 		}
@@ -237,12 +237,12 @@ $(function() {
 
 		Tower.current = $(this).attr('id');
 
-		$('.rad-sidebar li').removeClass('active');
+		$('.tower-sidebar li').removeClass('active');
 		$(this).addClass('active');
 
 		Tower.section[Tower.current]();
 
-		$('.rad-page-title').html( $('<span>', { html: $(this).find('.rad-sidebar-item').html() }) );
+		$('.tower-page-title').html( $('<span>', { html: $(this).find('.tower-sidebar-item').html() }) );
 	});
 
 
@@ -257,5 +257,5 @@ $(function() {
 	// });
 
 	// Setting 'Console' as first section
-	$('.rad-sidebar li').first().click();
+	$('.tower-sidebar li').first().click();
 });
