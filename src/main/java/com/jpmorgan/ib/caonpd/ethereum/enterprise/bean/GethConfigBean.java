@@ -148,9 +148,8 @@ public class GethConfigBean {
         keystorePath = expandPath(vendorGenesisDir, "keystore");
 
         // configure solc
-        String solcDir = expandPath(vendorGenesisDir, "..", "solc", "node_modules", ".bin");
-        ensureNodeBins(binPath, solcDir);
-        solcPath = solcDir + File.separator + "solc";
+        ensureNodeBins(binPath);
+        solcPath = expandPath(vendorGenesisDir, "..", "solc", "node_modules", "solc-cli", "bin", "solc");
 
         // Clean up data dir path for default config (not an absolute path)
         if (getDataDirPath() != null && getDataDirPath().startsWith("/.")) {
@@ -174,11 +173,9 @@ public class GethConfigBean {
      * @param nodePath
      * @param solcPath
      */
-    private void ensureNodeBins(String nodePath, String solcPath) {
+    private void ensureNodeBins(String nodePath) {
         ensureFileIsExecutable(nodePath + File.separator + "node");
         ensureFileIsExecutable(nodePath + File.separator + "node.exe");
-        ensureFileIsExecutable(solcPath + File.separator + "solc");
-        ensureFileIsExecutable(solcPath + File.separator + "solc.cmd");
     }
 
     public String getGethPath() {

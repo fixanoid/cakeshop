@@ -16,6 +16,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
 
@@ -124,11 +125,12 @@ public class ContractServiceImpl implements ContractService {
 
         Map<String, Object> res = null;
         try {
-            String solc = gethConfig.getSolcPath();
+            String nodePath = FileUtils.expandPath(gethConfig.getBinPath(), "node");
             if (SystemUtils.IS_OS_WINDOWS) {
-                solc = solc + ".cmd";
+                nodePath = nodePath + ".exe";
             }
-            List<String> args = Lists.newArrayList(solc, "--ipc");
+            String solc = gethConfig.getSolcPath();
+            List<String> args = Lists.newArrayList(nodePath, solc, "--ipc");
 
             ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
 

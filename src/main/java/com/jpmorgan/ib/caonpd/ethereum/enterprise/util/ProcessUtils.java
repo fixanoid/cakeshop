@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.sun.jna.Pointer;
@@ -38,6 +39,11 @@ public class ProcessUtils {
         final Map<String, String> env = builder.environment();
         env.put("PATH", prefixPathStr(gethConfig.getBinPath() + File.pathSeparator + solcDir, env.get("PATH")));
 
+        LOG.info("PATH=" + env.get("PATH"));
+        LOG.info(Joiner.on(" ").join(builder.command()));
+
+        // libgmp is no longer used, but keep this in place anyway, just in case
+        // we need to add some other dynamic libs later
         if (SystemUtils.IS_OS_MAC_OSX) {
             // we ship the gmp lib at this location, make sure its accessible
             env.put("DYLD_LIBRARY_PATH", prefixPathStr(gethConfig.getBinPath(), env.get("DYLD_LIBRARY_PATH")));
