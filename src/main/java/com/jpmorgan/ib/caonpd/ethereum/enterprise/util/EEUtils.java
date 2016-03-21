@@ -55,20 +55,38 @@ public class EEUtils {
     }
 
 
+    /**
+     * Get a list of all public IP addresses
+     *
+     * @return
+     * @throws APIException
+     */
     public static List<IP> getAllIPs() throws APIException {
 
-        List<IP> ips = new ArrayList<>();
+        List<IP> ips = _getAllIPs();
+
+        // Try filtering out unwanted interfaces. If 0 remaining, just return all
+        List<IP> filteredIPs = new ArrayList<>();
+        for (IP ip : ips) {
+            String iface = ip.getIface();
+            if ((SystemUtils.IS_OS_MAC && !iface.startsWith("en"))
+                    || ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.startsWith("eth"))) {
+                continue;
+            }
+            filteredIPs.add(ip);
+        }
+
+        return filteredIPs.isEmpty() ? ips : filteredIPs;
+
+    }
+
+    private static List<IP> _getAllIPs() throws APIException {
+                List<IP> ips = new ArrayList<>();
 
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 NetworkInterface iface = interfaces.nextElement();
-
-                // filter out some interfaces
-                if ((SystemUtils.IS_OS_MAC && !iface.getName().startsWith("en"))
-                        || ((SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_LINUX) && !iface.getName().startsWith("eth"))) {
-                    continue;
-                }
 
                 // collect IPs
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
@@ -95,6 +113,7 @@ public class EEUtils {
         } catch (SocketException e) {
             throw new APIException("Faild to get local IP address", e);
         }
+
 
     }
 

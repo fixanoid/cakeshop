@@ -247,6 +247,9 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
                 }
 
                 Block latestBlock = blockService.get(null, null, "latest");
+                if (previousBlock == null) {
+                    previousBlock = blockDAO.getLatest();
+                }
 
                 if (previousBlock == null || !previousBlock.equals(latestBlock)) {
                     if (previousBlock != null && (latestBlock.getNumber() - previousBlock.getNumber()) > 1) {
