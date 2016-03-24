@@ -56,6 +56,8 @@ public class ContractServiceImpl implements ContractService {
 
             Transaction tx = null;
 
+            LOG.debug("Waiting for contract to be comitted");
+
             while (tx == null) {
                 try {
                     tx = transactionService.waitForTx(
@@ -72,6 +74,7 @@ public class ContractServiceImpl implements ContractService {
 
             try {
                 contract.setAddress(tx.getContractAddress());
+                LOG.info("Registring newly mined contract at address " + contract.getAddress());
                 contractRegistry.register(tx.getContractAddress(), contract.getName(), contract.getABI(),
                         contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
             } catch (APIException e) {
@@ -281,10 +284,10 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
-	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args);
+	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args, true);
 
 	    if (blockNumber != null) {
-	        if (!(blockNumber instanceof Number)) {
+	        if (!(blockNumber instanceof Number || blockNumber instanceof String)) {
 	            throw new APIException("Invalid value for blockNumber: must be long or string");
 	        }
 	        req.setBlockNumber(blockNumber);
@@ -308,7 +311,7 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public TransactionResult transact(String id, ContractABI abi, String method, Object[] args) throws APIException {
-	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args);
+	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args, false);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
 	    return new TransactionResult((String) readRes.get("_result"));

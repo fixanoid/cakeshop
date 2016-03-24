@@ -22,11 +22,14 @@ public class TransactionRequest {
 
     private Object blockNumber;
 
-    public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args) throws APIException {
+    private boolean isRead;
+
+    public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args, boolean isRead) throws APIException {
 
         this.fromAddress = fromAddress;
         this.contractAddress = contractAddress;
         this.abi = abi;
+        this.isRead = isRead;
 
 	    this.function = abi.getFunction(method);
 	    if (this.function == null) {
@@ -42,10 +45,14 @@ public class TransactionRequest {
     }
 
     public Object[] getArgsArray() {
-        if (blockNumber == null) {
-            return new Object[] { getArgs() };
+        if (isRead) {
+            if (blockNumber == null) {
+                return new Object[] { getArgs(), "latest" };
+            } else {
+                return new Object[] { getArgs(), blockNumber };
+            }
         } else {
-            return new Object[] { getArgs(), blockNumber };
+            return new Object[] { getArgs() };
         }
     }
 
