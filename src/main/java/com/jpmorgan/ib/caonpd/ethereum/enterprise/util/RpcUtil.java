@@ -65,11 +65,13 @@ public class RpcUtil {
 	    String str = (String) (object instanceof String ? object : toString(object));
 	    System.out.println(str);
 	}
-        
-        public static BigInteger balToBigInteger(String hex) {
-            String strBal = hex.replace("0x", "");
-            BigInteger bal = new BigInteger(strBal, 16);
-            return bal;
-        }
+
+	public static BigInteger hexToBigInteger(String hex) {
+	    if (hex.startsWith("0x")) {
+	        return new BigInteger(hex.substring(2), 16);
+	    } else {
+	        return new BigInteger(hex, 16);
+	    }
+	}
 
 }

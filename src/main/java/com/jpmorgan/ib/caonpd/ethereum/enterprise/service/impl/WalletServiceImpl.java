@@ -12,10 +12,12 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Account;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,9 +46,10 @@ public class WalletServiceImpl implements WalletService {
             if (accountList != null) {
                 accounts = new ArrayList<>();
                 for (String address : accountList) {
-                    Map<String, Object> accountData = gethService.executeGethCall(AdminBean.PERSONAL_GET_ACCOUNT_BALANCE, new Object[]{address});
+                    Map<String, Object> accountData = gethService.executeGethCall(
+                            AdminBean.PERSONAL_GET_ACCOUNT_BALANCE, new Object[] { address, "latest" });
                     String strBal = (String)accountData.get("_result");
-                    BigInteger bal = RpcUtil.balToBigInteger(strBal);
+                    BigInteger bal = RpcUtil.hexToBigInteger(strBal);
                     account = new Account();
                     account.setAddress(address);
                     account.setBalance(bal.toString());
