@@ -55,7 +55,9 @@ public class TransactionServiceImpl implements TransactionService {
 		tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
 		tx.setGasUsed(toLong("gasUsed", txData));
 
-		if (tx.getBlockId() == null) {
+		if (tx.getBlockId() == null || tx.getBlockNumber() == null
+		        || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
+
 			tx.setStatus(Status.pending);
 		} else {
 			tx.setStatus(Status.committed);
