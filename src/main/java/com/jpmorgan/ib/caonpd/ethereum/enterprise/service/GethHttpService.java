@@ -16,7 +16,7 @@ import java.util.Map;
 public interface GethHttpService {
 
     public static final String GETH_API_VERSION = "2.0";
-    public static final String USER_ID = "enterprise-ethereum";
+    public static final Long   GETH_REQUEST_ID = 42L; // We don't actually use this, so just use a constant
 
     /**
      * Call the given Geth RPC method

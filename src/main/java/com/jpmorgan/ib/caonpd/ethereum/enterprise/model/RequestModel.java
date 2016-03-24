@@ -6,6 +6,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 /**
+ * Geth JSON-RPC request model
  *
  * @author I629630
  */
@@ -14,16 +15,16 @@ public class RequestModel {
     private String jsonrpc;
     private String method;
     private Object[] params;
-    private String id;
+    private Long id;
 
     public RequestModel(){}
 
-    public RequestModel(String jsonrpc, String method, Object[] params, String id) {
-        this.jsonrpc = jsonrpc;
+    public RequestModel(String method, Object[] params, String jsonrpc, Long id) {
         this.method = method;
         this.params = params;
-        this.id = id;
 
+        this.jsonrpc = jsonrpc;
+        this.id = id;
     }
 
     /**
@@ -71,14 +72,14 @@ public class RequestModel {
     /**
      * @return the id
      */
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

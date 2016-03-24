@@ -19,9 +19,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,10 +90,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
 
-        RequestModel request = new RequestModel(GethHttpService.GETH_API_VERSION, funcName, args, GethHttpService.USER_ID);
+        RequestModel request = new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID);
         String req = new Gson().toJson(request);
         String response = executeGethCall(req);
 
@@ -340,52 +338,41 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
     }
 
-    private Boolean checkGethStarted() {
-
+    private boolean checkGethStarted() {
         long timeStart = System.currentTimeMillis();
-        Boolean started = false;
 
         while (true) {
+            if (checkConnection()) {
+                LOG.info("Geth started up successfully");
+                return true;
+            }
+
+            if (System.currentTimeMillis() - timeStart >= 10000) {
+                // Something went wrong and RPC did not start within 10 sec
+                LOG.error("Geth did not start within 10 seconds");
+                break;
+            }
             try {
-                if (checkConnection()) {
-                    LOG.info("Geth started up successfully");
-                    started = true;
-                    break;
-                }
-            } catch (IOException ex) {
-                //LOG.debug(ex.getMessage());
-                if (System.currentTimeMillis() - timeStart >= 10000) {
-                    // Something went wrong and RPC did not start within 10
-                    // sec
-                    LOG.error("Geth did not start within 10 seconds");
-                    break;
-                }
-                try {
-                    TimeUnit.MILLISECONDS.sleep(50);
-                } catch (InterruptedException e) {
-                    break;
-                }
+                TimeUnit.MILLISECONDS.sleep(50);
+            } catch (InterruptedException e) {
+                break;
             }
         }
 
-        return started;
+        return false;
     }
 
-    private Boolean checkConnection() throws IOException {
-        Boolean connected = false;
+    private Boolean checkConnection() {
+
         try {
-            URL urlConn = new URL(gethConfig.getRpcUrl());
-            HttpURLConnection conn = (HttpURLConnection) urlConn.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-            if (conn.getResponseCode() == 200) {
-                connected = true;
+            Map<String, Object> info = executeGethCall("admin_nodeInfo", null);
+            if (info != null && info.containsKey("id") && !((String)info.get("id")).isEmpty()) {
+                return true;
             }
-            conn.disconnect();
-        } catch (MalformedURLException ex) {
-            LOG.error(ex.getMessage());
+        } catch (APIException e) {
+            LOG.debug("geth not yet up: " + e.getMessage());
         }
-        return connected;
+        return false;
     }
 
     @Override
