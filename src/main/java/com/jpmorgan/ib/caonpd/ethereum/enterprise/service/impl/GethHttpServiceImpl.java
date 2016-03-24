@@ -223,7 +223,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 //"--jpmtest",
                 "--solc", gethConfig.getSolcPath(),
                 "--nat", "none", "--nodiscover",
-                "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
+                "--unlock", "0,1,2", "--password", gethConfig.getGethPasswordFile(),
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable"
                 );
@@ -285,6 +285,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             }
 
             started = checkGethStarted();
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                return false;
+            }
 
             if (started && newGethInstall) {
                 BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
