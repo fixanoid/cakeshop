@@ -63,7 +63,7 @@
 		},
 
 		render: function() {
-			Dashboard.grounds.append(this.shell.tpl);
+			Dashboard.render.widget(this.name, this.shell.tpl);
 
 			$('#widget-' + this.shell.id)
 				.css({ 'height': '240px', 'margin-bottom': '10px', 'overflow': 'auto' })

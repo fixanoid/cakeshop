@@ -31,7 +31,7 @@
 			'  </div>'),
 
 		render: function() {
-			Dashboard.grounds.append(this.shell.tpl);
+			Dashboard.render.widget(this.name, this.shell.tpl);
 
 			$('#widget-' + this.shell.id)
 				.css({

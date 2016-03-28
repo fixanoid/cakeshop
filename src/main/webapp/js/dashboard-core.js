@@ -32,6 +32,27 @@ var Dashboard = {
 		});
 	},
 
+	// Optional module to enforce placement order
+	render: {
+		unstub: function(id) {
+			$('#stub-' + id).remove();
+		},
+
+		stub: function(id) {
+			var el = $('<div></div>', {
+				id: 'stub-' + id,
+				style: 'display: none;'
+			});
+
+			Dashboard.grounds.append(el);
+		},
+
+		widget: function(id, el) {
+			$('#stub-' + id).replaceWith(el);
+			Dashboard.render.unstub(id);
+		}
+	},
+
 	addWidget: function(widget) {
 		// shared injects
 		widget.init(this.initData[widget.name]);
@@ -62,9 +83,11 @@ var Dashboard = {
 		$('#widget-shell-' + widget.shell.id)
 			.draggable({ handle: '.panel-heading' })
 			.resizable({
-				grid: [ 10, 10 ],
+				minHeight: $('.widget-sizer').height(),
+				minWidth: 200,
+
+				grid: [ 5, 5 ],
 				resize: function( event, ui ) {
-					// console.log(ui.element.attr('id'), ui.size);
 					$('#widget-' + widget.shell.id).css({
 						height: ui.size.height - 76,
 						width: ui.size.width - 35
@@ -145,6 +168,9 @@ var Dashboard = {
 			}
 
 			Dashboard.sectionMap[opts.section].push(opts.widgetId);
+
+			// drop placement stub
+			Dashboard.render.stub(opts.widgetId);
 
 			// load widget and then run its payload
 			$.getScript('js/widgets/' + opts.widgetId + '.js').fail(
