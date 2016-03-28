@@ -957,7 +957,68 @@ paths:
               meta:
                 type: object
                 description: 'Extra metadata, such as API version'
+  /wallet/list:
+    post:
+      tags:
+        - wallet
+      description: List all accounts on the node
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                description: response data
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: "resource type identifier, 'wallet'"
+                    attributes:
+                      $ref: '#/definitions/Account'
+              meta:
+                type: object
+                description: 'Extra metadata, such as API version'
+        4xx:
+          description: Error with the request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/APIError'
+              meta:
+                type: object
+                description: 'Extra metadata, such as API version'
+        5xx:
+          description: Error processing the request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/APIError'
+              meta:
+                type: object
+                description: 'Extra metadata, such as API version'
 definitions:
+  Account:
+      properties:
+          address:
+            type: string
+            description: 160-bit identifier
+          balance:
+            type: string
+            description: A scalar value equal to the number of Wei owned by this address.
   APIError:
     properties:
       id:
