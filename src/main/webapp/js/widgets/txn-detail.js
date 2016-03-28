@@ -29,31 +29,24 @@
 
 				_this.postFetch();
 			}).done(function(res) {
-				var mainTable = {
-					'id': 0,
-					'status': 1,
-					'blockId': 2,
-					'blockNumber': 3,
-					'contractAddress': 4,
-					'transactionIndex': 5,
-					'gasUsed': 6,
-					'cumulativeGasUsed': 7
-				},
+				var mainTable = ['id', 'status', 'blockId', 'blockNumber', 'contractAddress', 'transactionIndex', 'gasUsed', 'cumulativeGasUsed'],
+				secTable = ["from", "to", "value", "input", "decodedInput", "gas", "gasPrice", "nonce"],
+				keyOrder = _.reduce(mainTable.concat(secTable), function(m, v, i) { m[v] = i; return m; }, {}),
 				mainRows = [],
 				secRows = [],
-				keys = _.sortBy(_.keys(res.data.attributes), function(key) {
+				keys = _.keys(res.data.attributes).sort(function(a, b) {
 				   // custom reorder of the returned keys
-
-					if (key in mainTable) {
-						return '' + mainTable[key];
-					}
-
-					return ('zzz' + key);
+				   if (keyOrder[a] === keyOrder[b]) {
+					   return 0;
+				   } else if (keyOrder[a] < keyOrder[b]) {
+					   return -1;
+				   } else if (keyOrder[a] > keyOrder[b]) {
+					   return 1;
+				   }
+				   return 0;
 			  	});
 
-
 				keys = utils.idAlwaysFirst(keys);
-
 				_.each(keys, function(val, key) {
 					if (res.data.attributes[val] == null) {
 						return;
@@ -61,14 +54,17 @@
 
 					var template;
 
+					console.log(val, key);
 					if (val == 'blockNumber') {
 						template = _this.templateBlockRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+					} else if (val === 'decodedInput') {
+						template = _this.templateRow({ key: utils.camelToRegularForm(val), value: JSON.stringify(res.data.attributes[val]) });
 					} else {
-						var template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
+						template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
 					}
 
 
-					if (val in mainTable) {
+					if (_.contains(mainTable, val)) {
 						mainRows.push( template );
 					} else {
 						secRows.push( template );

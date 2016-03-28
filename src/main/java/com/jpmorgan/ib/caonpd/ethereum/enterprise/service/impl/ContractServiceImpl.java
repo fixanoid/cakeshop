@@ -331,6 +331,20 @@ public class ContractServiceImpl implements ContractService {
 	    List<Transaction> txns = transactionDAO.listForContractId(contractId);
 
 	    for (Transaction tx : txns) {
+
+	        if (tx.getInput().startsWith("0xfa")) {
+	            // handle gemini payloads
+	            try {
+	                Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+	                if (res.get("_result") != null) {
+	                    tx.setInput((String) res.get("_result"));
+	                }
+	            } catch (APIException e) {
+	                LOG.warn("Failed to load gemini payload: " + e.getMessage());
+	                continue;
+	            }
+	        }
+
 	        tx.decodeInput(abi);
 	    }
 

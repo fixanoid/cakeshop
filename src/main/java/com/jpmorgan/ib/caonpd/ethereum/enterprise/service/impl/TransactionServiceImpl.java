@@ -3,24 +3,36 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionServiceImpl.class);
+
 	@Autowired
 	GethHttpService geth;
+
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Override
 	public Transaction get(String id) throws APIException {
@@ -62,6 +74,34 @@ public class TransactionServiceImpl implements TransactionService {
 		} else {
 			tx.setStatus(Status.committed);
 		}
+
+		// Decode tx input
+		if (tx.getContractAddress() == null) {
+		    String origInput = tx.getInput();
+		    if (origInput != null && origInput.startsWith("0xfa")) {
+		        // handle gemini payloads
+		        try {
+		            Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+		            if (res.get("_result") != null) {
+		                tx.setInput((String) res.get("_result"));
+		            }
+		        } catch (APIException e) {
+		            LOG.warn("Failed to load gemini payload: " + e.getMessage());
+		        }
+		    }
+		    // lookup contract
+		    ContractService contractService = applicationContext.getBean(ContractService.class);
+		    Contract contract = contractService.get(tx.getTo());
+		    ContractABI abi;
+		    try {
+		        abi = new ContractABI(contract.getABI());
+		    } catch (IOException e) {
+		        throw new APIException("Failed to load ABI for contract", e);
+		    }
+		    tx.decodeInput(abi);
+		    tx.setInput(origInput); // restore original input after [gemini] decode
+		}
+
 
 		return tx;
 	}
