@@ -76,30 +76,37 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		// Decode tx input
-		if (tx.getContractAddress() == null) {
-		    String origInput = tx.getInput();
-		    if (origInput != null && origInput.startsWith("0xfa")) {
-		        // handle gemini payloads
-		        try {
-		            Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
-		            if (res.get("_result") != null) {
-		                tx.setInput((String) res.get("_result"));
-		            }
-		        } catch (APIException e) {
-		            LOG.warn("Failed to load gemini payload: " + e.getMessage());
-		        }
-		    }
+		if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
+
 		    // lookup contract
 		    ContractService contractService = applicationContext.getBean(ContractService.class);
-		    Contract contract = contractService.get(tx.getTo());
+		    Contract contract;
 		    ContractABI abi;
 		    try {
-		        abi = new ContractABI(contract.getABI());
+		        contract = contractService.get(tx.getTo());
+		        if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
+		            abi = new ContractABI(contract.getABI());
+
+		            String origInput = tx.getInput();
+		            if (origInput != null && origInput.startsWith("0xfa")) {
+		                // handle gemini payloads
+		                try {
+		                    Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+		                    if (res.get("_result") != null) {
+		                        tx.setInput((String) res.get("_result"));
+		                    }
+		                } catch (APIException e) {
+		                    LOG.warn("Failed to load gemini payload: " + e.getMessage());
+		                }
+		            }
+		            tx.decodeInput(abi);
+		            tx.setInput(origInput); // restore original input after [gemini] decode
+		        }
+
 		    } catch (IOException e) {
-		        throw new APIException("Failed to load ABI for contract", e);
+		        LOG.warn("Failed to load underlying contract: " + e.getMessage());
 		    }
-		    tx.decodeInput(abi);
-		    tx.setInput(origInput); // restore original input after [gemini] decode
+
 		}
 
 
