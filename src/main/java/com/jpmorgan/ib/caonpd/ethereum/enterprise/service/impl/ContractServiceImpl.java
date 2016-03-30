@@ -16,7 +16,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
 
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +72,7 @@ public class ContractServiceImpl implements ContractService {
 
             try {
                 contract.setAddress(tx.getContractAddress());
-                LOG.info("Registring newly mined contract at address " + contract.getAddress());
+                LOG.info("Registering newly mined contract at address " + contract.getAddress());
                 contractRegistry.register(tx.getContractAddress(), contract.getName(), contract.getABI(),
                         contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
             } catch (APIException e) {
@@ -128,12 +126,10 @@ public class ContractServiceImpl implements ContractService {
 
         Map<String, Object> res = null;
         try {
-            String nodePath = FileUtils.expandPath(gethConfig.getBinPath(), "node");
-            if (SystemUtils.IS_OS_WINDOWS) {
-                nodePath = nodePath + ".exe";
-            }
-            String solc = gethConfig.getSolcPath();
-            List<String> args = Lists.newArrayList(nodePath, solc, "--ipc");
+            List<String> args = Lists.newArrayList(
+                    gethConfig.getNodePath(),
+                    gethConfig.getSolcPath(),
+                    "--ipc");
 
             ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
 
