@@ -102,6 +102,8 @@ public class ContractServiceTest extends BaseGethRpcTest {
 		Contract contract = contractService.get(contractAddress);
 		assertNotNull(contract);
 		assertNotNull(contract.getBinary(), "Binary code should be present");
+		assertNotEquals(contract.getBinary(), "0x", "binary should not be '0x'");
+		assertTrue(contract.getBinary().length() > 2);
 	}
 
 	@Test
