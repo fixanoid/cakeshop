@@ -65,6 +65,12 @@ public class EEUtils {
 
         List<IP> ips = _getAllIPs();
 
+        if (ips.isEmpty()) {
+            // in case all connectivity is disabled (no wifi or ethernet)
+            ips.add(new IP("lo", "127.0.0.1"));
+            return ips;
+        }
+
         // Try filtering out unwanted interfaces. If 0 remaining, just return all
         List<IP> filteredIPs = new ArrayList<>();
         for (IP ip : ips) {
