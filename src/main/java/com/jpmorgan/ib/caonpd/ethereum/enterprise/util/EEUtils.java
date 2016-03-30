@@ -87,7 +87,8 @@ public class EEUtils {
     }
 
     private static List<IP> _getAllIPs() throws APIException {
-                List<IP> ips = new ArrayList<>();
+
+        List<IP> ips = new ArrayList<>();
 
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
