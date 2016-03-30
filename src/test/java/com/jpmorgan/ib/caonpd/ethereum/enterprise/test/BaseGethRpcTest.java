@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
+import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
@@ -12,10 +13,12 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TempFileManager;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -69,9 +72,22 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
 
     @AfterSuite
+    public void stopSolc() throws IOException {
+        List<String> args = Lists.newArrayList(
+                gethConfig.getNodePath(),
+                gethConfig.getSolcPath(),
+                "--stop-ipc");
+
+        ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
+        builder.start();
+    }
+
+    @AfterSuite
     public void cleanupTempPaths() {
         try {
-            FileUtils.deleteDirectory(new File(CONFIG_ROOT));
+            if (CONFIG_ROOT != null) {
+                FileUtils.deleteDirectory(new File(CONFIG_ROOT));
+            }
             TempFileManager.cleanupTempPaths();
         } catch (IOException e) {
         }
