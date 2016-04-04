@@ -7,11 +7,13 @@
 
     function showTxView() {
         loadContracts();
+        showCompiledContracts();
     }
 
     function loadContracts() {
         // show deployed contracts (via registry)
         $("select.contracts").empty();
+        // $("div.contracts .refresh").show();
         $("select.contracts").append("<option value=''></option>");
         Contract.list(function(contracts) {
             contracts.forEach(function(c) {
@@ -19,8 +21,11 @@
                 var name = c.get("name") + " (" + trunc(c.id) + ", " + ts + ")";
                 $("select.contracts").append("<option value='" + c.id + "'>" + name + "</option>");
             });
+            // $("div.contracts .refresh").hide();
         });
+    }
 
+    function showCompiledContracts() {
         // Show compiled contracts in dropdown
         if (Sandbox.compiler_output && _.isArray(Sandbox.compiler_output)) {
             $("select.compiled_contracts").empty();
@@ -232,6 +237,7 @@
                         }
                         registered = true;
                         setActiveContract(c);
+                        loadContracts(); // refresh contract list
                     });
                 }
                 setTimeout(waitForRegistration, 200);
