@@ -14,6 +14,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -201,9 +202,23 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     @PreDestroy
     protected void autoStop () {
-        if (gethConfig.isAutoStop()) {
-            stop();
-            deletePid();
+        if (!gethConfig.isAutoStop()) {
+            return;
+        }
+
+        stop();
+        deletePid();
+
+        // stop solc server
+        List<String> args = Lists.newArrayList(
+                gethConfig.getNodePath(),
+                gethConfig.getSolcPath(),
+                "--stop-ipc");
+
+        ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
+        try {
+            builder.start();
+        } catch (IOException e) {
         }
     }
 
