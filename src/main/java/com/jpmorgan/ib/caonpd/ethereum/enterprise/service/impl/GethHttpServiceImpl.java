@@ -78,6 +78,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
     private String executeGethCall(String json) throws APIException {
         try {
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(json);
+            }
+
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(APPLICATION_JSON);
