@@ -81,7 +81,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         try {
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(json);
+                LOG.debug("> " + json);
             }
 
             RestTemplate restTemplate = new RestTemplate();
@@ -89,7 +89,15 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             headers.setContentType(APPLICATION_JSON);
             HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
             ResponseEntity<String> response = restTemplate.exchange(gethConfig.getRpcUrl(), POST, httpEntity, String.class);
-            return response.getBody();
+
+            String res = response.getBody();
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("< " + res.trim());
+            }
+
+            return res;
+
         } catch (RestClientException e) {
             LOG.error("RPC call failed - " + ExceptionUtils.getRootCauseMessage(e));
             throw new APIException("RPC call failed", e);
@@ -106,10 +114,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
 
         if (StringUtils.isEmpty(response)) {
             throw new APIException("Received empty reply from server");
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(response.trim());
         }
 
         ObjectMapper mapper = new ObjectMapper();
