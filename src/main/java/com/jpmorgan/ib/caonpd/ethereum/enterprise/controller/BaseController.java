@@ -1,8 +1,11 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.CompilerException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
+
+import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -28,7 +31,16 @@ public class BaseController {
         APIResponse res = new APIResponse();
         String rootCause = ExceptionUtils.getRootCauseMessage(ex);
 
-        if (ex instanceof APIException) {
+        if (ex instanceof CompilerException) {
+            List<String> errors = ((CompilerException) ex).getErrors();
+            for (String e : errors) {
+                APIError err = new APIError(null, HttpStatus.BAD_REQUEST.toString(), "compilation failed");
+                err.setDetail(e);
+                res.addError(err);
+            }
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+
+        } else if (ex instanceof APIException) {
             // try to pass back more specific exceptions
 
             Throwable cause = ex.getCause();

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.CompilerException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
@@ -155,6 +156,10 @@ public class ContractServiceImpl implements ContractService {
 
         } catch (IOException | InterruptedException e) {
             throw new APIException("Failed to compile contract", e);
+        }
+
+        if (res.containsKey("errors") && res.get("errors") instanceof List) {
+            throw new CompilerException((List<String>) res.get("errors"));
         }
 
 		// res is a hash of contract name -> compiled result map

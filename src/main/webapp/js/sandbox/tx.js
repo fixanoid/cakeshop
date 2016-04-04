@@ -4,34 +4,51 @@
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
     var activeContract;
+    var compiler_output;
 
     function showTxView() {
         loadContracts();
         showCompiledContracts();
     }
 
+    Sandbox.on("compile", function() {
+        $("select.compiled_contracts").empty();
+        $(".select_contract .constructor").empty();
+        $(".compiled_contracts .refresh").show();
+    });
+
+    Sandbox.on("compiled", showCompiledContracts);
+
     function loadContracts() {
         // show deployed contracts (via registry)
-        $("select.contracts").empty();
+        var sel = $(".select_contract .contracts select")
+            .empty()
+            .append("<option value=''></option>");
+
         // $("div.contracts .refresh").show();
-        $("select.contracts").append("<option value=''></option>");
         Contract.list(function(contracts) {
             contracts.forEach(function(c) {
                 var ts = moment.unix(c.get("createdDate")).format("YYYY-MM-DD hh:mm A");
                 var name = c.get("name") + " (" + trunc(c.id) + ", " + ts + ")";
-                $("select.contracts").append("<option value='" + c.id + "'>" + name + "</option>");
+                sel.append("<option value='" + c.id + "'>" + name + "</option>");
             });
             // $("div.contracts .refresh").hide();
         });
     }
 
-    function showCompiledContracts() {
+    function showCompiledContracts(_output) {
         // Show compiled contracts in dropdown
-        if (Sandbox.compiler_output && _.isArray(Sandbox.compiler_output)) {
-            $("select.compiled_contracts").empty();
-            $("select.compiled_contracts").append("<option value=''></option>");
-            Sandbox.compiler_output.forEach(function(c) {
-                $("select.compiled_contracts").append("<option value='" + c.get("name") + "'>" + c.get("name") + "</option>");
+
+        compiler_output = _output;
+        $(".compiled_contracts .refresh").hide();
+
+        var sel = $(".select_contract .compiled_contracts select")
+            .empty()
+            .append("<option value=''></option>");
+
+        if (compiler_output && _.isArray(compiler_output)) {
+            compiler_output.forEach(function(c) {
+                sel.append("<option value='" + c.get("name") + "'>" + c.get("name") + "</option>");
             });
         }
     }
@@ -160,26 +177,26 @@
     }
 
     // Enter contract address
-    $(".select_contract input.address").change(function(e) {
+    $(".select_contract .address input").change(function(e) {
         var addr = $(e.target).val();
         Contract.get(addr).then(setActiveContract);
     });
 
     // Select already deployed contract
-    $(".select_contract .contracts").change(function(e) {
+    $(".select_contract .contracts select").change(function(e) {
         var addr = $(e.target).val();
-        $(".select_contract input.address").val(addr).change();
+        $(".select_contract .address input").val(addr).change();
     });
 
     // Select contract to deploy
-    $(".select_contract .compiled_contracts").change(function(e) {
+    $(".select_contract .compiled_contracts select").change(function(e) {
         var sel = $(e.target).val();
         var con = $(".select_contract .constructor");
 
         $(".select_contract .deploy").off("click");
         con.empty();
 
-        var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
+        var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
 
         if (!sel || !contract) {
             con.hide();
@@ -206,7 +223,7 @@
                 return false;
             }
 
-            var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
+            var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
         	var optimize = document.querySelector('#optimize').checked;
 
             var params = {};
@@ -224,7 +241,7 @@
 
             Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
                 addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
-                $(".select_contract input.address").val(addr);
+                $(".select_contract .address input").val(addr);
 
                 addTx("Waiting for contract to be registered");
                 var registered = false;
@@ -255,7 +272,7 @@
         if (toggleCollapseIcon(i)) {
             $(".select_contract .panel-heading .title").text("Choose Contract");
         } else {
-            var addr = $(".select_contract input.address").val();
+            var addr = $(".select_contract .address input").val();
             if (addr) {
                 $(".select_contract .panel-heading .title").text("Using " + addr);
             }
@@ -292,5 +309,9 @@
 
 
     Sandbox.showTxView = showTxView;
+
+    $(function() {
+        showTxView(); // default view
+    });
 
 })();

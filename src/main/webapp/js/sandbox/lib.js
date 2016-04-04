@@ -1,4 +1,8 @@
 
+/**
+ * CONTRACT LIBRARY
+ */
+
 (function() {
 
     var Sandbox = window.Sandbox = window.Sandbox || {};

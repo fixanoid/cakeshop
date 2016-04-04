@@ -138,27 +138,25 @@
     };
 
     Contract.compile = function(code, optimize, cb) {
-        Client.post(Contract.prototype.url('compile'),
-            {
-                code: code,
-                code_type: 'solidity',
-                optimize: optimize
-            }
-        ).done(function(res, status, xhr) {
-            if (res.data && _.isArray(res.data)) {
-                var contracts = [];
-                res.data.forEach(function(d) {
-                    var c = new Contract(d.attributes);
-                    contracts.push(c);
-                });
-                if (cb) {
-                    cb(contracts);
+        return new Promise(function(resolve, reject) {
+            Client.post(Contract.prototype.url('compile'),
+                {
+                    code: code,
+                    code_type: 'solidity',
+                    optimize: optimize
                 }
-            }
-        }).fail(function(xhr, status, errThrown) {
-            // TODO
-            console.log('compilation failed: ', status);
-            console.log('err: ', errThrown);
+            ).done(function(res, status, xhr) {
+                if (res.data && _.isArray(res.data)) {
+                    var contracts = [];
+                    res.data.forEach(function(d) {
+                        var c = new Contract(d.attributes);
+                        contracts.push(c);
+                    });
+                    resolve(contracts);
+                }
+            }).fail(function(xhr, status, errThrown) {
+                reject(JSON.parse(xhr.responseText).errors);
+            });
         });
     };
 

@@ -84,22 +84,23 @@
 							<div class="panel-body">
 								<div class="form-group contracts">
 									<label>From Deployed Contracts:
-										<select class="form-control contracts"></select>
+										<select class="form-control"></select>
 									</label>
 									<i class="refresh fa fa-refresh fa-2x fa-spin start_hidden"></i>
 								</div>
 
-								<div class="form-group">
+								<div class="form-group compiled_contracts">
 									<label>Or Deploy From Editor:
-										<select class="form-control compiled_contracts"></select>
+										<select class="form-control"></select>
 									</label>
+									<i class="refresh fa fa-refresh fa-2x fa-spin start_hidden"></i>
 									<div class="form-group constructor start_hidden">
 									</div>
 								</div>
 
-								<div class="form-group">
+								<div class="form-group address">
 									<label>Or Enter Address:
-										<input type="text" class="form-control address" placeholder="address">
+										<input type="text" class="form-control" placeholder="address">
 									</label>
 								</div>
 							</div>
@@ -213,6 +214,7 @@
 		<script src="js/model/contract.js" charset="utf-8"></script>
 		<script src="js/model/transaction.js" charset="utf-8"></script>
 
+		<script src="js/sandbox/init.js" charset="utf-8"></script>
 		<script src="js/sandbox/lib.js" charset="utf-8"></script>
 		<script src="js/sandbox/tx.js" charset="utf-8"></script>
 		<script src="js/sandbox/filetabs.js" charset="utf-8"></script>

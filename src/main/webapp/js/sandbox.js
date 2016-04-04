@@ -40,33 +40,19 @@
         }
     	var optimize = document.querySelector('#optimize').checked;
 
-        Contract.compile(input, optimize, compilationFinished);
-    };
-
-    var compilationFinished = function(data) {
-    	var noFatalErrors = true; // ie warnings are ok
-
-        if (data.urlRoot === undefined) {
-        	if (data.error !== undefined) {
-        		renderError(data.error);
-        		if (errortype(data.error) !== 'warning') noFatalErrors = false;
-        	}
-        	if (data.errors !== undefined) {
-        		$.each(data.errors, function(i, err) {
-        			renderError(err);
-        			if (errortype(err) !== 'warning') noFatalErrors = false;
-        		});
-        	}
-        }
-
-    	if (noFatalErrors) {
-            Sandbox.compiler_output = data;
-            if (Sandbox.getActiveSidebarTab() === "txView") {
-                Sandbox.showTxView();
+        Sandbox.trigger("compile");
+        Contract.compile(input, optimize).then(
+            function(data) {
+                Sandbox.trigger("compiled", data);
+                renderContracts(data, editor.getValue());
+            },
+            function(errs) {
+                errs.forEach(function(err) {
+                    renderError(err.detail);
+                });
+                $(".sidenav li.compilerView a").click(); // make sure output tab is visible
             }
-            renderContracts(data, editor.getValue());
-        }
-
+        );
     };
 
     var compileTimeout = null;
@@ -144,7 +130,7 @@
     	var type = errortype(message);
     	var $pre = $("<pre />").text(message);
     	var $error = $('<div class="sol ' + type + '"><div class="close"><i class="fa fa-close"></i></div></div>').prepend($pre);
-    	$('#output compiler_output').append( $error );
+    	$('#output .compiler_output').append( $error );
     	var err = message.match(/^([^:]*):([0-9]*):(([0-9]*):)? /);
     	if (err) {
     		var errFile = err[1];
