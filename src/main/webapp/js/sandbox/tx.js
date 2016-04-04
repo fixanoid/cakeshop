@@ -78,6 +78,8 @@
             return;
         }
 
+        abi = _.sortBy(abi, "name");
+
         abi.forEach(function(method) {
             if (method.type !== "function") {
                 return;
