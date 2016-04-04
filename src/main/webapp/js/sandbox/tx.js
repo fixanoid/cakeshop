@@ -12,7 +12,7 @@
     }
 
     Sandbox.on("compile", function() {
-        $("select.compiled_contracts").empty();
+        $(".select_contract .compiled_contracts select").empty();
         $(".select_contract .constructor").empty();
         $(".compiled_contracts .refresh").show();
     });
@@ -218,7 +218,7 @@
         $(".select_contract .deploy").click(function(e) {
             e.preventDefault();
             // find contract to deploy
-            var sel = $("select.compiled_contracts").val();
+            var sel = $(".select_contract .compiled_contracts select").val();
             if (!sel) {
                 return false;
             }
