@@ -47,4 +47,9 @@ public class Util extends BaseGethRpcTest {
 		System.out.println(contract.getBinary());
 	}
 
+	@Test
+	public void testPlaceholder() {
+
+	}
+
 }

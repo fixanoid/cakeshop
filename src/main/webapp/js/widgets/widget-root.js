@@ -39,7 +39,7 @@ var widgetRoot = {
 	},
 
 	render: function() {
-		Dashboard.grounds.append(this.shell.tpl);
+		Dashboard.render.widget(this.name, this.shell.tpl);
 
 		this.fetch();
 

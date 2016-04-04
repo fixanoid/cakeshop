@@ -197,7 +197,15 @@ var Tower = {
 			];
 
 			Dashboard.showSection('explorer', widgets);
-		}
+		},
+
+		'wallet': function() {
+			var widgets = [
+				{ widgetId: 'accounts' }
+			];
+
+			Dashboard.showSection('wallet', widgets);
+		},
 	},
 
 

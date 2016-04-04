@@ -20,9 +20,7 @@
 				//'<li><button type="button" class="btn btn-default" id="miner">Toggle Mining</button></li>'+
 			'</ul>'),
 
-		render: function() {
-			Dashboard.grounds.append(this.shell.tpl);
-
+		postRender: function() {
 			$('#widget-' + this.shell.id).html(widget.template({}));
 			$('#widget-' + this.shell.id + ' button').click(widget._handler);
 		},

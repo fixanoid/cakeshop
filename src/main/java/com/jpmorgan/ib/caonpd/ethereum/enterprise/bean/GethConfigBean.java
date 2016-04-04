@@ -53,6 +53,8 @@ public class GethConfigBean {
 
     private String keystorePath;
 
+    private String nodePath;
+
     private String solcPath;
 
     private Properties props;
@@ -147,8 +149,12 @@ public class GethConfigBean {
         // set keystore path
         keystorePath = expandPath(vendorGenesisDir, "keystore");
 
-        // configure solc
+        // configure node, solc
         ensureNodeBins(binPath);
+        nodePath = FileUtils.expandPath(binPath, "node");
+        if (SystemUtils.IS_OS_WINDOWS) {
+            nodePath = nodePath + ".exe";
+        }
         solcPath = expandPath(vendorGenesisDir, "..", "solc", "node_modules", "solc-cli", "bin", "solc");
 
         // Clean up data dir path for default config (not an absolute path)
@@ -344,6 +350,14 @@ public class GethConfigBean {
 
     public void setGenesisBlock(String genesisBlock) throws IOException {
         FileUtils.writeStringToFile(new File(genesisBlockFilename), genesisBlock);
+    }
+
+    public String getNodePath() {
+        return nodePath;
+    }
+
+    public void setNodePath(String nodePath) {
+        this.nodePath = nodePath;
     }
 
     /**

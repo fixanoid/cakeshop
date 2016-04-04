@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -105,6 +106,10 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 "getById",
                 new Object[] { id },
                 null);
+
+        if (res == null || res.length < 6 || ArrayUtils.contains(res, null)) {
+            return null; // extra null checks
+        }
 
         long createdDate = ((BigInteger) res[5]).longValue();
         if (((String) res[0]).contentEquals("0x00") || createdDate == 0) {

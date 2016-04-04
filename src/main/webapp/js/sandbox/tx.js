@@ -7,11 +7,13 @@
 
     function showTxView() {
         loadContracts();
+        showCompiledContracts();
     }
 
     function loadContracts() {
         // show deployed contracts (via registry)
         $("select.contracts").empty();
+        // $("div.contracts .refresh").show();
         $("select.contracts").append("<option value=''></option>");
         Contract.list(function(contracts) {
             contracts.forEach(function(c) {
@@ -19,8 +21,11 @@
                 var name = c.get("name") + " (" + trunc(c.id) + ", " + ts + ")";
                 $("select.contracts").append("<option value='" + c.id + "'>" + name + "</option>");
             });
+            // $("div.contracts .refresh").hide();
         });
+    }
 
+    function showCompiledContracts() {
         // Show compiled contracts in dropdown
         if (Sandbox.compiler_output && _.isArray(Sandbox.compiler_output)) {
             $("select.compiled_contracts").empty();
@@ -183,7 +188,7 @@
 
         var conMethod = _.find(contract.abi, function(m) { return m.type === "constructor"; });
 
-        if (!conMethod.inputs || conMethod.inputs.length === 0) {
+        if (!conMethod || !conMethod.inputs || conMethod.inputs.length === 0) {
             con.append("(no constructor arguments)");
         } else {
             con.append(wrapInputs(conMethod));
@@ -202,9 +207,7 @@
             }
 
             var contract = _.find(Sandbox.compiler_output, function(c) { return c.get("name") === sel; });
-            // take it and deploy it
         	var optimize = document.querySelector('#optimize').checked;
-
 
             var params = {};
             $(".select_contract .constructor").find("input").each(function(i, el) {
@@ -219,7 +222,7 @@
             }
             addTx("Deploying Contract '" + contract.get("name") + "'" + _args);
 
-            Contract.deploy(contract.get("code"), optimize, _params).then(function(addr) {
+            Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
                 addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
                 $(".select_contract input.address").val(addr);
 
@@ -234,6 +237,7 @@
                         }
                         registered = true;
                         setActiveContract(c);
+                        loadContracts(); // refresh contract list
                     });
                 }
                 setTimeout(waitForRegistration, 200);
