@@ -123,14 +123,13 @@
         if (method.constant === true) {
             // use read
             activeContract.read(method.name, _params).then(function(res) {
-                addTx("[read] " + method_sig + " => " + JSON.stringify(res));
+                addTx("[read] " + method_sig + " => " + JSON.stringify(res), null, true);
             }, function(err) {
                 addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
 
         } else {
             // use transact
-            console.log("params", _params);
             activeContract.transact(method.name, _params).then(function(txId) {
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
@@ -179,11 +178,15 @@
         return '<span class="addr" title="' + addr + '">' + trunc(addr) + '</span>';
     }
 
-    function addTx(message, date) {
+    function addTx(message, date, scroll) {
         date = date ? moment(date) : moment();
         var timestamp = '<span class="time pull-right">' + date.format("hh:mm:ss A") + '</span>';
         var div = '<div class="tx">' + timestamp + message + '</div>';
 		$(".papertape .panel-body").append(div);
+
+        if (scroll === true) {
+            $(".papertape .panel-body .tx:last-child").scrollintoview();
+        }
     }
 
     function setActiveContract(c) {
