@@ -14,13 +14,13 @@ CONF="$ABSDIR/nginx.conf"
 ROOT=$(perl -MCwd=realpath -e 'print realpath "$ENV{ABSDIR}/../../../.."')
 
 # make sure our config is valid (supported by this version of nginx)
-$cmd -c $CONF -t >/dev/null 2>&1
+$cmd -p $ROOT -c $CONF -t >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "nginx config not valid for your version!"
     echo "tested against 1.9.10 and you have:"
     echo
     $cmd -v
-    $cmd -c $CONF -t
+    $cmd -p $ROOT -c $CONF -t
     exit 1
 fi
 
