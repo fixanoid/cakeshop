@@ -7,8 +7,10 @@
     var compiler_output;
 
     function showTxView() {
-        loadContracts();
-        showCompiledContracts();
+        if ($(".select_contract .contracts select option").length <= 1) {
+            loadContracts();
+        }
+        // showCompiledContracts();
     }
 
     Sandbox.on("compile", function() {
@@ -39,6 +41,10 @@
     function showCompiledContracts(_output) {
         // Show compiled contracts in dropdown
 
+        // if (_output === -1) {
+        //     return; //
+        // }
+
         compiler_output = _output;
         $(".compiled_contracts .refresh").hide();
 
@@ -62,10 +68,12 @@
     }
 
     function wrapFunction(method) {
-        var s = '<form class="form-inline" data-method="' + method.name + '"><div class="form-group"><label>' + method.name + '</label> ';
-        s += wrapInputs(method);
-		s += '<button class="btn btn-default send" type="submit">Send</button>';
-        s += '</div></form>';
+        var s = '<tr>';
+        s += '<td>' + method.name + '<br/>' + wrapInputs(method) + '</td>';
+        s += '<td class="send"><button class="btn btn-default send" type="submit" data-method="' + method.name + '">';
+        s += (method.constant === true ? "Read" : "Transact");
+        s += '</button></td>';
+        s += '</tr>';
         return s;
     }
 
@@ -80,20 +88,24 @@
 
         abi = _.sortBy(abi, "name");
 
+        var s = '<table class="table">';
+
         abi.forEach(function(method) {
             if (method.type !== "function") {
                 return;
             }
-            $(".transact .panel-body").append(wrapFunction(method));
+            s += wrapFunction(method);
         });
+        s += '</table>';
+        $(".transact .panel-body").append(s);
 
         $(".transact .send").click(function(e) {
             e.preventDefault();
-            var form = $(e.target).parents("form");
-            var methodName = form.attr("data-method");
+            var tr = $(e.target).parents("tr");
+            var methodName = $(e.target).attr("data-method");
             var method = activeContract.getMethod(methodName);
             var params = {};
-            $(form).find("input").each(function(i, el) {
+            $(tr).find("input").each(function(i, el) {
                 el = $(el);
                 params[el.attr("data-param")] = el.val();
             });
@@ -136,7 +148,7 @@
                 s += '<tr>';
                 s += '<td>' + r.method + '</td>';
                 s += '<td>' + r.result + '</td>';
-                s += '</td>';
+                s += '</tr>';
             });
             s += '</table>';
             try {
