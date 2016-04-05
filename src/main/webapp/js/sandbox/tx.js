@@ -117,21 +117,24 @@
 
     function doMethodCall(contract, method, params) {
         var _params = _.map(params, function(v, k) { return v; });
+        var _sig_params = _.map(params, function(v, k) { return JSON.stringify(v); }).join(", ");
+        var method_sig = method.name + "(" + _sig_params + ")";
 
         if (method.constant === true) {
             // use read
             activeContract.read(method.name, _params).then(function(res) {
-                addTx("Called '" + method.name + "': " + JSON.stringify(res));
+                addTx("[read] " + method_sig + " => " + JSON.stringify(res));
             }, function(err) {
-                addTx("Called '" + method.name + "': [ERROR]" + err);
+                addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
 
         } else {
             // use transact
+            console.log("params", _params);
             activeContract.transact(method.name, _params).then(function(txId) {
-                addTx("Called '" + method.name + "': created tx " + wrapTx(txId));
+                addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
-                    addTx("Transaction " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
+                    addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
                     showCurrentState();
                 });
             });
@@ -187,7 +190,7 @@
         activeContract = c;
         showTransactForm();
         showCurrentState();
-        addTx("Using '" + c.get("name") + "' at " + wrapAddr(c.id));
+        addTx("using '" + c.get("name") + "' at " + wrapAddr(c.id));
     }
 
     // Enter contract address
@@ -251,7 +254,7 @@
             if (_params.length > 0) {
                 _args = " (" + _params.join(", ") + ")";
             }
-            addTx("Deploying Contract '" + contract.get("name") + "'" + _args);
+            addTx("[deploy] Contract '" + contract.get("name") + "'" + _args);
 
             Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
                 addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
