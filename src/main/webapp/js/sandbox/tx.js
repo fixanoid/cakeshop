@@ -161,7 +161,7 @@
     }
 
     function wrapAddr(addr) {
-        return '<span class="addr">' + addr + '</span>';
+        return '<span class="addr" title="' + addr + '">' + trunc(addr) + '</span>';
     }
 
     function addTx(message, date) {
@@ -267,21 +267,6 @@
 
     });
 
-
-    // Collapse 'select contract' form
-    $(".select_contract .shrink").click(function(e) {
-        var i = $(e.target);
-        if (toggleCollapseIcon(i)) {
-            $(".select_contract .panel-heading .title").text("Choose Contract");
-        } else {
-            var addr = $(".select_contract .address input").val();
-            if (addr) {
-                $(".select_contract .panel-heading .title").text("Using " + addr);
-            }
-        }
-        $(".select_contract .panel-body").toggle();
-    });
-
     /**
      * Toggle the expand/collapse icon.
      *
@@ -299,16 +284,17 @@
         }
     }
 
-    $(".papertape .shrink").click(function(e) {
-        toggleCollapseIcon($(e.target));
-        $(".papertape .panel-body").toggle();
-    });
+    function shrinkify(panel_class) {
+        $(panel_class + " .shrink").click(function(e) {
+            toggleCollapseIcon($(e.target));
+            $(panel_class + " .panel-body").toggle();
+        });
+    }
 
-    $(".transact .shrink").click(function(e) {
-        toggleCollapseIcon($(e.target));
-        $(".transact .panel-body").toggle();
-    });
-
+    shrinkify(".select_contract");
+    shrinkify(".state");
+    shrinkify(".papertape");
+    shrinkify(".transact");
 
     Sandbox.showTxView = showTxView;
 
