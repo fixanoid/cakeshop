@@ -157,7 +157,10 @@ var Tower = {
 			var widgets = [
 				{ widgetId: 'node-info' },
 				{ widgetId: 'node-control' },
-				{ widgetId: 'node-settings' }
+				{ widgetId: 'node-settings' },
+				{ widgetId: 'metrix-txn-sec' },
+				{ widgetId: 'metrix-txn-min' },
+				{ widgetId: 'metrix-blocks-min' }
 			];
 
 			Dashboard.showSection('console', widgets);
