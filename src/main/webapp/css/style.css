@@ -627,3 +627,31 @@ pre {
 .ui-resizable-handle:hover {
 	opacity: 1;
 }
+
+
+#metrix-txn-sec .category1 .line { 
+	stroke: #1f77b4;
+}
+
+#metrix-txn-sec .category1 .area, #metrix-txn-sec .category1 .dot {
+	fill: #1f77b4;
+	stroke: transparent;
+}
+
+#metrix-txn-min .category1 .line { 
+	stroke: #aec7e8;
+}
+
+#metrix-txn-min .category1 .area, #metrix-txn-min .category1 .dot {
+	fill: #aec7e8;
+	stroke: transparent;
+}
+
+#metrix-blocks-min .category1 .line { 
+	stroke: #ff7f0e;
+}
+
+#metrix-blocks-min .category1 .area, #metrix-blocks-min .category1 .dot {
+	fill: #ff7f0e;
+	stroke: transparent;
+}
