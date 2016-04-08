@@ -265,7 +265,14 @@ public abstract class SolidityType {
 
         @Override
         public byte[] encode(Object value) {
-            if (value instanceof Number) {
+            if (value instanceof byte[]) {
+                if (((byte[]) value).length == 32) {
+                    return (byte[]) value;
+                }
+                byte[] ret = new byte[32];
+                System.arraycopy(value, 0, ret, 0, 32);
+                return ret;
+            } else if (value instanceof Number) {
                 BigInteger bigInt = new BigInteger(value.toString());
                 return IntType.encodeInt(bigInt);
             } else if (value instanceof String) {
@@ -280,7 +287,7 @@ public abstract class SolidityType {
 
         @Override
         public Object decode(byte[] encoded, int offset) {
-            return Arrays.copyOfRange(encoded, offset, getFixedSize());
+            return Arrays.copyOfRange(encoded, offset, offset + getFixedSize());
         }
     }
 

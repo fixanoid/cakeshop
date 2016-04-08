@@ -105,6 +105,10 @@
     font-weight: bold;
 }
 
+.transact .table td.send {
+    text-align: right;
+}
+
 
 /* FILE TABS */
 .red {

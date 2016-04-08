@@ -29,7 +29,7 @@
 					var rows = [];
 
 					_.each(stateArray, function(state) {
-						rows.push( _this.templateRow({ key: state.method, value: state.result }) );
+						rows.push( _this.templateRow({ key: state.method.name, value: state.result }) );
 					});
 
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );

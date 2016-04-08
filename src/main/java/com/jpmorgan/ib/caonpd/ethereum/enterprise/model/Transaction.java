@@ -239,7 +239,7 @@ public class Transaction {
         }
 
         String input = getInput();
-        System.out.println(input);
+        //System.out.println(input);
 
         for (Function func : abi.getFunctions()) {
             String sig = "0x" + Hex.toHexString(func.encodeSignature());

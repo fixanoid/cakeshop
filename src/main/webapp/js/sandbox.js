@@ -23,13 +23,17 @@
     var previousInput = '';
     var sourceAnnotations = [];
 
+    var getEditorSource = function() {
+    	return editor.getValue();
+    };
+
     var compile = function() {
     	editor.getSession().clearAnnotations();
     	sourceAnnotations = [];
     	editor.getSession().removeMarker(errMarkerId);
     	$('#output .compiler_output').empty(); // clear output window
 
-    	var editorSource = editor.getValue();
+    	var editorSource = getEditorSource();
         Sandbox.Filer.saveActiveFile(editorSource);
 
     	var files = {};
@@ -40,11 +44,14 @@
         }
     	var optimize = document.querySelector('#optimize').checked;
 
-        Sandbox.trigger("compile");
+        // input = preprocess(input);
+        // console.log(input);
+
+        Sandbox.trigger("compile", input);
         Contract.compile(input, optimize).then(
             function(data) {
                 Sandbox.trigger("compiled", data);
-                renderContracts(data, editor.getValue());
+                renderContracts(data, editorSource);
             },
             function(errs) {
                 errs.forEach(function(err) {
@@ -323,5 +330,8 @@
     $(function() {
         onChange();
     });
+
+    Sandbox.compile = compile;
+    Sandbox.getEditorSource = getEditorSource;
 
 })();

@@ -122,6 +122,16 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	}
 
 	@Test
+	public void testReadBytesArr() throws InterruptedException, IOException {
+	    String addr = createContract(readTestFile("contracts/testbytesarr.sol"), null);
+	    ContractABI abi = new ContractABI(readTestFile("contracts/testbytesarr.abi.txt"));
+	    Object[] res = (Object[]) contractService.read(addr, abi, "foo", null, null);
+	    assertNotNull(res);
+	    assertEquals(res.length, 1);
+	    assertEquals(new String((byte[]) res[0]).trim(), "foobar");
+	}
+
+	@Test
 	public void testConstructorArg() throws InterruptedException, IOException {
     	String code = readTestFile("contracts/simplestorage2.sol");
 
