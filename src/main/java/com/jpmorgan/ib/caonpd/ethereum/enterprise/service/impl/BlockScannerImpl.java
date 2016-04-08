@@ -12,11 +12,15 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,11 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
     @Autowired
     private GethConfigBean gethConfig;
 
+    @Autowired
+    private ApplicationContext appContext;
+
+    private Collection<BlockListener> blockListeners;
+
     private Block previousBlock;
 
     private Integer previousPeerCount;
@@ -56,6 +65,11 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
     public BlockScannerImpl() {
         this.stopped = false;
         this.setName("BlockScanner");
+    }
+
+    @PostConstruct
+    public void init() {
+        this.blockListeners = appContext.getBeansOfType(BlockListener.class).values();
     }
 
     @Override
@@ -105,7 +119,7 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
             try {
                 LOG.debug("Filling block #" + i);
                 Block block = blockService.get(null, i, null);
-                saveBlock(block);
+                notifyListeners(block);
                 previousBlock = block;
 
             } catch (APIException e) {
@@ -116,17 +130,13 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
 
     }
 
-    private void saveBlock(Block block) {
-        blockDAO.save(block);
-        if (!block.getTransactions().isEmpty()) {
-            for (String txId : block.getTransactions()) {
-                try {
-                    Transaction tx = txService.get(txId);
-                    txDAO.save(tx);
-                } catch (APIException e) {
-                    LOG.warn("Failed to load transaction details for tx " + txId, e);
-                }
-            }
+    /**
+     * Propagate block to all registered listeners
+     * @param block
+     */
+    private void notifyListeners(Block block) {
+        for (BlockListener blockListener : blockListeners) {
+            blockListener.blockCreated(block);
         }
     }
 
@@ -258,7 +268,7 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
                     }
 
                     LOG.debug("Saving new block #" + latestBlock.getNumber());
-                    saveBlock(latestBlock);
+                    notifyListeners(latestBlock);
                     previousBlock = latestBlock;
                 }
 

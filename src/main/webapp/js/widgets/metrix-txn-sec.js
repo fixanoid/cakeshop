@@ -1,19 +1,27 @@
 (function() {
 	var extended = {
 		name: 'metrix-txn-sec',
-		title: 'Metrix: TXN per Second',
+		title: 'Transactions/sec',
 		size: 'large',
 
 		hideLink: true,
 
-		topic: '/topic/metrix/txn-sec',
+		topic: '/topic/metrics/txnPerSec',
 
 
 		subscribe: function() {
 			utils.subscribe(this.topic, this.onData);
+		},
 
-			// DEMO ANCHOR, REMOVE WHEN REAL DATA EXISTS
-			setInterval(function() { widget.onData({demo: true}); }, 1000);
+		onData: function(data) {
+			console.log(data);
+
+			var b = {
+				time: (new Date()).getTime(),
+				y: data.result
+			};
+
+			widget.chart.push([ b ]);
 		},
 
 		fetch: function() {
@@ -23,24 +31,11 @@
 			    type: 'time.area',
 			    data: [ {
 			    	label: 'TXN per SEC',
-			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ] 
+			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ]
 			    } ],
 			    axes: ['left', 'right', 'bottom']
 			});
 		},
-
-		onData: function(data) {
-			if ( (data) && (data.demo) ) {
-				widget.chart.push([{ time: (new Date()).getTime() / 1000, y: Math.floor(Math.random() * 1000) + 1 }]);
-			}
-
-//			var b = {
-//				time: (new Date()).getTime(),
-//				y: data.datapoint
-//			};
-//
-//			widget.chart.push([ b ]);
-		}
 	};
 
 

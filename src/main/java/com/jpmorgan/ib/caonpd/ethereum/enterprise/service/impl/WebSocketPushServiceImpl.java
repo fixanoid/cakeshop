@@ -71,6 +71,17 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	// For tracking block changes
 	private Block previousBlock;
 
+	@Autowired
+	private MetricsBlockListener metricsBlockListener;
+
+	@Scheduled(fixedDelay = 1000)
+	public void pushTxnPerSec() {
+	    System.err.println("pushing metrics");
+	    template.convertAndSend(
+	            "/topic/metrics/txnPerSec",
+	            APIResponse.newSimpleResponse(metricsBlockListener.getTxnPerSec()));
+	}
+
 	@Override
 	// @Scheduled(fixedDelay = 5000)
 	public void pushContracts() throws APIException {
