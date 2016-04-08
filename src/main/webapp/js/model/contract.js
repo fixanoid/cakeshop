@@ -33,7 +33,7 @@
                     if (method.constant === true && method.inputs.length === 0) {
                         promises.push(new Promise(function(resolve, reject) {
                             contract.read(method.name).then(function(res) {
-                                resolve({method: method.name, result: res});
+                                resolve({method: method, result: res});
                             });
                         }));
                     }

@@ -6,14 +6,21 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Param;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.SolidityType.Bytes32Type;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +38,9 @@ public class ContractController extends BaseController {
 
     @Autowired
     private ContractService contractService;
+
+	@Autowired
+	private ContractRegistryService contractRegistry;
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getContract(
@@ -114,11 +124,31 @@ public class ContractController extends BaseController {
             @JsonBodyParam Object[] args,
             @JsonBodyParam(required=false) Object blockNumber) throws APIException {
 
-        Object result = contractService.read(id, method, args, blockNumber);
+        ContractABI abi = lookupABI(id);
+        args = decodeArgs(abi.getFunction(method), args);
+
+        Object result = contractService.read(id, abi, method, args, blockNumber);
         APIResponse res = new APIResponse();
         res.setData(result);
 
         return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+    }
+
+    private Object[] decodeArgs(Function method, Object[] args) throws APIException {
+        if (args == null || args.length == 0) {
+            return args;
+        }
+
+        Param[] params = method.inputs;
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            Param param = params[i];
+            if (param.type instanceof Bytes32Type && arg instanceof String) {
+                args[i] = Base64.decode((String) arg);
+            }
+        }
+
+        return args;
     }
 
     @RequestMapping("/transact")
@@ -163,5 +193,20 @@ public class ContractController extends BaseController {
         }
         return data;
     }
+
+    private ContractABI lookupABI(String id) throws APIException {
+
+        Contract contract = contractRegistry.getById(id);
+        if (contract == null) {
+            throw new APIException("Contract not in registry " + id);
+        }
+
+        try {
+            return new ContractABI(contract.getABI());
+        } catch (IOException e) {
+            throw new APIException("Invalid ABI", e);
+        }
+    }
+
 
 }

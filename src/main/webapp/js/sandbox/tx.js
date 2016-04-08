@@ -13,13 +13,23 @@
         // showCompiledContracts();
     }
 
+    var events_enabled = true;
+
     Sandbox.on("compile", function() {
+        if (!events_enabled) {
+            return;
+        }
         $(".select_contract .compiled_contracts select").empty();
         $(".select_contract .constructor").empty();
         $(".compiled_contracts .refresh").show();
     });
 
-    Sandbox.on("compiled", showCompiledContracts);
+    Sandbox.on("compiled", function(contracts) {
+        if (!events_enabled) {
+            return;
+        }
+        showCompiledContracts(contracts);
+    });
 
     function loadContracts() {
         // show deployed contracts (via registry)
@@ -144,21 +154,90 @@
         if (!activeContract) {
             return;
         }
+
+        var contract_mappings = _.find(parseContracts(activeContract.get("code")), function(c) { return c.name === activeContract.get("name"); });
+
         activeContract.readState().then(function(results) {
-            var s = '<table class="table">';
-            results.forEach(function(r) {
-                s += '<tr>';
-                s += '<td>' + r.method + '</td>';
-                s += '<td>' + r.result + '</td>';
-                s += '</tr>';
-            });
-            s += '</table>';
-            try {
-                $(".panel.state .body").empty().append(s);
-            } catch (e) {
-                console.log(e);
+
+            // modify results if we have mappings
+            var state = results;
+            if (contract_mappings.mappings.length > 0) {
+                state = _.reject(results, function(r) {
+                    var matches = _.find(contract_mappings.mappings, function(m) {
+                        return (r.method.name === m.counter || r.method.name === m.keyset || r.method.name === m.getter); });
+                    if (matches) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+
+                // now that we filtered our special vars out, add back in a mapping var/table
+                contract_mappings.mappings.forEach(function(mapping) {
+                    var data = { method: { name: mapping.var } };
+                    state.push(data);
+
+                    var res = {};
+                    var getter_results = _.find(results, function(r) { return r.method.name === mapping.getter; });
+                    var promises = [];
+                    getter_results.result.forEach(function(gr) {
+                        promises.push(new Promise(function(resolve, reject) {
+                            activeContract.read(mapping.var, [gr]).then(function(mapping_val) {
+                                var d = {};
+                                d[gr] = mapping_val;
+                                resolve(d);
+                            });
+                        }));
+                    });
+                    Promise.all(promises).then(function(mapping_results) {
+                        // convert mapping_results array back into single object
+                        data.result = _.reduce(mapping_results, function(memo, r) { return _.extend(memo, r); }, {});
+                        displayStateTable(state);
+                    });
+
+                });
+            } else {
+                displayStateTable(results);
             }
+
+
         });
+    }
+
+    function displayStateTable(results) {
+        var s = '<table class="table">';
+        results.forEach(function(r) {
+            s += '<tr>';
+            s += '<td>' + r.method.name + '</td>';
+            s += '<td>';
+            if (r.result && _.isArray(r.result)) {
+                s += '<ol start="0">';
+                r.result.forEach(function(v) {
+                    s += "<li>" + JSON.stringify(v) + "</li>";
+                });
+            } else if (r.result && _.isObject(r.result)) {
+                s += '<table class="table table-bordered table-condensed">';
+                _.keys(r.result).forEach(function(key) {
+                    s += '<tr>';
+                    s += '<td>' + Sandbox.decodeBytes(key) + '</td>';
+                    s += '<td>' + r.result[key] + '</td>';
+                    s += '</tr>';
+                });
+                s += '</table>';
+            } else if (r.result && _.isString(r.result) && r.result.length > 20) {
+                s += '<div class="form-group"><textarea class="form-control" rows="3">' + r.result + '</textarea></div>';
+            } else {
+                s += r.result;
+            }
+            s += '</td></tr>';
+        });
+        s += '</table>';
+        try {
+            $(".panel.state .table").remove();
+            $(".panel.state").append(s);
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     function trunc(addr) {
@@ -208,6 +287,111 @@
         $(".select_contract .address input").val(addr).change();
     });
 
+
+    var expose_mapping = function(src, mapping) {
+
+        var counter = mapping.counter = "__" + mapping.var + "_num_ids";
+        var keyset  = mapping.keyset  = "__" + mapping.var + "_ids";
+        var getter  = mapping.getter  = "__get_" + mapping.var + "_ids";
+
+        // skip if the src has already been modified
+        if (src.match(new RegExp(counter))) {
+            return src;
+        }
+
+        var msrc = "";
+
+        src.split(/\n/).forEach(function(line) {
+            var map_set = line.match(new RegExp(mapping.var + "\\[(.*?)\\] *="));
+            if (line.match(new RegExp("^ *\\/\\/ *##mapping +" + mapping.var + "$", "m"))) {
+                msrc += line + "\n";
+                // attach helper vars
+                msrc += "uint public " + counter + ";\n";
+                msrc += mapping.key_type + "[] public " + keyset + ";\n";
+                msrc += "function " + getter + "() public constant returns(" + mapping.key_type + "[] _ids) {\n";
+                msrc += "  return " + keyset + ";\n";
+                msrc += "}\n";
+
+            } else if (map_set) {
+                msrc += line + "\n";
+                msrc += keyset + ".length = ++" + counter + ";\n"; // grow array
+                msrc += keyset + "[" + counter + "-1] = " + map_set[1] + ";"; // store key
+
+            } else {
+                msrc += line + "\n";
+            }
+
+        });
+
+        return msrc;
+    };
+
+    var parseContracts = function(src) {
+        var contracts = [];
+
+        // Find each contract definition
+        var c = [], contract_name;
+        src.split(/\n/).forEach(function(line) {
+            var matches = line.match(/contract +(.*?) *\{/);
+            if (matches) {
+                if (c && c.length > 0) { // found a new contract, add prev one to array
+                    contracts.push({name: contract_name, src: c.join("\n")});
+                    c = [];
+                    contract_name = null;
+                }
+
+                contract_name = matches[1];
+                c = [line];
+                if (line.match(/\{[^\{]*?\}/)) { // single-line contract def
+                    contracts.push({name: contract_name, src: c.join("\n")});
+                    c = [];
+                    contract_name = null;
+                }
+            } else {
+                c.push(line);
+            }
+        });
+        if (c && c.length > 0) { // push after EOF
+            contracts.push({name: contract_name, src: c.join("\n")});
+        }
+
+        // search each contract definition for our ##mapping macro
+        contracts.forEach(function(c) {
+            c.mappings = [];
+            var matches = c.src.match(/^ *\/\/ *##mapping +(.+?)$/m);
+            if (matches) {
+                var mapping_var = matches[1];
+
+
+                matches = c.src.match(new RegExp("mapping *\\((.+?) => (.+?)\\) *.*? " + mapping_var + " *;"));
+                if (matches) {
+                    var key_type = matches[1],
+                        val_type = matches[2];
+
+                    var mapping = {
+                        var:      mapping_var,
+                        key_type: key_type,
+                        val_type: val_type
+                    };
+                    c.mappings.push(mapping);
+
+                    // now that we have all the mapping info, modify the original source
+                    c.modified_src = expose_mapping(c.src, mapping);
+                    // console.log(c);
+                }
+            }
+        });
+
+        return contracts;
+    };
+
+    var preprocess = function(src) {
+        var contracts = parseContracts(src);
+        return _.map(contracts, function(c) { return (c.modified_src ? c.modified_src : c.src); }).join("\n");
+    };
+
+
+
     // Select contract to deploy
     $(".select_contract .compiled_contracts select").change(function(e) {
         var sel = $(e.target).val();
@@ -243,42 +427,47 @@
                 return false;
             }
 
-            var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
+        	var editorSource = preprocess(Sandbox.getEditorSource());
         	var optimize = document.querySelector('#optimize').checked;
+            Contract.compile(editorSource, optimize).then(function(compiler_output) {
+                var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
 
-            var params = {};
-            $(".select_contract .constructor").find("input").each(function(i, el) {
-                el = $(el);
-                params[el.attr("data-param")] = el.val();
-            });
-            var _params = _.map(params, function(v, k) { return v; });
+                var params = {};
+                $(".select_contract .constructor").find("input").each(function(i, el) {
+                    el = $(el);
+                    params[el.attr("data-param")] = el.val();
+                });
+                var _params = _.map(params, function(v, k) { return v; });
 
-            var _args = "";
-            if (_params.length > 0) {
-                _args = " (" + _params.join(", ") + ")";
-            }
-            addTx("[deploy] Contract '" + contract.get("name") + "'" + _args);
-
-            Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
-                addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
-                $(".select_contract .address input").val(addr);
-
-                addTx("Waiting for contract to be registered");
-                var registered = false;
-                function waitForRegistration() {
-                    // TODO use contract event topic for registry ??
-                    Contract.get(addr).then(function(c) {
-                        if (c === null || c.get("name") === null) {
-                            setTimeout(waitForRegistration, 1000); // poll every 1s til done
-                            return;
-                        }
-                        registered = true;
-                        setActiveContract(c);
-                        loadContracts(); // refresh contract list
-                    });
+                var _args = "";
+                if (_params.length > 0) {
+                    _args = " (" + _params.join(", ") + ")";
                 }
-                setTimeout(waitForRegistration, 200);
+                addTx("[deploy] Contract '" + contract.get("name") + "'" + _args);
+
+                Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
+                    addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
+                    $(".select_contract .address input").val(addr);
+
+                    addTx("Waiting for contract to be registered");
+                    var registered = false;
+                    function waitForRegistration() {
+                        // TODO use contract event topic for registry ??
+                        Contract.get(addr).then(function(c) {
+                            if (c === null || c.get("name") === null) {
+                                setTimeout(waitForRegistration, 1000); // poll every 1s til done
+                                return;
+                            }
+                            registered = true;
+                            setActiveContract(c);
+                            loadContracts(); // refresh contract list
+                        });
+                    }
+                    setTimeout(waitForRegistration, 200);
+                });
+
             });
+
 
             return false;
         });
