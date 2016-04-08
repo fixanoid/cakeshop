@@ -15,7 +15,7 @@
 
 		onData: function(data) {
 			if ( (data) && (data.demo) ) {
-				widget.chart.push([{ time: (new Date()).getTime(), y: Math.floor(Math.random() * 1000) + 1 }]);
+				widget.chart.push([{ time: (new Date()).getTime() / 1000, y: Math.floor(Math.random() * 1000) + 1 }]);
 			}
 
 //			var b = {

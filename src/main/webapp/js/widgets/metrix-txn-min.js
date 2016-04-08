@@ -15,7 +15,7 @@
 
 		onData: function(data) {
 			if ( (data) && (data.demo) ) {
-				widget.chart.push([{ time: (new Date()).getTime(), y: Math.floor(Math.random() * 1000) + 1 }]);
+				widget.chart.push([{ time: (new Date()).getTime() / 1000, y: Math.floor(Math.random() * 1000) + 1 }]);
 			}
 
 //			var b = {
@@ -39,7 +39,7 @@
 			});
 
 			// DEMO ANCHOR, REMOVE WHEN REAL DATA EXISTS
-			setInterval(function() { widget.onData({demo: true}); }, 60 * 1000);
+			setInterval(function() { widget.onData({demo: true}); }, 5 * 1000);
 		}
 	};
 
