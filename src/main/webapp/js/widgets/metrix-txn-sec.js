@@ -33,7 +33,7 @@
 			    type: 'time.area',
 			    data: [ {
 			    	label: 'TXN per SEC',
-			    	values: [ { time: (new Date()).getTime(), y: 0 } ] 
+			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ] 
 			    } ],
 			    axes: ['left', 'right', 'bottom']
 			});
