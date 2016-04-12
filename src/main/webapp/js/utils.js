@@ -23,16 +23,18 @@ var utils = {
 	},
 
 	subscribe: function(topic, handler) {
-		Tower.stomp_subscriptions[topic] = handler;
+		Tower.stomp_subscriptions[topic] = {topic: topic, handler: handler};
 		if (Tower.stomp && Tower.stomp.connected === true) {
 			Tower.debug('STOMP subscribing to ' + topic);
 
-			return Tower.stomp.subscribe(topic, function(res) {
+			var sub = Tower.stomp.subscribe(topic, function(res) {
 				var status = JSON.parse(res.body);
 				status = status.data.attributes;
 
 				handler(status);
 			});
+			Tower.stomp_subscriptions[topic].fh = sub;
+			return sub;
 		}
 
 		return false;

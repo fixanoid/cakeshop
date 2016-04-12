@@ -45,6 +45,18 @@ var Tower = {
 
 		this.processHash();
 		this.socketInit();
+
+		$(window).on("beforeunload", function() {
+			if (!(Tower.stomp && Tower.stomp.connected === true)) {
+				return;
+			}
+			_.values(Tower.stomp_subscriptions).forEach(function(sub) {
+				if (sub && sub.fh) {
+					sub.fh.unsubscribe();
+				}
+			});
+			Tower.stomp.disconnect();
+		});
 	},
 
 
@@ -93,8 +105,8 @@ var Tower = {
 		var stomp = Tower.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
 		stomp.debug = null;
 		stomp.connect({}, function(frame) {
-			_.each(Tower.stomp_subscriptions, function(handler, topic) {
-				utils.subscribe(topic, handler);
+			_.each(Tower.stomp_subscriptions, function(sub, topic) {
+				utils.subscribe(topic, sub.handler);
 			});
 			Tower.section['default'](); // Startup & Update perma-widgets
 		}, function(err) {
