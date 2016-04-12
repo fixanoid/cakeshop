@@ -25,6 +25,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo running $($cmd -v 2>&1)
+echo http://127.0.0.1:9000/ethereum-enterprise/
 echo
 
 $cmd -p $ROOT -c $CONF
