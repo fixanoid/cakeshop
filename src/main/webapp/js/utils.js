@@ -23,6 +23,7 @@ var utils = {
 	},
 
 	subscribe: function(topic, handler) {
+		Tower.stomp_subscriptions[topic] = handler;
 		if (Tower.stomp && Tower.stomp.connected === true) {
 			Tower.debug('STOMP subscribing to ' + topic);
 
@@ -32,11 +33,6 @@ var utils = {
 
 				handler(status);
 			});
-		} else {
-			// try again, if requested too early...
-			setTimeout(function() {
-				utils.subscribe(topic, handler);
-			}, 3000);
 		}
 
 		return false;

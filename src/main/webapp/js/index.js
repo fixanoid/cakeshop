@@ -13,6 +13,7 @@ var demo = {
 var Tower = {
 	ready: false,
 	stomp: null,
+	stomp_subscriptions: {},
 	current: null,
 	status: {},
 
@@ -89,19 +90,16 @@ var Tower = {
 
 
 	socketInit: function() {
-		this.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
-		this.stomp.debug = null;
-		this.stomp.connect({}, function(frame) {
-			// Connection successful
-
-			// Startup & Update perma-widgets
-			Tower.section['default']();
+		var stomp = Tower.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
+		stomp.debug = null;
+		stomp.connect({}, function(frame) {
+			_.each(Tower.stomp_subscriptions, function(handler, topic) {
+				utils.subscribe(topic, handler);
+			});
+			Tower.section['default'](); // Startup & Update perma-widgets
 		}, function(err) {
-			// Connection error
-			Tower.stomp = false;
-
-			// Startup & Update perma-widgets
-			Tower.section['default']();
+			Tower.section['default'](); // trigger status fallback -- Startup & Update perma-widgets
+			setTimeout(Tower.socketInit, 5000); // always reconnect
 		});
 	},
 
@@ -134,23 +132,24 @@ var Tower = {
 				(!Tower.ready && Tower.isReady());
 			};
 
+			if (Tower.stomp && Tower.stomp.connected === true) {
+				if (Tower.stomp_subscriptions['/topic' + STATUS_END_POINT] ||
+					utils.subscribe('/topic' + STATUS_END_POINT, statusUpdate)) {
 
-			if (!utils.subscribe('/topic' + STATUS_END_POINT, statusUpdate)) {
-				Tower.debug('FALLBACK');
-
-				var def = function() {
-					$.when(
-						utils.load({ url: 'api' + STATUS_END_POINT })
-					).done(function(response) {
-						var status = response.data.attributes;
-
-						statusUpdate(status);
-					});
-				};
-
-				def();
-				setInterval(def, 5000);
+					return;
+				}
 			}
+
+			Tower.debug('falling back to status polling');
+
+			$.when(
+				utils.load({ url: 'api' + STATUS_END_POINT })
+			).done(function(response) {
+				var status = response.data.attributes;
+
+				statusUpdate(status);
+			});
+
 		},
 
 		'console': function() {
