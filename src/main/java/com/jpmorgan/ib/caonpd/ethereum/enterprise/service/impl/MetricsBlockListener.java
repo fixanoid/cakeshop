@@ -93,6 +93,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 
     @Override
     public void nextTick(double val) {
+        if (template == null) {
+            return;
+        }
         template.convertAndSend(
                 "/topic/metrics/txnPerSec",
                 APIResponse.newSimpleResponse(new Metric(timestamp(), val)));
