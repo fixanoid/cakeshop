@@ -75,13 +75,6 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	private MetricsBlockListener metricsBlockListener;
 
 	@Scheduled(fixedDelay = 1000)
-	public void pushTxnPerSec() {
-	    template.convertAndSend(
-	            "/topic/metrics/txnPerSec",
-	            APIResponse.newSimpleResponse(metricsBlockListener.getTxnPerSec()));
-	}
-
-	@Scheduled(fixedDelay = 1000)
 	public void pushTxnPerMin() {
 	    template.convertAndSend(
 	            "/topic/metrics/txnPerMin",

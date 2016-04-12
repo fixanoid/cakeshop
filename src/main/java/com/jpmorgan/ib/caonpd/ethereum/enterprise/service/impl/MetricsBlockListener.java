@@ -1,7 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.codahale.metrics.FastMeter;
-import com.codahale.metrics.Meter;
+import com.codahale.metrics.SimpleRollingMeter;
 import com.codahale.metrics.TickListener;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
@@ -28,8 +28,8 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 	private SimpMessagingTemplate template;
 
     private FastMeter txnPerSecMeter;
-    private Meter txnPerMinMeter;
-    private Meter blockPerMinMeter;
+    private SimpleRollingMeter txnPerMinMeter;
+    private SimpleRollingMeter blockPerMinMeter;
 
     private CircularFifoQueue<Metric> txnPerMin;
     private CircularFifoQueue<Metric> txnPerSec;
@@ -43,8 +43,8 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         public void run() {
             while (running) {
                 long ts = timestamp();
-                blockPerMin.add(new Metric(ts, blockPerMinMeter.getOneMinuteRate()));
-                txnPerMin.add(new Metric(ts, txnPerMinMeter.getOneMinuteRate()));
+                blockPerMin.add(new Metric(ts, blockPerMinMeter.getRate()));
+                txnPerMin.add(new Metric(ts, txnPerMinMeter.getRate()));
                 txnPerSec.add(new Metric(ts, txnPerSecMeter.getRate()));
 
                 // always tick all metrics each sec
@@ -63,8 +63,8 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 
     public MetricsBlockListener() {
         txnPerSecMeter = new FastMeter(1, this);
-        txnPerMinMeter = new Meter();
-        blockPerMinMeter = new Meter();
+        txnPerMinMeter = new SimpleRollingMeter();
+        blockPerMinMeter = new SimpleRollingMeter();
 
         txnPerMin = new CircularFifoQueue<>(1000);
         txnPerSec = new CircularFifoQueue<>(1000);
@@ -103,11 +103,11 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     }
 
     public Metric getTxnPerMin() {
-        return new Metric(timestamp(), txnPerMinMeter.getOneMinuteRate());
+        return new Metric(timestamp(), txnPerMinMeter.getRate());
     }
 
     public Metric getBlockPerMin() {
-        return new Metric(timestamp(), blockPerMinMeter.getOneMinuteRate());
+        return new Metric(timestamp(), blockPerMinMeter.getRate());
     }
 
     private long timestamp() {

@@ -30,7 +30,6 @@
 			if (!data || !data.result) {
 				return;
 			}
-			console.log("blockPerMin", data.result);
 			var b = {
 				time: data.result.timestamp,
 				y: data.result.value

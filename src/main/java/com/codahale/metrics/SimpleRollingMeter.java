@@ -3,13 +3,11 @@ package com.codahale.metrics;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- *
- */
-public class FastMeter {
-    private final long TICK_INTERVAL;
+public class SimpleRollingMeter {
 
-    private final SimpleMovingAverage avg = new SimpleMovingAverage(1);
+    private final long TICK_INTERVAL = TimeUnit.SECONDS.toNanos(5);
+
+    private final SimpleRollingAverage avg = new SimpleRollingAverage();
 
     private final long startTime;
     private final AtomicLong lastTick;
@@ -17,20 +15,15 @@ public class FastMeter {
 
     private final TickListener tickListener;
 
-    /**
-     * Creates a new {@link Meter}.
-     */
-    public FastMeter(long interval, TickListener tickListener) {
-        this(interval, Clock.defaultClock(), tickListener);
+    public SimpleRollingMeter() {
+        this(null);
     }
 
-    /**
-     * Creates a new {@link Meter}.
-     *
-     * @param clock      the clock to use for the meter ticks
-     */
-    public FastMeter(long interval, Clock clock, TickListener tickListener) {
-        this.TICK_INTERVAL = TimeUnit.SECONDS.toNanos(interval);
+    public SimpleRollingMeter(TickListener tickListener) {
+        this(Clock.defaultClock(), tickListener);
+    }
+
+    public SimpleRollingMeter(Clock clock, TickListener tickListener) {
         this.clock = clock;
         this.startTime = this.clock.getTick();
         this.lastTick = new AtomicLong(startTime);
