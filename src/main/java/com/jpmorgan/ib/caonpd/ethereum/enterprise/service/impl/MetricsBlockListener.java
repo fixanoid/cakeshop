@@ -1,22 +1,39 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.codahale.metrics.FastMeter;
-import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.TickListener;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MetricsBlockListener implements BlockListener {
+public class MetricsBlockListener implements BlockListener, TickListener {
 
-    private final MetricRegistry metrics;
-    private final FastMeter blockMeter;
-    private final FastMeter txnMeter;
+    public class Metric {
+        public long timestamp;
+        public double value;
 
-    private CircularFifoQueue<Double> txnPerMin;
-    private CircularFifoQueue<Double> txnPerSec;
-    private CircularFifoQueue<Double> blockPerMin;
+        public Metric(long timestamp, double value) {
+            this.timestamp = timestamp;
+            this.value = value;
+        }
+    }
+
+	@Autowired(required = false)
+	private SimpMessagingTemplate template;
+
+    private FastMeter txnPerSecMeter;
+    private Meter txnPerMinMeter;
+    private Meter blockPerMinMeter;
+
+    private CircularFifoQueue<Metric> txnPerMin;
+    private CircularFifoQueue<Metric> txnPerSec;
+    private CircularFifoQueue<Metric> blockPerMin;
 
     private MetricCollector metricCollector;
 
@@ -24,18 +41,17 @@ public class MetricsBlockListener implements BlockListener {
         boolean running = true;
         @Override
         public void run() {
-            int i = 0;
             while (running) {
-                System.out.println("Collecting stats");
-                if (i == 0) {
-                    blockPerMin.add(getBlockPerMin());
-                    txnPerMin.add(getTxnPerMin());
-                }
-                txnPerSec.add(getTxnPerSec());
-                i++;
-                if (i >= 60) {
-                    i = 0;
-                }
+                long ts = timestamp();
+                blockPerMin.add(new Metric(ts, blockPerMinMeter.getOneMinuteRate()));
+                txnPerMin.add(new Metric(ts, txnPerMinMeter.getOneMinuteRate()));
+                txnPerSec.add(new Metric(ts, txnPerSecMeter.getRate()));
+
+                // always tick all metrics each sec
+                blockPerMinMeter.mark(0);
+                txnPerSecMeter.mark(0);
+                txnPerMinMeter.mark(0);
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -46,9 +62,9 @@ public class MetricsBlockListener implements BlockListener {
     }
 
     public MetricsBlockListener() {
-        metrics = new MetricRegistry();
-        blockMeter = metrics.register("blockMeter", new FastMeter());
-        txnMeter = metrics.register("txnMeter", new FastMeter());
+        txnPerSecMeter = new FastMeter(1, this);
+        txnPerMinMeter = new Meter();
+        blockPerMinMeter = new Meter();
 
         txnPerMin = new CircularFifoQueue<>(1000);
         txnPerSec = new CircularFifoQueue<>(1000);
@@ -64,22 +80,38 @@ public class MetricsBlockListener implements BlockListener {
 
     @Override
     public void blockCreated(Block block) {
-        blockMeter.mark();
+        blockPerMinMeter.mark();
         if (block.getTransactions() != null && block.getTransactions().size() > 0)  {
-            txnMeter.mark(block.getTransactions().size());
+            txnPerSecMeter.mark(block.getTransactions().size());
+            txnPerMinMeter.mark(block.getTransactions().size());
+        } else {
+            // always tick, even if no txns
+            txnPerSecMeter.mark(0);
+            txnPerMinMeter.mark(0);
         }
     }
 
-    public double getTxnPerSec() {
-        return txnMeter.getFiveSecondRate();
+    @Override
+    public void nextTick(double val) {
+        template.convertAndSend(
+                "/topic/metrics/txnPerSec",
+                APIResponse.newSimpleResponse(new Metric(timestamp(), val)));
     }
 
-    public double getTxnPerMin() {
-        return txnMeter.getOneMinuteRate();
+    public Metric getTxnPerSec() {
+        return new Metric(timestamp(), txnPerSecMeter.getRate());
     }
 
-    public double getBlockPerMin() {
-        return blockMeter.getOneMinuteRate();
+    public Metric getTxnPerMin() {
+        return new Metric(timestamp(), txnPerMinMeter.getOneMinuteRate());
+    }
+
+    public Metric getBlockPerMin() {
+        return new Metric(timestamp(), blockPerMinMeter.getOneMinuteRate());
+    }
+
+    private long timestamp() {
+        return System.currentTimeMillis() / 1000;
     }
 
 }

@@ -76,11 +76,25 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	@Scheduled(fixedDelay = 1000)
 	public void pushTxnPerSec() {
-	    System.err.println("pushing metrics");
 	    template.convertAndSend(
 	            "/topic/metrics/txnPerSec",
 	            APIResponse.newSimpleResponse(metricsBlockListener.getTxnPerSec()));
 	}
+
+	@Scheduled(fixedDelay = 1000)
+	public void pushTxnPerMin() {
+	    template.convertAndSend(
+	            "/topic/metrics/txnPerMin",
+	            APIResponse.newSimpleResponse(metricsBlockListener.getTxnPerMin()));
+	}
+
+	@Scheduled(fixedDelay = 1000)
+	public void pushBlockPerMin() {
+	    template.convertAndSend(
+	            "/topic/metrics/blocksPerMin",
+	            APIResponse.newSimpleResponse(metricsBlockListener.getBlockPerMin()));
+	}
+
 
 	@Override
 	// @Scheduled(fixedDelay = 5000)

@@ -13,17 +13,6 @@
 			utils.subscribe(this.topic, this.onData);
 		},
 
-		onData: function(data) {
-			console.log(data);
-
-			var b = {
-				time: (new Date()).getTime(),
-				y: data.result
-			};
-
-			widget.chart.push([ b ]);
-		},
-
 		fetch: function() {
 			$('#widget-' + widget.shell.id).html( '<div id="' + widget.name + '" class="epoch category10" style="width:100%; height: 210px;"></div>' );
 
@@ -35,6 +24,17 @@
 			    } ],
 			    axes: ['left', 'right', 'bottom']
 			});
+		},
+
+		onData: function(data) {
+			if (!data || !data.result) {
+				return;
+			}
+			var b = {
+				time: data.result.timestamp,
+				y: data.result.value
+			};
+			widget.chart.push([ b ]);
 		},
 	};
 

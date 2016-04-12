@@ -1,19 +1,16 @@
 (function() {
 	var extended = {
 		name: 'metrix-txn-min',
-		title: 'Metrix: TXN per Minute',
+		title: 'Transactions/min',
 		size: 'medium',
 
 		hideLink: true,
 
-		topic: '/topic/metrix/txn-min',
+		topic: '/topic/metrics/txnPerMin',
 
 
 		subscribe: function() {
 			utils.subscribe(this.topic, this.onData);
-			
-			// DEMO ANCHOR, REMOVE WHEN REAL DATA EXISTS
-			setInterval(function() { widget.onData({demo: true}); }, 5 * 1000);
 		},
 
 		fetch: function() {
@@ -23,24 +20,23 @@
 			    type: 'time.area',
 			    data: [ {
 			    	label: 'TXN per SEC',
-			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ] 
+			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ]
 			    } ],
 			    axes: ['left', 'right', 'bottom']
 			});
 		},
 
 		onData: function(data) {
-			if ( (data) && (data.demo) ) {
-				widget.chart.push([{ time: (new Date()).getTime() / 1000, y: Math.floor(Math.random() * 1000) + 1 }]);
+			if (!data || !data.result) {
+				return;
 			}
-
-//			var b = {
-//				time: (new Date()).getTime(),
-//				y: data.datapoint
-//			};
-//
-//			widget.chart.push([ b ]);
-		}
+			console.log("txnPerMin", data.result);
+			var b = {
+				time: data.result.timestamp,
+				y: data.result.value
+			};
+			widget.chart.push([ b ]);
+		},
 	};
 
 
