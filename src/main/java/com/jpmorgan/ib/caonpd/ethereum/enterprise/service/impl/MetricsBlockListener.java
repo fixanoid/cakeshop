@@ -6,7 +6,8 @@ import com.codahale.metrics.TickListener;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 
-import org.apache.commons.collections4.queue.CircularFifoQueue;
+import javax.annotation.PreDestroy;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -31,9 +32,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     private SimpleRollingMeter txnPerMinMeter;
     private SimpleRollingMeter blockPerMinMeter;
 
-    private CircularFifoQueue<Metric> txnPerMin;
-    private CircularFifoQueue<Metric> txnPerSec;
-    private CircularFifoQueue<Metric> blockPerMin;
+    // private CircularFifoQueue<Metric> txnPerMin;
+    // private CircularFifoQueue<Metric> txnPerSec;
+    // private CircularFifoQueue<Metric> blockPerMin;
 
     private MetricCollector metricCollector;
 
@@ -42,10 +43,10 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         @Override
         public void run() {
             while (running) {
-                long ts = timestamp();
-                blockPerMin.add(new Metric(ts, blockPerMinMeter.getRate()));
-                txnPerMin.add(new Metric(ts, txnPerMinMeter.getRate()));
-                txnPerSec.add(new Metric(ts, txnPerSecMeter.getRate()));
+                // long ts = timestamp();
+                // blockPerMin.add(new Metric(ts, blockPerMinMeter.getRate()));
+                // txnPerMin.add(new Metric(ts, txnPerMinMeter.getRate()));
+                // txnPerSec.add(new Metric(ts, txnPerSecMeter.getRate()));
 
                 // always tick all metrics each sec
                 blockPerMinMeter.mark(0);
@@ -66,14 +67,15 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         txnPerMinMeter = new SimpleRollingMeter();
         blockPerMinMeter = new SimpleRollingMeter();
 
-        txnPerMin = new CircularFifoQueue<>(1000);
-        txnPerSec = new CircularFifoQueue<>(1000);
-        blockPerMin = new CircularFifoQueue<>(1000);
+        // txnPerMin = new CircularFifoQueue<>(1000);
+        // txnPerSec = new CircularFifoQueue<>(1000);
+        // blockPerMin = new CircularFifoQueue<>(1000);
 
         this.metricCollector = new MetricCollector();
         this.metricCollector.start();
     }
 
+    @PreDestroy
     public void shutdown() {
         this.metricCollector.running = false;
     }
