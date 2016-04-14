@@ -144,7 +144,7 @@ public class ContractController extends BaseController {
             Object arg = args[i];
             Param param = params[i];
             if (param.type instanceof Bytes32Type && arg instanceof String) {
-                args[i] = Base64.decode((String) arg);
+                args[i] = new String(Base64.decode((String) arg));
             }
         }
 
