@@ -155,13 +155,16 @@
             return;
         }
 
-        var contract_mappings = _.find(parseContracts(activeContract.get("code")), function(c) { return c.name === activeContract.get("name"); });
+        var contract_mappings = _.find(
+            parseContracts(activeContract.get("code")),
+            function(c) { return c.name === activeContract.get("name"); }
+        );
 
         activeContract.readState().then(function(results) {
 
             // modify results if we have mappings
             var state = results;
-            if (contract_mappings.mappings.length > 0) {
+            if (contract_mappings && contract_mappings.mappings.length > 0) {
                 state = _.reject(results, function(r) {
                     var matches = _.find(contract_mappings.mappings, function(m) {
                         return (r.method.name === m.counter || r.method.name === m.keyset || r.method.name === m.getter); });
@@ -332,7 +335,7 @@
         // Find each contract definition
         var c = [], contract_name;
         src.split(/\n/).forEach(function(line) {
-            var matches = line.match(/contract +(.*?) *\{/);
+            var matches = line.match(/contract +(.*?)( +is.*?)? *\{/);
             if (matches) {
                 if (c && c.length > 0) { // found a new contract, add prev one to array
                     contracts.push({name: contract_name, src: c.join("\n")});
