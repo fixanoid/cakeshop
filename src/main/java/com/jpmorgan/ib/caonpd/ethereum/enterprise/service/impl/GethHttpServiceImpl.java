@@ -236,55 +236,12 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             return true;
         }
 
-        String genesisFile = gethConfig.getGenesisBlockFilename();
-        String dataDir = gethConfig.getDataDirPath();
-
-        List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
-                "--port", gethConfig.getGethNodePort(),
-                "--datadir", dataDir, "--genesis", genesisFile,
-                //"--verbosity", "6",
-                //"--mine", "--minerthreads", "1",
-                //"--jpmtest",
-                "--solc", gethConfig.getSolcPath(),
-                "--nat", "none", "--nodiscover",
-                "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
-                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
-                "--ipcdisable"
-                );
-
-        if (null != additionalParams && additionalParams.length > 0) {
-            commands.addAll(Lists.newArrayList(additionalParams));
-        }
-
-        commands.add("--networkid");
-        commands.add(String.valueOf(gethConfig.getNetworkId() == null ? DEFAULT_NETWORK_ID : gethConfig.getNetworkId()));
-
-        commands.add("--verbosity");
-        commands.add(String.valueOf(gethConfig.getVerbosity() == null ? "3" : gethConfig.getVerbosity()));
-
-        if (null != gethConfig.isMining() && gethConfig.isMining() == true) {
-            commands.add("--mine");
-            commands.add("--minerthreads");
-            commands.add("1");
-        }
-        if (StringUtils.isNotEmpty(gethConfig.getIdentity())) {
-            commands.add("--identity");
-            commands.add(gethConfig.getIdentity());
-        }
-
-        // add custom params
-        if (StringUtils.isNotBlank(gethConfig.getExtraParams())) {
-            String[] params = gethConfig.getExtraParams().split(" ");
-            for (String param : params) {
-                if (StringUtils.isNotBlank(param)) {
-                    commands.add(param);
-                }
-            }
-        }
+        List<String> commands = createGethCommand(additionalParams);
 
         ProcessBuilder builder = createProcessBuilder(gethConfig, commands);
         builder.inheritIO();
 
+        String dataDir = gethConfig.getDataDirPath();
         Boolean started = false;
         Process process;
         try {
@@ -331,6 +288,55 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             LOG.error("Ethereum has NOT been started...");
         }
         return started;
+    }
+
+    private List<String> createGethCommand(String... additionalParams) {
+
+        List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
+                "--port", gethConfig.getGethNodePort(),
+                "--datadir", gethConfig.getDataDirPath(), "--genesis", gethConfig.getGenesisBlockFilename(),
+                //"--verbosity", "6",
+                //"--mine", "--minerthreads", "1",
+                //"--jpmtest",
+                "--solc", gethConfig.getSolcPath(),
+                "--nat", "none", "--nodiscover",
+                "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
+                "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
+                "--ipcdisable",
+                "--fakepow", "--blocktime", "2000", "--blockjitter", "500"
+                );
+
+        if (null != additionalParams && additionalParams.length > 0) {
+            commands.addAll(Lists.newArrayList(additionalParams));
+        }
+
+        commands.add("--networkid");
+        commands.add(String.valueOf(gethConfig.getNetworkId() == null ? DEFAULT_NETWORK_ID : gethConfig.getNetworkId()));
+
+        commands.add("--verbosity");
+        commands.add(String.valueOf(gethConfig.getVerbosity() == null ? "3" : gethConfig.getVerbosity()));
+
+        if (null != gethConfig.isMining() && gethConfig.isMining() == true) {
+            commands.add("--mine");
+            commands.add("--minerthreads");
+            commands.add("1");
+        }
+        if (StringUtils.isNotEmpty(gethConfig.getIdentity())) {
+            commands.add("--identity");
+            commands.add(gethConfig.getIdentity());
+        }
+
+        // add custom params
+        if (StringUtils.isNotBlank(gethConfig.getExtraParams())) {
+            String[] params = gethConfig.getExtraParams().split(" ");
+            for (String param : params) {
+                if (StringUtils.isNotBlank(param)) {
+                    commands.add(param);
+                }
+            }
+        }
+
+        return commands;
     }
 
     /**
