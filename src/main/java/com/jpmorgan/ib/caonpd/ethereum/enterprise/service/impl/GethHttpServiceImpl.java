@@ -303,7 +303,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable",
-                "--fakepow", "--blocktime", "2000", "--blockjitter", "500"
+                "--fakepow"
                 );
 
         if (null != additionalParams && additionalParams.length > 0) {
