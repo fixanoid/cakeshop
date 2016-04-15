@@ -279,12 +279,12 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	@Override
-	public Object read(String id, String method, Object[] args, Object blockNumber) throws APIException {
+	public Object[] read(String id, String method, Object[] args, Object blockNumber) throws APIException {
 	    return read(id, lookupABI(id), method, args, blockNumber);
 	}
 
 	@Override
-	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
+	public Object[] read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
 	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args, true);
 
 	    if (blockNumber != null) {
@@ -297,10 +297,6 @@ public class ContractServiceImpl implements ContractService {
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
 	    String res = (String) readRes.get("_result");
 	    Object[] decodedResults = req.getFunction().decodeHexResult(res);
-
-	    if (req.getFunction().outputs.length == 1 && decodedResults.length == 1) {
-	        return decodedResults[0];
-	    }
 
 	    return decodedResults;
 	}

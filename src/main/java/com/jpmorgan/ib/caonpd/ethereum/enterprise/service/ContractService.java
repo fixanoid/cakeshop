@@ -103,7 +103,7 @@ public interface ContractService {
 	 *
 	 * @throws APIException
 	 */
-	public Object read(String id, String method, Object[] args, Object blockNumber) throws APIException;
+	public Object[] read(String id, String method, Object[] args, Object blockNumber) throws APIException;
 
 	/**
 	 * Read contract data using the given method and arguments (does not create
@@ -116,11 +116,11 @@ public interface ContractService {
 	 * @param args                Optional method arguments
 	 * @param blockNumber         Block from which to read the state from (Optional, defaults to latest)
 	 *
-	 * @return {@link Object}     Return value(s) as defined in the method's ABI
+	 * @return {@link Object}     Return values as defined in the method's ABI
 	 *
 	 * @throws APIException
 	 */
-	public Object read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException;
+	public Object[] read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException;
 
 	/**
 	 * Call a transactional method on the given contract. No state will change
