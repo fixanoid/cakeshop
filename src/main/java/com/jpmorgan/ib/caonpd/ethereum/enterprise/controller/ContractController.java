@@ -157,7 +157,10 @@ public class ContractController extends BaseController {
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
 
-        TransactionResult tr = contractService.transact(id, method, args);
+        ContractABI abi = lookupABI(id);
+        args = decodeArgs(abi.getFunction(method), args);
+
+        TransactionResult tr = contractService.transact(id, abi, method, args);
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 
