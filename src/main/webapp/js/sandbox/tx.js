@@ -131,16 +131,14 @@
         var method_sig = method.name + "(" + _sig_params + ")";
 
         if (method.constant === true) {
-            // use read
-            activeContract.read(method.name, _params).then(function(res) {
+            activeContract.proxy[method.name].apply(null, _params).then(function(res) {
                 addTx("[read] " + method_sig + " => " + JSON.stringify(res), null, true);
             }, function(err) {
                 addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
 
         } else {
-            // use transact
-            activeContract.transact(method.name, _params).then(function(txId) {
+            activeContract.proxy[method.name].apply(null, _params).then(function(txId) {
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
@@ -213,6 +211,7 @@
             s += '<tr>';
             s += '<td>' + r.method.name + '</td>';
             s += '<td>';
+            // console.log(r);
             if (r.result && _.isArray(r.result)) {
                 s += '<ol start="0">';
                 r.result.forEach(function(v) {
@@ -222,13 +221,17 @@
                 s += '<table class="table table-bordered table-condensed">';
                 _.keys(r.result).forEach(function(key) {
                     s += '<tr>';
-                    s += '<td>' + Sandbox.decodeBytes(key) + '</td>';
+                    s += '<td>' + key + '</td>';
                     s += '<td>' + r.result[key] + '</td>';
                     s += '</tr>';
                 });
                 s += '</table>';
-            } else if (r.result && _.isString(r.result) && r.result.length > 20) {
-                s += '<div class="form-group"><textarea class="form-control" rows="3">' + r.result + '</textarea></div>';
+            } else if (r.result && _.isString(r.result)) {
+                if (r.result.length > 20) {
+                    s += '<div class="form-group"><textarea class="form-control" rows="3">' + r.result + '</textarea></div>';
+                } else {
+                    s += r.result;
+                }
             } else {
                 s += r.result;
             }

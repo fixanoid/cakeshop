@@ -1,5 +1,105 @@
 
 (function() {
+
+    var Proxy = (function() {
+        function Proxy(contract) {
+            this._contract = contract;
+            if (!contract.abi) {
+                return;
+            }
+            var proxy = this;
+            contract.abi.forEach(function(method) {
+                if (method.type !== "function") {
+                    return;
+                }
+
+                /**
+                 * Process args based on ABI definitions
+                 */
+                function processInputArgs(args) {
+                    var inputs = method.inputs;
+                    var ret = [];
+
+                    for (var i = 0; i < inputs.length; i++) {
+                        var input = inputs[i],
+                            arg   = args[i];
+                        if (input.type.match(/^bytes\d+$/)) {
+                            // base64 encode bytes
+                            ret.push(Sandbox.encodeBytes(arg));
+                        } else {
+                            // all other input types, just accumulate
+                            ret.push(arg);
+                        }
+                    }
+
+                    return ret;
+                }
+
+                /**
+                 * Process results based on ABI definitions
+                 */
+                function processOutputArgs(results) {
+                    var outputs = method.outputs;
+
+                    // console.log("outputs", outputs);
+                    // console.log("results", results);
+
+                    var ret = [];
+                    for (var i = 0; i < outputs.length; i++) {
+                        var output = outputs[i],
+                            result = results[i];
+                        if (output.type.match(/^bytes\d+$/)) {
+                            // base64 decode bytes
+                            ret.push(Sandbox.decodeBytes(result));
+                        } else if (output.type.match(/^bytes\d+\[\d*\]$/) && _.isArray(result)) {
+                            console.log("decoding result bytes32[]", result);
+                            // base64 decode arrays of bytes
+                            result = _.map(result, function(v) { return Sandbox.decodeBytes(v); });
+                            console.log("decoded ", result);
+                            ret.push(result);
+                        } else {
+                            // all other input types, just accumulate
+                            ret.push(result);
+                        }
+                    }
+
+                    if (outputs.length === 1) {
+                        return ret[0]; // hmmm?
+                    }
+                    return ret;
+                }
+
+                // attach method to proxy
+                proxy[method.name] = function() {
+                    // process arguments based on ABI
+                    var args = processInputArgs(Array.apply(null, arguments));
+
+                    return new Promise(function(resolve, reject) {
+                        if (method.constant === true) {
+                            contract.read(method.name, args).then(function(res) {
+                                resolve(processOutputArgs(res));
+                            }, function(err) {
+                                reject(err);
+                            });
+                        } else {
+                            contract.transact(method.name, args).then(function(txId) {
+                                resolve(txId);
+                            }, function(err) {
+                                reject(err);
+                            });
+                        }
+                    });
+                };
+            });
+        }
+
+        Proxy.prototype.move = function(meters) {
+            return alert(this.name + (" moved " + meters + "m."));
+        };
+
+        return Proxy;
+    })();
+
     var Contract = window.Contract = Backbone.Model.extend({
 
         urlRoot: 'api/contract',
@@ -11,6 +111,7 @@
             this.id = this.get('address');
             if (this.get("abi") && this.get("abi").length > 0) {
                 this.abi = JSON.parse(this.get("abi"));
+                this.proxy = new Proxy(this);
             }
         },
 
@@ -30,9 +131,10 @@
 
                 var promises = [];
                 contract.abi.forEach(function(method) {
+                    // read all constant methods with no inputs
                     if (method.constant === true && method.inputs.length === 0) {
                         promises.push(new Promise(function(resolve, reject) {
-                            contract.read(method.name).then(function(res) {
+                            contract.proxy[method.name]().then(function(res) {
                                 resolve({method: method, result: res});
                             });
                         }));
@@ -43,7 +145,10 @@
         },
 
         /**
-         * Returns result of Read call via Promise
+         * Returns result of read call via Promise.
+         *
+         * NOTE: this is a low-level method and not generally meant to be
+         *       called directly. Instead, use the proxy method.
          */
         read: function(method, args) {
             var contract = this;
@@ -67,6 +172,9 @@
 
         /**
          * Returns a Transaction ID via Promise
+         *
+         * NOTE: this is a low-level method and not generally meant to be
+         *       called directly. Instead, use the proxy method.
          */
         transact: function(method, args) {
             var contract = this;
