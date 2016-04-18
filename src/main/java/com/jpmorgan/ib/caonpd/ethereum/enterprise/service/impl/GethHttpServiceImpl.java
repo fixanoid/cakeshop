@@ -131,7 +131,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
-        String req = new Gson().toJson(requests.toArray());
+        String req = new Gson().toJson(requests);
         String response = executeGethCall(req);
 
         ObjectMapper mapper = new ObjectMapper();
