@@ -88,11 +88,7 @@ public class SavingBlockListener implements BlockListener {
             for (List<String> txnChunk : txnChunks) {
                 try {
                     List<Transaction> txns = txService.get(txnChunk);
-                    for (Transaction txn : txns) {
-                        if (txn != null) {
-                            txDAO.save(txn);
-                        }
-                    }
+                    txDAO.save(txns);
                 } catch (APIException e) {
                     LOG.warn("Failed to load transaction details for tx", e);
                 }

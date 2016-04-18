@@ -67,6 +67,17 @@ public class TransactionDAO {
         return allTx;
     }
 
+    public void save(List<Transaction> txns) {
+        Session session = getCurrentSession();
+        for (int i = 0; i < txns.size(); i++) {
+            session.save(txns.get(i));
+            if (i % 20 == 0) {
+                session.flush();
+                session.clear();
+            }
+        }
+    }
+
     public void save(Transaction tx) {
         hibernateTemplate.save(tx);
     }

@@ -43,6 +43,9 @@ public class DatabaseConfig implements ApplicationContextAware {
     @Value("${hibernate.dialect:org.hibernate.dialect.HSQLDialect}")
     private String hibernateDialect;
 
+    @Value("${hibernate.jdbc.batch_size:20}")
+    private String hibernateBatchSize;
+
     private ApplicationContext applicationContext;
 
     // Embedded DB instance, IF we are using one
@@ -76,6 +79,7 @@ public class DatabaseConfig implements ApplicationContextAware {
     Properties hibernateProperties() {
         return new Properties() {
             {
+                setProperty("hibernate.jdbc.batch_size", hibernateBatchSize);
                 setProperty("hibernate.hbm2ddl.auto", hibernateAuto);
                 setProperty("hibernate.dialect", hibernateDialect);
                 setProperty("hibernate.globally_quoted_identifiers", "true");
