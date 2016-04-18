@@ -53,6 +53,17 @@ public class NodeController extends BaseController {
     @Autowired
     private AdminBean adminBean;
 
+    @RequestMapping({ "/get", "/status" })
+    protected ResponseEntity<APIResponse> doGet() throws APIException {
+
+        Node node = nodeService.get();
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setData(new APIData(node.getId(), "node", node));
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     @RequestMapping({"/{funcName}", "/miner/{funcName}"})
     protected ResponseEntity<APIResponse> adminFuncCall(@PathVariable String funcName,
             @JsonBodyParam(value = "args", required = false) String funcArguments) throws APIException {

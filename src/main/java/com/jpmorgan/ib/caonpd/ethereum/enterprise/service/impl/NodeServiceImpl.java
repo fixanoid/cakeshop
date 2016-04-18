@@ -53,11 +53,15 @@ public class NodeServiceImpl implements NodeService {
             //check if node is available
             data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO, null);
 
-            node.setId((String)data.get("id"));
-            node.setStatus(StringUtils.isEmpty((String)data.get("id")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
-            node.setNodeName((String)data.get("name"));
-            String nodeURI = (String)data.get("enode");
-            if(StringUtils.isNotEmpty(nodeURI)){
+            node.setRpcUrl(gethConfig.getRpcUrl());
+            node.setDataDirectory(gethConfig.getDataDirPath());
+
+            node.setId((String) data.get("id"));
+            node.setStatus(StringUtils.isEmpty((String) data.get("id")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
+            node.setNodeName((String) data.get("name"));
+
+            String nodeURI = (String) data.get("enode");
+            if (StringUtils.isNotEmpty(nodeURI)) {
                 try {
                     URI uri = new URI(nodeURI);
                     String host = uri.getHost();
