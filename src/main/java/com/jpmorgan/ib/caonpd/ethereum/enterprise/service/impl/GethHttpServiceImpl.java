@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,13 +105,13 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
 
         RequestModel request = new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID);
         String req = new Gson().toJson(request);
         String response = executeGethCall(req);
+
 
         if (StringUtils.isEmpty(response)) {
             throw new APIException("Received empty reply from server");
@@ -123,6 +124,36 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         } catch (IOException e) {
             throw new APIException("RPC call failed", e);
         }
+
+        return processResponse(data);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
+        String req = new Gson().toJson(requests.toArray());
+        String response = executeGethCall(req);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> responses;
+        try {
+            responses = mapper.readValue(response, List.class);
+
+            List<Map<String, Object>> results = new ArrayList<>(responses.size());
+            for (Map<String, Object> data : responses) {
+                results.add(processResponse(data));
+            }
+            return results;
+
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> processResponse(Map<String, Object> data) throws APIException {
 
         if (data.containsKey("error") && data.get("error") != null) {
             String message;

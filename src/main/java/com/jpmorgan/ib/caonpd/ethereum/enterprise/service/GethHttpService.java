@@ -6,7 +6,9 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +30,8 @@ public interface GethHttpService {
      * @throws APIException
      */
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException;
+
+    public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException;
 
     /**
      * Start the Geth node

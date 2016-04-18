@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.util;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -57,7 +58,11 @@ public class RpcUtil {
 	    return "0x" + hex;
 	}
 
-	public static String toString(Object object) {
+	@SuppressWarnings("rawtypes")
+    public static String toString(Object object) {
+	    if (object instanceof List) {
+	        object = ((List) object).toArray();
+	    }
 	    return ToStringBuilder.reflectionToString(object, ShortToStringStyle.INSTANCE);
 	}
 
