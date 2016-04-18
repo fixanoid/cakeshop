@@ -10,11 +10,13 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
+import org.testng.collections.Lists;
 
 public class TransactionServiceTest extends BaseGethRpcTest {
 
@@ -38,6 +40,20 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		assertNotNull(tx.getId());
 		assertEquals(tx.getId(), result.getId());
 		assertEquals(tx.getStatus(), Status.committed);
+	}
+
+	@Test
+	public void testGetBatch() throws IOException, InterruptedException {
+
+		String code = readTestFile("contracts/simplestorage.sol");
+		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
+		TransactionResult result2 = contractService.create(code, ContractService.CodeType.solidity, null, null);
+
+    	List<Transaction> txns = transactionService.get(Lists.newArrayList(result.getId(), result2.getId()));
+    	assertNotNull(txns);
+    	assertEquals(txns.size(), 2);
+    	assertEquals(txns.get(0).getId(), result.getId());
+    	assertEquals(txns.get(1).getId(), result2.getId());
 	}
 
 	@Test

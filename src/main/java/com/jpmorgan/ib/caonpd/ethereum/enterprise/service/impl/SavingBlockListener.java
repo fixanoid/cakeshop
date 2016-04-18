@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.google.common.collect.Lists;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -7,6 +9,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +58,9 @@ public class SavingBlockListener implements BlockListener {
     @Autowired
     private TransactionService txService;
 
+    @Autowired
+    private GethConfigBean gethConfig;
+
     private ArrayBlockingQueue<Block> blockQueue;
 
     private final BlockSaverThread blockSaver;
@@ -71,18 +77,24 @@ public class SavingBlockListener implements BlockListener {
     }
 
     private void saveBlock(Block block) {
-        if (true) {
+        if (!gethConfig.isDbEnabled()) {
             return;
         }
         LOG.debug("Persisting block #" + block.getNumber());
         blockDAO.save(block);
         if (!block.getTransactions().isEmpty()) {
-            for (String txId : block.getTransactions()) {
+            List<String> transactions = block.getTransactions();
+            List<List<String>> txnChunks = Lists.partition(transactions, 256);
+            for (List<String> txnChunk : txnChunks) {
                 try {
-                    Transaction tx = txService.get(txId);
-                    txDAO.save(tx);
+                    List<Transaction> txns = txService.get(txnChunk);
+                    for (Transaction txn : txns) {
+                        if (txn != null) {
+                            txDAO.save(txn);
+                        }
+                    }
                 } catch (APIException e) {
-                    LOG.warn("Failed to load transaction details for tx " + txId, e);
+                    LOG.warn("Failed to load transaction details for tx", e);
                 }
             }
         }

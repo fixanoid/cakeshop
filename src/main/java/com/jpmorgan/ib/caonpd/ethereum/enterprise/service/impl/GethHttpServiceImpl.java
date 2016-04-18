@@ -34,11 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
@@ -53,7 +51,7 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
+public class GethHttpServiceImpl implements GethHttpService, ApplicationListener<ContextRefreshedEvent> {
 
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
@@ -72,6 +70,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Autowired
     private TransactionDAO txDAO;
 
+    @Autowired
     private ApplicationContext applicationContext;
 
     private BlockScanner blockScanner;
@@ -85,7 +84,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 LOG.debug("> " + json);
             }
 
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = applicationContext.getBean(RestTemplate.class);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(APPLICATION_JSON);
             HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
@@ -434,11 +433,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             LOG.debug("geth not yet up: " + e.getMessage());
         }
         return false;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     @Override

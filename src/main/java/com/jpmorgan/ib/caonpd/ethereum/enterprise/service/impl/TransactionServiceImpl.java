@@ -3,12 +3,15 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,19 +28,27 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public Transaction get(String id) throws APIException {
 
+	    List<RequestModel> reqs = new ArrayList<>();
+	    reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{ id }, 1L));
+	    reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{ id }, 2L));
+	    List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
 
-		Map<String, Object> txData = geth.executeGethCall("eth_getTransactionByHash", new Object[]{ id });
-		if (txData == null) {
+		if (batchRes.isEmpty() || batchRes.get(0) == null) {
 		    return null;
 		}
 
-		Map<String, Object> txReceiptData = geth.executeGethCall("eth_getTransactionReceipt", new Object[]{ id });
-
-		if (txReceiptData != null) {
-			txData.putAll(txReceiptData);
+		Map<String, Object> txData = batchRes.get(0);
+		if (batchRes.get(1) != null) {
+		    txData.putAll(batchRes.get(1));
 		}
 
-		Transaction tx = new Transaction();
+		Transaction tx = processTx(txData);
+
+		return tx;
+	}
+
+    private Transaction processTx(Map<String, Object> txData) {
+        Transaction tx = new Transaction();
 
 		tx.setId((String) txData.get("hash"));
 		tx.setBlockId((String) txData.get("blockHash"));
@@ -62,8 +73,48 @@ public class TransactionServiceImpl implements TransactionService {
 		} else {
 			tx.setStatus(Status.committed);
 		}
+        return tx;
+    }
 
-		return tx;
+	@Override
+	public List<Transaction> get(List<String> ids) throws APIException {
+
+	    List<RequestModel> reqs = new ArrayList<>();
+	    for (String id : ids) {
+            reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{ id }, 1L));
+            reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{ id }, 2L));
+        }
+	    List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
+
+	    // merge pairs of requests for all txns into single map
+	    Map<String, Map<String, Object>> txnResponses = new HashMap<>();
+	    for (Map<String, Object> res : batchRes) {
+	        if (res != null) {
+	            String hash = null;
+	            if (res.get("hash") != null) {
+	                hash = (String) res.get("hash");
+	            } else if (res.get("transactionHash") != null) {
+	                hash = (String) res.get("transactionHash");
+	            }
+	            if (hash != null) {
+                    Map<String, Object> map = txnResponses.get(hash);
+                    if (map != null) {
+                        map.putAll(res); // add to existing map
+                    } else {
+                        txnResponses.put(hash, res); // insert new map
+                    }
+	            }
+	        }
+        }
+
+	    // collect txns in the order they were requested
+	    List<Transaction> txns = new ArrayList<>();
+	    for (String id : ids) {
+	        Map<String, Object> txData = txnResponses.get(id);
+	        txns.add(processTx(txData));
+        }
+
+	    return txns;
 	}
 
 	@Override

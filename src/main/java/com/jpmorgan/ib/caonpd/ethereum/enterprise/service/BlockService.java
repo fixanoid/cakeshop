@@ -3,6 +3,8 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 
+import java.util.List;
+
 public interface BlockService {
 
     /**
@@ -18,5 +20,9 @@ public interface BlockService {
      * @throws APIException
      */
     public Block get(String id, Long number, String tag) throws APIException;
+
+    public List<Block> get(long start, long end) throws APIException;
+
+    public List<Block> get(List<Long> numbers) throws APIException;
 
 }

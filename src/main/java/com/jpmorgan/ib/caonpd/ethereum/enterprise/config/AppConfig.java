@@ -17,11 +17,14 @@ import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.client.RestTemplate;
 
 
 @Configuration
@@ -96,6 +99,20 @@ public class AppConfig implements AsyncConfigurer {
     @Bean
     public static AdminBean adminBean() {
         return new AdminBean();
+    }
+
+    @Bean
+    @Scope("prototype")
+    public RestTemplate createRestTemplate() {
+        RestTemplate rest = new RestTemplate();
+
+        SimpleClientHttpRequestFactory rf =
+                (SimpleClientHttpRequestFactory) rest.getRequestFactory();
+
+        rf.setReadTimeout(120 * 1000);
+        rf.setConnectTimeout(1 * 1000);
+
+        return rest;
     }
 
     @Bean(name="asyncExecutor")
