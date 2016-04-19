@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
@@ -52,7 +51,7 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
+public class GethHttpServiceImpl implements GethHttpService, ApplicationListener<ContextRefreshedEvent> {
 
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
@@ -71,6 +70,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
     @Autowired
     private TransactionDAO txDAO;
 
+    @Autowired
     private ApplicationContext applicationContext;
 
     private BlockScanner blockScanner;
@@ -84,7 +84,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 LOG.debug("> " + json);
             }
 
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = applicationContext.getBean(RestTemplate.class);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(APPLICATION_JSON);
             HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
@@ -104,13 +104,13 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
 
         RequestModel request = new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID);
         String req = new Gson().toJson(request);
         String response = executeGethCall(req);
+
 
         if (StringUtils.isEmpty(response)) {
             throw new APIException("Received empty reply from server");
@@ -123,6 +123,36 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
         } catch (IOException e) {
             throw new APIException("RPC call failed", e);
         }
+
+        return processResponse(data);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
+        String req = new Gson().toJson(requests);
+        String response = executeGethCall(req);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> responses;
+        try {
+            responses = mapper.readValue(response, List.class);
+
+            List<Map<String, Object>> results = new ArrayList<>(responses.size());
+            for (Map<String, Object> data : responses) {
+                results.add(processResponse(data));
+            }
+            return results;
+
+        } catch (IOException e) {
+            throw new APIException("RPC call failed", e);
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> processResponse(Map<String, Object> data) throws APIException {
 
         if (data.containsKey("error") && data.get("error") != null) {
             String message;
@@ -303,7 +333,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
                 "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable",
-                "--fakepow", "--blocktime", "2000", "--blockjitter", "500"
+                "--fakepow"
                 );
 
         if (null != additionalParams && additionalParams.length > 0) {
@@ -403,11 +433,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationContextA
             LOG.debug("geth not yet up: " + e.getMessage());
         }
         return false;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     @Override

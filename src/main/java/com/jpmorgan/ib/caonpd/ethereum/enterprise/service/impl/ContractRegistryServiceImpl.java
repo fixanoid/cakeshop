@@ -101,7 +101,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     @Override
     public Contract getById(String id) throws APIException {
 
-        Object[] res = (Object[]) contractService.read(
+        Object[] res = contractService.read(
                 contractRegistryAddress, this.abi,
                 "getById",
                 new Object[] { id },
@@ -135,13 +135,15 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     @Override
     public List<Contract> list() throws APIException {
 
-        Object[] res = (Object[]) contractService.read(
+        Object[] res = contractService.read(
                 contractRegistryAddress, this.abi,
                 "listAddrs", null, null);
 
+        Object[] addrs = (Object[]) res[0];
+
         List<Contract> contracts = new ArrayList<>();
-        for (int i = 0; i < res.length; i++) {
-            String addr = (String) res[i];
+        for (int i = 0; i < addrs.length; i++) {
+            String addr = (String) addrs[i];
             try {
                 contracts.add(getById(addr));
             } catch (APIException ex) {

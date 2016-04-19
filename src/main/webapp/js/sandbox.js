@@ -326,6 +326,14 @@
     	return funABI;
     };
 
+    // for surfacing promise errors
+    window.addEventListener("unhandledrejection", function(e) {
+        e.preventDefault();
+        console.log(e.detail.reason.message);
+        console.log(e.detail.reason.stack);
+        alert("ERROR: " + e.detail.reason);
+    });
+
     // compile on page load (whatever is in buffer)
     $(function() {
         onChange();

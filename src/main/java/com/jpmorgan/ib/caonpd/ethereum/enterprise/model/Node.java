@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
+
 import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -50,6 +52,16 @@ public class Node  {
      * Node IP
      */
     private String nodeIP;
+
+    /**
+     * RPC URL
+     */
+    private String rpcUrl;
+
+    /**
+     * Ethereum data directory
+     */
+    private String dataDirectory;
 
     /**
      * Node configuration
@@ -150,21 +162,25 @@ public class Node  {
         this.peers = peers;
     }
 
+    public String getRpcUrl() {
+        return rpcUrl;
+    }
+
+    public void setRpcUrl(String rpcUrl) {
+        this.rpcUrl = rpcUrl;
+    }
+
+    public String getDataDirectory() {
+        return dataDirectory;
+    }
+
+    public void setDataDirectory(String dataDirectory) {
+        this.dataDirectory = dataDirectory;
+    }
+
     @Override
     public String toString()  {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{\n");
-      sb.append("\"id\":").append("\"").append(id).append("\",").append("\n");
-      sb.append("\"status\":").append("\"").append(status).append("\",").append("\n");
-      sb.append("\"peers\":").append(peerCount).append(",").append("\n");
-      sb.append("\"latestBlock\":").append(latestBlock).append(",").append("\n");
-      sb.append("\"pendingTxn\":").append(pendingTxn).append(",").append("\n");
-      sb.append("\"nodeUrl\":").append(nodeUrl).append(",").append("\n");
-      sb.append("\"nodeName\":").append(nodeName).append(",").append("\n");
-      sb.append("\"nodeIP\":").append(nodeIP).append(",").append("\n");
-      sb.append("\"mining\":").append(mining).append("\n");
-      sb.append("}\n");
-      return sb.toString();
+        return RpcUtil.toString(this);
     }
 
     @Override

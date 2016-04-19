@@ -131,16 +131,14 @@
         var method_sig = method.name + "(" + _sig_params + ")";
 
         if (method.constant === true) {
-            // use read
-            activeContract.read(method.name, _params).then(function(res) {
+            activeContract.proxy[method.name].apply(null, _params).then(function(res) {
                 addTx("[read] " + method_sig + " => " + JSON.stringify(res), null, true);
             }, function(err) {
                 addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
 
         } else {
-            // use transact
-            activeContract.transact(method.name, _params).then(function(txId) {
+            activeContract.proxy[method.name].apply(null, _params).then(function(txId) {
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
@@ -155,13 +153,16 @@
             return;
         }
 
-        var contract_mappings = _.find(parseContracts(activeContract.get("code")), function(c) { return c.name === activeContract.get("name"); });
+        var contract_mappings = _.find(
+            parseContracts(activeContract.get("code")),
+            function(c) { return c.name === activeContract.get("name"); }
+        );
 
         activeContract.readState().then(function(results) {
 
             // modify results if we have mappings
             var state = results;
-            if (contract_mappings.mappings.length > 0) {
+            if (contract_mappings && contract_mappings.mappings.length > 0) {
                 state = _.reject(results, function(r) {
                     var matches = _.find(contract_mappings.mappings, function(m) {
                         return (r.method.name === m.counter || r.method.name === m.keyset || r.method.name === m.getter); });
@@ -210,6 +211,7 @@
             s += '<tr>';
             s += '<td>' + r.method.name + '</td>';
             s += '<td>';
+            // console.log(r);
             if (r.result && _.isArray(r.result)) {
                 s += '<ol start="0">';
                 r.result.forEach(function(v) {
@@ -219,13 +221,17 @@
                 s += '<table class="table table-bordered table-condensed">';
                 _.keys(r.result).forEach(function(key) {
                     s += '<tr>';
-                    s += '<td>' + Sandbox.decodeBytes(key) + '</td>';
+                    s += '<td>' + key + '</td>';
                     s += '<td>' + r.result[key] + '</td>';
                     s += '</tr>';
                 });
                 s += '</table>';
-            } else if (r.result && _.isString(r.result) && r.result.length > 20) {
-                s += '<div class="form-group"><textarea class="form-control" rows="3">' + r.result + '</textarea></div>';
+            } else if (r.result && _.isString(r.result)) {
+                if (r.result.length > 20) {
+                    s += '<div class="form-group"><textarea class="form-control" rows="3">' + r.result + '</textarea></div>';
+                } else {
+                    s += r.result;
+                }
             } else {
                 s += r.result;
             }
@@ -332,7 +338,7 @@
         // Find each contract definition
         var c = [], contract_name;
         src.split(/\n/).forEach(function(line) {
-            var matches = line.match(/contract +(.*?) *\{/);
+            var matches = line.match(/contract +(.*?)( +is.*?)? *\{/);
             if (matches) {
                 if (c && c.length > 0) { // found a new contract, add prev one to array
                     contracts.push({name: contract_name, src: c.join("\n")});

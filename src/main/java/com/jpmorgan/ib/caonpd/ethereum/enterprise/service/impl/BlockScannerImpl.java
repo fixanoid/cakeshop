@@ -13,6 +13,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -112,22 +113,31 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
     }
 
     private void fillBlockRange(long start, long end) {
-
         LOG.debug("Filling blocks from " + start + " to " + end);
 
-        for (long i = start; i <= end; i++) {
+        long step = 99L;
+
+        long i = 0;
+        while (true) {
+            i = start + step;
+            if (i > end) {
+                i = end;
+            }
             try {
-                LOG.debug("Filling block #" + i);
-                Block block = blockService.get(null, i, null);
-                notifyListeners(block);
-                previousBlock = block;
+                List<Block> blocks = blockService.get(start, i);
+                for (Block block : blocks) {
+                    notifyListeners(block);
+                    previousBlock = block;
+                }
 
             } catch (APIException e) {
-                LOG.warn("Failed to read block #" + i + ": " + e.getMessage(), e);
-                return;
+                LOG.warn("Failed to read blocks " + start + "-" + i, e);
             }
+            if (i >= end) {
+                break;
+            }
+            start = i+1;
         }
-
     }
 
     /**

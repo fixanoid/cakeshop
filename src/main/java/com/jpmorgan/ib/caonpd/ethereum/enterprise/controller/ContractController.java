@@ -144,7 +144,7 @@ public class ContractController extends BaseController {
             Object arg = args[i];
             Param param = params[i];
             if (param.type instanceof Bytes32Type && arg instanceof String) {
-                args[i] = Base64.decode((String) arg);
+                args[i] = new String(Base64.decode((String) arg));
             }
         }
 
@@ -157,7 +157,10 @@ public class ContractController extends BaseController {
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
 
-        TransactionResult tr = contractService.transact(id, method, args);
+        ContractABI abi = lookupABI(id);
+        args = decodeArgs(abi.getFunction(method), args);
+
+        TransactionResult tr = contractService.transact(id, abi, method, args);
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 

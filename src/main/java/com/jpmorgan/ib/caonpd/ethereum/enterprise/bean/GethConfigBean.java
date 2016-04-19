@@ -70,6 +70,8 @@ public class GethConfigBean {
     private final String GETH_AUTO_START = "geth.auto.start";
     private final String GETH_AUTO_STOP = "geth.auto.stop";
 
+    private final String GETH_DB_ENABLED = "geth.db.enabled";
+
     // User-configurable settings
     private final String GETH_NETWORK_ID = "geth.networkid";
     private final String GETH_VERBOSITY = "geth.verbosity";
@@ -358,6 +360,14 @@ public class GethConfigBean {
 
     public void setNodePath(String nodePath) {
         this.nodePath = nodePath;
+    }
+
+    public boolean isDbEnabled() {
+        return Boolean.valueOf(get(GETH_DB_ENABLED, "true"));
+    }
+
+    public void setDbEnabled(Boolean enabled) {
+        props.setProperty(GETH_DB_ENABLED, enabled.toString());
     }
 
     /**

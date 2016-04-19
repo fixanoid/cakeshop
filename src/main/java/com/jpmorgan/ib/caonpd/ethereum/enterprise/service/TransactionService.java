@@ -19,6 +19,15 @@ public interface TransactionService {
 	public Transaction get(String id) throws APIException;
 
 	/**
+	 * Get a batch of transactions in a single request.
+	 *
+	 * @param ids
+	 * @return
+	 * @throws APIException
+	 */
+	public List<Transaction> get(List<String> ids) throws APIException;
+
+	/**
 	 * List transactions in the given block
 	 *
 	 * @param blockHash

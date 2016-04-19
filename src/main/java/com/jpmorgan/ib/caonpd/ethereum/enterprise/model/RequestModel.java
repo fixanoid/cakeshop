@@ -5,6 +5,8 @@
  */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+
 /**
  * Geth JSON-RPC request model
  *
@@ -18,6 +20,10 @@ public class RequestModel {
     private Long id;
 
     public RequestModel(){}
+
+    public RequestModel(String method, Object[] params, Long id) {
+        this(method, params, GethHttpService.GETH_API_VERSION, id);
+    }
 
     public RequestModel(String method, Object[] params, String jsonrpc, Long id) {
         this.method = method;

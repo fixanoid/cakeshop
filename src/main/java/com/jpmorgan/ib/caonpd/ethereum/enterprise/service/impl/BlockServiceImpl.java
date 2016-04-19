@@ -4,9 +4,11 @@ import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,11 @@ public class BlockServiceImpl implements BlockService {
         Map<String, Object> blockData =
                 gethService.executeGethCall(method, new Object[]{ input, false });
 
+        return processBlockData(blockData);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Block processBlockData(Map<String, Object> blockData) {
         if (blockData == null) {
             return null;
         }
@@ -68,6 +75,35 @@ public class BlockServiceImpl implements BlockService {
         block.setTimestamp(toLong("timestamp", blockData));
 
         return block;
+    }
+
+    @Override
+    public List<Block> get(long start, long end) throws APIException {
+        List<RequestModel> reqs = new ArrayList<>();
+        for (long i = start; i <= end; i++) {
+            reqs.add(new RequestModel("eth_getBlockByNumber", new Object[]{ i, false }, 42L));
+        }
+        return batchGet(reqs);
+    }
+
+    @Override
+    public List<Block> get(List<Long> numbers) throws APIException {
+        List<RequestModel> reqs = new ArrayList<>();
+        for (Long num : numbers) {
+            reqs.add(new RequestModel("eth_getBlockByNumber", new Object[]{ num, false }, 42L));
+        }
+	    return batchGet(reqs);
+    }
+
+    private List<Block> batchGet(List<RequestModel> reqs) throws APIException {
+        List<Map<String, Object>> batchRes = gethService.batchExecuteGethCall(reqs);
+
+	    // TODO ignore return order for now
+	    List<Block> blocks = new ArrayList<>();
+	    for (Map<String, Object> blockData : batchRes) {
+	        blocks.add(processBlockData(blockData));
+	    }
+	    return blocks;
     }
 
 }
