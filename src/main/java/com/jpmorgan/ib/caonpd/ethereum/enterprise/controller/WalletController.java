@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver;
@@ -36,7 +31,7 @@ public class WalletController extends BaseController {
 
         APIResponse res = new APIResponse();
         APIData data = new APIData();
-        
+
         List<Account> accounts = walletService.list();
 
         if(accounts != null){

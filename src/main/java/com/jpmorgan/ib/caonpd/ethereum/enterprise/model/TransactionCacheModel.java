@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
 import java.io.Serializable;
@@ -12,10 +7,10 @@ import java.io.Serializable;
  * @author i629630
  */
 public class TransactionCacheModel implements Serializable {
-    
+
     private String data;
     private Long timeCreated;
-    
+
     public TransactionCacheModel (String data, Long timeCreated) {
         this.data = data;
         this.timeCreated = timeCreated;
@@ -48,5 +43,5 @@ public class TransactionCacheModel implements Serializable {
     public void setTimeCreated(Long timeCreated) {
         this.timeCreated = timeCreated;
     }
-    
+
 }

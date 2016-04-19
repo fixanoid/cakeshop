@@ -17,10 +17,7 @@ import org.testng.annotations.BeforeTest;
  *
  * @author I629630
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = {WebConfigTest.class})
 @ContextConfiguration(classes = TestAppConfig.class ,loader = AnnotationConfigContextLoader.class)
-
 public class GethHttpUnitTest extends AbstractTestNGSpringContextTests{
 
     @Autowired

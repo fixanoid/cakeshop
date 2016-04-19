@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.bean;
 
 import java.util.HashMap;
@@ -13,7 +8,7 @@ import java.util.Map;
  * @author n631539
  */
 public class AdminBean {
-    
+
     public static final String ADMIN_ADD_PEER_KEY = "add_peer";
     public static final String ADMIN_ADD_PEER = "admin_addPeer";
     public static final String ADMIN_PEERS_KEY = "peers";
@@ -29,7 +24,7 @@ public class AdminBean {
     public static final String ADMIN_MINER_STOP_KEY = "stop";
     public static final String ADMIN_MINER_STOP = "miner_stop";
     public static final String ADMIN_MINER_MINING_KEY = "mining";
-    public static final String ADMIN_MINER_MINING = "eth_mining"; 
+    public static final String ADMIN_MINER_MINING = "eth_mining";
     public static final String ADMIN_PEER_ADD="admin_addPeer";
     public static final String ADMIN_PEER_ADD_KEY="add_peer";
     public static final String ADMIN_NET_PEER_COUNT="net_peerCount";
@@ -38,10 +33,10 @@ public class AdminBean {
     public static final String PERSONAL_LIST_ACCOUNTS_KEY= "list_accounts";
     public static final String PERSONAL_LIST_ACCOUNTS= "personal_listAccounts";
     public static final String PERSONAL_GET_ACCOUNT_BALANCE = "eth_getBalance";
-    
-       
+
+
     private Map<String,String> functionNames = new HashMap();
-    
+
     public AdminBean(){
         functionNames.put(ADMIN_ADD_PEER_KEY,ADMIN_ADD_PEER);
         functionNames.put(ADMIN_PEERS_KEY,ADMIN_PEERS);
@@ -67,5 +62,5 @@ public class AdminBean {
     public void setFunctionNames(Map<String,String> functionNames) {
         this.functionNames = functionNames;
     }
-    
+
 }
