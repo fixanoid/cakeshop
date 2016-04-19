@@ -10,9 +10,9 @@ import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
@@ -104,6 +104,7 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
 

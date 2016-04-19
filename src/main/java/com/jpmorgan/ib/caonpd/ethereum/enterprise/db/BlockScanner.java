@@ -6,7 +6,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
@@ -26,12 +25,20 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+
+/**
+ * Service which tracks the Blockchain in a local database. As blocks are added
+ * to the chain, they are added to our database in near-realtime.
+ *
+ * @author chetan
+ *
+ */
 @Service
 @Scope("prototype")
 @Profile("container")
-public class BlockScannerImpl extends Thread implements BlockScanner {
+public class BlockScanner extends Thread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BlockScannerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BlockScanner.class);
 
     @Autowired
     private BlockDAO blockDAO;
@@ -63,7 +70,7 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
     private boolean stopped;
     private Object wakeup;
 
-    public BlockScannerImpl() {
+    public BlockScanner() {
         this.stopped = false;
         this.setName("BlockScanner");
     }
@@ -73,7 +80,6 @@ public class BlockScannerImpl extends Thread implements BlockScanner {
         this.blockListeners = appContext.getBeansOfType(BlockListener.class).values();
     }
 
-    @Override
     public void shutdown() {
         this.stopped = true;
         synchronized(wakeup) {

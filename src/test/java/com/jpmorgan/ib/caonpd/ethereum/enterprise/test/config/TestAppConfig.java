@@ -3,8 +3,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfig;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScannerImpl;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.TestBlockScanner;
 
 import java.util.concurrent.Executor;
@@ -25,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
     excludeFilters = {
         @ComponentScan.Filter(
               type = FilterType.ASSIGNABLE_TYPE,
-              value = { WebConfig.class, WebAppInit.class, BlockScannerImpl.class }
+              value = { WebConfig.class, WebAppInit.class, BlockScanner.class }
         )
     }
 )
