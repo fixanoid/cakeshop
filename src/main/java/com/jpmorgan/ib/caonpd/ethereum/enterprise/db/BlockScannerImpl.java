@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.db;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;

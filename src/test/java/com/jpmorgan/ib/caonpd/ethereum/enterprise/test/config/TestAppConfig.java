@@ -3,8 +3,8 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScannerImpl;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockScanner;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.BlockScannerImpl;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.TestBlockScanner;
 
 import java.util.concurrent.Executor;

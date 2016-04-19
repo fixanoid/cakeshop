@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
+package com.jpmorgan.ib.caonpd.ethereum.enterprise.db;
 
 import com.codahale.metrics.FastMeter;
 import com.codahale.metrics.SimpleRollingMeter;

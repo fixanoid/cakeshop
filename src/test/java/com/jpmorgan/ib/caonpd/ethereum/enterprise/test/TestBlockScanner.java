@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl.BlockScannerImpl;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScannerImpl;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
