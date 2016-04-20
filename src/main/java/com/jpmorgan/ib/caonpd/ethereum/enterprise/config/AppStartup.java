@@ -220,6 +220,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         System.out.println(StringUtils.rightPad("* Testing geth server binary", 79) + "*");
         String gethOutput = testBinary(gethConfig.getGethPath(), "version");
         if (gethOutput == null || gethOutput.indexOf("Version:") < 0) {
+            healthy = false;
             System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
         } else {
             Matcher matcher = Pattern.compile("^Version: (.*)", Pattern.MULTILINE).matcher(gethOutput);
@@ -234,6 +235,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         System.out.println(StringUtils.rightPad("* Testing solc compiler binary", 79) + "*");
         String solcOutput = testBinary(gethConfig.getNodePath(), gethConfig.getSolcPath(), "--version");
         if (solcOutput == null || solcOutput.indexOf("Version:") < 0) {
+            healthy = false;
             System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
         } else {
             Matcher matcher = Pattern.compile("^Version: (.*)", Pattern.MULTILINE).matcher(solcOutput);
