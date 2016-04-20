@@ -160,8 +160,23 @@ public class GethConfigBean {
         solcPath = expandPath(vendorGenesisDir, "..", "solc", "node_modules", "solc-cli", "bin", "solc");
 
         // Clean up data dir path for default config (not an absolute path)
-        if (getDataDirPath() != null && getDataDirPath().startsWith("/.")) {
-            setDataDirPath(expandPath(System.getProperty("user.home"), getDataDirPath()));
+        if (getDataDirPath() != null) {
+            if (getDataDirPath().startsWith("/.ethereum")) {
+                // support old ~/.ethereum dir if it exists
+                String path = expandPath(System.getProperty("user.home"), getDataDirPath());
+                if (new File(path).exists()) {
+                    setDataDirPath(path);
+                } else {
+                    setDataDirPath(expandPath(CONFIG_ROOT, "ethereum"));
+                }
+            } else {
+                if (!new File(getDataDirPath()).exists()) {
+                    setDataDirPath(expandPath(CONFIG_ROOT, "ethereum"));
+                }
+            }
+        } else {
+            // null, init it
+            setDataDirPath(expandPath(CONFIG_ROOT, "ethereum"));
         }
 
         String identity = getIdentity();
