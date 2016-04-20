@@ -105,6 +105,15 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     private void printWelcomeMessage() {
+        System.out.println();
+        System.out.println();
+
+        System.out.println("PRINTING DEBUG INFO");
+        System.out.println();
+        System.out.println(getDebugInfo(null));
+
+        System.out.println();
+        System.out.println();
     }
 
     public void autoStartGeth() {
