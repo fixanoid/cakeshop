@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -40,18 +41,39 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
+    // /home/apps/ethereum-enterprise
+
     protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
 
     public String getEnv() {
         String env = System.getProperty("eth.environment");
         if (env == null || env.trim().isEmpty()) {
             // FIXME only default to local based on a flag passed down from maven build
+            LOG.warn("defaulting to 'local' env");
+            System.setProperty("eth.environment", "local");
             return "local";
         }
         return env;
     }
 
+    /**
+     * Return the configured config location
+     *
+     * Search order:
+     * - ETH_CONFIG environment variable
+     * - eth.config.dir system property (-Deth.config.dir param)
+     * - Detect tomcat (container) root relative to classpath
+     *
+     * @return
+     */
     public String getConfigPath() {
+        String configPath = System.getenv("ETH_CONFIG");
+        if (StringUtils.isBlank(configPath)) {
+            configPath = System.getProperty("eth.config.dir");
+        }
+        if (!StringUtils.isBlank(configPath)) {
+            return FileUtils.expandPath(configPath, getEnv());
+        }
         return FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", getEnv());
     }
 
