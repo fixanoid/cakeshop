@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +49,7 @@ import org.springframework.web.client.RestTemplate;
  * @author I629630
  */
 @Service
-public class GethHttpServiceImpl implements GethHttpService, ApplicationListener<ContextRefreshedEvent> {
+public class GethHttpServiceImpl implements GethHttpService {
 
     public static final String SIMPLE_RESULT = "_result";
     public static final Integer DEFAULT_NETWORK_ID = 1006;
@@ -75,7 +73,11 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
 
     private BlockScanner blockScanner;
 
-    private boolean autoStartFired;
+    private Boolean running;
+
+    public GethHttpServiceImpl() {
+        this.running = false;
+    }
 
     private String executeGethCall(String json) throws APIException {
         try {
@@ -222,14 +224,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
         return this.start();
     }
 
-    public void autoStart() {
-        if (!gethConfig.isAutoStart()) {
-            return;
-        }
-        LOG.info("Autostarting geth node");
-        start();
-    }
-
     @Override
     public Boolean deletePid() {
         return new File(gethConfig.getGethPidFilename()).delete();
@@ -258,13 +252,19 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
     }
 
     @Override
+    public Boolean isRunning() {
+        return running;
+    }
+
+    @Override
     public Boolean start(String... additionalParams) {
 
         boolean isStarted = isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()));
 
         if (isStarted) {
             LOG.info("Ethereum was already running");
-            return true;
+            this.running = true;
+            return running;
         }
 
         List<String> commands = createGethCommand(additionalParams);
@@ -273,7 +273,6 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
         builder.inheritIO();
 
         String dataDir = gethConfig.getDataDirPath();
-        Boolean started = false;
         Process process;
         try {
             File dataDirectory = new File(dataDir);
@@ -296,9 +295,9 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
                 writePidToFile(pid, gethConfig.getGethPidFilename());
             }
 
-            started = checkGethStarted();
+            running = checkGethStarted();
 
-            if (started && newGethInstall) {
+            if (running && newGethInstall) {
                 BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
                 init.run();
             }
@@ -307,18 +306,19 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
 
         } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
-            started = false;
+            running = false;
         }
 
         this.blockScanner = applicationContext.getBean(BlockScanner.class);
         blockScanner.start();
 
-        if (started) {
+        if (running) {
             LOG.info("Ethereum started ...");
         } else {
             LOG.error("Ethereum has NOT been started...");
         }
-        return started;
+
+        return running;
     }
 
     private List<String> createGethCommand(String... additionalParams) {
@@ -436,12 +436,4 @@ public class GethHttpServiceImpl implements GethHttpService, ApplicationListener
         return false;
     }
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (autoStartFired) {
-            return;
-        }
-        autoStartFired = true;
-        autoStart();
-    }
 }

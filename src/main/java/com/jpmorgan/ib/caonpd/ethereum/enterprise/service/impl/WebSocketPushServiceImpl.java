@@ -10,6 +10,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WebSocketAsyncPushService;
@@ -50,6 +51,9 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 
 	@Autowired(required = false)
 	private SimpMessagingTemplate template;
+
+	@Autowired
+	private GethHttpService geth;
 
 	@Autowired
 	private ContractService contractService;
@@ -93,7 +97,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Override
 	// @Scheduled(fixedDelay = 5000)
 	public void pushContracts() throws APIException {
-		if (openedSessions <= 0) {
+		if (openedSessions <= 0 || !geth.isRunning()) {
 		    return;
 		}
 
@@ -108,7 +112,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Override
 	@Scheduled(fixedDelay = 5000)
 	public void pushNodeStatus() throws APIException {
-		if (openedSessions <= 0) {
+		if (openedSessions <= 0 || !geth.isRunning()) {
 		    return;
 		}
 
@@ -127,7 +131,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Override
 	@Scheduled(fixedDelay = 5000)
 	public void pushLatestBlocks() throws APIException {
-		if (openedSessions <= 0) {
+		if (openedSessions <= 0 || !geth.isRunning()) {
 		    return;
 		}
 
@@ -154,7 +158,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Override
 	//@Scheduled(fixedDelay = 5000)
 	public void pushPendingTransactions() throws APIException {
-		if (openedSessions <= 0) {
+		if (openedSessions <= 0 || !geth.isRunning()) {
 		    return;
 		}
 
@@ -169,7 +173,7 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 	@Override
 	@Scheduled(fixedDelay = 200)
 	public void pushTransactions() throws APIException {
-		if (openedSessions <= 0 || transactionsMap.isEmpty()) {
+		if (openedSessions <= 0 || transactionsMap.isEmpty() || !geth.isRunning()) {
 		    return;
 		}
 

@@ -39,8 +39,10 @@ public class ProcessUtils {
         final Map<String, String> env = builder.environment();
         env.put("PATH", prefixPathStr(gethConfig.getBinPath() + File.pathSeparator + solcDir, env.get("PATH")));
 
-        LOG.info("PATH=" + env.get("PATH"));
-        LOG.info(Joiner.on(" ").join(builder.command()));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("PATH=" + env.get("PATH"));
+            LOG.debug(Joiner.on(" ").join(builder.command()));
+        }
 
         // libgmp is no longer used, but keep this in place anyway, just in case
         // we need to add some other dynamic libs later

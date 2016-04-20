@@ -44,6 +44,13 @@ public interface GethHttpService {
     public Boolean stop();
 
     /**
+     * Returns the current node status
+     *
+     * @return
+     */
+    public Boolean isRunning();
+
+    /**
      * Reset the Geth data directory and restart the node
      *
      * @return
