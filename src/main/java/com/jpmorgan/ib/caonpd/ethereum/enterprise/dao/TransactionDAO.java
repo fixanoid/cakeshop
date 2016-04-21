@@ -83,8 +83,11 @@ public class TransactionDAO {
     }
 
     public void reset() {
-        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Transaction_logs\"").executeUpdate();
-        getCurrentSession().createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
+        Session session = getCurrentSession();
+        session.createSQLQuery("DELETE FROM PUBLIC.\"Transaction_logs\"").executeUpdate();
+        session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
+        session.flush();
+        session.clear();
     }
 
 }

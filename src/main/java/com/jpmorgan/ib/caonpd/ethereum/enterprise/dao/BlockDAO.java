@@ -66,9 +66,12 @@ public class BlockDAO {
     }
 
     public void reset() {
-        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Block_transactions\"").executeUpdate();
-        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.\"Block_uncles\"").executeUpdate();
-        getCurrentSession().createSQLQuery("DELETE FROM PUBLIC.BLOCKS").executeUpdate();
+        Session session = getCurrentSession();
+        session.createSQLQuery("DELETE FROM PUBLIC.\"Block_transactions\"").executeUpdate();
+        session.createSQLQuery("DELETE FROM PUBLIC.\"Block_uncles\"").executeUpdate();
+        session.createSQLQuery("DELETE FROM PUBLIC.BLOCKS").executeUpdate();
+        session.flush();
+        session.clear();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.db;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.DatabaseConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -45,6 +46,9 @@ public class BlockScanner extends Thread {
 
     @Autowired
     private TransactionDAO txDAO;
+
+    @Autowired
+    private DatabaseConfig dbConfig;
 
     @Autowired
     private NodeService nodeService;
@@ -160,7 +164,7 @@ public class BlockScanner extends Thread {
 
         // Search for ContractRegistry address in first two blocks
         boolean found = false;
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < 10; i++) {
             try {
                 Block block = blockService.get(null, Integer.valueOf(i).longValue(), null);
                 if (block != null && block.getTransactions() != null && !block.getTransactions().isEmpty()) {
@@ -187,6 +191,7 @@ public class BlockScanner extends Thread {
 
         // flush db
         LOG.info("Flushing DB");
+//        dbConfig.reset();
         blockDAO.reset();
         txDAO.reset();
 
