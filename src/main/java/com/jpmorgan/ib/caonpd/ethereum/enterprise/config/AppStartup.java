@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.config;
 
+import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
@@ -8,6 +9,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,10 +95,10 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         System.out.println();
         System.out.println(getDebugInfo(null));
 
-
         System.out.println("PRINTING ERROR LIST");
         System.out.println();
         System.out.println(getErrorInfo());
+
 
         System.out.println();
         System.out.println(StringUtils.repeat("*", 80));
@@ -105,15 +107,6 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     private void printWelcomeMessage() {
-        System.out.println();
-        System.out.println();
-
-        System.out.println("PRINTING DEBUG INFO");
-        System.out.println();
-        System.out.println(getDebugInfo(null));
-
-        System.out.println();
-        System.out.println();
     }
 
     public void autoStartGeth() {
@@ -144,6 +137,8 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         out.append("os.arch: " + SystemUtils.OS_ARCH + "\n");
         out.append("\n");
 
+        out.append(getLinuxInfo());
+
         out.append("user.dir: " + SystemUtils.getUserDir() + "\n");
         out.append("user.home: " + SystemUtils.getUserHome() + "\n");
         out.append("\n");
@@ -172,6 +167,54 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         }
 
         return out.toString();
+    }
+
+    private String getLinuxInfo() {
+
+        if (!SystemUtils.IS_OS_LINUX) {
+            return null;
+        }
+
+        // lists all the files ending with -release in the etc folder
+        File dir = new File("/etc/");
+        List<File> files = new ArrayList<>();
+
+        if (dir.exists()) {
+            files.addAll(Lists.newArrayList(dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String filename) {
+                    return filename.endsWith("release");
+                }
+            })));
+        }
+
+        // looks for the version file (not all linux distros)
+        File fileVersion = new File("/proc/version");
+        if (fileVersion.exists()) {
+            files.add(fileVersion);
+        }
+
+        if (files.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder str = new StringBuilder();
+
+        str.append("\n\n");
+        str.append("Linux release info:");
+
+        // prints all the version-related files
+        for (File f : files) {
+            try {
+                String ver = FileUtils.readFileToString(f);
+                if (!StringUtils.isBlank(ver)) {
+                    str.append(ver);
+                }
+            } catch (IOException e) {
+            }
+        }
+        str.append("\n\n");
+        return str.toString();
     }
 
     public String getErrorInfo() {
@@ -287,6 +330,8 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
             if (proc.exitValue() != 0) {
                 addError("Process exited with code " + proc.exitValue() + " while running " + args[0]);
+                addError(stdout.getString());
+                addError(stderr.getString());
                 return null;
             }
 
