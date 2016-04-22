@@ -35,6 +35,7 @@
 
     function loadAccounts() {
         Account.list().then(function(accounts) {
+            Sandbox.accounts = accounts;
             var s = '<table class="table">';
             accounts.forEach(function(a) {
                 s += '<tr>';
@@ -105,9 +106,21 @@
         return s;
     }
 
+    function accountsDropDown() {
+        var s = '<tr>';
+        s += '<td colspan="2" class="from_address">FROM ADDRESS<br/>';
+        s += '<select class="accounts">';
+        Sandbox.accounts.forEach(function(a) {
+            s += "<option>" + a.get("address") + "</option>";
+        });
+        s += '</select>';
+        s += '</td>';
+        s += '</tr>';
+        return s;
+    }
+
     function showTransactForm() {
         $(".transact .send").off("click");
-        $(".transact .panel-body").empty();
 
         var abi = activeContract.abi;
         if (!abi) {
@@ -118,6 +131,8 @@
 
         var s = '<table class="table">';
 
+        s += accountsDropDown();
+
         abi.forEach(function(method) {
             if (method.type !== "function") {
                 return;
@@ -125,11 +140,14 @@
             s += wrapFunction(method);
         });
         s += '</table>';
-        $(".transact .panel-body").append(s);
+
+        $(".transact table").remove();
+        $(".transact").append(s);
 
         $(".transact .send").click(function(e) {
             e.preventDefault();
             var tr = $(e.target).parents("tr");
+            var fromAddr = $(".transact select.accounts").val();
             var methodName = $(e.target).attr("data-method");
             var method = activeContract.getMethod(methodName);
             var params = {};
@@ -137,26 +155,26 @@
                 el = $(el);
                 params[el.attr("data-param")] = el.val();
             });
-            doMethodCall(activeContract, method, params);
+            doMethodCall(activeContract, fromAddr, method, params);
             return false;
         });
 
     }
 
-    function doMethodCall(contract, method, params) {
+    function doMethodCall(contract, from, method, params) {
         var _params = _.map(params, function(v, k) { return v; });
         var _sig_params = _.map(params, function(v, k) { return JSON.stringify(v); }).join(", ");
         var method_sig = method.name + "(" + _sig_params + ")";
 
         if (method.constant === true) {
-            activeContract.proxy[method.name].apply(null, _params).then(function(res) {
+            activeContract.proxy[method.name]({from: from, args: _params}).then(function(res) {
                 addTx("[read] " + method_sig + " => " + JSON.stringify(res), null);
             }, function(err) {
                 addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
 
         } else {
-            activeContract.proxy[method.name].apply(null, _params).then(function(txId) {
+            activeContract.proxy[method.name]({from: from, args: _params}).then(function(txId) {
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
@@ -528,6 +546,7 @@
     shrinkify(".transact");
 
     Sandbox.showTxView = showTxView;
+    Sandbox.accounts = [];
 
     $(function() {
         showTxView(); // default view

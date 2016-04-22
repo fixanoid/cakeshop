@@ -52,10 +52,10 @@
                             // base64 decode bytes
                             ret.push(Sandbox.decodeBytes(result));
                         } else if (output.type.match(/^bytes\d+\[\d*\]$/) && _.isArray(result)) {
-                            console.log("decoding result bytes32[]", result);
+                            // console.log("decoding result bytes32[]", result);
                             // base64 decode arrays of bytes
                             result = _.map(result, function(v) { return Sandbox.decodeBytes(v); });
-                            console.log("decoded ", result);
+                            // console.log("decoded ", result);
                             ret.push(result);
                         } else {
                             // all other input types, just accumulate
@@ -70,19 +70,24 @@
                 }
 
                 // attach method to proxy
-                proxy[method.name] = function() {
+                proxy[method.name] = function(options) {
+                    if (_.isNull(options) || _.isUndefined(options)) {
+                        options = {from: null, args: []};
+                    }
+
                     // process arguments based on ABI
-                    var args = processInputArgs(Array.apply(null, arguments));
+                    options.args = processInputArgs(options.args);
+                    options.method = method.name;
 
                     return new Promise(function(resolve, reject) {
                         if (method.constant === true) {
-                            contract.read(method.name, args).then(function(res) {
+                            contract.read(options).then(function(res) {
                                 resolve(processOutputArgs(res));
                             }, function(err) {
                                 reject(err);
                             });
                         } else {
-                            contract.transact(method.name, args).then(function(txId) {
+                            contract.transact(options).then(function(txId) {
                                 resolve(txId);
                             }, function(err) {
                                 reject(err);
@@ -150,14 +155,15 @@
          * NOTE: this is a low-level method and not generally meant to be
          *       called directly. Instead, use the proxy method.
          */
-        read: function(method, args) {
+        read: function(options) {
             var contract = this;
             return new Promise(function(resolve, reject) {
                 Client.post(contract.url('read'),
                     {
+                        from: options.from,
                         id: contract.id,
-                        method: method,
-                        args: args
+                        method: options.method,
+                        args: options.args
                     }
                 ).done(function(res, status, xhr) {
                     resolve(res.data); // return read result
@@ -176,14 +182,15 @@
          * NOTE: this is a low-level method and not generally meant to be
          *       called directly. Instead, use the proxy method.
          */
-        transact: function(method, args) {
+        transact: function(options) {
             var contract = this;
             return new Promise(function(resolve, reject) {
                 Client.post(contract.url('transact'),
                     {
+                        from: options.from,
                         id: contract.id,
-                        method: method,
-                        args: args
+                        method: options.method,
+                        args: options.args
                     }
                 ).done(function(res, status, xhr) {
                     resolve(res.data.id); // return tx id
