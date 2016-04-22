@@ -92,8 +92,12 @@
 }
 
 /* TX VIEW */
-.shrink {
+.shrink, .trash {
     cursor: pointer;
+}
+
+.trash {
+    padding-right: 3px;
 }
 
 .papertape div.tx {
@@ -116,7 +120,7 @@
 }
 
 .papertape .panel-body {
-    max-height: 700px;
+    max-height: 600px;
     overflow-y: auto;
 }
 

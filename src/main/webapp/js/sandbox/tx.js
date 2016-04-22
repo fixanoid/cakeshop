@@ -518,6 +518,10 @@
         });
     }
 
+    $(".trash").click(function(e) {
+		$(".papertape .panel-body").empty();
+    });
+
     shrinkify(".select_contract");
     shrinkify(".state");
     shrinkify(".papertape");
