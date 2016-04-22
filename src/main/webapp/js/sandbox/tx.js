@@ -10,6 +10,7 @@
         if ($(".select_contract .contracts select option").length <= 1) {
             loadContracts();
         }
+        loadAccounts();
         // showCompiledContracts();
         $(".col3").scrollToFixed();
     }
@@ -31,6 +32,22 @@
         }
         showCompiledContracts(contracts);
     });
+
+    function loadAccounts() {
+        Account.list().then(function(accounts) {
+            var s = '<table class="table">';
+            accounts.forEach(function(a) {
+                s += '<tr>';
+                s += '<td>' + a.get("address") + '</td>';
+                s += '<td class="text-right">' + a.humanBalance() + '</td>';
+                s += '</tr>';
+            });
+            s += '</table>';
+
+            $(".panel.accounts .table").remove();
+            $(".panel.accounts").append(s);
+        });
+    }
 
     function loadContracts() {
         // show deployed contracts (via registry)

@@ -1,13 +1,15 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.controller;
 
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.JsonMethodArgumentResolver;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Account;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
+
+import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,13 +32,13 @@ public class WalletController extends BaseController {
     public ResponseEntity<APIResponse> getAccounts() throws APIException {
 
         APIResponse res = new APIResponse();
-        APIData data = new APIData();
 
         List<Account> accounts = walletService.list();
-
-        if(accounts != null){
-            data.setAttributes(accounts);
-            data.setType("wallet");
+        if (accounts != null) {
+            List<APIData> data = new ArrayList<>();
+            for (Account a : accounts) {
+               data.add(new APIData(a.getAddress(), "wallet", a));
+            }
             res.setData(data);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
