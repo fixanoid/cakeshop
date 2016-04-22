@@ -11,6 +11,7 @@
             loadContracts();
         }
         // showCompiledContracts();
+        $(".col3").scrollToFixed();
     }
 
     var events_enabled = true;
@@ -132,7 +133,7 @@
 
         if (method.constant === true) {
             activeContract.proxy[method.name].apply(null, _params).then(function(res) {
-                addTx("[read] " + method_sig + " => " + JSON.stringify(res), null, true);
+                addTx("[read] " + method_sig + " => " + JSON.stringify(res), null);
             }, function(err) {
                 addTx("[read] " + method_sig + " => [ERROR]" + err);
             });
@@ -263,15 +264,11 @@
         return '<span class="addr" title="' + addr + '">' + trunc(addr) + '</span>';
     }
 
-    function addTx(message, date, scroll) {
+    function addTx(message, date) {
         date = date ? moment(date) : moment();
         var timestamp = '<span class="time pull-right">' + date.format("hh:mm:ss A") + '</span>';
         var div = '<div class="tx">' + timestamp + message + '</div>';
 		$(".papertape .panel-body").append(div);
-
-        if (scroll === true) {
-            $(".papertape .panel-body .tx:last-child").scrollintoview();
-        }
     }
 
     function setActiveContract(c) {

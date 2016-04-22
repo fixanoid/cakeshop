@@ -2,7 +2,6 @@
 .container-fs {
     margin: 0;
     padding: 0;
-    height: 100%;
     width: 100%;
     overflow: hidden;
 }
@@ -11,18 +10,25 @@
     padding-left: 0;
     padding-right: 0;
     display: inline-block;
-    min-width: 500px;
+    width: 100%;
+    height: 100%;
 }
 
 #sidebar {
     padding-left: 15px;
     padding-right: 0;
     display: inline-block;
-    min-width: 330px;
+    width: 100%;
+    /*height: 100%;*/
 }
 
 .editor {
    border-right:3px #eee solid;
+}
+
+.container-fs .col-md-6, .container-fs .col-md-3 {
+    padding-right: 5px;
+    padding-left: 5px;
 }
 
 /*
@@ -77,6 +83,10 @@
     padding-top: 10px;
 }
 
+.sidebar-right {
+    padding-right: 25px;
+}
+
 #editor_input {
     height: 300px;
 }
@@ -103,6 +113,11 @@
 
 .papertape div.tx .addr, .papertape div.tx .tx, .papertape div.tx .block {
     font-weight: bold;
+}
+
+.papertape .panel-body {
+    max-height: 700px;
+    overflow-y: auto;
 }
 
 .transact .table td.send {
