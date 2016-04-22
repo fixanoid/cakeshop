@@ -75,7 +75,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
     public void testCreate() throws IOException {
         String code = readTestFile("contracts/simplestorage.sol");
 
-        TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
+        TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());
@@ -89,7 +89,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
         Contract c = contracts.get(0);
         assertNotNull(c);
 
-        TransactionResult result = contractService.create(code, CodeType.solidity, null, c.getBinary());
+        TransactionResult result = contractService.create(null, code, CodeType.solidity, null, c.getBinary());
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());
@@ -117,7 +117,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    String contractAddress = createContract();
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
 
-	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null, null)[0];
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 100);
 	}
 
@@ -125,7 +125,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	public void testReadBytesArr() throws InterruptedException, IOException {
 	    String addr = createContract(readTestFile("contracts/testbytesarr.sol"), null);
 	    ContractABI abi = new ContractABI(readTestFile("contracts/testbytesarr.abi.txt"));
-	    Object[] res = (Object[]) contractService.read(addr, abi, "foo", null, null)[0];
+	    Object[] res = (Object[]) contractService.read(addr, abi, null, "foo", null, null)[0];
 	    assertNotNull(res);
 	    assertEquals(res.length, 1);
 	    assertEquals(new String((byte[]) res[0]).trim(), "foobar");
@@ -140,11 +140,11 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage2.abi.txt"));
 
-	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null, null)[0];
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 500);
 
 
-	    String owner = (String) contractService.read(contractAddress, abi, "owner", null, null)[0];
+	    String owner = (String) contractService.read(contractAddress, abi, null, "owner", null, null)[0];
 	    assertEquals(owner, "0xce731fb824c1dd64d79359e1cfdc5fc742157d3c");
 	}
 
@@ -163,7 +163,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 
 	    Object[] res = contractService.read(
-	            contractAddress, abi,
+	            contractAddress, abi, null,
 	            "echo_2",
 	            new Object[] { addr, str },
 	            null);
@@ -176,7 +176,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 
 	    Object[] res2 = contractService.read(
-	            contractAddress, abi,
+	            contractAddress, abi, null,
 	            "echo_contract",
 	            new Object[] { contractAddress, "SimpleStorage", json, code, "solidity" },
 	            null);
@@ -194,19 +194,19 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
 
 	    // 100 to start
-	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null, null)[0];
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 100);
 
 	    // modify value
-	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
+	    TransactionResult tr = contractService.transact(contractAddress, abi, null, "set", new Object[]{ 200 });
 	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 
 	    // should now be 200
-	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, "get", null, null)[0];
+	    BigInteger val2 = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val2.intValue(), 200);
 
 	    // read the previous value
-	    BigInteger valPrev = (BigInteger) contractService.read(contractAddress, abi, "get", null, tx.getBlockNumber()-1)[0];
+	    BigInteger valPrev = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, tx.getBlockNumber()-1)[0];
 	    assertEquals(valPrev.intValue(), 100);
 	}
 
@@ -217,11 +217,11 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
 
 	    // 100 to start
-	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, "get", null, null)[0];
+	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 100);
 
 	    // modify value
-	    TransactionResult tr = contractService.transact(contractAddress, abi, "set", new Object[]{ 200 });
+	    TransactionResult tr = contractService.transact(contractAddress, abi, null, "set", new Object[]{ 200 });
 	    Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
 
 	    ((TestBlockScanner) blockScanner).manualRun();

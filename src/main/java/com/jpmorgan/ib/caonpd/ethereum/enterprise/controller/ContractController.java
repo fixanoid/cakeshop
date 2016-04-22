@@ -86,13 +86,14 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/create")
     public ResponseEntity<APIResponse> create(
+            @JsonBodyParam String from,
             @JsonBodyParam String code,
             @JsonBodyParam String code_type,
             @JsonBodyParam Object[] args,
             @JsonBodyParam String binary,
             @JsonBodyParam(required=false) Boolean optimize) throws APIException {
 
-        TransactionResult tx = contractService.create(code, CodeType.valueOf(code_type), args, binary);
+        TransactionResult tx = contractService.create(from, code, CodeType.valueOf(code_type), args, binary);
 
         APIResponse res = new APIResponse();
 
@@ -119,6 +120,7 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/read")
     public ResponseEntity<APIResponse> read(
+            @JsonBodyParam String from,
             @JsonBodyParam String id,
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args,
@@ -127,7 +129,7 @@ public class ContractController extends BaseController {
         ContractABI abi = lookupABI(id);
         args = decodeArgs(abi.getFunction(method), args);
 
-        Object result = contractService.read(id, abi, method, args, blockNumber);
+        Object result = contractService.read(id, abi, from, method, args, blockNumber);
         APIResponse res = new APIResponse();
         res.setData(result);
 
@@ -153,6 +155,7 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/transact")
     public ResponseEntity<APIResponse> transact(
+            @JsonBodyParam String from,
             @JsonBodyParam String id,
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
@@ -160,7 +163,7 @@ public class ContractController extends BaseController {
         ContractABI abi = lookupABI(id);
         args = decodeArgs(abi.getFunction(method), args);
 
-        TransactionResult tr = contractService.transact(id, abi, method, args);
+        TransactionResult tr = contractService.transact(id, abi, from, method, args);
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 

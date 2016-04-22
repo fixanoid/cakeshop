@@ -32,7 +32,7 @@ public interface ContractRegistryService {
      * @return {@link TransactionResult} The id of the registration transaction
      * @throws APIException
      */
-    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException;
+    public TransactionResult register(String from, String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException;
 
     /**
      * Lookup a contract in the registry by ID (address hash)

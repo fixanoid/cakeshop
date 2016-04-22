@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class ContractServiceImpl implements ContractService {
             try {
                 contract.setAddress(tx.getContractAddress());
                 LOG.info("Registering newly mined contract at address " + contract.getAddress());
-                contractRegistry.register(tx.getContractAddress(), contract.getName(), contract.getABI(),
+                contractRegistry.register(contract.getOwner(), tx.getContractAddress(), contract.getName(), contract.getABI(),
                         contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
             } catch (APIException e) {
                 LOG.warn("Failed to register contract at address " + tx.getContractAddress(), e);
@@ -105,6 +106,8 @@ public class ContractServiceImpl implements ContractService {
 
 	@Autowired
 	private WalletService walletService;
+
+	private String defaultFromAddress;
 
 	@Autowired
 	@Qualifier("asyncExecutor")
@@ -186,7 +189,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public TransactionResult create(String code, CodeType codeType, Object[] args, String binary) throws APIException {
+    public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary) throws APIException {
 
         List<Contract> contracts = compile(code, codeType, true); // always deploy optimized contracts
 
@@ -209,6 +212,8 @@ public class ContractServiceImpl implements ContractService {
             contract = contracts.get(0);
         }
 
+        contract.setOwner(from);
+
 
         // handle constructor args
         String data = contract.getBinary();
@@ -228,7 +233,7 @@ public class ContractServiceImpl implements ContractService {
 
 
 		Map<String, Object> contractArgs = new HashMap<String, Object>();
-		contractArgs.put("from", walletService.list().get(0).getAddress());
+		contractArgs.put("from", getAddress(from));
 		contractArgs.put("data", data);
 		contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
 
@@ -279,13 +284,13 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	@Override
-	public Object[] read(String id, String method, Object[] args, Object blockNumber) throws APIException {
-	    return read(id, lookupABI(id), method, args, blockNumber);
+	public Object[] read(String id, String from, String method, Object[] args, Object blockNumber) throws APIException {
+	    return read(id, lookupABI(id), from, method, args, blockNumber);
 	}
 
 	@Override
-	public Object[] read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException {
-	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args, true);
+	public Object[] read(String id, ContractABI abi, String from, String method, Object[] args, Object blockNumber) throws APIException {
+	    TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, true);
 
 	    if (blockNumber != null) {
 	        if (!(blockNumber instanceof Number || blockNumber instanceof String)) {
@@ -302,13 +307,13 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	@Override
-	public TransactionResult transact(String id, String method, Object[] args) throws APIException {
-	    return transact(id, lookupABI(id), method, args);
+	public TransactionResult transact(String id, String from, String method, Object[] args) throws APIException {
+	    return transact(id, lookupABI(id), from, method, args);
 	}
 
 	@Override
-	public TransactionResult transact(String id, ContractABI abi, String method, Object[] args) throws APIException {
-	    TransactionRequest req = new TransactionRequest(walletService.list().get(0).getAddress(), id, abi, method, args, false);
+	public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException {
+	    TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, false);
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
 	    return new TransactionResult((String) readRes.get("_result"));
@@ -332,6 +337,16 @@ public class ContractServiceImpl implements ContractService {
 	    }
 
 	    return txns;
+	}
+
+	private String getAddress(String from) throws APIException {
+	    if (StringUtils.isNotBlank(from)) {
+	        return from;
+	    }
+        if (defaultFromAddress == null) {
+            defaultFromAddress = walletService.list().get(0).getAddress();
+        }
+        return defaultFromAddress;
 	}
 
 	private ContractABI lookupABI(String id) throws APIException {

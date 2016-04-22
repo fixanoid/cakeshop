@@ -55,7 +55,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(contract.getCreatedDate(), createdDate);
 	    assertEquals(contract.getName(), "SimpleStorage");
 
-	    BigInteger val = (BigInteger) contractService.read(addr, "get", null, null)[0];
+	    BigInteger val = (BigInteger) contractService.read(addr, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 100);
 	}
 
@@ -68,7 +68,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 
     private void registerContract(String addr, String abi, String code, Long createdDate)
             throws APIException, InterruptedException {
-        TransactionResult tr = contractRegistry.register(addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
+        TransactionResult tr = contractRegistry.register(null, addr, "SimpleStorage", abi, code, CodeType.solidity, createdDate);
 	    assertNotNull(tr);
 	    assertNotNull(tr.getId());
 	    assertTrue(!tr.getId().isEmpty());

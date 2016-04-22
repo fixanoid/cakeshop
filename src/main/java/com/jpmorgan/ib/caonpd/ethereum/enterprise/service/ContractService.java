@@ -36,6 +36,7 @@ public interface ContractService {
 	/**
 	 * Deploy the given contract onto the chain and add it to the Contract Registry
 	 *
+	 * @param from         From address to register with
 	 * @param code
 	 * @param codeType
 	 * @param args         Optional constructor arguments (if needed)
@@ -44,7 +45,7 @@ public interface ContractService {
 	 * @return
 	 * @throws APIException
 	 */
-	public TransactionResult create(String code, CodeType codeType, Object[] args, String binary) throws APIException;
+	public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary) throws APIException;
 
 	/**
 	 * Delete the given contract. Not yet implemented.
@@ -95,6 +96,7 @@ public interface ContractService {
 	 * number in the past. Will automatically lookup the contract's ABI in the registry.
 	 *
 	 * @param id                  Contract ID (address hash)
+	 * @param from                From address
 	 * @param method              Method name
 	 * @param args                Optional method arguments
 	 * @param blockNumber         Block from which to read state from (Optional, defaults to latest)
@@ -103,7 +105,7 @@ public interface ContractService {
 	 *
 	 * @throws APIException
 	 */
-	public Object[] read(String id, String method, Object[] args, Object blockNumber) throws APIException;
+	public Object[] read(String id, String from, String method, Object[] args, Object blockNumber) throws APIException;
 
 	/**
 	 * Read contract data using the given method and arguments (does not create
@@ -112,6 +114,7 @@ public interface ContractService {
 	 *
 	 * @param id                  Contract ID (address hash)
 	 * @param abi                 Contract ABI
+	 * @param from                From address
 	 * @param method              Method name
 	 * @param args                Optional method arguments
 	 * @param blockNumber         Block from which to read the state from (Optional, defaults to latest)
@@ -120,13 +123,14 @@ public interface ContractService {
 	 *
 	 * @throws APIException
 	 */
-	public Object[] read(String id, ContractABI abi, String method, Object[] args, Object blockNumber) throws APIException;
+	public Object[] read(String id, ContractABI abi, String from, String method, Object[] args, Object blockNumber) throws APIException;
 
 	/**
 	 * Call a transactional method on the given contract. No state will change
 	 * until the transaction is committed into a Block.
 	 *
 	 * @param id                  Contract ID (address hash)
+	 * @param from                From address
 	 * @param method              Method name
 	 * @param args                Optional method arguments
 	 *
@@ -134,7 +138,7 @@ public interface ContractService {
 	 *
 	 * @throws APIException
 	 */
-	public TransactionResult transact(String id, String method, Object[] args) throws APIException;
+	public TransactionResult transact(String id, String from, String method, Object[] args) throws APIException;
 
 	/**
 	 * Call a transactional method on the given contract. No state will change
@@ -142,6 +146,7 @@ public interface ContractService {
 	 *
 	 * @param id                  Contract ID (address hash)
 	 * @param abi                 Contract ABI
+	 * @param from                From address
 	 * @param method              Method name
 	 * @param args                Optional method arguments
 	 *
@@ -149,6 +154,6 @@ public interface ContractService {
 	 *
 	 * @throws APIException
 	 */
-	public TransactionResult transact(String id, ContractABI abi, String method, Object[] args) throws APIException;
+	public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException;
 
 }

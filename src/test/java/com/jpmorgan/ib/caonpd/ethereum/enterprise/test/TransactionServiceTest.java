@@ -30,7 +30,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 	public void testGet() throws IOException {
 		String code = readTestFile("contracts/simplestorage.sol");
 
-		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
+		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 		assertNotNull(result);
 		assertNotNull(result.getId());
 		assertTrue(!result.getId().isEmpty());
@@ -46,8 +46,8 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 	public void testGetBatch() throws IOException, InterruptedException {
 
 		String code = readTestFile("contracts/simplestorage.sol");
-		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
-		TransactionResult result2 = contractService.create(code, ContractService.CodeType.solidity, null, null);
+		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
+		TransactionResult result2 = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 
     	List<Transaction> txns = transactionService.get(Lists.newArrayList(result.getId(), result2.getId()));
     	assertNotNull(txns);
@@ -66,7 +66,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		String code = readTestFile("contracts/simplestorage.sol");
 	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
 
-		TransactionResult result = contractService.create(code, ContractService.CodeType.solidity, null, null);
+		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 		assertNotNull(result);
 		assertNotNull(result.getId());
 
@@ -74,7 +74,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 
 		// stop mining and submit tx
     	Map<String, Object> res = geth.executeGethCall("miner_stop", new Object[]{ });
-	    TransactionResult tr = contractService.transact(createTx.getContractAddress(), abi, "set", new Object[]{ 200 });
+	    TransactionResult tr = contractService.transact(createTx.getContractAddress(), abi, null, "set", new Object[]{ 200 });
 
 		Transaction tx = transactionService.get(tr.getId());
 		assertNotNull(tx);

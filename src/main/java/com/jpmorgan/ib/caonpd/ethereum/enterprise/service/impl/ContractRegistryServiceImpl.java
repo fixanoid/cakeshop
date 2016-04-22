@@ -58,7 +58,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         try {
             String code = FileUtils.readClasspathFile("contracts/ContractRegistry.sol");
-            TransactionResult txr = contractService.create(code, CodeType.solidity, null, null);
+            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null);
             Transaction tx = transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
             this.contractRegistryAddress = tx.getContractAddress();
             saveContractRegistryAddress(this.contractRegistryAddress);
@@ -82,7 +82,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     }
 
     @Override
-    public TransactionResult register(String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
+    public TransactionResult register(String from, String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
 
         if (name.equalsIgnoreCase("ContractRegistry") ||
                 this.contractRegistryAddress == null || this.contractRegistryAddress.isEmpty()) {
@@ -93,7 +93,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
         }
 
         return contractService.transact(
-                contractRegistryAddress, this.abi,
+                contractRegistryAddress, this.abi, from,
                 "register",
                 new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
@@ -102,7 +102,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     public Contract getById(String id) throws APIException {
 
         Object[] res = contractService.read(
-                contractRegistryAddress, this.abi,
+                contractRegistryAddress, this.abi, null,
                 "getById",
                 new Object[] { id },
                 null);
@@ -136,7 +136,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     public List<Contract> list() throws APIException {
 
         Object[] res = contractService.read(
-                contractRegistryAddress, this.abi,
+                contractRegistryAddress, this.abi, null,
                 "listAddrs", null, null);
 
         Object[] addrs = (Object[]) res[0];

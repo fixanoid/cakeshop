@@ -22,6 +22,11 @@ public class Contract {
     private String name;
 
     /**
+     * Contract owner (address)
+     */
+    private String owner;
+
+    /**
      * Original source code (not yet supported)
      */
     private String code;
@@ -160,4 +165,13 @@ public class Contract {
     public void setFunctionHashes(Map<String, String> functionHashes) {
         this.functionHashes = functionHashes;
     }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
 }
