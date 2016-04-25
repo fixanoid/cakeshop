@@ -206,17 +206,43 @@
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
-                    showCurrentState();
+                    showCurrentState(activeContract._current_state);
                 });
             });
         }
     }
 
-    function showCurrentState() {
+    function showCurrentState(previousState) {
         if (!activeContract) {
             return;
         }
-        activeContract.readState().then(displayStateTable);
+        activeContract.readState().then(function(results) {
+            displayStateTable(results);
+
+            if (!previousState) {
+                return;
+            }
+
+            // diff states and show changes in paper tape
+            var resultHash = {},
+                previousHash = {};
+
+            results.forEach(function(r) { resultHash[r.method.name] = r.result; });
+            previousState.forEach(function(r) { previousHash[r.method.name] = r.result; });
+
+            _.each(resultHash, function(val, key) {
+
+                var pVal = previousHash[key];
+                if (val !== pVal) {
+                    if (_.isUndefined(pVal) || pVal === null) {
+                        addTx("[state] " + key + " = " + JSON.stringify(val));
+                    } else {
+                        addTx("[state] " + key + ": " + JSON.stringify(pVal) + " => " + JSON.stringify(val));
+                    }
+                }
+
+            });
+        });
     }
 
     function displayStateTable(results) {

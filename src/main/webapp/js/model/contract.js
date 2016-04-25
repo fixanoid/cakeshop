@@ -50,9 +50,6 @@
         },
 
         readMappingState: function(results, resolve) {
-
-            console.log("readmappingstate..", results, resolve);
-
             var contract = this;
             var contract_mappings = _.find(
                 Contract.parseSource(contract.get("code")),
@@ -61,8 +58,8 @@
 
             var state = results;
             if (!contract_mappings || contract_mappings.mappings.length <= 0) {
+                contract._current_state = results;
                 return resolve(results);
-                // displayStateTable(results);
             }
 
             state = _.reject(results, function(r) {
@@ -95,8 +92,8 @@
                 Promise.all(promises).then(function(mapping_results) {
                     // convert mapping_results array back into single object
                     data.result = _.reduce(mapping_results, function(memo, r) { return _.extend(memo, r); }, {});
+                    contract._current_state = state;
                     resolve(state);
-                    // displayStateTable(state);
                 });
 
             });
