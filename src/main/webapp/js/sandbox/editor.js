@@ -27,7 +27,10 @@
             }
             resizeEditorHeight();
         });
-        resizeEditorHeight();
+
+        $(function() {
+            resizeEditorHeight();
+        })
 
         return editor;
     };
