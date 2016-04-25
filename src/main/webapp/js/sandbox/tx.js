@@ -216,57 +216,7 @@
         if (!activeContract) {
             return;
         }
-
-        var contract_mappings = _.find(
-            Contract.parseSource(activeContract.get("code")),
-            function(c) { return c.name === activeContract.get("name"); }
-        );
-
-        activeContract.readState().then(function(results) {
-
-            // modify results if we have mappings
-            var state = results;
-            if (contract_mappings && contract_mappings.mappings.length > 0) {
-                state = _.reject(results, function(r) {
-                    var matches = _.find(contract_mappings.mappings, function(m) {
-                        return (r.method.name === m.counter || r.method.name === m.keyset || r.method.name === m.getter); });
-                    if (matches) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-
-                // now that we filtered our special vars out, add back in a mapping var/table
-                contract_mappings.mappings.forEach(function(mapping) {
-                    var data = { method: { name: mapping.var } };
-                    state.push(data);
-
-                    var res = {};
-                    var getter_results = _.find(results, function(r) { return r.method.name === mapping.getter; });
-                    var promises = [];
-                    getter_results.result.forEach(function(gr) {
-                        promises.push(new Promise(function(resolve, reject) {
-                            activeContract.read(mapping.var, [gr]).then(function(mapping_val) {
-                                var d = {};
-                                d[gr] = mapping_val;
-                                resolve(d);
-                            });
-                        }));
-                    });
-                    Promise.all(promises).then(function(mapping_results) {
-                        // convert mapping_results array back into single object
-                        data.result = _.reduce(mapping_results, function(memo, r) { return _.extend(memo, r); }, {});
-                        displayStateTable(state);
-                    });
-
-                });
-            } else {
-                displayStateTable(results);
-            }
-
-
-        });
+        activeContract.readState().then(displayStateTable);
     }
 
     function displayStateTable(results) {

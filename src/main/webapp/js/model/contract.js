@@ -41,7 +41,64 @@
                         }));
                     }
                 });
-                Promise.all(promises).then(resolve, reject);
+                Promise.all(promises).then(
+                    function(results) {
+                        contract.readMappingState(results, resolve);
+                    },
+                    reject);
+            });
+        },
+
+        readMappingState: function(results, resolve) {
+
+            console.log("readmappingstate..", results, resolve);
+
+            var contract = this;
+            var contract_mappings = _.find(
+                Contract.parseSource(contract.get("code")),
+                function(c) { return c.name === contract.get("name"); }
+            );
+
+            var state = results;
+            if (!contract_mappings || contract_mappings.mappings.length <= 0) {
+                return resolve(results);
+                // displayStateTable(results);
+            }
+
+            state = _.reject(results, function(r) {
+                var matches = _.find(contract_mappings.mappings, function(m) {
+                    return (r.method.name === m.counter || r.method.name === m.keyset || r.method.name === m.getter); });
+                if (matches) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            // now that we filtered our special vars out, add back in a mapping var/table
+            contract_mappings.mappings.forEach(function(mapping) {
+                var data = { method: { name: mapping.var } };
+                state.push(data);
+
+                var res = {};
+                var getter_results = _.find(results, function(r) { return r.method.name === mapping.getter; });
+                var promises = [];
+                getter_results.result.forEach(function(gr) {
+                    promises.push(new Promise(function(resolve, reject) {
+                        contract.proxy[mapping.var]({args: [gr]}).then(function(mapping_val) {
+                            var d = {};
+                            d[gr] = mapping_val;
+                            resolve(d);
+                        });
+                    }));
+                });
+                Promise.all(promises).then(function(mapping_results) {
+                    // convert mapping_results array back into single object
+                    data.result = _.reduce(mapping_results, function(memo, r) { return _.extend(memo, r); }, {});
+                    resolve(state);
+                    // displayStateTable(state);
+                });
+
             });
         },
 
@@ -170,6 +227,11 @@
             });
         });
     };
+
+
+
+    //--------------------------------------------------------------------------
+    // Methods for implementing the '##mapping' macro
 
     Contract.preprocess = function(src) {
         var contracts = Contract.parseSource(src);
