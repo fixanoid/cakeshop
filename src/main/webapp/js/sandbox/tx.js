@@ -97,9 +97,9 @@
     }
 
     function wrapFunction(method) {
-        var s = '<tr>';
+        var s = '<tr class="method" data-method="' + method.name + '">';
         s += '<td>' + method.name + '<br/>' + wrapInputs(method) + '</td>';
-        s += '<td class="send"><button class="btn btn-default send" type="submit" data-method="' + method.name + '">';
+        s += '<td class="send"><button class="btn btn-default send" type="submit">';
         s += (method.constant === true ? "Read" : "Transact");
         s += '</button></td>';
         s += '</tr>';
@@ -120,6 +120,7 @@
     }
 
     function showTransactForm() {
+        $(".transact .method").off("click");
         $(".transact .send").off("click");
 
         var abi = activeContract.abi;
@@ -144,12 +145,13 @@
         $(".transact table").remove();
         $(".transact").append(s);
 
-        $(".transact .send").click(function(e) {
+        $(".transact .send button").click(function(e) {
             e.preventDefault();
             var tr = $(e.target).parents("tr");
             var fromAddr = $(".transact select.accounts").val();
-            var methodName = $(e.target).attr("data-method");
-            var method = activeContract.getMethod(methodName);
+            var method = activeContract.getMethod(tr.attr("data-method"));
+            highlightMethod(method);
+
             var params = {};
             $(tr).find("input").each(function(i, el) {
                 el = $(el);
@@ -159,6 +161,32 @@
             return false;
         });
 
+        $(".transact .method").click(function(e) {
+            var el = e.target.tagName === "TR" ? $(e.target) : $(e.target).parents("tr");
+            var methodName = el.attr("data-method");
+            var method = activeContract.getMethod(methodName);
+            highlightMethod(method);
+        });
+
+    }
+
+    function highlightMethod(method) {
+        var lines = Sandbox.getEditorSource().split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            var highlight = false;
+            if (lines[i].match(new RegExp("function\\s+" + method.name + "\\s*\\("))) {
+                highlight = true;
+            } else if (method.constant === true &&
+                    lines[i].match(new RegExp("^\\s*[a-z\\d\\[\\]]+\\s+public\\b.*?" + method.name + "\\s*;"))) {
+
+                highlight = true;
+            }
+            if (highlight) {
+                Sandbox.editor.selection.moveCursorToPosition({row: i, column: 0});
+                Sandbox.editor.selection.selectLine();
+                Sandbox.editor.scrollToLine(i, true, false);
+            }
+        }
     }
 
     function doMethodCall(contract, from, method, params) {
@@ -321,7 +349,7 @@
         if (Sandbox.Filer.get(tabName)) {
             return Sandbox.activateTab(tabName);
         }
-        
+
         var source = c.get("code");
 
         Sandbox.Filer.add(tabName, source);
