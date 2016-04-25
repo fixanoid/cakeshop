@@ -308,9 +308,26 @@
 
     function setActiveContract(c) {
         activeContract = c;
+        showSourceCode(c);
         showTransactForm();
         showCurrentState();
         addTx("using '" + c.get("name") + "' at " + wrapAddr(c.id));
+    }
+
+    function showSourceCode(c) {
+
+        var tabName = c.get("name") + " " + trunc(c.id);
+
+        if (Sandbox.Filer.get(tabName)) {
+            return Sandbox.activateTab(tabName);
+        }
+        
+        var source = c.get("code");
+
+        Sandbox.Filer.add(tabName, source);
+        Sandbox.addFileTab(tabName, true);
+        Sandbox.Filer.add(tabName, source);
+
     }
 
     // Enter contract address
