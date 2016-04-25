@@ -218,7 +218,7 @@
         }
 
         var contract_mappings = _.find(
-            parseContracts(activeContract.get("code")),
+            Contract.parseSource(activeContract.get("code")),
             function(c) { return c.name === activeContract.get("name"); }
         );
 
@@ -369,111 +369,6 @@
         var addr = $(e.target).val();
         $(".select_contract .address input").val(addr).change();
     });
-
-
-    var expose_mapping = function(src, mapping) {
-
-        var counter = mapping.counter = "__" + mapping.var + "_num_ids";
-        var keyset  = mapping.keyset  = "__" + mapping.var + "_ids";
-        var getter  = mapping.getter  = "__get_" + mapping.var + "_ids";
-
-        // skip if the src has already been modified
-        if (src.match(new RegExp(counter))) {
-            return src;
-        }
-
-        var msrc = "";
-
-        src.split(/\n/).forEach(function(line) {
-            var map_set = line.match(new RegExp(mapping.var + "\\[(.*?)\\] *="));
-            if (line.match(new RegExp("^ *\\/\\/ *##mapping +" + mapping.var + "$", "m"))) {
-                msrc += line + "\n";
-                // attach helper vars
-                msrc += "uint public " + counter + ";\n";
-                msrc += mapping.key_type + "[] public " + keyset + ";\n";
-                msrc += "function " + getter + "() public constant returns(" + mapping.key_type + "[] _ids) {\n";
-                msrc += "  return " + keyset + ";\n";
-                msrc += "}\n";
-
-            } else if (map_set) {
-                msrc += line + "\n";
-                msrc += keyset + ".length = ++" + counter + ";\n"; // grow array
-                msrc += keyset + "[" + counter + "-1] = " + map_set[1] + ";"; // store key
-
-            } else {
-                msrc += line + "\n";
-            }
-
-        });
-
-        return msrc;
-    };
-
-    var parseContracts = function(src) {
-        var contracts = [];
-
-        // Find each contract definition
-        var c = [], contract_name;
-        src.split(/\n/).forEach(function(line) {
-            var matches = line.match(/contract +(.*?)( +is.*?)? *\{/);
-            if (matches) {
-                if (c && c.length > 0) { // found a new contract, add prev one to array
-                    contracts.push({name: contract_name, src: c.join("\n")});
-                    c = [];
-                    contract_name = null;
-                }
-
-                contract_name = matches[1];
-                c = [line];
-                if (line.match(/\{[^\{]*?\}/)) { // single-line contract def
-                    contracts.push({name: contract_name, src: c.join("\n")});
-                    c = [];
-                    contract_name = null;
-                }
-            } else {
-                c.push(line);
-            }
-        });
-        if (c && c.length > 0) { // push after EOF
-            contracts.push({name: contract_name, src: c.join("\n")});
-        }
-
-        // search each contract definition for our ##mapping macro
-        contracts.forEach(function(c) {
-            c.mappings = [];
-            var matches = c.src.match(/^ *\/\/ *##mapping +(.+?)$/m);
-            if (matches) {
-                var mapping_var = matches[1];
-
-
-                matches = c.src.match(new RegExp("mapping *\\((.+?) => (.+?)\\) *.*? " + mapping_var + " *;"));
-                if (matches) {
-                    var key_type = matches[1],
-                        val_type = matches[2];
-
-                    var mapping = {
-                        var:      mapping_var,
-                        key_type: key_type,
-                        val_type: val_type
-                    };
-                    c.mappings.push(mapping);
-
-                    // now that we have all the mapping info, modify the original source
-                    c.modified_src = expose_mapping(c.src, mapping);
-                    // console.log(c);
-                }
-            }
-        });
-
-        return contracts;
-    };
-
-    var preprocess = function(src) {
-        var contracts = parseContracts(src);
-        return _.map(contracts, function(c) { return (c.modified_src ? c.modified_src : c.src); }).join("\n");
-    };
-
-
 
     // Select contract to deploy
     $(".select_contract .compiled_contracts select").change(function(e) {
