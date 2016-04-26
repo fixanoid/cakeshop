@@ -15,10 +15,26 @@
         session.setUseSoftTabs(true);
 
         var fs = $(".container-fs");
+        var nav = $("ul.nav");
         function resizeEditorHeight() {
+
+            // resize editor pane
             var editorHeight = fs.height() - $(".filetabs").height() - 5;
             $("#editor_input").height(editorHeight);
         	editor.resize(true);
+
+            var wh = window.innerHeight;
+            var heading = $(".accounts .panel-heading").outerHeight(true);
+
+            // resize col2 panels
+            var c2 = wh - $(".col2").position().top - $(".panel.transact").position().top - 60 - 1; // 1px extra buffer (round down)
+            $(".panel.transact .panel-overflow").css("max-height", c2);
+
+            // resize col3 panels
+            var h = wh - $(".col3").position().top - heading*3 - 40 ; // 40px padding
+            $(".accounts .panel-overflow").css("max-height", h*0.2);
+            $(".state .panel-overflow").css("max-height", h*0.4);
+            $(".papertape .panel-body").css("max-height", h*0.4);
         }
 
         $(window).resize(function(e) {
@@ -28,9 +44,11 @@
             resizeEditorHeight();
         });
 
+        Sandbox.on("col3-reflow", resizeEditorHeight);
+
         $(function() {
             resizeEditorHeight();
-        })
+        });
 
         return editor;
     };

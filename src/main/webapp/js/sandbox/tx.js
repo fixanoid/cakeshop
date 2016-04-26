@@ -11,8 +11,6 @@
             loadContracts();
         }
         loadAccounts();
-        // showCompiledContracts();
-        $(".col3").scrollToFixed();
     }
 
     var events_enabled = true;
@@ -36,17 +34,18 @@
     function loadAccounts() {
         Account.list().then(function(accounts) {
             Sandbox.accounts = accounts;
-            var s = '<table class="table">';
+            var s = '<div class="panel-overflow"><table class="table">';
             accounts.forEach(function(a) {
                 s += '<tr>';
                 s += '<td>' + a.get("address") + '</td>';
                 s += '<td class="text-right">' + a.humanBalance() + '</td>';
                 s += '</tr>';
             });
-            s += '</table>';
+            s += '</table></div>';
 
-            $(".panel.accounts .table").remove();
+            $(".panel.accounts .panel-overflow").remove();
             $(".panel.accounts").append(s);
+            Sandbox.trigger("col3-reflow");
         });
     }
 
@@ -130,7 +129,7 @@
 
         abi = _.sortBy(abi, "name");
 
-        var s = '<table class="table">';
+        var s = '<div class="panel-overflow"><table class="table">';
 
         s += accountsDropDown();
 
@@ -140,9 +139,9 @@
             }
             s += wrapFunction(method);
         });
-        s += '</table>';
+        s += '</table></div>';
 
-        $(".transact table").remove();
+        $(".transact .panel-overflow").remove();
         $(".transact").append(s);
 
         $(".transact .send button").click(function(e) {
@@ -246,7 +245,7 @@
     }
 
     function displayStateTable(results) {
-        var s = '<table class="table">';
+        var s = '<div class="panel-overflow"><table class="table">';
         results.sort(function(a, b) {
             return a.method.name.localeCompare(b.method.name);
         });
@@ -280,10 +279,11 @@
             }
             s += '</td></tr>';
         });
-        s += '</table>';
+        s += '</table></div>';
         try {
-            $(".panel.state .table").remove();
+            $(".panel.state .panel-overflow").remove();
             $(".panel.state").append(s);
+            Sandbox.trigger("col3-reflow");
         } catch (e) {
             console.log(e);
         }
@@ -311,6 +311,9 @@
         var timestamp = '<span class="time pull-right">' + date.format("hh:mm:ss A") + '</span>';
         var div = '<div class="tx">' + timestamp + message + '</div>';
 		$(".papertape .panel-body").append(div);
+		// $(".papertape .panel-body div.tx:last")[0].scrollIntoView();
+        var t = $(".papertape .panel-body")[0];
+        t.scrollTop = t.scrollTopMax;
     }
 
     function setActiveContract(c) {

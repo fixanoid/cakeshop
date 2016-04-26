@@ -100,6 +100,10 @@
     padding-right: 3px;
 }
 
+.papertape .panel-body {
+    padding: 0;
+}
+
 .papertape div.tx {
     padding: 5px;
     border-bottom: 2px dotted transparent;
@@ -119,10 +123,17 @@
     font-weight: bold;
 }
 
-.papertape .panel-body {
-    max-height: 600px;
+.col3 .panel-body, .panel-overflow {
     overflow-y: auto;
 }
+
+.col2 table, .col3 table {
+    margin-bottom: 0;
+}
+
+/*.papertape .panel-body {
+    max-height: 600px;
+}*/
 
 .transact .table td.send {
     text-align: right;
@@ -227,16 +238,6 @@
     display: block;
     clear: both;
     margin-top: 0.5em;
-}
-
-.col1 {
-    width: 30%;
-    float: left;
-}
-
-.col2 {
-    width: 70%;
-    float: left;
 }
 
 input[readonly] {
