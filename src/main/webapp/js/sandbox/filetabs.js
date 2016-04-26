@@ -36,13 +36,16 @@
 
         // Get a list of file names (without prefix)
         list: function() {
-        	var files = [];
-        	for (var f in localStorage) {
-        		if (f.startsWith(SOL_CACHE_FILE_PREFIX) === true) {
-        			files.push(f.replace(SOL_CACHE_FILE_PREFIX, ""));
-        		}
-        	}
-        	return files;
+            var files = [];
+            for (var f in localStorage) {
+                if (f.startsWith(SOL_CACHE_FILE_PREFIX) === true) {
+                    files.push(f.replace(SOL_CACHE_FILE_PREFIX, ""));
+                }
+            }
+            files.sort(function(a, b) {
+                return a.localeCompare(b);
+            });
+            return files;
         },
 
         // Get the source for a given file key

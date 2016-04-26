@@ -247,6 +247,9 @@
 
     function displayStateTable(results) {
         var s = '<table class="table">';
+        results.sort(function(a, b) {
+            return a.method.name.localeCompare(b.method.name);
+        });
         results.forEach(function(r) {
             s += '<tr>';
             s += '<td>' + r.method.name + '</td>';
@@ -375,7 +378,7 @@
                 return false;
             }
 
-        	var editorSource = preprocess(Sandbox.getEditorSource());
+        	var editorSource = Contract.preprocess(Sandbox.getEditorSource());
         	var optimize = document.querySelector('#optimize').checked;
             Contract.compile(editorSource, optimize).then(function(compiler_output) {
                 var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
