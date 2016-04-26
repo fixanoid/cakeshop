@@ -343,6 +343,9 @@
     // Select already deployed contract
     $(".select_contract .contracts select").change(function(e) {
         var addr = $(e.target).val();
+        if (!addr || addr.length == 0) {
+            return;
+        }
         $(".select_contract .address input").val(addr).change();
     });
 
