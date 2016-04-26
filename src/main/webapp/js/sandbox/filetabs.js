@@ -4,7 +4,6 @@
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
     var SOL_CACHE_FILE_PREFIX = 'sol-cache-file-';
-    var SOL_CACHE_UNTITLED = SOL_CACHE_FILE_PREFIX + 'Untitled';
     Sandbox.SOL_CACHE_FILE = null;
 
     var Filer = Sandbox.Filer = {
@@ -20,6 +19,19 @@
         new: function() {
             localStorage.untitled_count = ++this.untitledCount;
             return "Untitled " + this.untitledCount;
+        },
+
+        getUniqueKey: function(prefix) {
+            if (!this.get(prefix)) {
+                return prefix;
+            }
+            var i = 0;
+            while (true) {
+                i++;
+                if (!this.get(prefix + " " + i)) {
+                    return prefix + " " + i;
+                }
+            }
         },
 
         // Get a list of file names (without prefix)
@@ -187,7 +199,12 @@
 
     // export methods
     Sandbox.initFileTabs = initFileTabs;
-    Sandbox.addFileTab = addFileTab;
     Sandbox.activateTab = activateTab;
+    
+    Sandbox.addFileTab = function(filename, source, activate) {
+        Filer.add(filename, source);
+        addFileTab(filename, activate);
+        Filer.add(filename, source);
+    };
 
 })();

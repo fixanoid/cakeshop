@@ -30,10 +30,7 @@
                 i++;
                 fname = name + " " + i;
             }
-            // console.log("using name " + fname);
-            Sandbox.Filer.add(fname, source);
-            Sandbox.addFileTab(fname, true);
-            Sandbox.Filer.add(fname, source);
+            Sandbox.addFileTab(fname, source, true);
         });
     });
 

@@ -319,19 +319,13 @@
     }
 
     function showSourceCode(c) {
-
         var tabName = c.get("name") + " " + trunc(c.id);
 
         if (Sandbox.Filer.get(tabName)) {
             return Sandbox.activateTab(tabName);
         }
 
-        var source = c.get("code");
-
-        Sandbox.Filer.add(tabName, source);
-        Sandbox.addFileTab(tabName, true);
-        Sandbox.Filer.add(tabName, source);
-
+        Sandbox.addFileTab(tabName, c.get("code"), true);
     }
 
     // Enter contract address
