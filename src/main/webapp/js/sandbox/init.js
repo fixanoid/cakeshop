@@ -29,4 +29,13 @@
         return Base64.encode(val);
     };
 
+    Sandbox.queryParams = function() {
+        var params = {};
+        var pairs = window.location.search.substr(1).split("=");
+        while (pairs.length > 0) {
+            params[pairs.shift()] = pairs.shift();
+        }
+        return params;
+    };
+
 })();

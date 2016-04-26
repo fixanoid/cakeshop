@@ -84,9 +84,22 @@
     function initFileTabs() {
         editor = Sandbox.editor;
 
-        var loadingFromGist = Sandbox.loadFromGist();
+        var queryParams = Sandbox.queryParams();
+        var loadingFromGist = Sandbox.loadFromGist(queryParams);
 
-        if (!loadingFromGist && Filer.list().length === 0) {
+        var loadingFromUrl = false;
+        if (queryParams.contract && queryParams.contract.startsWith("0x")) {
+            loadingFromUrl = true;
+            Contract.get(queryParams.contract).then(function(contract) {
+                var fname = contract.get("name") + " " + contract.id.substring(0, 10);
+                if (Filer.get(fname)) {
+                    return activateTab(fname);
+                }
+                Sandbox.addFileTab(fname, contract.get("code"), true);
+            });
+        }
+
+        if (!(loadingFromGist || loadingFromUrl) && Filer.list().length === 0) {
             // Load default file
             Sandbox.loadContract("Ballot.txt").then(function(source) {
                 Filer.add(Filer.new(), source);
@@ -200,7 +213,7 @@
     // export methods
     Sandbox.initFileTabs = initFileTabs;
     Sandbox.activateTab = activateTab;
-    
+
     Sandbox.addFileTab = function(filename, source, activate) {
         Filer.add(filename, source);
         addFileTab(filename, activate);
