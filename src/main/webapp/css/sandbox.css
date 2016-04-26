@@ -128,6 +128,10 @@
     text-align: right;
 }
 
+.transact tr.from_address {
+    background-color: rgba(190, 255, 190, 0.54);
+}
+
 
 /* FILE TABS */
 .red {

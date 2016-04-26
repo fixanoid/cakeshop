@@ -107,7 +107,7 @@
     }
 
     function accountsDropDown() {
-        var s = '<tr>';
+        var s = '<tr class="from_address">';
         s += '<td colspan="2" class="from_address">FROM ADDRESS<br/>';
         s += '<select class="accounts">';
         Sandbox.accounts.forEach(function(a) {
