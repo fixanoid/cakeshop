@@ -13,6 +13,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bouncycastle.util.encoders.Hex;
@@ -87,7 +88,7 @@ public class Transaction {
 	private String contractAddress;
 
 	@ElementCollection(fetch=FetchType.EAGER)
-	private List<String> logs;
+	private List<Event> logs;
 
 
 	public String getId() {
@@ -202,11 +203,11 @@ public class Transaction {
 		this.contractAddress = contractAddress;
 	}
 
-	public List<String> getLogs() {
+	public List<Event> getLogs() {
 		return logs;
 	}
 
-	public void setLogs(List<String> logs) {
+	public void setLogs(List<Event> logs) {
 		this.logs = logs;
 	}
 
@@ -238,15 +239,18 @@ public class Transaction {
             return;
         }
 
-        String input = getInput();
+        final String input = getInput();
         //System.out.println(input);
 
-        for (Function func : abi.getFunctions()) {
-            String sig = "0x" + Hex.toHexString(func.encodeSignature());
-            if (input.startsWith(sig)) {
-                decodedInput = new Input(func.name, func.decodeHex(input));
-                return;
+        Function func = abi.findFunction(new Predicate<ContractABI.Function>() {
+            @Override
+            public boolean evaluate(Function f) {
+                return input.startsWith("0x" + Hex.toHexString(f.encodeSignature()));
             }
+        });
+
+        if (func != null) {
+            decodedInput = new Input(func.name, func.decodeHex(input).toArray());
         }
     }
 

@@ -7,6 +7,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.EventService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 
@@ -23,7 +24,10 @@ import org.springframework.stereotype.Service;
 public class TransactionServiceImpl implements TransactionService {
 
 	@Autowired
-	GethHttpService geth;
+	private GethHttpService geth;
+
+	@Autowired
+	private EventService eventService;
 
 	@Override
 	public Transaction get(String id) throws APIException {
@@ -47,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
 		return tx;
 	}
 
-    private Transaction processTx(Map<String, Object> txData) {
+    private Transaction processTx(Map<String, Object> txData) throws APIException {
         Transaction tx = new Transaction();
 
 		tx.setId((String) txData.get("hash"));
@@ -73,6 +77,15 @@ public class TransactionServiceImpl implements TransactionService {
 		} else {
 			tx.setStatus(Status.committed);
 		}
+
+		if (txData.get("logs") != null) {
+		    List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
+		    if (!logs.isEmpty()) {
+		        tx.setLogs(eventService.processEvents(logs));
+		    }
+		}
+
+
         return tx;
     }
 

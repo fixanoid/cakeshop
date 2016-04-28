@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.dao;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Event;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 
 import java.util.ArrayList;
@@ -70,7 +71,15 @@ public class TransactionDAO {
     public void save(List<Transaction> txns) {
         Session session = getCurrentSession();
         for (int i = 0; i < txns.size(); i++) {
-            session.save(txns.get(i));
+            Transaction txn = txns.get(i);
+
+            if (txn.getLogs() != null && !txn.getLogs().isEmpty()) {
+                for (Event event : txn.getLogs()) {
+                    session.save(event);
+                }
+            }
+
+            session.save(txn);
             if (i % 20 == 0) {
                 session.flush();
                 session.clear();

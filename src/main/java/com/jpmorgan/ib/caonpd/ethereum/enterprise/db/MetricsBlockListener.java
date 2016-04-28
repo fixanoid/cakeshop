@@ -96,6 +96,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     }
 
     private void pushTxnPerSecRate(Long ts) {
+        if (template == null) {
+            return;
+        }
         if (ts == null) {
             ts = timestamp();
         }

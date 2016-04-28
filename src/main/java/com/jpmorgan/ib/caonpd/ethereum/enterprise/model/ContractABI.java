@@ -1,219 +1,370 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.model;
 
+import static com.jpmorgan.ib.caonpd.ethereum.enterprise.model.SolidityType.IntType.*;
 import static java.lang.String.*;
+import static org.apache.commons.collections4.ListUtils.*;
 import static org.apache.commons.lang3.ArrayUtils.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.SolidityType.IntType;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Entry.Type;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.bouncycastle.util.encoders.Hex;
 
-public class ContractABI {
+public class ContractABI extends ArrayList<ContractABI.Entry> {
 
-    public static class Param {
-        public String name;
-        public SolidityType type;
-        public boolean indexed; // used for events
+    public static ContractABI fromJson(String json) {
+        try {
+            return new ObjectMapper().readValue(json, ContractABI.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    enum FunctionType {
-        constructor,
-        function,
-        event
+    public String toJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static class Function {
+    @SuppressWarnings("unchecked")
+    private <T extends ContractABI.Entry> T find(Class<T> resultClass, final ContractABI.Entry.Type type, final Predicate<T> searchPredicate) {
+        return (T) CollectionUtils.find(this, new Predicate<ContractABI.Entry>() {
+            @Override
+            public boolean evaluate(ContractABI.Entry entry) {
+                return entry.type == type && searchPredicate.evaluate((T) entry);
+            }
+        });
+    }
 
-        public boolean anonymous; // used for events
-        public boolean constant;
-        public String name;
-        public Param[] inputs;
-        public Param[] outputs;
-        public FunctionType type;
+    public Function getFunction(final String name) {
+        return findFunction(new Predicate<ContractABI.Function>() {
+            @Override
+            public boolean evaluate(Function f) {
+                return f.name.equalsIgnoreCase(name);
+            }
+        });
+    }
 
-        private Function() {}
+    public Event findEventBySignature(final String sig) {
+        return findEvent(new Predicate<ContractABI.Event>() {
+            @Override
+            public boolean evaluate(Event event) {
+                String fSig = "0x" + Hex.toHexString(RpcUtil.sha3(event.formatSignature()));
+                return fSig.contentEquals(sig);
+            }
+        });
+    }
+
+    public Constructor getConstructor() {
+        return find(Constructor.class, Type.constructor, new Predicate<Constructor>() {
+            @Override
+            public boolean evaluate(Constructor obj) {
+                return true;
+            };
+        });
+    }
+
+    public Function findFunction(Predicate<Function> searchPredicate) {
+        return find(Function.class, ContractABI.Entry.Type.function, searchPredicate);
+    }
+
+    public Event findEvent(Predicate<Event> searchPredicate) {
+        return find(Event.class, ContractABI.Entry.Type.event, searchPredicate);
+    }
+
+    public ContractABI.Constructor findConstructor() {
+        return find(Constructor.class, Entry.Type.constructor, new Predicate<Constructor>() {
+            @Override
+            public boolean evaluate(Constructor object) {
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public String toString() {
+        return toJson();
+    }
 
 
-        public String encodeAsHex(Object ... args) {
-            return Hex.toHexString(encode(args));
+    @JsonInclude(Include.NON_NULL)
+    public static abstract class Entry {
+
+        public enum Type {
+            constructor,
+            function,
+            event
         }
 
-        public byte[] encode(Object ... args) {
-            return RpcUtil.merge(encodeSignature(), encodeArguments(args));
-        }
+        @JsonInclude(Include.NON_NULL)
+        public static class Param {
+            public Boolean indexed;
+            public String name;
+            public SolidityType type;
 
-        public byte[] encodeArguments(Object ... args) {
+            public static List<?> decodeList(List<Param> params, byte[] encoded) {
+                List<Object> result = new ArrayList<>(params.size());
 
-            if (args == null || args.length == 0) {
-                if (inputs.length > 0) {
-                    throw new RuntimeException("Too few arguments: 0 < " + inputs.length);
+                int offset = 0;
+                for (Param param : params) {
+                    Object decoded = param.type.isDynamicType()
+                            ? param.type.decode(encoded, decodeInt(encoded, offset).intValue())
+                            : param.type.decode(encoded, offset);
+                    result.add(decoded);
+
+                    offset += param.type.getFixedSize();
                 }
-                return new byte[0];
+
+                return result;
             }
 
-            if (args.length > inputs.length) {
-                throw new RuntimeException("Too many arguments: " + args.length + " > " + inputs.length);
-            } else if (args.length < inputs.length) {
-                throw new RuntimeException("Too few arguments: " + args.length + " < " + inputs.length);
-            }
+            public static byte[] encodeList(List<Param> params, Object... args) {
 
-            int staticSize = 0;
-            int dynamicCnt = 0;
-            // calculating static size and number of dynamic params
-            for (int i = 0; i < args.length; i++) {
-                Param param = inputs[i];
-                if (param.type.isDynamicType()) {
-                    dynamicCnt++;
+                if (args == null || args.length == 0) {
+                    if (params.size() > 0) {
+                        throw new RuntimeException("Too few arguments: 0 < " + params.size());
+                    }
+                    return new byte[0];
                 }
-                staticSize += param.type.getFixedSize();
-            }
 
-            byte[][] bb = new byte[args.length + dynamicCnt][];
-
-            int curDynamicPtr = staticSize;
-            int curDynamicCnt = 0;
-            for (int i = 0; i < args.length; i++) {
-                if (inputs[i].type.isDynamicType()) {
-                    byte[] dynBB = inputs[i].type.encode(args[i]);
-                    bb[i] = IntType.encodeInt(curDynamicPtr);
-                    bb[args.length + curDynamicCnt] = dynBB;
-                    curDynamicCnt++;
-                    curDynamicPtr += dynBB.length;
-                } else {
-                    bb[i] = inputs[i].type.encode(args[i]);
+                if (args.length > params.size()) {
+                    throw new RuntimeException("Too many arguments: " + args.length + " > " + params.size());
+                } else if (args.length < params.size()) {
+                    throw new RuntimeException("Too few arguments: " + args.length + " < " + params.size());
                 }
-            }
-            return RpcUtil.merge(bb);
-        }
 
-        private Object[] decode(byte[] encoded, Param[] params) {
-            Object[] ret = new Object[params.length];
-
-            int off = 0;
-            for (int i = 0; i < params.length; i++) {
-                Param param = params[i];
-                if (params[i].type.isDynamicType()) {
-                    ret[i] = param.type.decode(encoded, IntType.decodeInt(encoded, off).intValue());
-                } else {
-                    ret[i] = param.type.decode(encoded, off);
+                int staticSize = 0;
+                int dynamicCnt = 0;
+                // calculating static size and number of dynamic params
+                for (int i = 0; i < args.length; i++) {
+                    SolidityType type = params.get(i).type;
+                    if (type.isDynamicType()) {
+                        dynamicCnt++;
+                    }
+                    staticSize += type.getFixedSize();
                 }
-                off += param.type.getFixedSize();
+
+                byte[][] bb = new byte[args.length + dynamicCnt][];
+                for (int curDynamicPtr = staticSize, curDynamicCnt = 0, i = 0; i < args.length; i++) {
+                    SolidityType type = params.get(i).type;
+                    if (type.isDynamicType()) {
+                        byte[] dynBB = type.encode(args[i]);
+                        bb[i] = encodeInt(curDynamicPtr);
+                        bb[args.length + curDynamicCnt] = dynBB;
+                        curDynamicCnt++;
+                        curDynamicPtr += dynBB.length;
+                    } else {
+                        bb[i] = type.encode(args[i]);
+                    }
+                }
+
+                return RpcUtil.merge(bb);
             }
-            return ret;
+
+            @Override
+            public String toString() {
+                return format("%s%s%s", type.getCanonicalName(), (indexed != null && indexed) ? " indexed " : " ", name);
+            }
         }
 
-        public Object[] decodeHex(String encoded) {
-            // TODO validate input
-            return decode(Hex.decode(encoded.substring(2))); // chop off the leading 0x
+        public final Boolean anonymous;
+        public final Boolean constant;
+        public final String name;
+        public final List<Param> inputs;
+        public final List<Param> outputs;
+        public final Type type;
+
+        public Entry(Boolean anonymous, Boolean constant, String name, List<Param> inputs, List<Param> outputs, Type type) {
+            this.anonymous = anonymous;
+            this.constant = constant;
+            this.name = name;
+            this.inputs = inputs;
+            this.outputs = outputs;
+            this.type = type;
         }
 
-        public Object[] decode(byte[] encoded) {
-            return decode(subarray(encoded, 4, encoded.length), inputs);
-        }
-
-        public Object[] decodeHexResult(String encodedRet) {
-            // TODO validate input
-            return decodeResult(Hex.decode(encodedRet.substring(2))); // chop off the leading 0x
-        }
-
-        public Object[] decodeResult(byte[] encodedRet) {
-            return decode(encodedRet, outputs);
-        }
-
+        /**
+         * Signature of this entry, before hashing, e.g., "myfunc(uint,bytes32)"
+         * @return
+         */
         public String formatSignature() {
             StringBuilder paramsTypes = new StringBuilder();
-            for (Param param : inputs) {
+            for (Entry.Param param : inputs) {
                 paramsTypes.append(param.type.getCanonicalName()).append(",");
             }
 
             return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
         }
 
-        public byte[] encodeSignature() {
-            String signature = formatSignature();
-            byte[] sha3Fingerprint = RpcUtil.sha3(signature);
+        /**
+         * The SHA3 hash of this entry's signature
+         *
+         * @return
+         */
+        public byte[] fingerprintSignature() {
+            return RpcUtil.sha3(formatSignature().getBytes());
+        }
 
-            return Arrays.copyOfRange(sha3Fingerprint, 0, 4);
+        /**
+         * The SHA3 hash of this entry's signature
+         *
+         * @return
+         */
+        public byte[] encodeSignature() {
+            return fingerprintSignature();
+        }
+
+        @JsonCreator
+        public static Entry create(@JsonProperty("anonymous") boolean anonymous,
+                                   @JsonProperty("constant") boolean constant,
+                                   @JsonProperty("name") String name,
+                                   @JsonProperty("inputs") List<Param> inputs,
+                                   @JsonProperty("outputs") List<Param> outputs,
+                                   @JsonProperty("type") Type type) {
+            Entry result = null;
+            switch (type) {
+                case constructor:
+                    result = new Constructor(inputs, outputs);
+                    break;
+                case function:
+                    result = new Function(constant, name, inputs, outputs);
+                    break;
+                case event:
+                    result = new Event(anonymous, name, inputs, outputs);
+                    break;
+            }
+
+            return result;
+        }
+    }
+
+    public static class Constructor extends Entry {
+
+        public Constructor(List<Param> inputs, List<Param> outputs) {
+            super(null, null, "", inputs, outputs, Type.constructor);
+        }
+
+        public List<?> decode(byte[] encoded) {
+            return Param.decodeList(inputs, encoded);
+        }
+
+        public byte[] encode(Object... args) {
+            return Param.encodeList(inputs, args);
+        }
+
+        public String formatSignature(String contractName) {
+            return format("function %s(%s)", contractName, join(inputs, ", "));
+        }
+    }
+
+    public static class Function extends Entry {
+
+        private static final int ENCODED_SIGN_LENGTH = 4;
+
+        public Function(boolean constant, String name, List<Param> inputs, List<Param> outputs) {
+            super(null, constant, name, inputs, outputs, Type.function);
+        }
+
+        public String encodeAsHex(Object... args) {
+            return Hex.toHexString(encode(args));
+        }
+
+        public byte[] encode(Object... args) {
+            return RpcUtil.merge(encodeSignature(), Param.encodeList(inputs, args));
+        }
+
+        public List<?> decode(byte[] encoded) {
+            return Param.decodeList(inputs, subarray(encoded, ENCODED_SIGN_LENGTH, encoded.length));
+        }
+
+        public List<?> decodeHex(String encoded) {
+            return decode(Hex.decode(encoded.substring(2))); // chop off the leading 0x
+        }
+
+        public List<?> decodeResult(byte[] encoded) {
+            return Param.decodeList(outputs, encoded);
+        }
+
+        public List<?> decodeHexResult(String encoded) {
+            return decodeResult(Hex.decode(encoded.substring(2))); // chop off the leading 0x
+        }
+
+        @Override
+        public byte[] encodeSignature() {
+            return extractSignature(super.encodeSignature());
+        }
+
+        public static byte[] extractSignature(byte[] data) {
+            return subarray(data, 0, ENCODED_SIGN_LENGTH);
         }
 
         @Override
         public String toString() {
-            return formatSignature();
-        }
-
-        public static Function fromJsonInterface(String json) {
-            try {
-                return new ObjectMapper().readValue(json, Function.class);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            String returnTail = "";
+            if (constant) {
+                returnTail += " constant";
             }
-        }
-
-        public static Function fromSignature(String funcName, String ... paramTypes) {
-            Function ret = new Function();
-            ret.name = funcName;
-            ret.constant = false;
-            ret.type = FunctionType.function;
-            ret.outputs = new Param[0];
-            ret.inputs = new Param[paramTypes.length];
-            for (int i = 0; i < paramTypes.length; i++) {
-                ret.inputs[i] = new Param();
-                ret.inputs[i].name = "param" + i;
-                ret.inputs[i].type = SolidityType.getType(paramTypes[i]);
+            if (!outputs.isEmpty()) {
+                List<String> types = new ArrayList<>();
+                for (Param output : outputs) {
+                    types.add(output.type.getCanonicalName());
+                }
+                returnTail += format(" returns(%s)", join(types, ", "));
             }
-            return ret;
+
+            return format("function %s(%s)%s;", name, join(inputs, ", "), returnTail);
         }
     }
 
-    private Function[] functions;
-    private Map<String, Function> functionMap;
+    public static class Event extends Entry {
 
-    public ContractABI(Function[] functions) {
-        this.functions = functions;
-        functionMap = new HashMap<>();
-        for (Function f : functions) {
-            functionMap.put(f.name, f);
+        public Event(boolean anonymous, String name, List<Param> inputs, List<Param> outputs) {
+            super(anonymous, null, name, inputs, outputs, Type.event);
         }
-    }
 
-    public ContractABI(String jsonABI) throws IOException {
-        this(new ObjectMapper().readValue(jsonABI, Function[].class));
-    }
+        public List<?> decode(byte[] data, byte[][] topics) {
+            List<Object> result = new ArrayList<>(inputs.size());
 
-    public ContractABI(InputStream input) throws IOException {
-        this(new ObjectMapper().readValue(input, Function[].class));
-    }
+            byte[][] argTopics = anonymous ? topics : subarray(topics, 1, topics.length);
+            List<?> indexed = Param.decodeList(filteredInputs(true), RpcUtil.merge(argTopics));
+            List<?> notIndexed = Param.decodeList(filteredInputs(false), data);
 
-    public Function getFunction(String name) {
-        return functionMap.get(name);
-    }
-
-    public Function getConstructor() {
-        for (Function f : this.functions) {
-            if (f.type == FunctionType.constructor) {
-                return f;
+            for (Param input : inputs) {
+                result.add(input.indexed ? indexed.remove(0) : notIndexed.remove(0));
             }
+
+            return result;
         }
-        return null;
-    }
 
-    public Function[] getFunctions() {
-        return functions;
-    }
+        private List<Param> filteredInputs(final boolean indexed) {
+            return select(inputs, new Predicate<Param>() {
+                @Override
+                public boolean evaluate(Param param) {
+                    return param.indexed == indexed;
+                }
+            });
+        }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+        @Override
+        public String toString() {
+            return format("event %s(%s);", name, join(inputs, ", "));
+        }
+
     }
 
 }

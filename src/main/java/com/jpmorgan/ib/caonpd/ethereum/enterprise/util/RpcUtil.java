@@ -12,6 +12,13 @@ public class RpcUtil {
 
     public static final int SHA3_DEFAULT_SIZE = 256;
 
+    public static Long toLong(String val) {
+        if (val == null || val.isEmpty()) {
+            return null;
+        }
+        return Long.decode(val);
+    }
+
 	public static Long toLong(String key, Map<String, Object> blockData) {
 		String str = (String)blockData.get(key);
 		if (str == null) {
@@ -62,6 +69,8 @@ public class RpcUtil {
     public static String toString(Object object) {
 	    if (object instanceof List) {
 	        object = ((List) object).toArray();
+	    } else if (object instanceof Map) {
+	        return object.toString();
 	    }
 	    return ToStringBuilder.reflectionToString(object, ShortToStringStyle.INSTANCE);
 	}
@@ -77,6 +86,14 @@ public class RpcUtil {
 	    } else {
 	        return new BigInteger(hex, 16);
 	    }
+	}
+
+	public static String toHex(BigInteger input) {
+	    return "0x" + Hex.toHexString(input.toByteArray());
+	}
+
+	public static String toHex(Long input) {
+	    return "0x" + Long.toHexString(input);
 	}
 
 }

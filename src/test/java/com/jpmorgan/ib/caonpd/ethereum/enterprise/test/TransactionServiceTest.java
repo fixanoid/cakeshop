@@ -64,7 +64,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 	@Test
 	public void testGetPendingTx() throws IOException, InterruptedException {
 		String code = readTestFile("contracts/simplestorage.sol");
-	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage.abi.txt"));
 
 		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 		assertNotNull(result);

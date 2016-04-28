@@ -5,7 +5,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-@Service("test-scanner")
+@Service
 @Scope("prototype")
 public class TestBlockScanner extends BlockScanner {
 

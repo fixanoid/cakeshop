@@ -115,7 +115,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	@Test
 	public void testReadByABI() throws InterruptedException, IOException {
 	    String contractAddress = createContract();
-	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage.abi.txt"));
 
 	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 100);
@@ -124,7 +124,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	@Test
 	public void testReadBytesArr() throws InterruptedException, IOException {
 	    String addr = createContract(readTestFile("contracts/testbytesarr.sol"), null);
-	    ContractABI abi = new ContractABI(readTestFile("contracts/testbytesarr.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/testbytesarr.abi.txt"));
 	    Object[] res = (Object[]) contractService.read(addr, abi, null, "foo", null, null)[0];
 	    assertNotNull(res);
 	    assertEquals(res.length, 1);
@@ -138,7 +138,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
     	// create with constructor val 500
     	String contractAddress = createContract(code, new Object[] { 500 });
 
-	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage2.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage2.abi.txt"));
 
 	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
 	    assertEquals(val.intValue(), 500);
@@ -154,7 +154,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    String code = readTestFile("contracts/simplestorage.sol");
 	    String json = readTestFile("contracts/simplestorage.abi.txt");
-	    ContractABI abi = new ContractABI(json);
+	    ContractABI abi = ContractABI.fromJson(json);
 
 	    String addr = "0x81635fe3d9cecbcf44aa58e967af1ab7ceefb817";
 	    String str = "foobar47";
@@ -191,7 +191,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    String contractAddress = createContract();
 
-	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage.abi.txt"));
 
 	    // 100 to start
 	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
@@ -210,11 +210,12 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertEquals(valPrev.intValue(), 100);
 	}
 
+	@Test
 	public void testListTransactions() throws InterruptedException, IOException {
 
 	    String contractAddress = createContract();
 
-	    ContractABI abi = new ContractABI(readTestFile("contracts/simplestorage.abi.txt"));
+	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage.abi.txt"));
 
 	    // 100 to start
 	    BigInteger val = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, null)[0];
@@ -227,6 +228,8 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    ((TestBlockScanner) blockScanner).manualRun();
 
 	    List<Transaction> txns = contractService.listTransactions(contractAddress);
+
+	    System.out.println(txns);
 
 	    assertNotNull(txns);
 	    assertTrue(!txns.isEmpty());

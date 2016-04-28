@@ -14,8 +14,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +30,9 @@ import org.springframework.stereotype.Service;
 public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceImpl.class);
+
+    private static final String REGISTRY_ABI_FILE =
+            "contracts" + File.separator + "ContractRegistry.abi.json";
 
     @Value("${config.path}")
     private String CONFIG_ROOT;
@@ -49,8 +52,8 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     private final ContractABI abi;
 
     public ContractRegistryServiceImpl() throws IOException {
-        InputStream abiStream = getClass().getClassLoader().getResourceAsStream("contracts" + File.separator + "ContractRegistry.abi.json");
-        this.abi = new ContractABI(abiStream);
+        URL url = getClass().getClassLoader().getResource(REGISTRY_ABI_FILE);
+        this.abi = ContractABI.fromJson(FileUtils.readFileToString(FileUtils.toFile(url)));
     }
 
     @Override

@@ -7,8 +7,8 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Entry.Param;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Param;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.SolidityType.Bytes32Type;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -16,7 +16,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryServic
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService.CodeType;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,10 +140,10 @@ public class ContractController extends BaseController {
             return args;
         }
 
-        Param[] params = method.inputs;
+        List<Param> params = method.inputs;
         for (int i = 0; i < args.length; i++) {
             Object arg = args[i];
-            Param param = params[i];
+            Param param = params.get(i);
             if (param.type instanceof Bytes32Type && arg instanceof String) {
                 args[i] = new String(Base64.decode((String) arg));
             }
@@ -201,17 +200,12 @@ public class ContractController extends BaseController {
     }
 
     private ContractABI lookupABI(String id) throws APIException {
-
         Contract contract = contractRegistry.getById(id);
         if (contract == null) {
             throw new APIException("Contract not in registry " + id);
         }
 
-        try {
-            return new ContractABI(contract.getABI());
-        } catch (IOException e) {
-            throw new APIException("Invalid ABI", e);
-        }
+        return ContractABI.fromJson(contract.getABI());
     }
 
 

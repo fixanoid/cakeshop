@@ -1,9 +1,12 @@
 contract SimpleStorage {
+	event Debug(string msg, uint val);
     uint storedData;
     function SimpleStorage() {
+    	Debug("init storage", 100);
         storedData = 100;
     }
     function set(uint x) {
+    	Debug("change val", x);
         storedData = x;
     }
     function get() constant returns (uint retVal) {

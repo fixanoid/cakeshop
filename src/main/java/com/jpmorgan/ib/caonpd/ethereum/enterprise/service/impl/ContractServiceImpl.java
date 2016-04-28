@@ -8,7 +8,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.CompilerException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Contract;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Function;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Constructor;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -218,17 +218,12 @@ public class ContractServiceImpl implements ContractService {
         // handle constructor args
         String data = contract.getBinary();
         if (args != null && args.length > 0) {
-            try {
-                ContractABI abi = new ContractABI(contract.getABI());
-                Function constructor = abi.getConstructor();
-                if (constructor == null) {
-                    throw new APIException("Unable to locate constructor method in ABI");
-                }
-                data = data + Hex.toHexString(constructor.encodeArguments(args));
-
-            } catch (IOException e) {
-                throw new APIException("Failed to read contract ABI", e);
+            ContractABI abi = ContractABI.fromJson(contract.getABI());
+            Constructor constructor = abi.getConstructor();
+            if (constructor == null) {
+                throw new APIException("Unable to locate constructor method in ABI");
             }
+            data = data + Hex.toHexString(constructor.encode(args));
         }
 
 
@@ -301,7 +296,7 @@ public class ContractServiceImpl implements ContractService {
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
 	    String res = (String) readRes.get("_result");
-	    Object[] decodedResults = req.getFunction().decodeHexResult(res);
+	    Object[] decodedResults = req.getFunction().decodeHexResult(res).toArray();
 
 	    return decodedResults;
 	}
@@ -323,12 +318,7 @@ public class ContractServiceImpl implements ContractService {
 	public List<Transaction> listTransactions(String contractId) throws APIException {
 
 	    Contract contract = get(contractId);
-	    ContractABI abi;
-	    try {
-	        abi = new ContractABI(contract.getABI());
-	    } catch (IOException e) {
-	        throw new APIException("Failed to load ABI for contract", e);
-	    }
+	    ContractABI abi = ContractABI.fromJson(contract.getABI());
 
 	    List<Transaction> txns = transactionDAO.listForContractId(contractId);
 
@@ -350,17 +340,12 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	private ContractABI lookupABI(String id) throws APIException {
-
 	    Contract contract = contractRegistry.getById(id);
 	    if (contract == null) {
 	        throw new APIException("Contract not in registry " + id);
 	    }
 
-	    try {
-	        return new ContractABI(contract.getABI());
-	    } catch (IOException e) {
-	        throw new APIException("Invalid ABI", e);
-	    }
+        return ContractABI.fromJson(contract.getABI());
 	}
 
 }
