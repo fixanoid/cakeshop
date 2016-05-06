@@ -26,7 +26,9 @@ public class BaseController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<APIResponse> handleException(Exception ex) {
 
-        LOG.warn("Caught exception: " + ex.getMessage(), ex);
+        if (!(ex instanceof CompilerException)) {
+            LOG.warn("Caught exception: " + ex.getMessage(), ex);
+        }
 
         APIResponse res = new APIResponse();
         String rootCause = ExceptionUtils.getRootCauseMessage(ex);
