@@ -143,6 +143,19 @@
     background-color: rgba(190, 255, 190, 0.54);
 }
 
+div.panel.accounts table {
+    table-layout: fixed;
+}
+
+div.panel.accounts table td:last {
+}
+
+div.panel.accounts table td.address {
+    width: 80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 
 /* FILE TABS */
 .red {

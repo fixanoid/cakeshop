@@ -32,12 +32,13 @@
     });
 
     function loadAccounts() {
+        // load and display panel
         Account.list().then(function(accounts) {
             Sandbox.accounts = accounts;
             var s = '<div class="panel-overflow"><table class="table">';
             accounts.forEach(function(a) {
                 s += '<tr>';
-                s += '<td>' + a.get("address") + '</td>';
+                s += '<td class="address" data-address="' + a.get("address") + '">' + a.get("address") + '</td>';
                 s += '<td class="text-right">' + a.humanBalance() + '</td>';
                 s += '</tr>';
             });
@@ -45,6 +46,14 @@
 
             $(".panel.accounts .panel-overflow").remove();
             $(".panel.accounts").append(s);
+
+    		$(".panel.accounts td.address").click(function(e) {
+    			var isEditable = !!$(this).prop('contentEditable');
+    			$(this).prop('contentEditable', isEditable);
+    			$(this).focus();
+    			$(this).selectText();
+    		});
+
             Sandbox.trigger("col3-reflow");
         });
     }
@@ -97,7 +106,7 @@
 
     function wrapFunction(method) {
         var s = '<tr class="method" data-method="' + method.name + '">';
-        s += '<td>' + method.name + '<br/>' + wrapInputs(method) + '</td>';
+        s += '<td><label>' + method.name + '<br/>' + wrapInputs(method) + '</label></td>';
         s += '<td class="send"><button class="btn btn-default send" type="submit">';
         s += (method.constant === true ? "Read" : "Transact");
         s += '</button></td>';
@@ -107,12 +116,12 @@
 
     function accountsDropDown() {
         var s = '<tr class="from_address">';
-        s += '<td colspan="2" class="from_address">FROM ADDRESS<br/>';
-        s += '<select class="accounts">';
+        s += '<td colspan="2" class="from_address"><label>FROM ADDRESS<br/>';
+        s += '<select class="accounts form-control">';
         Sandbox.accounts.forEach(function(a) {
             s += "<option>" + a.get("address") + "</option>";
         });
-        s += '</select>';
+        s += '</select></label>';
         s += '</td>';
         s += '</tr>';
         return s;
@@ -211,7 +220,7 @@
                             var name = (log.name ? log.name : "<anon>"),
                                 data = JSON.stringify(log.data);
                             data = data.substring(1, data.length-1);
-                            addTx("[event] " + name + "(" + data + ")")
+                            addTx("[event] " + name + "(" + data + ")");
                         });
                     }
                     showCurrentState(activeContract._current_state);
