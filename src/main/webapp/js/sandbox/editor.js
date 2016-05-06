@@ -32,9 +32,11 @@
 
             // resize col3 panels
             var h = wh - $(".col3").position().top - heading*3 - 40 ; // 40px padding
-            $(".accounts .panel-overflow").css("max-height", h*0.2);
-            $(".state .panel-overflow").css("max-height", h*0.4);
-            $(".papertape .panel-body").css("max-height", h*0.4);
+            // h = real usable height for panels
+            var pcts = h < 800 ? [0.3, 0.3, 0.3] : [0.2, 0.4, 0.4];
+            $(".accounts .panel-overflow").css("max-height", h*pcts[0]);
+            $(".state .panel-overflow").css("max-height", h*pcts[1]);
+            $(".papertape .panel-body").css("max-height", h*pcts[2]);
         }
 
         $(window).resize(function(e) {
