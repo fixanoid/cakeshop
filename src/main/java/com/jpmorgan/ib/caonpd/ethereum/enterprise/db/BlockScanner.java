@@ -89,6 +89,12 @@ public class BlockScanner extends Thread {
         synchronized(wakeup) {
             this.wakeup.notify();
         }
+        if (this.blockListeners != null && !this.blockListeners.isEmpty()) {
+            for (BlockListener blockListener : blockListeners) {
+                blockListener.shutdown();
+            }
+
+        }
         try {
             this.join();
         } catch (InterruptedException e) {

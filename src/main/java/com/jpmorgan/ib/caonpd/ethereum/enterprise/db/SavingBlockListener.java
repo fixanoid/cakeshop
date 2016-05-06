@@ -63,7 +63,7 @@ public class SavingBlockListener implements BlockListener {
     @Autowired
     private GethConfigBean gethConfig;
 
-    private ArrayBlockingQueue<Block> blockQueue;
+    private final ArrayBlockingQueue<Block> blockQueue;
 
     private final BlockSaverThread blockSaver;
 
@@ -74,8 +74,11 @@ public class SavingBlockListener implements BlockListener {
     }
 
     @PreDestroy
+    @Override
     public void shutdown() {
+        LOG.info("shutdown");
         blockSaver.running = false;
+        blockSaver.interrupt();
     }
 
     protected void saveBlock(Block block) {

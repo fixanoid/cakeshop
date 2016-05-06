@@ -30,9 +30,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 	@Autowired(required = false)
 	private SimpMessagingTemplate template;
 
-    private FastMeter txnPerSecMeter;
-    private SimpleRollingMeter txnPerMinMeter;
-    private SimpleRollingMeter blockPerMinMeter;
+    private final FastMeter txnPerSecMeter;
+    private final SimpleRollingMeter txnPerMinMeter;
+    private final SimpleRollingMeter blockPerMinMeter;
 
     private Integer previousTxCount;
     private Long previousBlockTime;
@@ -42,7 +42,7 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     // private CircularFifoQueue<Metric> txnPerSec;
     // private CircularFifoQueue<Metric> blockPerMin;
 
-    private MetricCollector metricCollector;
+    private final MetricCollector metricCollector;
 
     class MetricCollector extends Thread {
         boolean running = true;
@@ -91,8 +91,11 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     }
 
     @PreDestroy
+    @Override
     public void shutdown() {
+        LOG.info("shutdown");
         this.metricCollector.running = false;
+        this.metricCollector.interrupt();
     }
 
     private void pushTxnPerSecRate(Long ts) {

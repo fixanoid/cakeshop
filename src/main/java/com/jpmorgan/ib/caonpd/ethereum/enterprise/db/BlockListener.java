@@ -6,4 +6,6 @@ public interface BlockListener {
 
     public void blockCreated(Block block);
 
+    public void shutdown();
+
 }
