@@ -205,6 +205,15 @@
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));
+                    var logs = tx.get("logs");
+                    if (logs && logs.length > 0) {
+                        logs.forEach(function(log) {
+                            var name = (log.name ? log.name : "<anon>"),
+                                data = JSON.stringify(log.data);
+                            data = data.substring(1, data.length-1);
+                            addTx("[event] " + name + "(" + data + ")")
+                        });
+                    }
                     showCurrentState(activeContract._current_state);
                 });
             });
