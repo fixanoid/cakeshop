@@ -23,8 +23,8 @@ import org.springframework.stereotype.Service;
 public class EventServiceImpl implements EventService {
 
     class Filter {
-        private String fromBlock;
-        private String toBlock;
+        private final String fromBlock;
+        private final String toBlock;
 
         public Filter(Long fromBlock, Long toBlock) {
             this.fromBlock = RpcUtil.toHex(fromBlock);
@@ -75,6 +75,7 @@ public class EventServiceImpl implements EventService {
             String eventSigHash = (topics).get(0);
 
             com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI.Event abiEvent = abi.findEventBySignature(eventSigHash);
+            event.setName(abiEvent.name);
 
             byte[] logData = Hex.decode(((String) data.get("data")).substring(2));
             byte[][] topicData = new byte[topics.size()][];

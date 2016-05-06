@@ -29,8 +29,10 @@ public class Event {
     private String transactionId;
     private String contractId;
 
+    private String name;
+
+    //@Lob // does not work, not sure why. hibernate issue.
     @Basic
-    //@Lob
     @Column(length = Integer.MAX_VALUE)
     @Convert(converter = JpaJsonConverter.class)
     private Object[] data;
@@ -94,6 +96,14 @@ public class Event {
     @Override
     public String toString() {
         return RpcUtil.toString(this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 }
