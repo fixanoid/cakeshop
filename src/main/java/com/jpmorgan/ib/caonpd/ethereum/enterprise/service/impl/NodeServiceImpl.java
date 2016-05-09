@@ -12,6 +12,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.EEUtils.IP;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.IOException;
 import java.net.URI;
@@ -106,7 +107,7 @@ public class NodeServiceImpl implements NodeService {
 
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, null);
-            Integer pending = (Integer)data.get("pending");
+            Integer pending = RpcUtil.hexToBigInteger((String) data.get("pending")).intValue();
             node.setPendingTxn(pending == null ? 0 : pending);
 
             try {

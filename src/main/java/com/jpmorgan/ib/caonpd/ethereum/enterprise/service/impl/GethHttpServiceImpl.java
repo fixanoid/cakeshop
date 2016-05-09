@@ -296,6 +296,13 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
 
             running = checkGethStarted();
+            try {
+                // added for geth 1.4 compat
+                // because RPC comes up before node is fully up
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                return false;
+            }
 
             if (running && newGethInstall) {
                 BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
@@ -331,7 +338,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 //"--jpmtest",
                 "--solc", gethConfig.getSolcPath(),
                 "--nat", "none", "--nodiscover",
-                "--unlock", "0 1 2", "--password", gethConfig.getGethPasswordFile(),
+                "--unlock", "0,1,2", "--password", gethConfig.getGethPasswordFile(),
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable",
                 "--fakepow"
