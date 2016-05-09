@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.Assert.ThrowingRunnable;
 import org.testng.annotations.Test;
 
 public class ContractServiceTest extends BaseGethRpcTest {
@@ -108,8 +109,14 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	@Test
 	public void testGetInvalidId() throws APIException {
-		Contract contract = contractService.get("0xdeadbeef");
-		assertNull(contract);
+	    assertThrows(APIException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                contractService.get("0xdeadbeef");
+            }
+        });
+
+		assertNull(contractService.get("0x81635fe3d9cecbcf44aa58e967af1ab7ceefb816"));
 	}
 
 	@Test

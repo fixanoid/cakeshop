@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.ethereum.enterprise.test;
 
 import static org.testng.Assert.*;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.ContractABI;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction.Status;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.Assert.ThrowingRunnable;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 
@@ -36,6 +38,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		assertTrue(!result.getId().isEmpty());
 
 		Transaction tx = transactionService.get(result.getId());
+		System.out.println(tx.getId());
 		assertNotNull(tx);
 		assertNotNull(tx.getId());
 		assertEquals(tx.getId(), result.getId());
@@ -58,7 +61,14 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 
 	@Test
 	public void testGetInvalidHash() throws IOException {
-		assertNull(transactionService.get("0xasdf"));
+	    assertThrows(APIException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                transactionService.get("0xasdf");
+            }
+        });
+
+		assertNull(transactionService.get("0x19ceb68f8df155fb05029ef89dc7e74d0f7bd7c97f9837cc659381ecb9e8eb49"));
 	}
 
 	@Test
