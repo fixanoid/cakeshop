@@ -82,6 +82,8 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         txnPerMinMeter = new SimpleRollingMeter();
         blockPerMinMeter = new SimpleRollingMeter();
 
+        currentTxRate = 0.0;
+
         // txnPerMin = new CircularFifoQueue<>(1000);
         // txnPerSec = new CircularFifoQueue<>(1000);
         // blockPerMin = new CircularFifoQueue<>(1000);
