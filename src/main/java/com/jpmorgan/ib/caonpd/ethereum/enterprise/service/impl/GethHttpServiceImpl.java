@@ -14,6 +14,7 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
 import java.io.BufferedWriter;
@@ -29,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -267,28 +267,26 @@ public class GethHttpServiceImpl implements GethHttpService {
             return running;
         }
 
-        List<String> commands = createGethCommand(additionalParams);
-
-        ProcessBuilder builder = createProcessBuilder(gethConfig, commands);
-        builder.inheritIO();
-
-        String dataDir = gethConfig.getDataDirPath();
-        Process process;
         try {
-            File dataDirectory = new File(dataDir);
+            String dataDir = gethConfig.getDataDirPath();
             boolean newGethInstall = false;
 
-            if (!dataDirectory.exists()) {
-                dataDirectory.mkdirs();
-            }
+            File chainDataDir = new File(FileUtils.expandPath(dataDir, "chaindata"));
+            if (!chainDataDir.exists()) {
+                chainDataDir.mkdirs();
+                initGeth();
 
-            File keystoreDir = new File(dataDir + File.separator + "keystore");
-            if (!keystoreDir.exists()) {
-                FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
+                File keystoreDir = new File(FileUtils.expandPath(dataDir, "keystore"));
+                if (!keystoreDir.exists()) {
+                    FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
+                }
                 newGethInstall = true;
             }
 
-            process = builder.start();
+
+            ProcessBuilder builder = createProcessBuilder(gethConfig, createGethCommand(additionalParams));
+            builder.inheritIO();
+            Process process = builder.start();
 
             Integer pid = getProcessPid(process);
             if (pid != null) {
@@ -328,11 +326,34 @@ public class GethHttpServiceImpl implements GethHttpService {
         return running;
     }
 
+    /**
+     * Initialize geth datadir via "geth init" command, using the configured genesis block
+     * @return
+     * @throws IOException
+     */
+    private boolean initGeth() throws IOException {
+        ProcessBuilder builder = createProcessBuilder(gethConfig, createGethInitCommand());
+        builder.inheritIO();
+        try {
+            return (builder.start().waitFor() == 0);
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted while waiting for geth init", e);
+        }
+        return false;
+    }
+
+    private List<String> createGethInitCommand() {
+        return Lists.newArrayList(gethConfig.getGethPath(),
+                "--datadir", gethConfig.getDataDirPath(),
+                "init", gethConfig.getGenesisBlockFilename()
+                );
+    }
+
     private List<String> createGethCommand(String... additionalParams) {
 
         List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
                 "--port", gethConfig.getGethNodePort(),
-                "--datadir", gethConfig.getDataDirPath(), "--genesis", gethConfig.getGenesisBlockFilename(),
+                "--datadir", gethConfig.getDataDirPath(),
                 //"--verbosity", "6",
                 //"--mine", "--minerthreads", "1",
                 //"--jpmtest",
