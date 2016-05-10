@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
+
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 
 
 @Configuration
@@ -124,17 +129,24 @@ public class AppConfig implements AsyncConfigurer {
     }
 
     @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient.Builder()
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(120, TimeUnit.SECONDS)
+                .connectTimeout(1, TimeUnit.SECONDS)
+                .connectionPool(new ConnectionPool()) // TODO tune via env props?
+                .build();
+    }
+
+    @Bean
+    public ClientHttpRequestFactory httpRequestFactory(OkHttpClient okc) {
+        return new OkHttp3ClientHttpRequestFactory(okc);
+    }
+
+    @Bean
     @Scope("prototype")
-    public RestTemplate createRestTemplate() {
-        RestTemplate rest = new RestTemplate();
-
-        SimpleClientHttpRequestFactory rf =
-                (SimpleClientHttpRequestFactory) rest.getRequestFactory();
-
-        rf.setReadTimeout(120 * 1000);
-        rf.setConnectTimeout(1 * 1000);
-
-        return rest;
+    public RestTemplate createRestTemplate(ClientHttpRequestFactory httpRequestFactory) {
+        return new RestTemplate(httpRequestFactory);
     }
 
     @Bean(name="asyncExecutor")
