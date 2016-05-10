@@ -247,7 +247,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         // test ethereum data dir
         String dataDir = gethConfig.getDataDirPath();
         System.out.println(StringUtils.rightPad("* Testing ethereum data dir path", 79) + "*");
-        System.out.println(StringUtils.rightPad("* " + dataDir, 79) + "*");
+        System.out.println(StringUtils.rightPad("* " + dataDir, 79) + " *");
         if (isDirAccesible(dataDir)) {
             System.out.println(StringUtils.rightPad("* OK", 79) + "*");
         } else {
