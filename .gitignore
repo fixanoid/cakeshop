@@ -10,6 +10,8 @@
 nb-configuration.xml
 .externalToolBuilders/
 
+# temp build files
+/data
 /target/
 /test-output/
 /test.json
