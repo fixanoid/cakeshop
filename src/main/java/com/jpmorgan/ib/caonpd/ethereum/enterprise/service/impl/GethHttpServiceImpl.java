@@ -4,9 +4,9 @@ import static com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
@@ -75,6 +75,8 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private Boolean running;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public GethHttpServiceImpl() {
         this.running = false;
     }
@@ -106,23 +108,28 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
+    private String requestToJson(Object request) throws APIException {
+        try {
+            return objectMapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            throw new APIException("Failed to serialize request(s)", e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
 
         RequestModel request = new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID);
-        String req = new Gson().toJson(request);
-        String response = executeGethCall(req);
-
+        String response = executeGethCall(requestToJson(request));
 
         if (StringUtils.isEmpty(response)) {
             throw new APIException("Received empty reply from server");
         }
 
-        ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> data;
         try {
-            data = mapper.readValue(response, Map.class);
+            data = objectMapper.readValue(response, Map.class);
         } catch (IOException e) {
             throw new APIException("RPC call failed", e);
         }
@@ -134,13 +141,11 @@ public class GethHttpServiceImpl implements GethHttpService {
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
-        String req = new Gson().toJson(requests);
-        String response = executeGethCall(req);
+        String response = executeGethCall(requestToJson(requests));
 
-        ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> responses;
         try {
-            responses = mapper.readValue(response, List.class);
+            responses = objectMapper.readValue(response, List.class);
 
             List<Map<String, Object>> results = new ArrayList<>(responses.size());
             for (Map<String, Object> data : responses) {

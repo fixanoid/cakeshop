@@ -22,13 +22,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventServiceImpl implements EventService {
 
-    class Filter {
+    class BlockRangeFilter {
         private final String fromBlock;
         private final String toBlock;
 
-        public Filter(Long fromBlock, Long toBlock) {
+        public BlockRangeFilter(Long fromBlock, Long toBlock) {
             this.fromBlock = RpcUtil.toHex(fromBlock);
             this.toBlock = RpcUtil.toHex(toBlock);
+        }
+
+        public String getFromBlock() {
+            return fromBlock;
+        }
+
+        public String getToBlock() {
+            return toBlock;
         }
     }
 
@@ -41,7 +49,7 @@ public class EventServiceImpl implements EventService {
     @SuppressWarnings("unchecked")
     @Override
     public List<Event> listForBlock(Long blockNumber) throws APIException {
-        Map<String, Object> res = gethService.executeGethCall("eth_getLogs", new Object[] { new Filter(blockNumber, blockNumber) });
+        Map<String, Object> res = gethService.executeGethCall("eth_getLogs", new Object[] { new BlockRangeFilter(blockNumber, blockNumber) });
         List<Map<String, Object>> results = (List<Map<String, Object>>) res.get("_result");
         return processEvents(results);
     }
