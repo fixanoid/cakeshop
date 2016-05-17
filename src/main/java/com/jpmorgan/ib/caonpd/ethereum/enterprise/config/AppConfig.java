@@ -42,9 +42,7 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String CONFIG_FILE = "env.properties";
 
-    public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
-
-    protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
+    public static final String WEBAPP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
     /**
      * Return the configured environment name
@@ -82,7 +80,9 @@ public class AppConfig implements AsyncConfigurer {
         if (!StringUtils.isBlank(configPath)) {
             return FileUtils.expandPath(configPath, getEnv());
         }
-        return FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", getEnv());
+
+        String tomcatRoot = FileUtils.expandPath(WEBAPP_ROOT, "..", "..");
+        return FileUtils.expandPath(tomcatRoot, "data", "enterprise-ethereum", getEnv());
     }
 
     private static String getProp(String env, String java) {
@@ -105,6 +105,9 @@ public class AppConfig implements AsyncConfigurer {
         if (StringUtils.isBlank(env)) {
             throw new IOException("ENV var 'eth.environment' not set; unable to load config");
         }
+
+        LOG.info("eth.environment=" + env);
+        LOG.info("eth.config.dir=" + configDir);
 
         File configPath = new File(configDir);
         File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
@@ -131,7 +134,7 @@ public class AppConfig implements AsyncConfigurer {
         // Finally create the configurer and return it
         Properties localProps = new Properties();
         localProps.setProperty("config.path", configPath.getPath());
-        localProps.setProperty("app.path", APP_ROOT);
+        localProps.setProperty("app.path", WEBAPP_ROOT);
 
         PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
         propConfig.setLocation(new FileSystemResource(configFile));
