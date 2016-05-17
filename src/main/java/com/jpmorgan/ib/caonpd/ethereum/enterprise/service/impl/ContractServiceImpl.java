@@ -113,6 +113,8 @@ public class ContractServiceImpl implements ContractService {
 	@Qualifier("asyncExecutor")
 	private TaskExecutor executor;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
 	@SuppressWarnings("unchecked")
     public List<Contract> compile(String code, CodeType codeType, Boolean optimize) throws APIException {
@@ -154,8 +156,7 @@ public class ContractServiceImpl implements ContractService {
 
             //System.out.println(stdout.getString());
 
-            ObjectMapper mapper = new ObjectMapper();
-            res = mapper.readValue(stdout.getString(), Map.class);
+            res = objectMapper.readValue(stdout.getString(), Map.class);
 
         } catch (IOException | InterruptedException e) {
             throw new APIException("Failed to compile contract", e);

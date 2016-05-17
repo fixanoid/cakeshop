@@ -27,6 +27,7 @@ public class JpaJsonConverter implements AttributeConverter<Object[], String> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object[] convertToEntityAttribute(String dbData) {
         try {

@@ -25,9 +25,11 @@ import org.bouncycastle.util.encoders.Hex;
 
 public class ContractABI extends ArrayList<ContractABI.Entry> {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static ContractABI fromJson(String json) {
         try {
-            return new ObjectMapper().readValue(json, ContractABI.class);
+            return objectMapper.readValue(json, ContractABI.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +37,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
 
     public String toJson() {
         try {
-            return new ObjectMapper().writeValueAsString(this);
+            return objectMapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

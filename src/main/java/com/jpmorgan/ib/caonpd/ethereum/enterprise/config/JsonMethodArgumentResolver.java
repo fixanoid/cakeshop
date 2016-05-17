@@ -27,6 +27,8 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonMethodArgumentResolver.class);
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
@@ -67,11 +69,10 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         if (!mavContainer.getModel().containsAttribute("_json_data")) {
-            ObjectMapper mapper = new ObjectMapper();
             BufferedReader postReader = ((HttpServletRequest)webRequest.getNativeRequest()).getReader();
             Map<String,Object> data = null;
             try {
-                data = mapper.readValue(postReader, Map.class);
+                data = objectMapper.readValue(postReader, Map.class);
             } catch (JsonMappingException ex) {
             }
             mavContainer.addAttribute("_json_data", data);
