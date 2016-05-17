@@ -5,7 +5,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -32,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 
-
 @Configuration
 @EnableAsync
 @Profile("container")
@@ -46,14 +44,12 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String APP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
-    // /home/apps/ethereum-enterprise
-
     protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
 
-    public String getEnv() {
+    public static String getEnv() {
         String env = System.getProperty("eth.environment");
-        if (env == null || env.trim().isEmpty()) {
-            // FIXME only default to local based on a flag passed down from maven build
+        if (StringUtils.isBlank(env)) {
+            // FIXME only default to local based on a flag passed down from maven build?
             LOG.warn("defaulting to 'local' env");
             System.setProperty("eth.environment", "local");
             return "local";
@@ -71,7 +67,7 @@ public class AppConfig implements AsyncConfigurer {
      *
      * @return
      */
-    public String getConfigPath() {
+    public static String getConfigPath() {
         String configPath = System.getenv("ETH_CONFIG");
         if (StringUtils.isBlank(configPath)) {
             configPath = System.getProperty("eth.config.dir");
@@ -82,17 +78,23 @@ public class AppConfig implements AsyncConfigurer {
         return FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", getEnv());
     }
 
-    @Bean
-    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws FileNotFoundException, IOException {
 
-        String ENV = getEnv();
-        if (ENV == null || ENV.trim().isEmpty()) {
+    @Bean
+    @Profile("container")
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
+        return createPropConfigurer(getEnv(), getConfigPath());
+    }
+
+    protected static PropertySourcesPlaceholderConfigurer createPropConfigurer(String env,
+            String configDir) throws IOException {
+
+        if (StringUtils.isBlank(env)) {
             throw new IOException("ENV var 'eth.environment' not set; unable to load config");
         }
 
-        File configPath = new File(getConfigPath());
+        File configPath = new File(configDir);
         File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
-        File vendorEnvConfigFile = FileUtils.getClasspathPath(ENV + File.separator + CONFIG_FILE).toFile();
+        File vendorEnvConfigFile = FileUtils.getClasspathPath(env + File.separator + CONFIG_FILE).toFile();
 
         if (!configPath.exists() || !configFile.exists()) {
             LOG.debug("Config dir does not exist, will init");

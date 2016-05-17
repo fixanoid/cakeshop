@@ -26,8 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+@Order(999999)
 @Service(value="appStartup")
 public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 

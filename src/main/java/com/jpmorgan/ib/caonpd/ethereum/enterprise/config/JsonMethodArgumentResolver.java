@@ -61,6 +61,7 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
         return (parameter.getParameterAnnotation(JsonBodyParam.class) != null);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
@@ -69,9 +70,9 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
             ObjectMapper mapper = new ObjectMapper();
             BufferedReader postReader = ((HttpServletRequest)webRequest.getNativeRequest()).getReader();
             Map<String,Object> data = null;
-            try{
+            try {
                 data = mapper.readValue(postReader, Map.class);
-            }catch(JsonMappingException ex){
+            } catch (JsonMappingException ex) {
             }
             mavContainer.addAttribute("_json_data", data);
         }

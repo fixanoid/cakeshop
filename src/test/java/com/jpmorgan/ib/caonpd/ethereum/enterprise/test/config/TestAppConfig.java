@@ -1,11 +1,13 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.test.config;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.SpringBootApplication;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.WebConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.test.TestBlockScanner;
 
+import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -14,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,9 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 @Configuration
 @ComponentScan(basePackages="com.jpmorgan.ib.caonpd.ethereum.enterprise",
     excludeFilters = {
-        @ComponentScan.Filter(
-              type = FilterType.ASSIGNABLE_TYPE,
-              value = { WebConfig.class, WebAppInit.class, BlockScanner.class }
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+            value = { SpringBootApplication.class, WebConfig.class, WebAppInit.class,
+                            BlockScanner.class }
         )
     }
 )
@@ -39,13 +43,10 @@ public class TestAppConfig extends AppConfig {
         System.setProperty("eth.environment", "test");
     }
 
-    private String tempConfigPath;
-
-    @Override
-    public String getConfigPath() {
-        // Use a temp folder since not in a container
-        tempConfigPath = TempFileManager.getTempPath();
-        return tempConfigPath;
+    @Bean
+    @Profile("integration-test")
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
+        return createPropConfigurer(getEnv(), TempFileManager.getTempPath());
     }
 
     @Override
