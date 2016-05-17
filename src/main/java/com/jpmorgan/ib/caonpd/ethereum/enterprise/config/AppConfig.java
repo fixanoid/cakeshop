@@ -46,8 +46,18 @@ public class AppConfig implements AsyncConfigurer {
 
     protected static final String TOMCAT_ROOT = FileUtils.expandPath(APP_ROOT, "..", "..");
 
+    /**
+     * Return the configured environment name
+     *
+     * Search order:
+     * - ETH_ENV environment variable
+     * - eth.environment system property (-Deth.environment param)
+     * - Default to 'local' if none found
+     *
+     * @return Environment name
+     */
     public static String getEnv() {
-        String env = System.getProperty("eth.environment");
+        String env = getProp("ETH_ENV", "eth.environment");
         if (StringUtils.isBlank(env)) {
             // FIXME only default to local based on a flag passed down from maven build?
             LOG.warn("defaulting to 'local' env");
@@ -68,16 +78,20 @@ public class AppConfig implements AsyncConfigurer {
      * @return
      */
     public static String getConfigPath() {
-        String configPath = System.getenv("ETH_CONFIG");
-        if (StringUtils.isBlank(configPath)) {
-            configPath = System.getProperty("eth.config.dir");
-        }
+        String configPath = getProp("ETH_CONFIG", "eth.config.dir");
         if (!StringUtils.isBlank(configPath)) {
             return FileUtils.expandPath(configPath, getEnv());
         }
         return FileUtils.expandPath(TOMCAT_ROOT, "data", "enterprise-ethereum", getEnv());
     }
 
+    private static String getProp(String env, String java) {
+        String str = System.getenv(env);
+        if (StringUtils.isBlank(str)) {
+            str = System.getProperty(java);
+        }
+        return str;
+    }
 
     @Bean
     @Profile("container")
