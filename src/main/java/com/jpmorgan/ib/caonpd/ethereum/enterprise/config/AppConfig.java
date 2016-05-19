@@ -42,7 +42,6 @@ public class AppConfig implements AsyncConfigurer {
 
     public static final String CONFIG_FILE = "env.properties";
 
-    public static final String WEBAPP_ROOT = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
 
     /**
      * Return the configured environment name
@@ -81,7 +80,8 @@ public class AppConfig implements AsyncConfigurer {
             return FileUtils.expandPath(configPath, getEnv());
         }
 
-        String tomcatRoot = FileUtils.expandPath(WEBAPP_ROOT, "..", "..");
+        String webappRoot = FileUtils.expandPath(FileUtils.getClasspathPath(""), "..", "..");
+        String tomcatRoot = FileUtils.expandPath(webappRoot, "..", "..");
         return FileUtils.expandPath(tomcatRoot, "data", "enterprise-ethereum", getEnv());
     }
 
@@ -99,6 +99,15 @@ public class AppConfig implements AsyncConfigurer {
         return createPropConfigurer(getEnv(), getConfigPath());
     }
 
+    public static String getVendorConfigFile() {
+        return getEnv() + File.separator + CONFIG_FILE;
+    }
+
+    public static void initVendorConfig(File configFile) throws IOException {
+        LOG.info("Initializing new config from " + FileUtils.getClasspathPath(getVendorConfigFile()).toString());
+        FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(getVendorConfigFile()), configFile);
+    }
+
     protected static PropertySourcesPlaceholderConfigurer createPropConfigurer(String env,
             String configDir) throws IOException {
 
@@ -111,7 +120,6 @@ public class AppConfig implements AsyncConfigurer {
 
         File configPath = new File(configDir);
         File configFile = new File(configPath.getPath() + File.separator + CONFIG_FILE);
-        File vendorEnvConfigFile = FileUtils.getClasspathPath(env + File.separator + CONFIG_FILE).toFile();
 
         if (!configPath.exists() || !configFile.exists()) {
             LOG.debug("Config dir does not exist, will init");
@@ -121,12 +129,11 @@ public class AppConfig implements AsyncConfigurer {
                throw new IOException("Unable to create config dir: " + configPath.getAbsolutePath());
             }
 
-            LOG.info("Initializing new config from " + vendorEnvConfigFile.getPath());
-            FileUtils.copyFile(vendorEnvConfigFile, configFile);
+            initVendorConfig(configFile);
 
         } else {
             Properties mergedProps = new Properties();
-            mergedProps.load(new FileInputStream(vendorEnvConfigFile));
+            mergedProps.load(FileUtils.getClasspathStream(getVendorConfigFile()));
             mergedProps.load(new FileInputStream(configFile)); // overwrite vendor props with our configs
             mergedProps.store(new FileOutputStream(configFile), null);
         }
@@ -134,7 +141,6 @@ public class AppConfig implements AsyncConfigurer {
         // Finally create the configurer and return it
         Properties localProps = new Properties();
         localProps.setProperty("config.path", configPath.getPath());
-        localProps.setProperty("app.path", WEBAPP_ROOT);
 
         PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
         propConfig.setLocation(new FileSystemResource(configFile));

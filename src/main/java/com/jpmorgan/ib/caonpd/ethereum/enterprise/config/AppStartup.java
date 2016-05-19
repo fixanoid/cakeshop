@@ -47,9 +47,6 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
-    @Value("${app.path}")
-    private String APP_ROOT;
-
     @Autowired
     private GethHttpService geth;
 
@@ -94,10 +91,14 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
 
         System.out.println("PRINTING DEBUG INFO");
+        System.out.println("-------------------");
         System.out.println();
         System.out.println(getDebugInfo(null));
 
-        System.out.println("PRINTING ERROR LIST");
+        System.out.println();
+        System.out.println();
+        System.out.println("PRINTING ERROR MESSAGES");
+        System.out.println("-----------------------");
         System.out.println();
         System.out.println(getErrorInfo());
 
@@ -145,7 +146,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         out.append("user.home: " + SystemUtils.getUserHome() + "\n");
         out.append("\n");
 
-        out.append("app.root: " + APP_ROOT + "\n");
+        out.append("app.root: " + FileUtils.getClasspathPath("") + "\n");
         out.append("eth.env: " + System.getProperty("eth.environment") + "\n");
         out.append("eth.config.dir: " + CONFIG_ROOT + "\n");
         out.append("\n");

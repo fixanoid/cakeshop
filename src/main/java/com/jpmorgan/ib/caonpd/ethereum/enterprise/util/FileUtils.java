@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 public class FileUtils extends org.apache.commons.io.FileUtils {
@@ -41,11 +42,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @return
      */
     public static String expandPath(Path basePath, String... rel) {
-        StringBuilder relPathBuilder = new StringBuilder();
-        for (String r : rel) {
-           relPathBuilder.append(r).append(File.separator);
-        }
-        String relPath = relPathBuilder.toString();
+        String relPath = join(rel);
         if (relPath.startsWith("/")) {
             relPath = relPath.substring(1);
         }
@@ -56,6 +53,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public static String join(String... rel) {
+        StringBuilder path = new StringBuilder();
+        for (String r : rel) {
+            if (path.length() > 0) {
+                path.append(File.separator);
+            }
+            path.append(r);
+        }
+        return path.toString();
+    }
+
     /**
      * Read in the given classpath resource as a string
      *
@@ -64,9 +72,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @throws IOException
      */
     public static String readClasspathFile(String path) throws IOException {
-    	URL url = RpcUtil.class.getClassLoader().getResource(path);
-    	File file = org.apache.commons.io.FileUtils.toFile(url);
-    	return org.apache.commons.io.FileUtils.readFileToString(file);
+        return IOUtils.toString(getClasspathStream(path));
     }
 
     /**
@@ -92,6 +98,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             filePath = filePath.substring(1);
         }
         return Paths.get(filePath);
+    }
+
+    public static String getClasspathName(String path) {
+        return getClasspathPath(path).toString();
     }
 
     /**

@@ -15,7 +15,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +51,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     private final ContractABI abi;
 
     public ContractRegistryServiceImpl() throws IOException {
-        URL url = getClass().getClassLoader().getResource(REGISTRY_ABI_FILE);
-        this.abi = ContractABI.fromJson(FileUtils.readFileToString(FileUtils.toFile(url)));
+        this.abi = ContractABI.fromJson(FileUtils.readClasspathFile(REGISTRY_ABI_FILE));
     }
 
     @Override

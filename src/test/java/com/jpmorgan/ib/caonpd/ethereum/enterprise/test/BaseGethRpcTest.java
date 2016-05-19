@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppStartup;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Transaction;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
@@ -17,7 +18,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +52,9 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired
 	private TransactionService transactionService;
+
+    @Autowired
+    private AppStartup appStartup;
 
     @Autowired
     protected GethHttpService geth;
@@ -100,6 +103,9 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         if (!runGeth()) {
             return;
         }
+
+        assertTrue(appStartup.isHealthy(), "Healthcheck should pass");
+
         LOG.info("Starting Ethereum at test startup");
         assertTrue(_startGeth());
     }
@@ -111,8 +117,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
         gethConfig.setDataDirPath(ethDataDir);
 
-        gethConfig.setGenesisBlockFilename(getTestFile("genesis_block.json").getAbsolutePath());
-        gethConfig.setKeystorePath(getTestFile("keystore").getAbsolutePath());
+        gethConfig.setGenesisBlockFilename(FileUtils.getClasspathPath("genesis_block.json").toAbsolutePath().toString());
+        gethConfig.setKeystorePath(FileUtils.getClasspathPath("keystore").toAbsolutePath().toString());
 
         return geth.start("--jpmtest", "--nokdf"); // , "--verbosity", "6"
     }
@@ -139,12 +145,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         ((EmbeddedDatabase) embeddedDb).shutdown();
     }
 
-    protected File getTestFile(String path) {
-    	URL url = this.getClass().getClassLoader().getResource(path);
-    	File file = FileUtils.toFile(url);
-    	return file;
-    }
-
     /**
      * Read the given test resource file
      *
@@ -153,7 +153,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
      * @throws IOException
      */
     protected String readTestFile(String path) throws IOException {
-    	return FileUtils.readFileToString(getTestFile(path));
+    	return FileUtils.readClasspathFile(path);
     }
 
     /**

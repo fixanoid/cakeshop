@@ -6,6 +6,7 @@ import static org.apache.commons.io.FileUtils.*;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.AppConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.RpcUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,15 +32,10 @@ public class GethConfigBean {
     public static final String startWinCommand = "bin/win/geth.exe";
     public static final String startMacCommand = "bin/mac/geth";
 
-    @Value("${app.path}")
-    private String APP_ROOT;
-
     @Value("${config.path}")
     private String CONFIG_ROOT;
 
     private String configFile;
-
-    private String baseResourcePath;
 
     private String binPath;
 
@@ -88,10 +84,7 @@ public class GethConfigBean {
      * @throws IOException
      */
     public void initFromVendorConfig() throws IOException {
-        final String ENV = System.getProperty("eth.environment");
-        File vendorEnvConfigFile = FileUtils.getClasspathPath(ENV + File.separator + AppConfig.CONFIG_FILE).toFile();
-        LOG.info("Initializing new config from " + vendorEnvConfigFile.getPath());
-        FileUtils.copyFile(vendorEnvConfigFile, new File(configFile));
+        AppConfig.initVendorConfig(new File(configFile));
         initBean();
     }
 
@@ -103,37 +96,41 @@ public class GethConfigBean {
         props = new Properties();
         props.load(new FileInputStream(configFile));
 
-
-
         // setup needed paths
+        String baseResourcePath = System.getProperty("eth.geth.dir");
+        if (StringUtils.isBlank(baseResourcePath)) {
+            baseResourcePath = FileUtils.getClasspathName("geth");
+        }
 
-        baseResourcePath = expandPath(APP_ROOT, "geth-resources") + File.separator;
-
+        // Choose correct geth binary
         if (SystemUtils.IS_OS_WINDOWS) {
             LOG.info("Using geth for windows");
-            gethPath = baseResourcePath + startWinCommand;
+            gethPath = expandPath(baseResourcePath, startWinCommand);
         } else if (SystemUtils.IS_OS_LINUX) {
             LOG.info("Using geth for linux");
-            gethPath = baseResourcePath + startLinuxCommand;
+            gethPath = expandPath(baseResourcePath, startLinuxCommand);
         } else if (SystemUtils.IS_OS_MAC_OSX) {
             LOG.info("Using geth for mac");
-            gethPath = baseResourcePath + startMacCommand;
+            gethPath = expandPath(baseResourcePath, startMacCommand);
         } else {
             LOG.error("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
             throw new IllegalArgumentException("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
         }
-        ensureFileIsExecutable(gethPath);
+
+        if (!ensureFileIsExecutable(gethPath)) {
+            throw new IOException("Path does not exist or is not executable: " + gethPath);
+        }
         binPath = new File(gethPath).getParent();
 
         gethPidFilename = expandPath(CONFIG_ROOT, "meth.pid");
 
 
         // init genesis block file (using vendor copy if necessary)
-        String vendorGenesisDir = expandPath(baseResourcePath, "/genesis");
-        String vendorGenesisBlockFile = expandPath(vendorGenesisDir, "genesis_block.json");
+        String vendorGenesisDir = expandPath(baseResourcePath, "genesis");
 
         genesisBlockFilename = expandPath(CONFIG_ROOT, "genesis_block.json");
         if (!new File(genesisBlockFilename).exists()) {
+            String vendorGenesisBlockFile = FileUtils.join(vendorGenesisDir, "genesis_block.json");
             copyFile(new File(vendorGenesisBlockFile), new File(genesisBlockFilename));
         }
 
@@ -157,7 +154,7 @@ public class GethConfigBean {
         if (SystemUtils.IS_OS_WINDOWS) {
             nodePath = nodePath + ".exe";
         }
-        solcPath = expandPath(vendorGenesisDir, "..", "solc", "node_modules", "solc-cli", "bin", "solc");
+        solcPath = expandPath(baseResourcePath, "solc", "node_modules", "solc-cli", "bin", "solc");
 
         // Clean up data dir path for default config (not an absolute path)
         if (getDataDirPath() != null) {
@@ -188,7 +185,9 @@ public class GethConfigBean {
         }
         setIdentity(identity);
 
-        //RpcUtil.puts(this);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(RpcUtil.toString(this));
+        }
     }
 
     /**

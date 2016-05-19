@@ -18,7 +18,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -29,7 +28,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  */
 @Configuration
 @Profile("container")
-@EnableWebMvc
 @EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter {
 
@@ -47,17 +45,21 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     class HealthCheckInterceptor implements HandlerInterceptor {
 
-        private static final String ERROR_PAGE = "/unhealthy";
+        private static final String UNHEALTHY_URI = "/unhealthy";
+        private static final String ERROR_URI = "/error";
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
                 throws Exception {
 
-            if (appStartup.isHealthy() || request.getRequestURI().indexOf(ERROR_PAGE) > 0) {
+            if (appStartup.isHealthy()
+                    || request.getRequestURI().indexOf(UNHEALTHY_URI) >= 0
+                    || request.getRequestURI().indexOf(ERROR_URI) >= 0) {
+
                 return true;
             }
 
-            response.sendRedirect(request.getContextPath() + ERROR_PAGE);
+            response.sendRedirect(request.getContextPath() + UNHEALTHY_URI);
             return false;
         }
 

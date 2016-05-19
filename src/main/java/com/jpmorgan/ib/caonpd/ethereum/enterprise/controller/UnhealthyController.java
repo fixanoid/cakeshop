@@ -17,7 +17,7 @@ public class UnhealthyController {
 
     @RequestMapping("/unhealthy")
     public ModelAndView unhealthy(HttpServletRequest request) {
-        ModelAndView mav = new ModelAndView("unhealthy.jsp");
+        ModelAndView mav = new ModelAndView("unhealthy");
         mav.addObject("appStartup", appStartup);
         mav.addObject("application", request.getServletContext());
         return mav;

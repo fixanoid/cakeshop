@@ -214,11 +214,15 @@ public class ProcessUtils {
      *
      * @param filename
      */
-    public static void ensureFileIsExecutable(String filename) {
+    public static boolean ensureFileIsExecutable(String filename) {
         File file = new File(filename);
-        if (file.exists() && !file.canExecute()) {
-            file.setExecutable(true);
+        if (file.exists()) {
+            if (file.canExecute()) {
+                return true;
+            }
+            return file.setExecutable(true);
         }
+        return false;
     }
 
 

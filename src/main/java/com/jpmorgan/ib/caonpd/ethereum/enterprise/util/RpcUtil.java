@@ -67,7 +67,9 @@ public class RpcUtil {
 
 	@SuppressWarnings("rawtypes")
     public static String toString(Object object) {
-	    if (object instanceof List) {
+	    if (object instanceof String) {
+	        return (String) object;
+	    } else if (object instanceof List) {
 	        object = ((List) object).toArray();
 	    } else if (object instanceof Map) {
 	        return object.toString();
@@ -76,8 +78,7 @@ public class RpcUtil {
 	}
 
 	public static void puts(Object object) {
-	    String str = (String) (object instanceof String ? object : toString(object));
-	    System.out.println(str);
+	    System.out.println(toString(object));
 	}
 
 	public static BigInteger hexToBigInteger(String hex) {
