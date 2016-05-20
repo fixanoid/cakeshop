@@ -1,5 +1,4 @@
 
-
 # IDE-specific files and folders
 .classpath
 .tomcatplugin
@@ -16,6 +15,7 @@ nb-configuration.xml
 /test-output/
 /test.json
 logs/
+*.log
 meth.log
 meth.pid
 node.conf
@@ -23,3 +23,10 @@ node.conf
 /bin/
 WebContent/
 
+# node stuff
+npm-debug.log*
+.grunt
+node_modules
+.npm
+bower_components/
+src/main/js-client/dist/

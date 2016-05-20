@@ -31,6 +31,8 @@
         return false;
     };
 
+
+
     Client.connected = false;
     Client.connect = function() {
         var stomp = Client.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
