@@ -22,6 +22,37 @@
     /*height: 100%;*/
 }
 
+nav.sidenav {
+    margin-left: 5px;
+    margin-right: 20px;
+    margin-bottom: 0;
+    min-height: 0;
+}
+
+nav.sidenav .container-fluid {
+    padding-left: 0;
+}
+
+ul.sidenav {
+    margin-left: 0;
+}
+
+nav.sidenav ul.navbar-right a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 2em;
+}
+
+nav.sidenav ul.navbar-right li.block_number a {
+    font-weight: bold;
+}
+
+nav.sidenav ul.navbar-right li.mining_status a {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    cursor: pointer;
+}
+
 .editor {
    border-right:3px #eee solid;
 }

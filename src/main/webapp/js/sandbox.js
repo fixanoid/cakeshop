@@ -54,9 +54,13 @@
                 renderContracts(data, editorSource);
             },
             function(errs) {
-                errs.forEach(function(err) {
-                    renderError(err.detail);
-                });
+                if (errs) {
+                    errs.forEach(function(err) {
+                        renderError(err.detail);
+                    });
+                } else if (!Client.connected) {
+                    renderError("server disconnected");
+                }
                 $(".sidenav li.compilerView a").click(); // make sure output tab is visible
             }
         );

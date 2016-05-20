@@ -7,7 +7,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIError;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIResponse;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
@@ -117,12 +116,10 @@ public class NodeController extends BaseController {
 	        @JsonBodyParam(required = false) String logLevel,
 			@JsonBodyParam(required = false) String networkId,
 			@JsonBodyParam(required = false) String identity,
-			@JsonBodyParam(required = false) String committingTransactions,
+			@JsonBodyParam(required = false) Object committingTransactions,
 			@JsonBodyParam(required = false) String extraParams,
 			@JsonBodyParam(required = false) String genesisBlock) throws APIException {
 
-        APIResponse res = new APIResponse();
-        APIData data = new APIData();
         Boolean isMining = null;
 
         try {
@@ -138,36 +135,29 @@ public class NodeController extends BaseController {
                 networkIDInt = Integer.parseInt(networkId);
             }
 
-            if(!StringUtils.isEmpty(committingTransactions)){
-                isMining = Boolean.parseBoolean(committingTransactions);
+            if (committingTransactions != null) {
+                if (committingTransactions instanceof String && StringUtils.isNotBlank((String) committingTransactions)) {
+                    isMining = Boolean.parseBoolean((String) committingTransactions);
+                } else {
+                    isMining = (Boolean) committingTransactions;
+                }
             }
 
-            NodeInfo updates = nodeService.update(logLevelInt, networkIDInt, identity, isMining,
+            nodeService.update(logLevelInt, networkIDInt, identity, isMining,
                     extraParams, genesisBlock);
 
-            if (updates != null) {
-                data.setAttributes(updates);
-                res.setData(data);
-                return new ResponseEntity<>(res, HttpStatus.OK);
-            }
+            return doGet();
 
         } catch (NumberFormatException ne) {
             APIError err = new APIError();
             err.setStatus("400");
             err.setTitle("Input Formatting Error");
 
+            APIResponse res = new APIResponse();
             res.addError(err);
 
             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
-
-        APIError err = new APIError();
-        err.setStatus("400");
-        err.setTitle("Bad Request");
-
-        res.addError(err);
-
-        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping("/peers")

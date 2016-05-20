@@ -74,12 +74,23 @@
 
 					<div class="sidebar" id="sidebar">
 
-						<ul class="nav nav-pills sidenav">
-						  <li role="presentation" class="active txView"><a title="Transaction Playground"><i class="fa fa-send"></i></a></li>
-						  <li role="presentation" class="libView"><a title="Contract Library"><i class="fa fa-bank"></i></a></li>
-						  <li role="presentation" class="compilerView"><a title="Compiler Output"><i class="fa fa-code"></i></a></li>
-						  <li role="presentation" class="settingsView"><a title="Settings"><i class="fa fa-gear"></i></a></li>
-						</ul>
+						<nav class="navbar navbar-default sidenav">
+							<div class="container-fluid">
+								<ul class="nav navbar-nav navbar-left sidenav">
+									<li role="presentation" class="active txView"><a title="Transaction Playground"><i class="fa fa-send"></i></a></li>
+									<li role="presentation" class="libView"><a title="Contract Library"><i class="fa fa-bank"></i></a></li>
+									<li role="presentation" class="compilerView"><a title="Compiler Output"><i class="fa fa-code"></i></a></li>
+									<li role="presentation" class="settingsView"><a title="Settings"><i class="fa fa-gear"></i></a></li>
+								</ul>
+
+								<!-- block number & mining status widgets -->
+								<ul class="nav navbar-nav navbar-right">
+									<li class="block_number"><a title="Current block number">n/a</a></li>
+									<li class="mining_status"><a title="Click to toggle mining"><i class="fa fa-pause"></i></a></li>
+								</ul>
+							</div>
+						</nav>
+
 
 						<div id="txView" class="tab">
 							<div class="container-fluid">
@@ -252,6 +263,7 @@
 		<script src="js/model/contract.proxy.js" charset="utf-8"></script>
 		<script src="js/model/transaction.js" charset="utf-8"></script>
 		<script src="js/model/account.js" charset="utf-8"></script>
+		<script src="js/model/node.js" charset="utf-8"></script>
 
 		<script src="js/sandbox/init.js" charset="utf-8"></script>
 		<script src="js/sandbox/lib.js" charset="utf-8"></script>

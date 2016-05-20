@@ -220,7 +220,12 @@
                     resolve(contracts);
                 }
             }).fail(function(xhr, status, errThrown) {
-                reject(JSON.parse(xhr.responseText).errors);
+                try {
+                    var errors = xhr.responseText ? JSON.parse(xhr.responseText).errors : null;
+                    reject(errors);
+                } catch (e) {
+                    reject(null);
+                }
             });
         });
     };

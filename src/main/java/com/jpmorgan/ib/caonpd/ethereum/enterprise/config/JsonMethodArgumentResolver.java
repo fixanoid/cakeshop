@@ -90,8 +90,8 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
 
         Class paramType = parameter.getParameterType();
         Object val = data.get(param);
-        if (val == null || paramType == val.getClass()) {
-            return val; // null or types match exactly
+        if (val == null || paramType == val.getClass() || paramType == Object.class) {
+            return val; // val is null, types match exactly, or Object type was requested
         }
 
         if ((paramType == Long.class || paramType == Integer.class)

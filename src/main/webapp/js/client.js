@@ -1,5 +1,6 @@
 (function() {
     var Client = window.Client = {};
+    _.extend(Client, Backbone.Events);
 
     Client.post = function(url, data) {
         if (!_.isString(data)) {
@@ -15,15 +16,40 @@
         });
     };
 
-	Client.connect = function() {
-		var stomp = Client.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
-		stomp.debug = null;
-		stomp.connect({},
+    Client._stomp_subscriptions = {};
+    Client.subscribe = function(topic, handler) {
+        Client._stomp_subscriptions[topic] = {topic: topic, handler: handler};
+        if (Client.stomp && Client.stomp.connected === true) {
+            console.log('STOMP subscribing to ' + topic);
+
+            var sub = Client.stomp.subscribe(topic, function(res) {
+                handler(JSON.parse(res.body));
+            });
+            Client._stomp_subscriptions[topic].fh = sub;
+            return sub;
+        }
+        return false;
+    };
+
+    Client.connected = false;
+    Client.connect = function() {
+        var stomp = Client.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
+        stomp.debug = null;
+        stomp.connect({},
             function(frame) {
+                Client.connected = true;
                 console.log("Connected via STOMP!");
+                Client.trigger("stomp:connect");
+                // reconnect all topic subscriptions
+                _.each(Client._stomp_subscriptions, function(sub, topic) {
+                    Client.subscribe(topic, sub.handler);
+                });
             },
             function(err) {
-                console.log("Lost STOMP connection??", err);
+                if (Client.connected) {
+                    console.log("Lost STOMP connection", err);
+                    Client.trigger("stomp:disconnect");
+                }
                 setTimeout(Client.connect, 1000); // always reconnect
             }
         );
