@@ -6,7 +6,8 @@
 
 		hideLink: true,
 
-		url: 'api/node/update',
+		url:        'api/node/get',
+		update_url: 'api/node/update',
 
 		template: _.template(
 			'<div class="form-group">' +
@@ -51,12 +52,12 @@
 			$.when(
 				utils.load({ url: this.url })
 			).done(function(info) {
-				$('#widget-' + _this.shell.id + ' #networkId').val( info.data.attributes.networkId ? info.data.attributes.networkId : '' );
-				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.identity ? info.data.attributes.identity : '' );
-				$('#widget-' + _this.shell.id + ' #logLevel').val( info.data.attributes.logLevel ? info.data.attributes.logLevel : '4' );
-				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.committingTransactions ? 'true' : 'false' );
-				$('#widget-' + _this.shell.id + ' #extraParams').val( info.data.attributes.extraParams ? info.data.attributes.extraParams : '' );
-				$('#widget-' + _this.shell.id + ' #genesisBlock').val( info.data.attributes.genesisBlock ? info.data.attributes.genesisBlock : '' );
+				$('#widget-' + _this.shell.id + ' #networkId').val( info.data.attributes.config.networkId ? info.data.attributes.config.networkId : '' );
+				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.config.identity ? info.data.attributes.config.identity : '' );
+				$('#widget-' + _this.shell.id + ' #logLevel').val( info.data.attributes.config.logLevel ? info.data.attributes.config.logLevel : '4' );
+				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.config.committingTransactions ? 'true' : 'false' );
+				$('#widget-' + _this.shell.id + ' #extraParams').val( info.data.attributes.config.extraParams ? info.data.attributes.config.extraParams : '' );
+				$('#widget-' + _this.shell.id + ' #genesisBlock').val( info.data.attributes.config.genesisBlock ? info.data.attributes.config.genesisBlock : '' );
 
 				_this.postFetch();
 			});
@@ -77,13 +78,13 @@
 		_handler: function(ev) {
 			var _this = $(this),
 			 action = _this.attr('id'),
-			 val = _this.val()
+			 val = _this.val(),
 			 data = {};
 
 			data[action] = val;
 
 			$.when(
-				utils.load({ url: widget.url, data: data })
+				utils.load({ url: widget.update_url, data: data })
 			).done(function(info) {
 				// trigger event update
 				$(document).trigger('WidgetInternalEvent', [ widget.name + '|updated|' + action] );
