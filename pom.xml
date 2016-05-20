@@ -348,6 +348,14 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+            <!--
+                disable the maven integration for now. it fails on windows
+                because it tries to download a .exe file which is blocked
+                by our internal proxy.
+            -->
+            <!--
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -396,6 +404,8 @@
                 </executions>
 
             </plugin>
+            -->
+
         </plugins>
     </build>
 
