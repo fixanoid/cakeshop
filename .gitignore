@@ -29,4 +29,6 @@ npm-debug.log*
 node_modules
 .npm
 bower_components/
-src/main/js-client/dist/
+dist/
+node/
+
