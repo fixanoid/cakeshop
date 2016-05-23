@@ -55,22 +55,29 @@ public class SpringBootApplication {
 	    String gethDir = FileUtils.expandPath(configDir,  "geth");
 	    System.out.println("Extracting geth to " + gethDir);
 
-	    ZipFile warZip = new ZipFile(war);
-	    Enumeration<? extends ZipEntry> entries = warZip.entries();
-	    while (entries.hasMoreElements()) {
-            ZipEntry zipEntry = entries.nextElement();
-            String file = zipEntry.getName();
-            if (zipEntry.isDirectory() ||  !file.startsWith("WEB-INF/classes/geth")) {
-                continue;
-            }
+	    ZipFile warZip = null;
+	    try {
+            warZip = new ZipFile(war);
+            Enumeration<? extends ZipEntry> entries = warZip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry zipEntry = entries.nextElement();
+                String file = zipEntry.getName();
+                if (zipEntry.isDirectory() ||  !file.startsWith("WEB-INF/classes/geth")) {
+                    continue;
+                }
 
-            File target = new File(FileUtils.join(configDir, file.substring(16)));
-            File targetDir = target.getParentFile();
-            if (!targetDir.exists()) {
-                targetDir.mkdirs();
+                File target = new File(FileUtils.join(configDir, file.substring(16)));
+                File targetDir = target.getParentFile();
+                if (!targetDir.exists()) {
+                    targetDir.mkdirs();
+                }
+                FileUtils.copyInputStreamToFile(warZip.getInputStream(zipEntry), target);
             }
-            FileUtils.copyInputStreamToFile(warZip.getInputStream(zipEntry), target);
-        }
+	    } finally {
+	        if (warZip != null) {
+                warZip.close();
+	        }
+	    }
 
 	    System.setProperty("eth.geth.dir", gethDir);
     }
