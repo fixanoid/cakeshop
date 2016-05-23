@@ -4,18 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -41,42 +38,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     private boolean corsEnabled;
 
     @Autowired
-    private AppStartup appStartup;
-
-    class HealthCheckInterceptor implements HandlerInterceptor {
-
-        private static final String UNHEALTHY_URI = "/unhealthy";
-        private static final String ERROR_URI = "/error";
-
-        @Override
-        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-                throws Exception {
-
-            if (appStartup.isHealthy()
-                    || request.getRequestURI().indexOf(UNHEALTHY_URI) >= 0
-                    || request.getRequestURI().indexOf(ERROR_URI) >= 0) {
-
-                return true;
-            }
-
-            response.sendRedirect(request.getContextPath() + UNHEALTHY_URI);
-            return false;
-        }
-
-        @Override
-        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-                ModelAndView modelAndView) throws Exception {
-        }
-
-        @Override
-        public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-                Exception ex) throws Exception {
-        }
-    }
+    private ApplicationContext appContext;
 
     @Bean
     public MappedInterceptor healthcheckInterceptor() {
-        return new MappedInterceptor(new String[] { "/*" }, new HealthCheckInterceptor());
+        return new MappedInterceptor(new String[] { "/*" }, appContext.getBean(HealthCheckInterceptor.class));
     }
 
     @PostConstruct
