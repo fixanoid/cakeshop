@@ -8,7 +8,7 @@ var demo = {
 
 		return Math.ceil(Math.random() * 10);
 	}
-}
+};
 
 var Tower = {
 	ready: false,
@@ -118,8 +118,7 @@ var Tower = {
 
 	section: {
 		'default': function() {
-			var STATUS_END_POINT = '/node/status',
-			 statusUpdate = function(status) {
+			var statusUpdate = function(status) {
 				if (status.status === 'running') {
 					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
@@ -145,8 +144,8 @@ var Tower = {
 			};
 
 			if (Tower.stomp && Tower.stomp.connected === true) {
-				if (Tower.stomp_subscriptions['/topic' + STATUS_END_POINT] ||
-					utils.subscribe('/topic' + STATUS_END_POINT, statusUpdate)) {
+				if (Tower.stomp_subscriptions['/topic/node/status'] ||
+					utils.subscribe('/topic/node/status', statusUpdate)) {
 
 					return;
 				}
@@ -155,7 +154,7 @@ var Tower = {
 			Tower.debug('falling back to status polling');
 
 			$.when(
-				utils.load({ url: 'api' + STATUS_END_POINT })
+				utils.load({ url: 'api/node/get' })
 			).done(function(response) {
 				var status = response.data.attributes;
 
@@ -225,7 +224,7 @@ var Tower = {
 
 	debug: function(message) {
 		var _ref;
-		return typeof window !== "undefined" && window !== null ? (_ref = window.console) != null ? _ref.log(message) : void 0 : void 0;
+		return typeof window !== "undefined" && window !== null ? (_ref = window.console) !== null ? _ref.log(message) : void 0 : void 0;
     }
 };
 
