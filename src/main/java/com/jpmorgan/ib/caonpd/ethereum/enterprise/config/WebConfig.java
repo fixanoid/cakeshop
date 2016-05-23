@@ -15,8 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 /**
@@ -40,9 +40,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private ApplicationContext appContext;
 
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(appContext.getBean(HealthCheckInterceptor.class));
+    }
+
     @Bean
-    public MappedInterceptor healthcheckInterceptor() {
-        return new MappedInterceptor(new String[] { "/*" }, appContext.getBean(HealthCheckInterceptor.class));
+    public LoggingInterceptor loggingInterceptor() {
+        return new LoggingInterceptor();
     }
 
     @PostConstruct
