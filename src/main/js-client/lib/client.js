@@ -31,7 +31,17 @@
         return false;
     };
 
-
+	$(window).on("beforeunload", function() {
+		if (!(Client.stomp && Client.stomp.connected === true)) {
+			return;
+		}
+		_.values(Client._stomp_subscriptions).forEach(function(sub) {
+			if (sub && sub.fh) {
+				sub.fh.unsubscribe();
+			}
+		});
+		Client.stomp.disconnect();
+	});
 
     Client.connected = false;
     Client.connect = function() {
