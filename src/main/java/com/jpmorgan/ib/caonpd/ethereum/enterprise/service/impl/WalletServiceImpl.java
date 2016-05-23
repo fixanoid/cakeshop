@@ -25,10 +25,10 @@ public class WalletServiceImpl implements WalletService {
     @Autowired
     private GethHttpService gethService;
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Account> list() throws APIException {
 
-        Object input = null;
         List<String> accountList = null;
         List<Account> accounts = null;
         Account account = null;
@@ -36,7 +36,7 @@ public class WalletServiceImpl implements WalletService {
         Map<String, Object> data = gethService.executeGethCall(AdminBean.PERSONAL_LIST_ACCOUNTS, new Object[]{});
 
         if (data != null && data.containsKey("_result")) {
-            accountList = (List) data.get("_result");
+            accountList = (List<String>) data.get("_result");
             if (accountList != null) {
                 accounts = new ArrayList<>();
                 for (String address : accountList) {

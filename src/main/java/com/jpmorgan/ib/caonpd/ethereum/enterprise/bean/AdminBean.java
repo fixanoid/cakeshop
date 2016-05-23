@@ -34,7 +34,7 @@ public class AdminBean {
     public static final String PERSONAL_LIST_ACCOUNTS= "personal_listAccounts";
     public static final String PERSONAL_GET_ACCOUNT_BALANCE = "eth_getBalance";
 
-    private Map<String,String> functionNames = new HashMap();
+    private Map<String,String> functionNames = new HashMap<>();
 
     public AdminBean(){
         functionNames.put(ADMIN_ADD_PEER_KEY,ADMIN_ADD_PEER);
@@ -51,14 +51,14 @@ public class AdminBean {
     /**
      * @return the functionNames
      */
-    public Map<String,String> getFunctionNames() {
+    public Map<String, String> getFunctionNames() {
         return functionNames;
     }
 
     /**
      * @param functionNames the functionNames to set
      */
-    public void setFunctionNames(Map<String,String> functionNames) {
+    public void setFunctionNames(Map<String, String> functionNames) {
         this.functionNames = functionNames;
     }
 }
