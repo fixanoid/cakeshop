@@ -29,7 +29,8 @@ var widgetRoot = {
 			title: this.title,
 			size: this.size,
 			hideLink: this.hideLink,
-			hideRefresh: this.hideRefresh
+			hideRefresh: this.hideRefresh,
+			customButtons: this.customButtons
 		});
 
 		this.initialized = true;

@@ -16,4 +16,12 @@ public interface WalletService {
      */
     public List<Account> list() throws APIException;
 
+    /**
+     * Create new account (no passphrase for now)
+     *
+     * @return
+     * @throws APIException
+     */
+    public Account create() throws APIException;
+
 }

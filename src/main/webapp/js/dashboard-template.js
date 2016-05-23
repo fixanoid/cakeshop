@@ -6,6 +6,8 @@ Dashboard.TEMPLATES = {
 				'			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n'+
 				'			<ul class="panel-action">\n'+
 
+				( opts.customButtons ? opts.customButtons : '' ) +
+
 				( opts.hideLink === true ? '' : '				<li><i data-toggle="tooltip" data-title="Copied!" class="fa fa-link"></i></li>\n') +
 
 				'				<li><i class="fa fa-chevron-down"></i></li>\n'+
@@ -17,7 +19,7 @@ Dashboard.TEMPLATES = {
 				'		<div class="panel-body" id="widget-' + opts.id + '">\n'+
 				'		</div>\n'+
 				'	</div>\n'+
-				'</div>'
+				'</div>';
 	},
 
 	widget: function(o) {
@@ -50,7 +52,7 @@ Dashboard.TEMPLATES = {
 				opts.smallColumn = 12;
 
 				break;
-		};
+		}
 
 		return {
 			id: opts.id,

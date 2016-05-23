@@ -5,9 +5,10 @@
 		size: 'medium',
 
 		url: 'api/wallet/list',
+		url_create: 'api/wallet/create',
 
 		hideLink: true,
-
+		customButtons: '<li><i class="add-account fa fa-plus-circle"></i></li>',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 		 '<thead style="font-weight: bold;"><tr><td>Account</td><td style="width: 200px;">Balance</td></tr></thead>' +
@@ -36,9 +37,20 @@
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 			});
+		},
+
+		postRender: function() {
+			var _this = this;
+			$("i.add-account").click(function(e) {
+				$.when(
+					utils.load({ url: _this.url_create })
+				).done(function() {
+					$(e.target).parent().parent().find(".fa-rotate-right").click();
+				});
+
+			});
 		}
 	};
-
 
 	var widget = _.extend({}, widgetRoot, extended);
 
