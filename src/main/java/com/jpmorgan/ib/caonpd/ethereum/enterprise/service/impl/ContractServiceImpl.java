@@ -15,7 +15,6 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.TransactionService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.StreamGobbler;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -35,56 +33,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContractServiceImpl implements ContractService {
 
-    private class ContractRegistrationTask implements Runnable {
-
-        private final TransactionResult transactionResult;
-        private final Contract contract;
-
-        public ContractRegistrationTask(Contract contract, TransactionResult transactionResult) {
-            this.contract = contract;
-            this.transactionResult = transactionResult;
-        }
-
-        @Override
-        public void run() {
-
-            Transaction tx = null;
-
-            LOG.debug("Waiting for contract to be comitted");
-
-            while (tx == null) {
-                try {
-                    tx = transactionService.waitForTx(
-                            transactionResult, pollDelayMillis, TimeUnit.MILLISECONDS);
-
-                } catch (APIException e) {
-                    LOG.warn("Error while waiting for contract to mine", e);
-                    // TODO add backoff delay if server is down?
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for contract to mine", e);
-                    return;
-                }
-            }
-
-            try {
-                contract.setAddress(tx.getContractAddress());
-                LOG.info("Registering newly mined contract at address " + contract.getAddress());
-                contractRegistry.register(contract.getOwner(), tx.getContractAddress(), contract.getName(), contract.getABI(),
-                        contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
-            } catch (APIException e) {
-                LOG.warn("Failed to register contract at address " + tx.getContractAddress(), e);
-            }
-
-        }
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(ContractServiceImpl.class);
+    static final Logger LOG = LoggerFactory.getLogger(ContractServiceImpl.class);
 
     @Value("${contract.poll.delay.millis}")
     Long pollDelayMillis;
@@ -99,9 +55,6 @@ public class ContractServiceImpl implements ContractService {
 	private ContractRegistryService contractRegistry;
 
 	@Autowired
-	private TransactionService transactionService;
-
-	@Autowired
 	private TransactionDAO transactionDAO;
 
 	@Autowired
@@ -112,6 +65,9 @@ public class ContractServiceImpl implements ContractService {
 	@Autowired
 	@Qualifier("asyncExecutor")
 	private TaskExecutor executor;
+
+	@Autowired
+	private ApplicationContext appContext;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -238,7 +194,8 @@ public class ContractServiceImpl implements ContractService {
 		TransactionResult tr = new TransactionResult();
 		tr.setId((String) contractRes.get("_result"));
 
-		executor.execute(new ContractRegistrationTask(contract, tr));
+		// defer contract registration
+		executor.execute(appContext.getBean(ContractRegistrationTask.class, contract, tr));
 
 		return tr;
 	}
