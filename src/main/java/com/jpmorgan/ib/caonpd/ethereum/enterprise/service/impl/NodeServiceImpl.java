@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
@@ -233,35 +232,6 @@ public class NodeServiceImpl implements NodeService {
         gethService.stop();
         gethService.deletePid();
         gethService.start();
-    }
-
-    @Override
-    public APIData getAPIData(Map data){
-
-        APIData apiData = new APIData();
-        Object id = data.get("id");
-        if (id instanceof String) {
-            apiData.setId((String) id);
-        }
-        apiData.setType("node");
-        //handle empty IP address
-        String ipAddress = (String) data.get("IP");
-        //if no IP address is set, default is local host
-        if( ipAddress != null && ("::".equalsIgnoreCase(ipAddress) || "0.0.0.0".equalsIgnoreCase(ipAddress) ) ){
-            try {
-                List<IP> ips = EEUtils.getAllIPs();
-                String ip = ips.get(0).getAddr();
-                if( ip != null ){
-                    data.put("IP",ip);
-                }
-            } catch (APIException ex) {
-                LOG.error(ex.getMessage());
-            }
-        }
-
-        apiData.setAttributes(data);
-
-        return apiData;
     }
 
     @Override

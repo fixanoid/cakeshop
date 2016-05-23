@@ -1,13 +1,11 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.APIData;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Node;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Peer;
 
 import java.util.List;
-import java.util.Map;
 
 public interface NodeService {
 
@@ -39,8 +37,6 @@ public interface NodeService {
             Boolean mining,
             String extraParams,
             String genesisBlock) throws APIException;
-
-    public APIData getAPIData(Map data);
 
     /**
      * Reset node back to default configuration (will restart)
