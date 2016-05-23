@@ -23,8 +23,7 @@ import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,7 +38,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
  * @author i629630
  */
 @Component
-public class WebSocketPushServiceImpl implements WebSocketPushService, ApplicationListener {
+public class WebSocketPushServiceImpl implements WebSocketPushService {
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketPushServiceImpl.class);
 	private Integer openedSessions = 0;
@@ -186,38 +185,29 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
 		return openedSessions;
 	}
 
-	@Override
-	public void onApplicationEvent(ApplicationEvent event) {
+	@EventListener
+	public void onSessionConnect(SessionConnectEvent event) {
+	    openedSessions++;
+	}
 
-		if (event instanceof SessionConnectEvent) {
-			openedSessions++;
-		}
-
-		if (event instanceof SessionDisconnectEvent && openedSessions > 0) {
-			openedSessions--;
+	@EventListener
+	public void onSessionDisconnect(SessionDisconnectEvent event) {
+	    if (openedSessions > 0) {
+            openedSessions--;
             if (openedSessions <= 0 && !transactionsMap.isEmpty()) {
                 transactionsMap.clear();
             }
-		}
-
-		if (event instanceof SessionSubscribeEvent) {
-			onSessionSubscribe(event);
-		}
-
-		if (event instanceof SessionUnsubscribeEvent) {
-			onSessionUnsubscribe(event);
-		}
-
+	    }
 	}
 
-    private void onSessionUnsubscribe(ApplicationEvent event) {
-        SessionUnsubscribeEvent unsubscribeEvent = (SessionUnsubscribeEvent) event;
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(unsubscribeEvent.getMessage());
-
-        String dest = accessor.getSubscriptionId();
+	@EventListener
+    public void onSessionUnsubscribe(SessionUnsubscribeEvent event) {
+        String dest = StompHeaderAccessor.wrap(event.getMessage()).getSubscriptionId();
         if (StringUtils.isBlank(dest)) {
             return;
         }
+
+        LOG.debug("Unsubscribed: " + dest);
 
         if (dest.startsWith(TRANSACTION_TOPIC)) {
         	String transactionKey = dest.substring(dest.lastIndexOf("/") + 1);
@@ -235,14 +225,14 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
         }
     }
 
-    private void onSessionSubscribe(ApplicationEvent event) {
-        SessionSubscribeEvent subscribeEvent = (SessionSubscribeEvent) event;
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(subscribeEvent.getMessage());
-
-        String dest = accessor.getDestination();
+    @EventListener
+    public void onSessionSubscribe(SessionSubscribeEvent event) {
+        String dest = StompHeaderAccessor.wrap(event.getMessage()).getDestination();
         if (StringUtils.isBlank(dest)) {
             return;
         }
+
+        LOG.debug("Subscribed: " + dest);
 
         if (dest.startsWith(TRANSACTION_TOPIC)) {
         	String transactionKey = dest.substring(dest.lastIndexOf("/") + 1);
@@ -264,4 +254,5 @@ public class WebSocketPushServiceImpl implements WebSocketPushService, Applicati
             }
         }
     }
+
 }
