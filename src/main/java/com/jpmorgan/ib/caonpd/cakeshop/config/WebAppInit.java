@@ -15,7 +15,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 @Configuration
 @Profile("container")
-@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.ethereum.enterprise")
+@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.cakeshop")
 public class WebAppInit implements WebApplicationInitializer {
 
     public static void setLoggingPath(boolean isSpringBoot) {
@@ -48,7 +48,7 @@ public class WebAppInit implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
 
         // all @annotated beans will be scanned and configured here
-        dispatcherContext.scan("com.jpmorgan.ib.caonpd.ethereum.enterprise");
+        dispatcherContext.scan("com.jpmorgan.ib.caonpd.cakeshop");
 
         ServletRegistration.Dynamic dispatcher =
                 container.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));

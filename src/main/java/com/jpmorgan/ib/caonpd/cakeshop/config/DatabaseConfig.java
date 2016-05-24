@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan({ "com.jpmorgan.ib.caonpd.ethereum.enterprise.model" })
+@ComponentScan({ "com.jpmorgan.ib.caonpd.cakeshop.model" })
 public class DatabaseConfig implements ApplicationContextAware {
 
     @Value("${config.path}")
@@ -61,7 +61,7 @@ public class DatabaseConfig implements ApplicationContextAware {
     public LocalSessionFactoryBean sessionFactory() {
        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
        sessionFactory.setDataSource(applicationContext.getBean(DataSource.class));
-       sessionFactory.setPackagesToScan(new String[] { "com.jpmorgan.ib.caonpd.ethereum.enterprise.model" });
+       sessionFactory.setPackagesToScan(new String[] { "com.jpmorgan.ib.caonpd.cakeshop.model" });
        sessionFactory.setHibernateProperties(hibernateProperties());
 
        return sessionFactory;

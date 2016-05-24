@@ -24,7 +24,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.ActiveProfiles;
 
 @Configuration
-@ComponentScan(basePackages="com.jpmorgan.ib.caonpd.ethereum.enterprise",
+@ComponentScan(basePackages="com.jpmorgan.ib.caonpd.cakeshop",
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
             value = { SpringBootApplication.class, WebConfig.class, WebAppInit.class,

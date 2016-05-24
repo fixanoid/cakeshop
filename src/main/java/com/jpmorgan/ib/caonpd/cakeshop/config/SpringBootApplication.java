@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.ethereum.enterprise")
+@ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.cakeshop")
 public class SpringBootApplication {
 
     public static void main(String[] args) {
