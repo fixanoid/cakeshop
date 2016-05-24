@@ -119,16 +119,10 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
 
     private boolean _startGeth() throws IOException {
-        this.ethDataDir = FileUtils.getTempPath(); // ignore the path configured in properties and use a temp dir
-        ethDataDir = ethDataDir.replaceAll(File.separator + File.separator, "/");
-        TempFileManager.tempFiles.add(ethDataDir);
-        new File(ethDataDir).mkdirs(); // make the dir so we can skip legalese on startup
-        gethConfig.setDataDirPath(ethDataDir);
-
         gethConfig.setGenesisBlockFilename(FileUtils.getClasspathPath("genesis_block.json").toAbsolutePath().toString());
         gethConfig.setKeystorePath(FileUtils.getClasspathPath("keystore").toAbsolutePath().toString());
-
-        return geth.start("--jpmtest", "--nokdf"); // , "--verbosity", "6"
+        gethConfig.setExtraParams("--jpmtest --nokdf");
+        return geth.start();
     }
 
     /**
