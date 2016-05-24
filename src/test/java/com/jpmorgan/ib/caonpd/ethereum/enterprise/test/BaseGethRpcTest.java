@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -39,6 +41,8 @@ import org.testng.annotations.BeforeClass;
 
 @ActiveProfiles("integration-test")
 @ContextConfiguration(classes = {TestAppConfig.class})
+//@Listeners(CleanConsoleListener.class) // uncomment for extra debug help
+@DirtiesContext(classMode=ClassMode.AFTER_CLASS)
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseGethRpcTest.class);
@@ -72,11 +76,15 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     @Qualifier("hsql")
     private DataSource embeddedDb;
 
+    public BaseGethRpcTest() {
+        super();
+    }
+
     public boolean runGeth() {
         return true;
     }
 
-    @AfterSuite
+    @AfterSuite(alwaysRun=true)
     public void stopSolc() throws IOException {
         List<String> args = Lists.newArrayList(
                 gethConfig.getNodePath(),
@@ -87,7 +95,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         builder.start();
     }
 
-    @AfterSuite
+    @AfterSuite(alwaysRun=true)
     public void cleanupTempPaths() {
         try {
             if (CONFIG_ROOT != null) {
@@ -126,7 +134,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     /**
      * Stop geth & delete data dir
      */
-    @AfterClass
+    @AfterClass(alwaysRun=true)
     public void stopGeth() {
         if (!runGeth()) {
             return;
