@@ -42,7 +42,7 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     // private CircularFifoQueue<Metric> txnPerSec;
     // private CircularFifoQueue<Metric> blockPerMin;
 
-    private final MetricCollector metricCollector;
+    private MetricCollector metricCollector;
 
     class MetricCollector extends Thread {
         boolean running = true;
@@ -88,6 +88,10 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         // txnPerSec = new CircularFifoQueue<>(1000);
         // blockPerMin = new CircularFifoQueue<>(1000);
 
+        startThread();
+    }
+
+    private void startThread() {
         this.metricCollector = new MetricCollector();
         this.metricCollector.start();
     }
@@ -96,8 +100,10 @@ public class MetricsBlockListener implements BlockListener, TickListener {
     @Override
     public void shutdown() {
         LOG.info("shutdown");
-        this.metricCollector.running = false;
-        this.metricCollector.interrupt();
+        if (this.metricCollector != null && this.metricCollector.isAlive()) {
+            this.metricCollector.running = false;
+            this.metricCollector.interrupt();
+        }
     }
 
     private void pushTxnPerSecRate(Long ts) {
@@ -115,6 +121,12 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 
     @Override
     public void blockCreated(Block block) {
+
+        if (this.metricCollector == null || !this.metricCollector.isAlive()) {
+            // lazily start collector thread if not running
+            this.startThread();
+        }
+
         blockPerMinMeter.mark();
         if (block.getTransactions() != null && block.getTransactions().size() > 0)  {
             if (previousTxCount != null) {
