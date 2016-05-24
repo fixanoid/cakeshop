@@ -1,14 +1,3 @@
-var demo = {
-	on: false,
-
-	add: function() {
-		if (!this.on) {
-			return 0;
-		}
-
-		return Math.ceil(Math.random() * 10);
-	}
-};
 
 var Tower = {
 	ready: false,
@@ -133,14 +122,16 @@ var Tower = {
 					 .addClass('fa-pause tower-txt-danger');
 				}
 
-				utils.prettyUpdate(Tower.status.peerCount, status.peerCount + demo.add(), $('#default-peers'));
-				utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock + demo.add(), $('#default-blocks'));
-				utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn + demo.add(), $('#default-txn'));
+				utils.prettyUpdate(Tower.status.peerCount, status.peerCount, $('#default-peers'));
+				utils.prettyUpdate(Tower.status.latestBlock, status.latestBlock, $('#default-blocks'));
+				utils.prettyUpdate(Tower.status.pendingTxn, status.pendingTxn, $('#default-txn'));
 
 				Tower.status = status;
 
 				// Tower Control becomes ready only after the first status is received from the server
-				(!Tower.ready && Tower.isReady());
+				if (!Tower.ready) {
+					Tower.isReady();
+				}
 			};
 
 			if (Tower.stomp && Tower.stomp.connected === true) {
@@ -157,8 +148,9 @@ var Tower = {
 				utils.load({ url: 'api/node/get' })
 			).done(function(response) {
 				var status = response.data.attributes;
-
 				statusUpdate(status);
+			}).fail(function() {
+				statusUpdate({status: "DOWN", peerCount: "n/a", latestBlock: "n/a", pendingTxn: "n/a"});
 			});
 
 		},
