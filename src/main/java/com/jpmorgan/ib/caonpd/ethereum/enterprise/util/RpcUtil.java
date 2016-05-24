@@ -35,6 +35,14 @@ public class RpcUtil {
         return new DigestSHA3(SHA3_DEFAULT_SIZE).digest(input);
 	}
 
+	public static String sha3AsHex(String input) {
+	    return Hex.toHexString(sha3(input));
+	}
+
+	public static String sha3AsHex(byte[] input) {
+	    return Hex.toHexString(sha3(input));
+	}
+
 	/**
 	 * Merge the given arrays into a single array
 	 *

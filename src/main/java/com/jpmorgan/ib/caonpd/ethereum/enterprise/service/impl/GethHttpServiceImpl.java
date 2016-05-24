@@ -13,8 +13,10 @@ import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Account;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.FileUtils;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.util.ProcessUtils;
 
@@ -170,7 +172,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             } else {
                 message = "RPC call failed";
             }
-            throw new APIException(message);
+            throw new APIException("RPC request failed: " + message);
         }
 
         Object result = data.get("result");
@@ -297,17 +299,8 @@ public class GethHttpServiceImpl implements GethHttpService {
                 writePidToFile(pid, gethConfig.getGethPidFilename());
             }
 
-            if (!checkGethStarted()) {
+            if (!(checkGethStarted() && checkWalletUnlocked())) {
                 LOG.error("Ethereum failed to start");
-                return this.running = false;
-            }
-
-            try {
-                // added for geth 1.4 compat
-                // because RPC comes up before node is fully up
-                LOG.debug("Waiting 3 sec for keys to unlock");
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
                 return this.running = false;
             }
 
@@ -446,12 +439,53 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
+    private boolean checkWalletUnlocked() {
+        WalletService wallet = applicationContext.getBean(WalletService.class);
+        List<Account> accounts = null;
+        try {
+            accounts = wallet.list();
+        } catch (APIException e) {
+            LOG.warn("Failed to list wallet accounts", e);
+            return false;
+        }
+
+
+        long timeStart = System.currentTimeMillis();
+        long timeout = 1000 * accounts.size(); // 1 sec per account
+
+        for (Account account : accounts) {
+            while (true) {
+                try {
+                    if (wallet.isUnlocked(account.getAddress())) {
+                        break;
+                    }
+                } catch (APIException e) {
+                    LOG.debug("Address " + account.getAddress() + " is not unlocked", e);
+                }
+
+                if (System.currentTimeMillis() - timeStart >= timeout) {
+                    LOG.error("Wallet did not unlock in a timely manner");
+                    return false;
+                }
+
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    return false;
+                }
+            }
+        }
+
+        LOG.info("Geth wallet accounts unlocked");
+        return true;
+    }
+
     private boolean checkGethStarted() {
         long timeStart = System.currentTimeMillis();
 
         while (true) {
             if (checkConnection()) {
-                LOG.info("Geth started up successfully");
+                LOG.info("Geth RPC endpoint is up");
                 return true;
             }
 
@@ -474,7 +508,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         try {
             Map<String, Object> info = executeGethCall("admin_nodeInfo", null);
-            if (info != null && info.containsKey("id") && !((String)info.get("id")).isEmpty()) {
+            if (info != null && StringUtils.isNotBlank((String) info.get("id"))) {
                 return true;
             }
         } catch (APIException e) {

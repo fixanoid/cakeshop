@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WalletServiceImpl implements WalletService {
+
+    private static final String DUMMY_PAYLOAD_HASH = RpcUtil.sha3AsHex("foobar");
 
     @Autowired
     private GethHttpService gethService;
@@ -69,6 +72,15 @@ public class WalletServiceImpl implements WalletService {
 
         walletDAO.save(a);
         return a;
+    }
+
+    @Override
+    public boolean isUnlocked(String address) throws APIException {
+        Map<String, Object> result = gethService.executeGethCall("eth_sign", new Object[] { address, DUMMY_PAYLOAD_HASH });
+        if (StringUtils.isNotBlank((String) result.get("_result"))) {
+            return true;
+        }
+        return false;
     }
 
 }

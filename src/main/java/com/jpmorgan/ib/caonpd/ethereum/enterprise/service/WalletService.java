@@ -24,4 +24,13 @@ public interface WalletService {
      */
     public Account create() throws APIException;
 
+    /**
+     * Test whether or not the given account is unlocked in the local wallet
+     *
+     * @param address
+     * @return
+     * @throws APIException
+     */
+    public boolean isUnlocked(String address) throws APIException;
+
 }
