@@ -265,12 +265,9 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean start(String... additionalParams) {
 
-        boolean isStarted = isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()));
-
-        if (isStarted) {
-            LOG.info("Ethereum was already running");
-            this.running = true;
-            return running;
+        if (isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()))) {
+            LOG.info("Ethereum was already running; not starting again");
+            return this.running = true;
         }
 
         try {
@@ -284,6 +281,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
                 File keystoreDir = new File(FileUtils.expandPath(dataDir, "keystore"));
                 if (!keystoreDir.exists()) {
+                    LOG.debug("Initializing keystore");
                     FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
                 }
                 newGethInstall = true;
@@ -299,16 +297,21 @@ public class GethHttpServiceImpl implements GethHttpService {
                 writePidToFile(pid, gethConfig.getGethPidFilename());
             }
 
-            running = checkGethStarted();
+            if (!checkGethStarted()) {
+                LOG.error("Ethereum failed to start");
+                return this.running = false;
+            }
+
             try {
                 // added for geth 1.4 compat
                 // because RPC comes up before node is fully up
+                LOG.debug("Waiting 3 sec for keys to unlock");
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                return false;
+                return this.running = false;
             }
 
-            if (running && newGethInstall) {
+            if (newGethInstall) {
                 BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
                 init.run();
             }
@@ -317,19 +320,14 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         } catch (IOException ex) {
             LOG.error("Cannot start process: " + ex.getMessage());
-            running = false;
+            return this.running = false;
         }
 
         this.blockScanner = applicationContext.getBean(BlockScanner.class);
         blockScanner.start();
 
-        if (running) {
-            LOG.info("Ethereum started ...");
-        } else {
-            LOG.error("Ethereum has NOT been started...");
-        }
-
-        return running;
+        LOG.info("Ethereum started successfully");
+        return this.running = true;
     }
 
     /**
@@ -457,9 +455,9 @@ public class GethHttpServiceImpl implements GethHttpService {
                 return true;
             }
 
-            if (System.currentTimeMillis() - timeStart >= 10000) {
-                // Something went wrong and RPC did not start within 10 sec
-                LOG.error("Geth did not start within 10 seconds");
+            if (System.currentTimeMillis() - timeStart >= gethConfig.getGethStartTimeout()) {
+                // Something went wrong and RPC did not start within timeout
+                LOG.error("Geth did not start within " + gethConfig.getGethStartTimeout() + "ms");
                 break;
             }
             try {

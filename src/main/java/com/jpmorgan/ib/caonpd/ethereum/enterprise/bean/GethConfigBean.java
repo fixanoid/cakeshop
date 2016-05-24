@@ -65,6 +65,7 @@ public class GethConfigBean {
     private final String GETH_NODE_PORT = "geth.node.port";
     private final String GETH_AUTO_START = "geth.auto.start";
     private final String GETH_AUTO_STOP = "geth.auto.stop";
+    private final String GETH_START_TIMEOUT = "geth.start.timeout";
 
     private final String GETH_DB_ENABLED = "geth.db.enabled";
 
@@ -383,6 +384,15 @@ public class GethConfigBean {
     public void setDbEnabled(Boolean enabled) {
         props.setProperty(GETH_DB_ENABLED, enabled.toString());
     }
+
+    public int getGethStartTimeout() {
+        return Integer.parseInt(get(GETH_START_TIMEOUT, "10000"));
+    }
+
+    public void setGethStartTimeout(int timeout) {
+        props.setProperty(GETH_START_TIMEOUT, Integer.toString(timeout));
+    }
+
 
     /**
      * Write the underlying config file to disk (persist all properties)
