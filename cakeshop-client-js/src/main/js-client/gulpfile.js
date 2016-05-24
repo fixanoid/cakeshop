@@ -16,25 +16,25 @@ gulp.task("compile", function() {
     var libs = "lib/**/*.js";
 
     gulp.src(libs)
-        .pipe(concatenate("client.js"))
+        .pipe(concatenate("cakeshop.js"))
         .pipe(gulp.dest(dest))
-        .pipe(concatenate("client-min.js"))
+        .pipe(concatenate("cakeshop-min.js"))
         .pipe(minify())
         .pipe(gulp.dest(dest));
 
     gulp.src(bower().concat(libs))
-        .pipe(concatenate("client-combined.js"))
+        .pipe(concatenate("cakeshop-combined.js"))
         .pipe(gulp.dest(dest))
-        .pipe(concatenate("client-combined-min.js"))
+        .pipe(concatenate("cakeshop-combined-min.js"))
         .pipe(minify())
         .pipe(gulp.dest(dest));
 
 });
 
 gulp.task("install", ["compile"], function() {
-    gulp.src("dist/client.js")
-        .pipe(concatenate("blockchain-sdk-client.js"))
-        .pipe(gulp.dest("../webapp/js/vendor/"));
+    gulp.src("dist/cakeshop.js")
+        .pipe(concatenate("cakeshop.js"))
+        .pipe(gulp.dest("../../../../cakeshop-api/src/main/webapp/js/vendor/"));
 });
 
 gulp.task("watch", ["install"], function() {
