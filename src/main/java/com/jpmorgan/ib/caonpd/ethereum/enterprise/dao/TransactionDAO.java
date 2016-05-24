@@ -93,8 +93,8 @@ public class TransactionDAO {
 
     public void reset() {
         Session session = getCurrentSession();
-        session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
         session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();
+        session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
         session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
         session.flush();
         session.clear();
