@@ -10,9 +10,9 @@ nb-configuration.xml
 .externalToolBuilders/
 
 # temp build files
-/data
-/target/
-/test-output/
+data
+target
+test-output
 /test.json
 logs/
 *.log
@@ -32,3 +32,6 @@ bower_components/
 dist/
 node/
 
+# local testing
+FooTest.java
+SandboxTest.java
