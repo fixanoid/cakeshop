@@ -1,7 +1,6 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.db;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.ethereum.enterprise.config.DatabaseConfig;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
@@ -46,9 +45,6 @@ public class BlockScanner extends Thread {
 
     @Autowired
     private TransactionDAO txDAO;
-
-    @Autowired
-    private DatabaseConfig dbConfig;
 
     @Autowired
     private NodeService nodeService;
