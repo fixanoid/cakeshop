@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.AdminBean;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Account;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.GethHttpService;
@@ -24,6 +25,9 @@ public class WalletServiceImpl implements WalletService {
 
     @Autowired
     private GethHttpService gethService;
+
+    @Autowired
+    private WalletDAO walletDAO;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -62,6 +66,8 @@ public class WalletServiceImpl implements WalletService {
 
         Account a = new Account();
         a.setAddress(newAddress);
+
+        walletDAO.save(a);
         return a;
     }
 

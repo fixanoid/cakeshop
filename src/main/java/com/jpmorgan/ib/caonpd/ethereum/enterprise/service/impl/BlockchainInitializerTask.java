@@ -1,10 +1,15 @@
 package com.jpmorgan.ib.caonpd.ethereum.enterprise.service.impl;
 
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Account;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.Block;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.BlockService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.NodeService;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.service.WalletService;
+
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +32,12 @@ public class BlockchainInitializerTask implements Runnable {
     @Autowired
     private NodeService nodeService;
 
+    @Autowired
+    private WalletService walletService;
+
+    @Autowired
+    private WalletDAO walletDAO;
+
     @Override
     public void run() {
 
@@ -43,8 +54,8 @@ public class BlockchainInitializerTask implements Runnable {
             return;
         }
 
-        LOG.info("Initializing empty blockchain");
 
+        LOG.info("Initializing empty blockchain");
         try {
             nodeService.update(null, null, null, true, null, null);
 
@@ -53,6 +64,17 @@ public class BlockchainInitializerTask implements Runnable {
 
         } catch (APIException e) {
             LOG.error("Error deploying ContractRegistry to chain: " + e.getMessage(), e);
+        }
+
+
+        LOG.info("Storing existing wallet accounts");
+        try {
+            List<Account> list = walletService.list();
+            for (Account account : list) {
+                walletDAO.save(account);
+            }
+        } catch (APIException e) {
+            LOG.error("Error reading local wallet", e);
         }
     }
 

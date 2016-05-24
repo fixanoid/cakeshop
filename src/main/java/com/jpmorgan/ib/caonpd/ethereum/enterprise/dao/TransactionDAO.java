@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransactionDAO {
 
     @Autowired
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Autowired
     private HibernateTemplate hibernateTemplate;
@@ -93,7 +93,8 @@ public class TransactionDAO {
 
     public void reset() {
         Session session = getCurrentSession();
-        session.createSQLQuery("DELETE FROM PUBLIC.\"Transaction_logs\"").executeUpdate();
+        session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
+        session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();
         session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
         session.flush();
         session.clear();

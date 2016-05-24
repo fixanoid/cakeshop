@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BlockDAO {
 
     @Autowired
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Autowired
     private HibernateTemplate hibernateTemplate;

@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.ethereum.enterprise.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.error.APIException;
 import com.jpmorgan.ib.caonpd.ethereum.enterprise.model.RequestModel;
@@ -63,6 +64,9 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Autowired
     private TransactionDAO txDAO;
+
+    @Autowired
+    private WalletDAO walletDAO;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -221,6 +225,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         // delete db
         blockDAO.reset();
         txDAO.reset();
+        walletDAO.reset();
 
         return this.start();
     }
@@ -352,6 +357,21 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private List<String> createGethCommand(String... additionalParams) {
 
+        // Figure out how many accounts need unlocking
+        String accountsToUnlock = "";
+        int numAccounts = walletDAO.list().size();
+        if (numAccounts == 0) {
+            accountsToUnlock = "0,1,2"; // default to accounts we ship
+
+        } else {
+            for (int i = 0; i < numAccounts; i++) {
+                if (accountsToUnlock.length() > 0) {
+                    accountsToUnlock += ",";
+                }
+                accountsToUnlock += i;
+            }
+        }
+
         List<String> commands = Lists.newArrayList(gethConfig.getGethPath(),
                 "--port", gethConfig.getGethNodePort(),
                 "--datadir", gethConfig.getDataDirPath(),
@@ -360,7 +380,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 //"--jpmtest",
                 "--solc", gethConfig.getSolcPath(),
                 "--nat", "none", "--nodiscover",
-                "--unlock", "0,1,2", "--password", gethConfig.getGethPasswordFile(),
+                "--unlock", accountsToUnlock, "--password", gethConfig.getGethPasswordFile(),
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable",
                 "--fakepow"
