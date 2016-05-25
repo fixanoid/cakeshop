@@ -16,7 +16,7 @@
             }
         },
 
-        new: function() {
+        newUntitledKey: function() {
             localStorage.untitled_count = ++this.untitledCount;
             return "Untitled " + this.untitledCount;
         },
@@ -105,7 +105,7 @@
         if (!(loadingFromGist || loadingFromUrl) && Filer.list().length === 0) {
             // Load default file
             Sandbox.loadContract("Ballot.txt").then(function(source) {
-                Filer.add(Filer.new(), source);
+                Filer.add(Filer.newUntitledKey(), source);
                 drawFileTabs();
                 activateTab(Filer.list()[0]); // activate first tab
             });
@@ -114,7 +114,7 @@
         // ----------------- file selector-------------
         var $filesEl = $('ul.filetabs');
         $filesEl.on('click','.new_file', function() {
-            var key = Filer.new();
+            var key = Filer.newUntitledKey();
             Filer.add(key, "");
             addFileTab(key, true);
         });
