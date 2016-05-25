@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
+import com.jpmorgan.ib.caonpd.cakeshop.error.ABIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
@@ -40,6 +41,10 @@ public class BaseController {
                 err.setDetail(e);
                 res.addError(err);
             }
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+
+        } else if (ex instanceof ABIException) {
+            res.addError(new APIError(null, HttpStatus.BAD_REQUEST.toString(), "Arguments did not match ABI signature", ex.getMessage(), null));
             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 
         } else if (ex instanceof APIException) {

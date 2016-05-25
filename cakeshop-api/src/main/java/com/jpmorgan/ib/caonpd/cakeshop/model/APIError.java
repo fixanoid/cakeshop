@@ -17,17 +17,22 @@ public class APIError {
     }
 
     public APIError(String id, String status, String title) {
-        this.id = id;
-        this.status = status;
-        this.title = title;
+        this(id, status, title, null, null);
     }
-    
-    public APIError(String id, String status, String title,String rootCause) {
+
+    public APIError(String id, String status, String title, String rootCause) {
+        this(id, status, title, rootCause, null);
+    }
+
+    public APIError(String id, String status, String title, String detail, String rootCause) {
         this.id = id;
         this.status = status;
         this.title = title;
+        this.detail = detail;
         this.rootCause = rootCause;
     }
+
+
 
     public String getId() {
         return id;

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpmorgan.ib.caonpd.cakeshop.error.ABIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Type;
 import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
 
@@ -139,15 +140,15 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
 
                 if (args == null || args.length == 0) {
                     if (params.size() > 0) {
-                        throw new RuntimeException("Too few arguments: 0 < " + params.size());
+                        throw new ABIException("Too few arguments: 0 < " + params.size());
                     }
                     return new byte[0];
                 }
 
                 if (args.length > params.size()) {
-                    throw new RuntimeException("Too many arguments: " + args.length + " > " + params.size());
+                    throw new ABIException("Too many arguments: " + args.length + " > " + params.size());
                 } else if (args.length < params.size()) {
-                    throw new RuntimeException("Too few arguments: " + args.length + " < " + params.size());
+                    throw new ABIException("Too few arguments: " + args.length + " < " + params.size());
                 }
 
                 int staticSize = 0;

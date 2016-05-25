@@ -230,8 +230,11 @@
                     resolve(res.data); // return read result
 
                 }).fail(function(xhr, status, errThrown) {
-                    console.log('READ FAILED!!', status, errThrown);
-                    reject(errThrown);
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        reject(xhr.responseJSON.errors);
+                    } else {
+                        reject(errThrown); // generic error
+                    }
                 });
 
             });

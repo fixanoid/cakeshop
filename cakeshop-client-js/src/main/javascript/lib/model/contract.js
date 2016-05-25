@@ -119,8 +119,13 @@
                     resolve(res.data); // return read result
 
                 }).fail(function(xhr, status, errThrown) {
-                    console.log('READ FAILED!!', status, errThrown);
-                    reject(errThrown);
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        console.log('READ FAILED!!', xhr.responseJSON.errors);
+                        reject(xhr.responseJSON.errors);
+                    } else {
+                        console.log('READ FAILED!!', errThrown);
+                        reject(errThrown); // generic error
+                    }
                 });
 
             });

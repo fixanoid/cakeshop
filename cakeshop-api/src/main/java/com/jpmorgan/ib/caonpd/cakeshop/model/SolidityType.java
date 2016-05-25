@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.jpmorgan.ib.caonpd.cakeshop.error.ABIException;
 import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
 
 import java.lang.reflect.Array;
@@ -42,7 +43,7 @@ public abstract class SolidityType {
         if ("string".equals(typeName)) return new StringType();
         if ("bytes".equals(typeName)) return new BytesType();
         if (typeName.startsWith("bytes")) return new Bytes32Type(typeName);
-        throw new RuntimeException("Unknown type: " + typeName);
+        throw new ABIException("Unknown type: " + typeName);
     }
 
     /**
@@ -101,7 +102,7 @@ public abstract class SolidityType {
             } else if (value instanceof List) {
                 return encodeList((List) value);
             } else {
-                throw new RuntimeException("List value expected for type " + getName());
+                throw new ABIException("List value expected for type " + getName());
             }
         }
 
@@ -126,7 +127,7 @@ public abstract class SolidityType {
 
         @Override
         public byte[] encodeList(List l) {
-            if (l.size() != size) throw new RuntimeException("List size (" + l.size() + ") != " + size + " for type " + getName());
+            if (l.size() != size) throw new ABIException("List size (" + l.size() + ") != " + size + " for type " + getName());
             byte[][] elems = new byte[size][];
             for (int i = 0; i < l.size(); i++) {
                 elems[i] = elementType.encode(l.get(i));
@@ -220,7 +221,7 @@ public abstract class SolidityType {
 
         @Override
         public byte[] encode(Object value) {
-            if (!(value instanceof byte[])) throw new RuntimeException("byte[] value expected for type 'bytes'");
+            if (!(value instanceof byte[])) throw new ABIException("byte[] value expected for type 'bytes'");
             byte[] bb = (byte[]) value;
             byte[] ret = new byte[((bb.length - 1) / 32 + 1) * 32]; // padding 32 bytes
             System.arraycopy(bb, 0, ret, 0, bb.length);
@@ -248,7 +249,7 @@ public abstract class SolidityType {
 
         @Override
         public byte[] encode(Object value) {
-            if (!(value instanceof String)) throw new RuntimeException("String value expected for type 'string'");
+            if (!(value instanceof String)) throw new ABIException("String value expected for type 'string'");
             return super.encode(((String)value).getBytes(StandardCharsets.UTF_8));
         }
 
@@ -305,7 +306,7 @@ public abstract class SolidityType {
             byte[] addr = super.encode(value);
             for (int i = 0; i < 12; i++) {
                 if (addr[i] != 0) {
-                    throw new RuntimeException("Invalid address (should be 20 bytes length): " + Hex.toHexString(addr));
+                    throw new ABIException("Invalid address (should be 20 bytes length): " + Hex.toHexString(addr));
                 }
             }
             return addr;
@@ -353,7 +354,7 @@ public abstract class SolidityType {
             } else  if (value instanceof Number) {
                 bigInt = new BigInteger(value.toString());
             } else {
-                throw new RuntimeException("Invalid value for type '" + this + "': " + value + " (" + value.getClass() + ")");
+                throw new ABIException("Invalid value for type '" + this + "': " + value + " (" + value.getClass() + ")");
             }
             return encodeInt(bigInt);
         }
@@ -385,7 +386,7 @@ public abstract class SolidityType {
 
         @Override
         public byte[] encode(Object value) {
-            if (!(value instanceof Boolean)) throw new RuntimeException("Wrong value for bool type: " + value);
+            if (!(value instanceof Boolean)) throw new ABIException("Wrong value for bool type: " + value);
             return super.encode(value == Boolean.TRUE ? 1 : 0);
         }
 

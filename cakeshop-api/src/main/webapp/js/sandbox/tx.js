@@ -205,8 +205,18 @@
         if (method.constant === true) {
             activeContract.proxy[method.name]({from: from, args: _params}).then(function(res) {
                 addTx("[read] " + method_sig + " => " + JSON.stringify(res), null);
-            }, function(err) {
-                addTx("[read] " + method_sig + " => [ERROR]" + err);
+            }, function(errors) {
+                var err = "[read] " + method_sig + " => [ERROR] ";
+                if (_.isArray(errors)) {
+                    if (errors.length > 0) {
+                        err += errors[0].detail;
+                    } else {
+                        err += "Bad request";
+                    }
+                } else {
+                    err += errors;
+                }
+                addTx(err);
             });
 
         } else {
