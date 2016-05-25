@@ -50,8 +50,8 @@ var Tower = {
 
 
 	processHash: function() {
-		// http://localhost:8080/ethereum-enterprise/index.html#section=explorer&widgetId=txn-detail&data=0xd6398cb5cb5bac9d191de62665c1e7e4ef8cd9fe1e9ff94eec181a7b4046345c
-		// http://localhost:8080/ethereum-enterprise/index.html#section=explorer&widgetId=block-detail&data=2
+		// http://localhost:8080/cakeshop/index.html#section=explorer&widgetId=txn-detail&data=0xd6398cb5cb5bac9d191de62665c1e7e4ef8cd9fe1e9ff94eec181a7b4046345c
+		// http://localhost:8080/cakeshop/index.html#section=explorer&widgetId=block-detail&data=2
 		if (window.location.hash) {
 			var params = {}, hash = window.location.hash.substring(1, window.location.hash.length);
 
@@ -91,7 +91,7 @@ var Tower = {
 
 
 	socketInit: function() {
-		var stomp = Tower.stomp = Stomp.over(new SockJS('/ethereum-enterprise/ws'));
+		var stomp = Tower.stomp = Stomp.over(new SockJS('/cakeshop/ws'));
 		stomp.debug = null;
 		stomp.connect({}, function(frame) {
 			_.each(Tower.stomp_subscriptions, function(sub, topic) {

@@ -7,7 +7,7 @@ info:
 host: localhost:8080
 schemes:
   - http
-basePath: /ethereum-enterprise/api
+basePath: /cakeshop/api
 tags:
   - name: node
   - name: block

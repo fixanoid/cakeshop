@@ -62,7 +62,7 @@
 
 			_.each(hood, function(ip) {
 				var port = (window.location.port ? ':' + window.location.port : ''),
-					ep = window.location.protocol + '//' + ip + port + '/ethereum-enterprise/ws',
+					ep = window.location.protocol + '//' + ip + port + '/cakeshop/ws',
 					stomp = Stomp.over(new SockJS(ep));
 
 				stomp.debug = null;

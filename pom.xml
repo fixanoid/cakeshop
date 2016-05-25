@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>com.jpmorgan.ib.caonpd</groupId>
-    <artifactId>cakeshop</artifactId>
+    <artifactId>cakeshop-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -37,12 +37,13 @@
 
     <modules>
         <module>cakeshop-api</module>
+        <module>cakeshop-client-java</module>
         <module>cakeshop-client-js</module>
     </modules>
 
     <build>
         <plugins>
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -52,7 +53,7 @@
                         <endorseddirs>${endorsed.dir}</endorseddirs>
                     </compilerArguments>
                 </configuration>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

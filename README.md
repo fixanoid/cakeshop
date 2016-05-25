@@ -32,6 +32,6 @@ APIs for directly integrating applications with the chain.
 * Download WAR file
 * Put in `/webapps` folder of your app server
 * Start app server
-* Navigate to [http://localhost:8080/ethereum-enterprise/](http://localhost:8080/ethereum-enterprise/)
+* Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/)
 
 That's it!

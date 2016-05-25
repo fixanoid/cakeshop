@@ -5,16 +5,14 @@
 
     <parent>
         <groupId>com.jpmorgan.ib.caonpd</groupId>
-        <artifactId>cakeshop</artifactId>
+        <artifactId>cakeshop-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.jpmorgan.ib.caonpd</groupId>
-    <artifactId>ethereum-enterprise</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>cakeshop</artifactId>
     <packaging>war</packaging>
 
-    <name>ethereum-enterprise</name>
+    <name>Cakeshop API</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -38,18 +36,6 @@
 
         <junit.version>4.11</junit.version>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>caonpd-releases</id>
-            <url>https://repo.jpmchase.net/maven/content/repositories/CAONPD</url>
-        </repository>
-        <snapshotRepository>
-            <id>caonpd-snapshots</id>
-            <uniqueVersion>false</uniqueVersion>
-            <url>https://repo.jpmchase.net/maven/content/repositories/CAONPD-SNAPSHOT</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <dependencies>
 
@@ -300,15 +286,6 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <!--
-                    <webResources>
-                         <resource>
-                            this is relative to the pom.xml directory
-                            <targetPath>geth-resources</targetPath>
-                            <directory>geth-resources</directory>
-                        </resource>
-                    </webResources>
-                    -->
                 </configuration>
             </plugin>
             <plugin>

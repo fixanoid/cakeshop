@@ -86,7 +86,7 @@ public class SpringBootApplication {
     @Profile("spring-boot")
     public EmbeddedServletContainerFactory embeddedServletContainerFactory() {
         TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
-        tomcat.setContextPath("/ethereum-enterprise");
+        tomcat.setContextPath("/cakeshop");
         return tomcat;
     }
 
