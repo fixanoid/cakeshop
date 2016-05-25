@@ -8,10 +8,10 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
+import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Constructor;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Constructor;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
@@ -254,6 +254,10 @@ public class ContractServiceImpl implements ContractService {
 
 	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
 	    String res = (String) readRes.get("_result");
+	    if (StringUtils.isNotBlank(res) && res.length() == 2 && res.contentEquals("0x")) {
+	        throw new APIException("eth_call failed (returned 0 bytes)");
+	    }
+
 	    Object[] decodedResults = req.getFunction().decodeHexResult(res).toArray();
 
 	    return decodedResults;
