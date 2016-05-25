@@ -451,7 +451,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
 
         long timeStart = System.currentTimeMillis();
-        long timeout = 1000 * accounts.size(); // 1 sec per account
+        long timeout = 2000 * accounts.size(); // 2 sec per account
 
         for (Account account : accounts) {
             while (true) {
