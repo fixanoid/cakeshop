@@ -231,8 +231,10 @@
 
                 }).fail(function(xhr, status, errThrown) {
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        console.log('READ FAILED!!', xhr.responseJSON.errors);
                         reject(xhr.responseJSON.errors);
                     } else {
+                        console.log('READ FAILED!!', errThrown);
                         reject(errThrown); // generic error
                     }
                 });
@@ -283,6 +285,14 @@
                 Transaction.waitForTx(txid).then(function(tx) {
                     resolve(tx.get('contractAddress'));
                 });
+            }).fail(function(xhr, status, errThrown) {
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    console.log('Contract creation failed', xhr.responseJSON.errors);
+                    reject(xhr.responseJSON.errors);
+                } else {
+                    console.log('Contract creation failed', errThrown);
+                    reject(errThrown); // generic error
+                }
             });
         });
     };

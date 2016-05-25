@@ -72,6 +72,7 @@
                 sel.append("<option value='" + c.id + "'>" + name + "</option>");
             });
             // $("div.contracts .refresh").hide();
+            // sel.val(sel.find("option:last").val()).change(); // useful for debugging contract stuff
         });
     }
 
@@ -99,7 +100,14 @@
     function wrapInputs(method) {
         var s = "";
         method.inputs.forEach(function(input) {
-            s += '<input type="text" class="form-control" data-param="' + input.name + '" placeholder="' + input.name + '(' + input.type + ')"> ';
+            s += '<div class="input-group method-inputs" data-param="' + input.name + '">';
+            s += '<input type="text" class="form-control" data-param="' + input.name + '" data-type="' + input.type + '" placeholder="' + input.name + '(' + input.type + ')"> ';
+            if (input.type.match(/\[(\d+)?\]/)) {
+                // handle dynamic array input types - like bytes32[]
+                s += '<span class="input-group-addon"><a class="remove text-danger disabled"><i class="fa fa-minus"></i></a></span>';
+                s += '<span class="input-group-addon"><a class="add text-success"><i class="fa fa-plus"></i></a></span>';
+            }
+            s += '</div>';
         });
         return s;
     }
@@ -151,24 +159,27 @@
         s += '</table></div>';
 
         $(".transact .panel-overflow").remove();
-        $(".transact").append(s);
+        var transactPanel = $(".transact").append(s);
 
+        // read/transact buttons
         $(".transact .send button").click(function(e) {
             e.preventDefault();
-            var tr = $(e.target).parents("tr");
+            var tr = $(e.target).parents("tr.method");
             var fromAddr = $(".transact select.accounts").val();
             var method = activeContract.getMethod(tr.attr("data-method"));
             highlightMethod(method);
 
-            var params = {};
-            $(tr).find("input").each(function(i, el) {
-                el = $(el);
-                params[el.attr("data-param")] = el.val();
-            });
+            var params = collectInputVals(method, tr);
             doMethodCall(activeContract, fromAddr, method, params);
             return false;
         });
 
+        // add/remove input fields
+        $(".transact .method-inputs a").click(function(e) {
+            addRemoveInputs(transactPanel, e);
+        });
+
+        // highlight associated sourcecode on method input click
         $(".transact .method").click(function(e) {
             var el = e.target.tagName === "TR" ? $(e.target) : $(e.target).parents("tr");
             var methodName = el.attr("data-method");
@@ -178,7 +189,63 @@
 
     }
 
+    function addRemoveInputs(container, e) {
+        e.preventDefault();
+        var btn = $(e.currentTarget);
+        if (btn.hasClass("disabled")) {
+            return;
+        }
+
+        var div = btn.parents("div.method-inputs");
+        var param = div.attr("data-param");
+
+        if (btn.hasClass("add")) {
+            // add new field
+            div.clone(true).insertAfter(div).find("input").val("");
+            container.find(".method-inputs[data-param=" + param + "] a.remove").removeClass("disabled");
+
+        } else {
+            // remove field
+            div.remove();
+            var removeButtons = container.find(".method-inputs[data-param=" + param + "] a.remove");
+            if (removeButtons.length == 1) {
+                removeButtons.addClass("disabled");
+            }
+
+        }
+    }
+
+    /**
+     * Collect all the form inputs for the given method
+     *
+     * @param [Object] method       ABI object
+     * @param [Element] container   Container element which wraps all inputs
+     */
+    function collectInputVals(method, container) {
+        var params = {};
+        method.inputs.forEach(function(input) {
+            var val;
+            if (input.type.match(/\[(\d+)?\]/)) {
+                val = container.find(".method-inputs[data-param=" + input.name + "] input").map(function(i, el) {
+                    return $(el).val();
+                }).toArray();
+            } else {
+                val = container.find(".method-inputs[data-param=" + input.name + "] input").val();
+            }
+            params[input.name] = val;
+        });
+        return params;
+    }
+
+    /**
+     * Highlight the given method in the source code editor
+     *
+     * @param [Object] method (ABI object)
+     */
     function highlightMethod(method) {
+        if (!method) {
+            return;
+        }
         var lines = Sandbox.getEditorSource().split("\n");
         for (var i = 0; i < lines.length; i++) {
             var highlight = false;
@@ -371,7 +438,7 @@
     // Select already deployed contract
     $(".select_contract .contracts select").change(function(e) {
         var addr = $(e.target).val();
-        if (!addr || addr.length == 0) {
+        if (!addr || addr.length === 0) {
             return;
         }
         $(".select_contract .address input").val(addr).change();
@@ -398,6 +465,10 @@
             con.append("(no constructor arguments)");
         } else {
             con.append(wrapInputs(conMethod));
+            con.find(".method-inputs a").click(function(e) {
+                addRemoveInputs(con, e);
+            });
+
         }
 
 		con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');
@@ -417,11 +488,7 @@
             Contract.compile(editorSource, optimize).then(function(compiler_output) {
                 var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
 
-                var params = {};
-                $(".select_contract .constructor").find("input").each(function(i, el) {
-                    el = $(el);
-                    params[el.attr("data-param")] = el.val();
-                });
+                var params = collectInputVals(conMethod, $(".select_contract .constructor"));
                 var _params = _.map(params, function(v, k) { return v; });
 
                 var _args = "";
@@ -449,6 +516,8 @@
                         });
                     }
                     setTimeout(waitForRegistration, 200);
+                }, function(errors) {
+                    addTx("Deploy failed: " + errors[0].detail);
                 });
 
             });

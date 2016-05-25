@@ -166,6 +166,9 @@ nav.sidenav ul.navbar-right li.mining_status a {
     max-height: 600px;
 }*/
 
+
+/* Transact form inputs */
+
 .transact .table td.send {
     text-align: right;
 }
@@ -173,6 +176,20 @@ nav.sidenav ul.navbar-right li.mining_status a {
 .transact tr.from_address {
     background-color: rgba(190, 255, 190, 0.54);
 }
+
+.method-inputs {
+    padding-bottom: 5px;
+}
+
+.method-inputs a {
+    cursor: pointer;
+}
+
+.method-inputs a.disabled {
+    cursor: not-allowed;
+    color: gray;
+}
+
 
 div.panel.accounts table {
     table-layout: fixed;
