@@ -38,6 +38,10 @@ public class BlockServiceImpl implements BlockService {
             input = tag;
         }
 
+        if (method == null || input == null) {
+            throw new APIException("Bad request");
+        }
+
         Map<String, Object> blockData =
                 gethService.executeGethCall(method, new Object[]{ input, false });
 
