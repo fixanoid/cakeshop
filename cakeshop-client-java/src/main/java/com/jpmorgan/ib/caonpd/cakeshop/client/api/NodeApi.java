@@ -19,13 +19,4 @@ public interface NodeApi extends ApiClient.Api {
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
     APIResponse<APIData<Node>, Node> get();
 
-    /**
-     * Create a new Node in the wallet
-     *
-     * @return APIResponse<APIData<Node>>
-     */
-    @RequestLine("POST /node/create")
-    @Headers({ "Content-type: application/json", "Accepts: application/json", })
-    APIResponse<APIData<Node>, Node> create();
-
 }
