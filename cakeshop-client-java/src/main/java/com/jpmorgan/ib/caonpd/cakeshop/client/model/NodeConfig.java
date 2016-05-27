@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2016-05-26T13:00:18.987-04:00")
-public class NodeInfo   {
+public class NodeConfig   {
 
     private String identity = null;
     private Boolean committingTransactions = null;
@@ -27,7 +27,7 @@ public class NodeInfo   {
     /**
      * Friendly node name which gets included in the full node Name
      **/
-    public NodeInfo identity(String identity) {
+    public NodeConfig identity(String identity) {
         this.identity = identity;
         return this;
     }
@@ -45,7 +45,7 @@ public class NodeInfo   {
     /**
      * Indicates whether the node is commiting transactions or not
      **/
-    public NodeInfo committingTransactions(Boolean committingTransactions) {
+    public NodeConfig committingTransactions(Boolean committingTransactions) {
         this.committingTransactions = committingTransactions;
         return this;
     }
@@ -63,7 +63,7 @@ public class NodeInfo   {
     /**
      * Network identifier
      **/
-    public NodeInfo networkId(Integer networkId) {
+    public NodeConfig networkId(Integer networkId) {
         this.networkId = networkId;
         return this;
     }
@@ -81,7 +81,7 @@ public class NodeInfo   {
     /**
      * Logging verbosity: 0-6 (0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=debug detail)
      **/
-    public NodeInfo logLevel(Integer logLevel) {
+    public NodeConfig logLevel(Integer logLevel) {
         this.logLevel = logLevel;
         return this;
     }
@@ -95,7 +95,7 @@ public class NodeInfo   {
         this.logLevel = logLevel;
     }
 
-    public NodeInfo genesisBlock(String genesisBlock) {
+    public NodeConfig genesisBlock(String genesisBlock) {
         this.genesisBlock = genesisBlock;
         return this;
     }
@@ -107,7 +107,7 @@ public class NodeInfo   {
         this.genesisBlock = genesisBlock;
     }
 
-    public NodeInfo extraParams(String extraParams) {
+    public NodeConfig extraParams(String extraParams) {
         this.extraParams = extraParams;
         return this;
     }
@@ -127,7 +127,7 @@ public class NodeInfo   {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        NodeInfo nodeInfo = (NodeInfo) o;
+        NodeConfig nodeInfo = (NodeConfig) o;
         return Objects.equals(this.identity, nodeInfo.identity) &&
                 Objects.equals(this.committingTransactions, nodeInfo.committingTransactions) &&
                 Objects.equals(this.networkId, nodeInfo.networkId) &&

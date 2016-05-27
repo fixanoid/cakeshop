@@ -31,9 +31,17 @@ public class Node   {
     private Integer latestBlock = null;
 
 
-    private NodeInfo config = null;
+    private NodeConfig config = null;
     private List<Peer> peers = null;
 
+
+    /**
+     * True if node is running
+     * @return
+     */
+    public boolean isRunning() {
+        return (status != null && status.contentEquals("running"));
+    }
 
     /**
      * Status of the node, it has two values \"running\" or \"stopped\"
@@ -220,15 +228,15 @@ public class Node   {
     }
 
 
-    public Node config(NodeInfo config) {
+    public Node config(NodeConfig config) {
         this.config = config;
         return this;
     }
     @JsonProperty("config")
-    public NodeInfo getConfig() {
+    public NodeConfig getConfig() {
         return config;
     }
-    public void setConfig(NodeInfo config) {
+    public void setConfig(NodeConfig config) {
         this.config = config;
     }
 
