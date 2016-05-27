@@ -35,3 +35,10 @@ node/
 # local testing
 FooTest.java
 SandboxTest.java
+
+# bundle testing
+.otto*
+app/
+Appfile
+Dockerfile
+
