@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.swagger.annotations.ApiModelProperty;
 
 
@@ -17,6 +20,8 @@ public class NodeInfo   {
     private Boolean committingTransactions = null;
     private Integer networkId = null;
     private Integer logLevel = null;
+    private String genesisBlock = null;
+    private String extraParams = null;
 
 
     /**
@@ -90,7 +95,29 @@ public class NodeInfo   {
         this.logLevel = logLevel;
     }
 
+    public NodeInfo genesisBlock(String genesisBlock) {
+        this.genesisBlock = genesisBlock;
+        return this;
+    }
+    @JsonProperty("genesisBlock")
+    public String getGenesisBlock() {
+        return genesisBlock;
+    }
+    public void setGenesisBlock(String genesisBlock) {
+        this.genesisBlock = genesisBlock;
+    }
 
+    public NodeInfo extraParams(String extraParams) {
+        this.extraParams = extraParams;
+        return this;
+    }
+    @JsonProperty("extraParams")
+    public String getExtraParams() {
+        return extraParams;
+    }
+    public void setExtraParams(String extraParams) {
+        this.extraParams = extraParams;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -114,26 +141,8 @@ public class NodeInfo   {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class NodeInfo {\n");
-
-        sb.append("    identity: ").append(toIndentedString(identity)).append("\n");
-        sb.append("    committingTransactions: ").append(toIndentedString(committingTransactions)).append("\n");
-        sb.append("    networkId: ").append(toIndentedString(networkId)).append("\n");
-        sb.append("    logLevel: ").append(toIndentedString(logLevel)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }
 

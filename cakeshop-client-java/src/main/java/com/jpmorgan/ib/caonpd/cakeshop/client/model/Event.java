@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.swagger.annotations.ApiModelProperty;
 
 
@@ -186,30 +189,8 @@ public class Event   {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Event {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    blockId: ").append(toIndentedString(blockId)).append("\n");
-        sb.append("    blockNumber: ").append(toIndentedString(blockNumber)).append("\n");
-        sb.append("    logIndex: ").append(toIndentedString(logIndex)).append("\n");
-        sb.append("    transactionId: ").append(toIndentedString(transactionId)).append("\n");
-        sb.append("    contractId: ").append(toIndentedString(contractId)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    data: ").append(toIndentedString(data)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }
 

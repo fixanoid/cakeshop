@@ -2,7 +2,11 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
 import java.util.Objects;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import io.swagger.annotations.ApiModelProperty;
 
@@ -18,10 +22,17 @@ public class Node   {
     private String nodeName = null;
     private String nodeUrl = null;
     private String nodeIP = null;
+    private String rpcUrl = null;
+    private String dataDirectory = null;
+
     private Integer peerCount = null;
     private Integer pendingTxn = null;
     private Boolean mining = null;
     private Integer latestBlock = null;
+
+
+    private NodeInfo config = null;
+    private List<Peer> peers = null;
 
 
     /**
@@ -113,6 +124,29 @@ public class Node   {
         this.nodeIP = nodeIP;
     }
 
+    public Node rpcUrl(String rpcUrl) {
+        this.rpcUrl = rpcUrl;
+        return this;
+    }
+    @JsonProperty("rpcUrl")
+    public String getRpcUrl() {
+        return rpcUrl;
+    }
+    public void setRpcUrl(String rpcUrl) {
+        this.rpcUrl = rpcUrl;
+    }
+
+    public Node dataDirectory(String dataDirectory) {
+        this.dataDirectory = dataDirectory;
+        return this;
+    }
+    @JsonProperty("dataDirectory")
+    public String getDataDirectory() {
+        return dataDirectory;
+    }
+    public void setDataDirectory(String dataDirectory) {
+        this.dataDirectory = dataDirectory;
+    }
 
     /**
      * Number of peers connected to the node
@@ -186,6 +220,31 @@ public class Node   {
     }
 
 
+    public Node config(NodeInfo config) {
+        this.config = config;
+        return this;
+    }
+    @JsonProperty("config")
+    public NodeInfo getConfig() {
+        return config;
+    }
+    public void setConfig(NodeInfo config) {
+        this.config = config;
+    }
+
+    public Node peers(List<Peer> peers) {
+        this.peers = peers;
+        return this;
+    }
+    @JsonProperty("peers")
+    public List<Peer> getPeers() {
+        return peers;
+    }
+    public void setPeers(List<Peer> peers) {
+        this.peers = peers;
+    }
+
+
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -214,31 +273,8 @@ public class Node   {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Node {\n");
-
-        sb.append("    status: ").append(toIndentedString(status)).append("\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    nodeName: ").append(toIndentedString(nodeName)).append("\n");
-        sb.append("    nodeUrl: ").append(toIndentedString(nodeUrl)).append("\n");
-        sb.append("    nodeIP: ").append(toIndentedString(nodeIP)).append("\n");
-        sb.append("    peerCount: ").append(toIndentedString(peerCount)).append("\n");
-        sb.append("    pendingTxn: ").append(toIndentedString(pendingTxn)).append("\n");
-        sb.append("    mining: ").append(toIndentedString(mining)).append("\n");
-        sb.append("    latestBlock: ").append(toIndentedString(latestBlock)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }
 

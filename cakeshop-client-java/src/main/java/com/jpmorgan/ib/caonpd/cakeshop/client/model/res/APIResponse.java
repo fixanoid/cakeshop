@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.model.res;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @JsonInclude(Include.NON_NULL)
-public class APIResponse<T> {
+public class APIResponse<T, S> {
 
     /**
      * Response data. Should be an instance of either {@link APIData} or List&lt;APIData&gt;.
      */
-    private T data;
+    private T apiData;
 
     private List<APIError> errors;
     private Map<String, String> meta;
@@ -31,12 +32,13 @@ public class APIResponse<T> {
         getErrors().add(error);
     }
 
-    public T getData() {
-        return data;
+    public T getApiData() {
+        return apiData;
     }
 
-    public void setData(T data) {
-        this.data = data;
+    @JsonProperty("data")
+    public void setApiData(T data) {
+        this.apiData = data;
     }
 
     public List<APIError> getErrors() {
@@ -58,5 +60,27 @@ public class APIResponse<T> {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    @SuppressWarnings("unchecked")
+    public S getData() {
+        if (apiData != null && apiData instanceof APIData<?>) {
+            return ((APIData<S>) apiData).getAttributes();
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<S> getDataAsList() {
+        if (apiData == null || !(apiData instanceof List<?>)) {
+            return null;
+        }
+
+        List<S> ret = new ArrayList<>();
+        for (APIData<S> d :  (List<APIData<S>>) apiData) {
+            ret.add(d.getAttributes());
+        }
+
+        return ret;
     }
 }

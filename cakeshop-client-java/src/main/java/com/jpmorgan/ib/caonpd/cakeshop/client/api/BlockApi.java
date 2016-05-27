@@ -20,6 +20,6 @@ public interface BlockApi extends ApiClient.Api {
      */
     @RequestLine("POST /block/get")
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
-    APIResponse<APIData<Block>> get(BlockGetCommand command);
+    APIResponse<APIData<Block>, Block> get(BlockGetCommand command);
 
 }

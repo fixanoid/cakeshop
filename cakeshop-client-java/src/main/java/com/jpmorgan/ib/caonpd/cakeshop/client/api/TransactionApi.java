@@ -12,14 +12,14 @@ import feign.RequestLine;
 public interface TransactionApi extends ApiClient.Api {
 
     /**
-     * Retrieve a block by id, number or tag
+     * Retrieve a transaction by id
      *
-     * @param command
+     * @param id
      *
      * @return APIResponse<APIData<Transaction>>
      */
     @RequestLine("POST /transaction/get")
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
-    APIResponse<APIData<Transaction>> get(@Param("id") String id);
+    APIResponse<APIData<Transaction>, Transaction> get(@Param("id") String id);
 
 }
