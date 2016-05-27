@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.SimpleResult;
 
 import org.testng.annotations.Test;
 
@@ -24,6 +25,42 @@ public class NodeApiTest extends BaseApiTest {
         assertNotNull(node);
         assertEquals(node.getPeers().size(), 0);
         assertEquals(node.getPeerCount(), Integer.valueOf(0));
+    }
+
+    @Test
+    public void testStart() {
+        NodeApi nodeApi = apiClient.buildClient(NodeApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":{\"attributes\":{\"result\":true}},\"meta\":{\"version\":\"1.0\"}}"));
+        APIResponse<APIData<SimpleResult>, Boolean> res = nodeApi.start();
+        assertNotNull(res);
+        assertEquals(res.getData(), Boolean.TRUE);
+    }
+
+    @Test
+    public void testStop() {
+        NodeApi nodeApi = apiClient.buildClient(NodeApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":{\"attributes\":{\"result\":true}},\"meta\":{\"version\":\"1.0\"}}"));
+        APIResponse<APIData<SimpleResult>, Boolean> res = nodeApi.stop();
+        assertNotNull(res);
+        assertEquals(res.getData(), Boolean.TRUE);
+    }
+
+    @Test
+    public void testRestart() {
+        NodeApi nodeApi = apiClient.buildClient(NodeApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":{\"attributes\":{\"result\":true}},\"meta\":{\"version\":\"1.0\"}}"));
+        APIResponse<APIData<SimpleResult>, Boolean> res = nodeApi.restart();
+        assertNotNull(res);
+        assertEquals(res.getData(), Boolean.TRUE);
+    }
+
+    @Test
+    public void testReset() {
+        NodeApi nodeApi = apiClient.buildClient(NodeApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":{\"attributes\":{\"result\":true}},\"meta\":{\"version\":\"1.0\"}}"));
+        APIResponse<APIData<SimpleResult>, Boolean> res = nodeApi.reset();
+        assertNotNull(res);
+        assertEquals(res.getData(), Boolean.TRUE);
     }
 
 }

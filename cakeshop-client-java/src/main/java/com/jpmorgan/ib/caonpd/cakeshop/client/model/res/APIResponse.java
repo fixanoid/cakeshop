@@ -65,7 +65,11 @@ public class APIResponse<T, S> {
     @SuppressWarnings("unchecked")
     public S getData() {
         if (apiData != null && apiData instanceof APIData<?>) {
-            return ((APIData<S>) apiData).getAttributes();
+            Object data = ((APIData<?>) apiData).getAttributes();
+            if (data instanceof SimpleResult) {
+                return (S) ((SimpleResult) data).getResult();
+            }
+            return (S) data;
         }
         return null;
     }
