@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.swagger.annotations.ApiModelProperty;
 
 
@@ -366,39 +369,7 @@ public class Transaction   {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Transaction {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    status: ").append(toIndentedString(status)).append("\n");
-        sb.append("    nonce: ").append(toIndentedString(nonce)).append("\n");
-        sb.append("    blockId: ").append(toIndentedString(blockId)).append("\n");
-        sb.append("    blockNumber: ").append(toIndentedString(blockNumber)).append("\n");
-        sb.append("    transactionIndex: ").append(toIndentedString(transactionIndex)).append("\n");
-        sb.append("    from: ").append(toIndentedString(from)).append("\n");
-        sb.append("    to: ").append(toIndentedString(to)).append("\n");
-        sb.append("    input: ").append(toIndentedString(input)).append("\n");
-        sb.append("    decodedInput: ").append(toIndentedString(decodedInput)).append("\n");
-        sb.append("    value: ").append(toIndentedString(value)).append("\n");
-        sb.append("    gas: ").append(toIndentedString(gas)).append("\n");
-        sb.append("    gasPrice: ").append(toIndentedString(gasPrice)).append("\n");
-        sb.append("    cumulativeGasUsed: ").append(toIndentedString(cumulativeGasUsed)).append("\n");
-        sb.append("    gasUsed: ").append(toIndentedString(gasUsed)).append("\n");
-        sb.append("    contractAddress: ").append(toIndentedString(contractAddress)).append("\n");
-        sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }
 
