@@ -457,6 +457,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             while (true) {
                 try {
                     if (wallet.isUnlocked(account.getAddress())) {
+                        LOG.debug("Account " + account.getAddress() + " unlocked");
                         break;
                     }
                 } catch (APIException e) {

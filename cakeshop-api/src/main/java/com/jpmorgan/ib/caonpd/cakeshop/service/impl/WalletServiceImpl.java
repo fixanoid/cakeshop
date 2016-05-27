@@ -76,9 +76,15 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public boolean isUnlocked(String address) throws APIException {
-        Map<String, Object> result = gethService.executeGethCall("eth_sign", new Object[] { address, DUMMY_PAYLOAD_HASH });
-        if (StringUtils.isNotBlank((String) result.get("_result"))) {
-            return true;
+        try {
+            Map<String, Object> result = gethService.executeGethCall("eth_sign", new Object[] { address, DUMMY_PAYLOAD_HASH });
+            if (StringUtils.isNotBlank((String) result.get("_result"))) {
+                return true;
+            }
+        } catch (APIException e) {
+            if (e.getMessage().indexOf("account is locked") < 0) {
+                throw e;
+            }
         }
         return false;
     }
