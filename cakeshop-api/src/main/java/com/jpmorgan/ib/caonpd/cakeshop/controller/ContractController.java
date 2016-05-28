@@ -188,7 +188,7 @@ public class ContractController extends BaseController {
 
 
     private APIData toAPIData(Contract c) {
-        return new APIData(c.getAddress(), Contract.API_DATA_TYPE, c);
+        return new APIData(c.getId(), Contract.API_DATA_TYPE, c);
     }
 
     private List<APIData> toAPIData(List<Contract> contracts) {

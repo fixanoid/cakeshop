@@ -14,7 +14,7 @@ public class Contract {
     /**
      * Ethereum address of contract
      */
-    private String address;
+    private String id;
 
     /**
      * Contract (class) name
@@ -71,7 +71,7 @@ public class Contract {
     }
 
     public Contract(String address, String name, String abi, String code, CodeType codeType, String binary, Long createdDate) {
-        this.address = address;
+        this.id = address;
         this.name = name;
         this.abi = abi;
         this.code = code;
@@ -89,12 +89,12 @@ public class Contract {
         this.code = code;
     }
 
-    public String getAddress() {
-        return address;
+    public String getId() {
+        return id;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setId(String address) {
+        this.id = address;
     }
 
     public CodeType getCodeType() {

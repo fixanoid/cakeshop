@@ -59,8 +59,8 @@ public class ContractRegistrationTask implements Runnable {
         }
 
         try {
-            contract.setAddress(tx.getContractAddress());
-            LOG.info("Registering newly mined contract at address " + contract.getAddress());
+            contract.setId(tx.getContractAddress());
+            LOG.info("Registering newly mined contract at address " + contract.getId());
             contractRegistry.register(contract.getOwner(), tx.getContractAddress(), contract.getName(), contract.getABI(),
                     contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
         } catch (APIException e) {

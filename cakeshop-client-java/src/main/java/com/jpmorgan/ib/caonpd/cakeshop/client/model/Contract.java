@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -24,12 +25,20 @@ public class Contract   {
     private List<String> keys = new ArrayList<String>();
     private String abi = null;
     private String code = null;
+    private String binary = null;
+    private String name = null;
+    private String owner = null;
+
+    private Long createdDate;
+    private Map<String, Object> gasEstimates;
+    private String solidityInterface;
+    private Map<String, String> functionHashes;
 
 
     public enum CodeTypeEnum {
         SOLIDITY("solidity");
 
-        private String value;
+        private final String value;
 
         CodeTypeEnum(String value) {
             this.value = value;
@@ -144,7 +153,7 @@ public class Contract   {
     }
 
     @ApiModelProperty(example = "null", value = "Type of code being submitted")
-    @JsonProperty("code_type")
+    @JsonProperty("codeType")
     public CodeTypeEnum getCodeType() {
         return codeType;
     }
@@ -179,6 +188,80 @@ public class Contract   {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public Contract name(String name) {
+        this.name = name;
+        return this;
+    }
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Contract owner(String owner) {
+        this.owner = owner;
+        return this;
+    }
+    @JsonProperty("owner")
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Contract binary(String binary) {
+        this.binary = binary;
+        return this;
+    }
+    @JsonProperty("binary")
+    public String getBinary() {
+        return binary;
+    }
+    public void setBinary(String binary) {
+        this.binary = binary;
+    }
+
+    public Contract createdDate(Long createdDate) {
+        this.createdDate = createdDate;
+        return this;
+    }
+    public Long getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Long createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Map<String, Object> getGasEstimates() {
+        return gasEstimates;
+    }
+
+    public void setGasEstimates(Map<String, Object> gasEstimates) {
+        this.gasEstimates = gasEstimates;
+    }
+
+    public String getSolidityInterface() {
+        return solidityInterface;
+    }
+
+    public void setSolidityInterface(String solidityInterface) {
+        this.solidityInterface = solidityInterface;
+    }
+
+    public Map<String, String> getFunctionHashes() {
+        return functionHashes;
+    }
+
+    public void setFunctionHashes(Map<String, String> functionHashes) {
+        this.functionHashes = functionHashes;
     }
 
 }
