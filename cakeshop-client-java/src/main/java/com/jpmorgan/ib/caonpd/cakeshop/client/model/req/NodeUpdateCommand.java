@@ -11,6 +11,31 @@ public class NodeUpdateCommand {
     public NodeUpdateCommand() {
     }
 
+    public NodeUpdateCommand logLevel(String logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    public NodeUpdateCommand networkId(String networkId) {
+        this.networkId = networkId;
+        return this;
+    }
+
+    public NodeUpdateCommand commitingTransactions(Boolean committingTransactions) {
+        this.committingTransactions = committingTransactions;
+        return this;
+    }
+
+    public NodeUpdateCommand extraParams(String extraParams) {
+        this.extraParams = extraParams;
+        return this;
+    }
+
+    public NodeUpdateCommand genesisBlock(String genesisBlock) {
+        this.genesisBlock = genesisBlock;
+        return this;
+    }
+
     public String getLogLevel() {
         return logLevel;
     }
