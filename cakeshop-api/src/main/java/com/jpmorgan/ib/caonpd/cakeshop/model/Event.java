@@ -1,7 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.jpmorgan.ib.caonpd.cakeshop.db.JpaJsonConverter;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -95,7 +95,7 @@ public class Event {
 
     @Override
     public String toString() {
-        return RpcUtil.toString(this);
+        return StringUtils.toString(this);
     }
 
     public String getName() {

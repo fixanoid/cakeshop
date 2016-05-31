@@ -6,7 +6,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WalletServiceImpl implements WalletService {
 
-    private static final String DUMMY_PAYLOAD_HASH = RpcUtil.sha3AsHex("foobar");
+    private static final String DUMMY_PAYLOAD_HASH = AbiUtils.sha3AsHex("foobar");
 
     @Autowired
     private GethHttpService gethService;
@@ -50,7 +50,7 @@ public class WalletServiceImpl implements WalletService {
                     Map<String, Object> accountData = gethService.executeGethCall(
                             AdminBean.PERSONAL_GET_ACCOUNT_BALANCE, new Object[] { address, "latest" });
                     String strBal = (String)accountData.get("_result");
-                    BigInteger bal = RpcUtil.hexToBigInteger(strBal);
+                    BigInteger bal = AbiUtils.hexToBigInteger(strBal);
                     account = new Account();
                     account.setAddress(address);
                     account.setBalance(bal.toString());

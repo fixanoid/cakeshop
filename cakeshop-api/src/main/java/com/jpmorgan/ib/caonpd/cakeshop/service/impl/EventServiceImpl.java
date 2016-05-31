@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import static com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil.*;
+import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
@@ -9,7 +9,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,8 @@ public class EventServiceImpl implements EventService {
         private final String toBlock;
 
         public BlockRangeFilter(Long fromBlock, Long toBlock) {
-            this.fromBlock = RpcUtil.toHex(fromBlock);
-            this.toBlock = RpcUtil.toHex(toBlock);
+            this.fromBlock = AbiUtils.toHex(fromBlock);
+            this.toBlock = AbiUtils.toHex(toBlock);
         }
 
         public String getFromBlock() {

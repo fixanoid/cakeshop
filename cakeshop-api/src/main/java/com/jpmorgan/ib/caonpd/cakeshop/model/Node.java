@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.util.List;
 
@@ -180,7 +180,7 @@ public class Node  {
 
     @Override
     public String toString()  {
-        return RpcUtil.toString(this);
+        return StringUtils.toString(this);
     }
 
     @Override

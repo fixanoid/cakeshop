@@ -10,7 +10,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils.IP;
 
 import java.io.IOException;
@@ -106,7 +106,7 @@ public class NodeServiceImpl implements NodeService {
 
             //get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, null);
-            Integer pending = RpcUtil.hexToBigInteger((String) data.get("pending")).intValue();
+            Integer pending = AbiUtils.hexToBigInteger((String) data.get("pending")).intValue();
             node.setPendingTxn(pending == null ? 0 : pending);
 
             try {

@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import static com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil.*;
+import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;

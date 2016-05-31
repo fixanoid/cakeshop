@@ -2,7 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.jpmorgan.ib.caonpd.cakeshop.error.ABIException;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 
 import java.lang.reflect.Array;
 import java.math.BigInteger;
@@ -132,7 +132,7 @@ public abstract class SolidityType {
             for (int i = 0; i < l.size(); i++) {
                 elems[i] = elementType.encode(l.get(i));
             }
-            return RpcUtil.merge(elems);
+            return AbiUtils.merge(elems);
         }
 
         @Override
@@ -183,7 +183,7 @@ public abstract class SolidityType {
                     elems[i + 1] = elementType.encode(l.get(i));
                 }
             }
-            return RpcUtil.merge(elems);
+            return AbiUtils.merge(elems);
         }
 
         @Override
@@ -226,7 +226,7 @@ public abstract class SolidityType {
             byte[] ret = new byte[((bb.length - 1) / 32 + 1) * 32]; // padding 32 bytes
             System.arraycopy(bb, 0, ret, 0, bb.length);
 
-            return RpcUtil.merge(IntType.encodeInt(bb.length), ret);
+            return AbiUtils.merge(IntType.encodeInt(bb.length), ret);
         }
 
         @Override
@@ -316,7 +316,7 @@ public abstract class SolidityType {
         public Object decode(byte[] encoded, int offset) {
             BigInteger addrInt = (BigInteger) super.decode(encoded, offset);
             if (addrInt != null) {
-                return RpcUtil.addrToHex(addrInt);
+                return AbiUtils.addrToHex(addrInt);
             }
             return addrInt;
         }

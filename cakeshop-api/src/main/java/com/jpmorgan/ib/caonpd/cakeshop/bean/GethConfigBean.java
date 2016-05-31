@@ -6,7 +6,7 @@ import static org.apache.commons.io.FileUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.config.AppConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +16,6 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +186,7 @@ public class GethConfigBean {
         setIdentity(identity);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(RpcUtil.toString(this));
+            LOG.debug(StringUtils.toString(this));
         }
     }
 

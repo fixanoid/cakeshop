@@ -1,14 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.util;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
 import org.bouncycastle.util.encoders.Hex;
 
-public class RpcUtil {
+public class AbiUtils {
 
     public static final int SHA3_DEFAULT_SIZE = 256;
 
@@ -71,22 +69,6 @@ public class RpcUtil {
 	        hex = hex.substring(hex.length()-40); // remove any leading 0 padding
 	    }
 	    return "0x" + hex;
-	}
-
-	@SuppressWarnings("rawtypes")
-    public static String toString(Object object) {
-	    if (object instanceof String) {
-	        return (String) object;
-	    } else if (object instanceof List) {
-	        object = ((List) object).toArray();
-	    } else if (object instanceof Map) {
-	        return object.toString();
-	    }
-	    return ToStringBuilder.reflectionToString(object, ShortToStringStyle.INSTANCE);
-	}
-
-	public static void puts(Object object) {
-	    System.out.println(toString(object));
 	}
 
 	public static BigInteger hexToBigInteger(String hex) {

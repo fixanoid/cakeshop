@@ -49,7 +49,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
         assertEquals(1, contracts.size());
 
         Contract c = contracts.get(0);
-        //RpcUtil.puts(c);
+        //StringUtils.puts(c);
 
         assertNotNull(c);
         assertNull(c.getAddress()); // only this field should be null

@@ -5,8 +5,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StreamGobbler;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -230,7 +229,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
             } else if (error.err instanceof Exception) {
                 out.append(ExceptionUtils.getStackTrace((Throwable) error.err));
             } else {
-                out.append(RpcUtil.toString(error.err));
+                out.append(StringUtils.toString(error.err));
             }
             out.append("\n\n");
         }

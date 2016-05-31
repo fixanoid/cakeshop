@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.ib.caonpd.cakeshop.error.ABIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Type;
-import com.jpmorgan.ib.caonpd.cakeshop.util.RpcUtil;
+import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
         return findEvent(new Predicate<ContractABI.Event>() {
             @Override
             public boolean evaluate(Event event) {
-                String fSig = "0x" + Hex.toHexString(RpcUtil.sha3(event.formatSignature()));
+                String fSig = "0x" + Hex.toHexString(AbiUtils.sha3(event.formatSignature()));
                 return fSig.contentEquals(sig);
             }
         });
@@ -176,7 +176,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
                     }
                 }
 
-                return RpcUtil.merge(bb);
+                return AbiUtils.merge(bb);
             }
 
             @Override
@@ -220,7 +220,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
          * @return
          */
         public byte[] fingerprintSignature() {
-            return RpcUtil.sha3(formatSignature().getBytes());
+            return AbiUtils.sha3(formatSignature().getBytes());
         }
 
         /**
@@ -288,7 +288,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
         }
 
         public byte[] encode(Object... args) {
-            return RpcUtil.merge(encodeSignature(), Param.encodeList(inputs, args));
+            return AbiUtils.merge(encodeSignature(), Param.encodeList(inputs, args));
         }
 
         public List<?> decode(byte[] encoded) {
@@ -344,7 +344,7 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
             List<Object> result = new ArrayList<>(inputs.size());
 
             byte[][] argTopics = anonymous ? topics : subarray(topics, 1, topics.length);
-            List<?> indexed = Param.decodeList(filteredInputs(true), RpcUtil.merge(argTopics));
+            List<?> indexed = Param.decodeList(filteredInputs(true), AbiUtils.merge(argTopics));
             List<?> notIndexed = Param.decodeList(filteredInputs(false), data);
 
             for (Param input : inputs) {

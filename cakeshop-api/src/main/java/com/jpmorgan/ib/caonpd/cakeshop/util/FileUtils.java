@@ -87,7 +87,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     		// like \test%5cenv.properties
     		path = path.replace('\\', '/');
     	}
-        URL url = RpcUtil.class.getClassLoader().getResource(path);
+        URL url = AbiUtils.class.getClassLoader().getResource(path);
         if (url == null) {
             return null;
         }
@@ -112,7 +112,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @throws IOException
      */
     public static InputStream getClasspathStream(String path) throws IOException {
-    	URL url = RpcUtil.class.getClassLoader().getResource(path);
+    	URL url = AbiUtils.class.getClassLoader().getResource(path);
     	return url.openStream();
     }
 

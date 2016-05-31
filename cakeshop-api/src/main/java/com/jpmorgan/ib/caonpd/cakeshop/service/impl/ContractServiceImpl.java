@@ -95,7 +95,7 @@ public class ContractServiceImpl implements ContractService {
 
             ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
 
-            //RpcUtil.puts(builder);
+            //StringUtils.puts(builder);
             Process proc = builder.start();
 
             StreamGobbler stdout = StreamGobbler.create(proc.getInputStream());
