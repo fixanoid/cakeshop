@@ -16,11 +16,9 @@ import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRe
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.TokenRequestBuilder;
 
 import feign.Feign;
-import feign.Logger.Level;
 import feign.RequestInterceptor;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
-import feign.slf4j.Slf4jLogger;
 
 public class ApiClient {
     public interface Api {}
@@ -35,8 +33,7 @@ public class ApiClient {
         apiAuthorizations = new LinkedHashMap<String, RequestInterceptor>();
         feignBuilder = Feign.builder()
                 .encoder(new JacksonEncoder(objectMapper))
-                .decoder(new JacksonDecoder(objectMapper))
-                .logger(new Slf4jLogger()).logLevel(Level.FULL);
+                .decoder(new JacksonDecoder(objectMapper));
     }
 
     public ApiClient(String[] authNames) {

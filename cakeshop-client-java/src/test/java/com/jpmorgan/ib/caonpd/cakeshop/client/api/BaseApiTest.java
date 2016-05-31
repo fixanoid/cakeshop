@@ -8,6 +8,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
+import feign.Logger.Level;
+import feign.slf4j.Slf4jLogger;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.QueueDispatcher;
 
@@ -47,6 +49,7 @@ public class BaseApiTest {
     public void createApiClient() {
         String uri = "http://" + mockWebServer.getHostName() + ":" + mockWebServer.getPort() + "/cakeshop/api";
         this.apiClient = new ApiClient().setBasePath(uri);
+        this.apiClient.getFeignBuilder().logger(new Slf4jLogger()).logLevel(Level.FULL); // set logger to debug
     }
 
 }
