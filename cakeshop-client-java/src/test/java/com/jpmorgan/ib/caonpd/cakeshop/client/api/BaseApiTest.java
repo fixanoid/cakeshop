@@ -45,10 +45,13 @@ public class BaseApiTest {
         }
     }
 
+    public String getTestUri() {
+        return "http://" + mockWebServer.getHostName() + ":" + mockWebServer.getPort() + "/cakeshop/api";
+    }
+
     @BeforeMethod
     public void createApiClient() {
-        String uri = "http://" + mockWebServer.getHostName() + ":" + mockWebServer.getPort() + "/cakeshop/api";
-        this.apiClient = new ApiClient().setBasePath(uri);
+        this.apiClient = new ApiClient().setBasePath(getTestUri());
         this.apiClient.getFeignBuilder().logger(new Slf4jLogger()).logLevel(Level.FULL); // set logger to debug
     }
 
