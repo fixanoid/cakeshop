@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.jpmorgan.ib.caonpd</groupId>
         <artifactId>cakeshop-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${build.version}</version>
     </parent>
 
     <artifactId>cakeshop-client-java</artifactId>
@@ -21,6 +21,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.jpmorgan.ib.caonpd</groupId>
+            <artifactId>cakeshop-abi</artifactId>
+            <version>${build.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.swagger</groupId>
@@ -108,7 +114,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
