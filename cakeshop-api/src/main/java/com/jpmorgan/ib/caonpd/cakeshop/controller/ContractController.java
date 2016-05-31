@@ -122,15 +122,15 @@ public class ContractController extends BaseController {
     @RequestMapping("/read")
     public ResponseEntity<APIResponse> read(
             @JsonBodyParam String from,
-            @JsonBodyParam String id,
+            @JsonBodyParam String address,
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args,
             @JsonBodyParam(required=false) Object blockNumber) throws APIException {
 
-        ContractABI abi = lookupABI(id);
+        ContractABI abi = lookupABI(address);
         args = decodeArgs(abi.getFunction(method), args);
 
-        Object result = contractService.read(id, abi, from, method, args, blockNumber);
+        Object result = contractService.read(address, abi, from, method, args, blockNumber);
         APIResponse res = new APIResponse();
         res.setData(result);
 
@@ -157,14 +157,14 @@ public class ContractController extends BaseController {
     @RequestMapping("/transact")
     public ResponseEntity<APIResponse> transact(
             @JsonBodyParam String from,
-            @JsonBodyParam String id,
+            @JsonBodyParam String address,
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
 
-        ContractABI abi = lookupABI(id);
+        ContractABI abi = lookupABI(address);
         args = decodeArgs(abi.getFunction(method), args);
 
-        TransactionResult tr = contractService.transact(id, abi, from, method, args);
+        TransactionResult tr = contractService.transact(address, abi, from, method, args);
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 

@@ -3,7 +3,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.api;
 public class ContractMethodCallCommand {
 
     private String from;
-    private String id;
+    private String address;
     private String method;
     private Object[] args;
     private Object blockNumber;
@@ -26,8 +26,8 @@ public class ContractMethodCallCommand {
      * @param id
      * @return
      */
-    public ContractMethodCallCommand id(String id) {
-        this.id = id;
+    public ContractMethodCallCommand address(String address) {
+        this.address = address;
         return this;
     }
 
@@ -73,12 +73,12 @@ public class ContractMethodCallCommand {
         this.from = from;
     }
 
-    public String getId() {
-        return id;
+    public String getAddress() {
+        return address;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setAddress(String id) {
+        this.address = id;
     }
 
     public String getMethod() {

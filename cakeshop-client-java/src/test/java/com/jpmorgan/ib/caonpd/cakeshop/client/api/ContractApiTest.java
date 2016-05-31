@@ -6,6 +6,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract.CodeTypeEnum;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ import okhttp3.mockwebserver.MockResponse;
 public class ContractApiTest extends BaseApiTest {
 
     private final String code = "contract SimpleStorage { uint public storedData; function SimpleStorage(uint initVal) { storedData = initVal; } function set(uint x) { storedData = x; } function get() constant returns (uint retVal) { return storedData; } }";
+    private final String contractAddress = "0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2";
 
     @Test
     public void testList() {
@@ -71,13 +73,33 @@ public class ContractApiTest extends BaseApiTest {
     public void testListTransactions() {
         ContractApi contractApi = apiClient.buildClient(ContractApi.class);
         mockWebServer.enqueue(new MockResponse().setBody("{\"data\":[{\"id\":\"0xcb4c6370188d2f0abb05ab60440f5979e96dca412ad5e3c308fa75685ed5ada2\",\"type\":\"transaction\",\"attributes\":{\"id\":\"0xcb4c6370188d2f0abb05ab60440f5979e96dca412ad5e3c308fa75685ed5ada2\",\"status\":\"committed\",\"nonce\":\"0x1\",\"blockId\":\"0xa3276e99ea787f53a35f242dcf87a91071ebf776b7f24fb9058caf427568e5bc\",\"blockNumber\":861,\"transactionIndex\":0,\"from\":\"0x2e219248f44546d966808cdd20cb6c36df6efa82\",\"to\":null,\"value\":0,\"gas\":10000000,\"gasPrice\":20000000000,\"input\":\"0x60606040526040516020806101f7833981016040528080519060200190919050505b7f3c5ad147104e56be34a9176a6692f7df8d2f4b29a5af06bc6b98970d329d65778160405180806020018381526020018281038252600c8152602001807f696e69742073746f7261676500000000000000000000000000000000000000008152602001506020019250505060405180910390a1806000600050819055505b50610149806100ae6000396000f360606040526000357c0100000000000000000000000000000000000000000000000000000000900480632a1afcd91461004f57806360fe47b1146100725780636d4ce63c1461008a5761004d565b005b61005c60048050506100ad565b6040518082815260200191505060405180910390f35b61008860048080359060200190919050506100b6565b005b6100976004805050610137565b6040518082815260200191505060405180910390f35b60006000505481565b7f3c5ad147104e56be34a9176a6692f7df8d2f4b29a5af06bc6b98970d329d65778160405180806020018381526020018281038252600a8152602001807f6368616e67652076616c000000000000000000000000000000000000000000008152602001506020019250505060405180910390a1806000600050819055505b50565b60006000600050549050610146565b9056000000000000000000000000000000000000000000000000000000000000000b\",\"decodedInput\":null,\"cumulativeGasUsed\":137259,\"gasUsed\":137259,\"contractAddress\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"logs\":[{\"id\":1,\"blockId\":\"0xa3276e99ea787f53a35f242dcf87a91071ebf776b7f24fb9058caf427568e5bc\",\"blockNumber\":861,\"logIndex\":0,\"transactionId\":\"0xcb4c6370188d2f0abb05ab60440f5979e96dca412ad5e3c308fa75685ed5ada2\",\"contractId\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"name\":\"Debug\",\"data\":[\"init storage\",11]}]}},{\"id\":\"0x530b00addcdad961523d513f36b60682df881b3d0cd4bd47a88b2e508eeeccb0\",\"type\":\"transaction\",\"attributes\":{\"id\":\"0x530b00addcdad961523d513f36b60682df881b3d0cd4bd47a88b2e508eeeccb0\",\"status\":\"committed\",\"nonce\":\"0x3\",\"blockId\":\"0x3f508c903191f1b9c15143f74836c9c0056b823595565e8c7d565690f38ed69f\",\"blockNumber\":863,\"transactionIndex\":0,\"from\":\"0x2e219248f44546d966808cdd20cb6c36df6efa82\",\"to\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"value\":0,\"gas\":10000000,\"gasPrice\":20000000000,\"input\":\"0x60fe47b1000000000000000000000000000000000000000000000000000000000000000c\",\"decodedInput\":{\"method\":\"set\",\"args\":[12]},\"cumulativeGasUsed\":28532,\"gasUsed\":28532,\"contractAddress\":null,\"logs\":[{\"id\":2,\"blockId\":\"0x3f508c903191f1b9c15143f74836c9c0056b823595565e8c7d565690f38ed69f\",\"blockNumber\":863,\"logIndex\":0,\"transactionId\":\"0x530b00addcdad961523d513f36b60682df881b3d0cd4bd47a88b2e508eeeccb0\",\"contractId\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"name\":\"Debug\",\"data\":[\"change val\",12]}]}},{\"id\":\"0xab07d7f5a44b3709f0183fd783ff6cb9a2274d33bfd6115493bcd6147f6574d6\",\"type\":\"transaction\",\"attributes\":{\"id\":\"0xab07d7f5a44b3709f0183fd783ff6cb9a2274d33bfd6115493bcd6147f6574d6\",\"status\":\"committed\",\"nonce\":\"0x4\",\"blockId\":\"0x4060394e85c748c4113c7dcdfef213ed28d93bd765403fa29d564412b8f4375d\",\"blockNumber\":864,\"transactionIndex\":0,\"from\":\"0x2e219248f44546d966808cdd20cb6c36df6efa82\",\"to\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"value\":0,\"gas\":10000000,\"gasPrice\":20000000000,\"input\":\"0x60fe47b1000000000000000000000000000000000000000000000000000000000000000b\",\"decodedInput\":{\"method\":\"set\",\"args\":[11]},\"cumulativeGasUsed\":28532,\"gasUsed\":28532,\"contractAddress\":null,\"logs\":[{\"id\":3,\"blockId\":\"0x4060394e85c748c4113c7dcdfef213ed28d93bd765403fa29d564412b8f4375d\",\"blockNumber\":864,\"logIndex\":0,\"transactionId\":\"0xab07d7f5a44b3709f0183fd783ff6cb9a2274d33bfd6115493bcd6147f6574d6\",\"contractId\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"name\":\"Debug\",\"data\":[\"change val\",11]}]}},{\"id\":\"0xb25c3876f49c29575356d7407630edd5441e1a16a7f2a48c3010d36a31df7356\",\"type\":\"transaction\",\"attributes\":{\"id\":\"0xb25c3876f49c29575356d7407630edd5441e1a16a7f2a48c3010d36a31df7356\",\"status\":\"committed\",\"nonce\":\"0x21\",\"blockId\":\"0x270d64ff954afa022bcb1e7e369ec81c13c5306c48b4cb4a96b8f638f548982c\",\"blockNumber\":893,\"transactionIndex\":0,\"from\":\"0x2e219248f44546d966808cdd20cb6c36df6efa82\",\"to\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"value\":0,\"gas\":10000000,\"gasPrice\":20000000000,\"input\":\"0x60fe47b1000000000000000000000000000000000000000000000000000000000000000c\",\"decodedInput\":{\"method\":\"set\",\"args\":[12]},\"cumulativeGasUsed\":28532,\"gasUsed\":28532,\"contractAddress\":null,\"logs\":[{\"id\":9,\"blockId\":\"0x270d64ff954afa022bcb1e7e369ec81c13c5306c48b4cb4a96b8f638f548982c\",\"blockNumber\":893,\"logIndex\":0,\"transactionId\":\"0xb25c3876f49c29575356d7407630edd5441e1a16a7f2a48c3010d36a31df7356\",\"contractId\":\"0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2\",\"name\":\"Debug\",\"data\":[\"change val\",12]}]}}],\"meta\":{\"version\":\"1.0\"}}"));
-        String addr = "0x881ba6a77748bf1d54b7cb653eabba9a1bc7a0a2";
-        List<Transaction> txns = contractApi.listTransactions(addr).getDataAsList();
+        List<Transaction> txns = contractApi.listTransactions(contractAddress).getDataAsList();
         assertNotNull(txns);
         assertEquals(txns.size(), 4);
         Transaction tx = txns.get(0);
-        assertEquals(tx.getContractAddress(), addr);
+        assertEquals(tx.getContractAddress(), contractAddress);
         assertEquals(tx.getStatus(), "committed");
+    }
+
+    @Test
+    public void testRead() {
+        ContractApi contractApi = apiClient.buildClient(ContractApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":[12],\"meta\":{\"version\":\"1.0\"}}"));
+        APIResponse<Object, Object> ret = contractApi.read(new ContractMethodCallCommand().address(contractAddress).method("get"));
+        Object res = ret.getApiData();
+        assertTrue(res instanceof List);
+        List rl = (List) res;
+        assertEquals(rl.get(0), 12);
+    }
+
+    @Test
+    public void testTransact() {
+        ContractApi contractApi = apiClient.buildClient(ContractApi.class);
+        mockWebServer.enqueue(new MockResponse().setBody("{\"data\":{\"id\":\"0xe99819e37c0c92fc97653832275f5ba637547eeddc2c3e44b7eed9d955427a16\",\"type\":\"transaction_result\",\"attributes\":{\"id\":\"0xe99819e37c0c92fc97653832275f5ba637547eeddc2c3e44b7eed9d955427a16\"}},\"meta\":{\"version\":\"1.0\"}}"));
+        TransactionResult tr = contractApi.transact(new ContractMethodCallCommand().address(contractAddress).method("set").args(new Object[]{ 100 })).getData();
+        assertNotNull(tr);
+        assertEquals(tr.getId(), "0xe99819e37c0c92fc97653832275f5ba637547eeddc2c3e44b7eed9d955427a16");
+
     }
 
 }

@@ -33,7 +33,7 @@ public interface ContractApi extends ApiClient.Api {
 
     @RequestLine("POST /contract/read")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Object>, Object> read(ContractMethodCallCommand call);
+    APIResponse<Object, Object> read(ContractMethodCallCommand call);
 
     @RequestLine("POST /contract/transact")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
