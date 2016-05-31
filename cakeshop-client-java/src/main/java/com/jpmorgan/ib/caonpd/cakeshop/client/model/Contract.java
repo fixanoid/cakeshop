@@ -63,7 +63,7 @@ public class Contract   {
     }
 
     @ApiModelProperty(example = "null", value = "Contract unique identifier. In Ethereum this is the contract address.")
-    @JsonProperty("id")
+    @JsonProperty("address")
     public String getAddress() {
         return address;
     }

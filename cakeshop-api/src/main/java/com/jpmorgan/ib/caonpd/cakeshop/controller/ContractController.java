@@ -45,9 +45,9 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getContract(
-            @JsonBodyParam String id) throws APIException {
+            @JsonBodyParam String address) throws APIException {
 
-        Contract contract = contractService.get(id);
+        Contract contract = contractService.get(address);
 
         APIResponse res = new APIResponse();
 
@@ -173,9 +173,9 @@ public class ContractController extends BaseController {
 
     @RequestMapping("/transactions/list")
     public ResponseEntity<APIResponse> listTransactions(
-            @JsonBodyParam String id) throws APIException {
+            @JsonBodyParam String address) throws APIException {
 
-        List<Transaction> txns = contractService.listTransactions(id);
+        List<Transaction> txns = contractService.listTransactions(address);
 
         List<APIData> data = new ArrayList<>();
         for (Transaction tx : txns) {

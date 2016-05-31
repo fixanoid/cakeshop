@@ -3,6 +3,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.api;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ApiClient;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
@@ -16,7 +17,11 @@ public interface ContractApi extends ApiClient.Api {
 
     @RequestLine("POST /contract/get")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Contract>, Contract> get(@Param("id") String id);
+    APIResponse<APIData<Contract>, Contract> get(@Param("address") String address);
+
+    @RequestLine("POST /contract/list")
+    @Headers({ "Content-type: application/json", "Accepts: application/json" })
+    APIResponse<List<APIData<Contract>>, Contract> list();
 
     @RequestLine("POST /contract/compile")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
@@ -24,23 +29,18 @@ public interface ContractApi extends ApiClient.Api {
 
     @RequestLine("POST /contract/create")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Contract>, Contract> create(ContractCreateCommand command);
-
-    @RequestLine("POST /contract/list")
-    @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<List<APIData<Contract>>, Contract> list();
-
+    APIResponse<APIData<TransactionResult>, TransactionResult> create(ContractCreateCommand command);
 
     @RequestLine("POST /contract/read")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Contract>, Contract> read(ContractMethodCallCommand call);
+    APIResponse<APIData<Object>, Object> read(ContractMethodCallCommand call);
 
     @RequestLine("POST /contract/transact")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Contract>, Contract> transact(ContractMethodCallCommand call);
+    APIResponse<APIData<TransactionResult>, TransactionResult> transact(ContractMethodCallCommand call);
 
     @RequestLine("POST /contract/transactions/list")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<List<APIData<Transaction>>, Transaction> listTransactions(@Param("id") String id);
+    APIResponse<List<APIData<Transaction>>, Transaction> listTransactions(@Param("address") String address);
 
 }
