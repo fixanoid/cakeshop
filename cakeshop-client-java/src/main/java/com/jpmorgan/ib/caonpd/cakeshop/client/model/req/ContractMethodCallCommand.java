@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.cakeshop.client.api;
+package com.jpmorgan.ib.caonpd.cakeshop.client.model.req;
 
 public class ContractMethodCallCommand {
 

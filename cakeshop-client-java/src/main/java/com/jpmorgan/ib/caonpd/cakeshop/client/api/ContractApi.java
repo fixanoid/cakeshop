@@ -4,6 +4,9 @@ import com.jpmorgan.ib.caonpd.cakeshop.client.ApiClient;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractCompileCommand;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractCreateCommand;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractMethodCallCommand;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
