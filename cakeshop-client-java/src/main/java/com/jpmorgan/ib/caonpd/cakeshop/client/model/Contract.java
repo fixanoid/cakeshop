@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2016-05-26T13:00:18.987-04:00")
 public class Contract   {
 
-    private String id = null;
+    private String address = null;
     private String author = null;
     private List<String> keys = new ArrayList<String>();
     private String abi = null;
@@ -57,18 +57,18 @@ public class Contract   {
     /**
      * Contract unique identifier. In Ethereum this is the contract address.
      **/
-    public Contract id(String id) {
-        this.id = id;
+    public Contract address(String address) {
+        this.address = address;
         return this;
     }
 
     @ApiModelProperty(example = "null", value = "Contract unique identifier. In Ethereum this is the contract address.")
     @JsonProperty("id")
-    public String getId() {
-        return id;
+    public String getAddress() {
+        return address;
     }
-    public void setId(String id) {
-        this.id = id;
+    public void setAddress(String id) {
+        this.address = id;
     }
 
 
@@ -172,7 +172,7 @@ public class Contract   {
             return false;
         }
         Contract contract = (Contract) o;
-        return Objects.equals(this.id, contract.id) &&
+        return Objects.equals(this.address, contract.address) &&
                 Objects.equals(this.author, contract.author) &&
                 Objects.equals(this.keys, contract.keys) &&
                 Objects.equals(this.abi, contract.abi) &&
@@ -182,7 +182,7 @@ public class Contract   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, author, keys, abi, code, codeType);
+        return Objects.hash(address, author, keys, abi, code, codeType);
     }
 
     @Override

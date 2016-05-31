@@ -70,17 +70,16 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
 
         if (!mavContainer.getModel().containsAttribute("_json_data")) {
             BufferedReader postReader = ((HttpServletRequest)webRequest.getNativeRequest()).getReader();
-            Map<String,Object> data = null;
+            Map<String, Object> data = null;
             try {
                 data = objectMapper.readValue(postReader, Map.class);
             } catch (JsonMappingException ex) {
             }
             mavContainer.addAttribute("_json_data", data);
         }
-        Map<String,Object> data = (Map<String, Object>) mavContainer.getModel().get("_json_data");
-        if(data == null){
-            return null;
-        }
+
+
+        Map<String, Object> data = (Map<String, Object>) mavContainer.getModel().get("_json_data");
 
         JsonBodyParam jsonParam = parameter.getParameterAnnotation(JsonBodyParam.class);
         String param = jsonParam.value();
@@ -89,9 +88,16 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
         }
 
         Class paramType = parameter.getParameterType();
-        Object val = data.get(param);
-        if (val == null || paramType == val.getClass() || paramType == Object.class) {
-            return val; // val is null, types match exactly, or Object type was requested
+        Object val = data == null ? null : data.get(param);
+        if (val == null) {
+            // handle null val
+            if (!jsonParam.defaultValue().contentEquals(ValueConstants.DEFAULT_NONE)) {
+                return jsonParam.defaultValue();
+            }
+            return val;
+        }
+        if (paramType == val.getClass() || paramType == Object.class) {
+            return val; // val types match exactly or Object type was requested
         }
 
         if ((paramType == Long.class || paramType == Integer.class)

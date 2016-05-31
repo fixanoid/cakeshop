@@ -47,7 +47,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 
 	    Contract contract = contractRegistry.getById(addr);
 	    assertNotNull(contract);
-	    assertEquals(contract.getId(), addr);
+	    assertEquals(contract.getAddress(), addr);
 	    assertEquals(contract.getABI(), abi);
 	    assertEquals(contract.getCode(), code);
 	    assertEquals(contract.getCodeType(), CodeType.solidity);
@@ -100,8 +100,8 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertTrue(list.size() > 0);
 
 	    for (Contract c : list) {
-	        if (c.getId().equalsIgnoreCase(addr)) {
-                assertEquals(c.getId(), addr);
+	        if (c.getAddress().equalsIgnoreCase(addr)) {
+                assertEquals(c.getAddress(), addr);
                 assertEquals(c.getABI(), abi);
                 assertEquals(c.getCode(), code);
                 assertTrue(c.getCreatedDate() >= createdDate);

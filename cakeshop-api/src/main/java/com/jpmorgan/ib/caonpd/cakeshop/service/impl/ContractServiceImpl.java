@@ -218,7 +218,7 @@ public class ContractServiceImpl implements ContractService {
 		if (contract == null) {
 		    // not [yet] in registry. only binary code will be returned (assuming it exists)
 		    contract = new Contract();
-		    contract.setId(address);
+		    contract.setAddress(address);
 		}
 
 		contract.setBinary(bin);

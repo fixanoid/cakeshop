@@ -7,11 +7,11 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
+import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Param;
+import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
+import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType.Bytes32Type;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Param;
-import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType.Bytes32Type;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
 public class ContractController extends BaseController {
+
+    private static final String DEFAULT_CODE_TYPE = "solidity";
 
     @Autowired
     private ContractService contractService;
@@ -64,7 +66,7 @@ public class ContractController extends BaseController {
     @RequestMapping("/compile")
     public ResponseEntity<APIResponse> compile(
             @JsonBodyParam String code,
-            @JsonBodyParam(required=false) String code_type,
+            @JsonBodyParam(defaultValue=DEFAULT_CODE_TYPE) String code_type,
             @JsonBodyParam(required=false) Boolean optimize) throws APIException {
 
         List<Contract> contracts = contractService.compile(code, CodeType.valueOf(code_type), optimize);
@@ -87,9 +89,9 @@ public class ContractController extends BaseController {
     public ResponseEntity<APIResponse> create(
             @JsonBodyParam String from,
             @JsonBodyParam String code,
-            @JsonBodyParam String code_type,
-            @JsonBodyParam Object[] args,
-            @JsonBodyParam String binary,
+            @JsonBodyParam(defaultValue=DEFAULT_CODE_TYPE) String code_type,
+            @JsonBodyParam(required=false) Object[] args,
+            @JsonBodyParam(required=false) String binary,
             @JsonBodyParam(required=false) Boolean optimize) throws APIException {
 
         TransactionResult tx = contractService.create(from, code, CodeType.valueOf(code_type), args, binary);
@@ -188,7 +190,7 @@ public class ContractController extends BaseController {
 
 
     private APIData toAPIData(Contract c) {
-        return new APIData(c.getId(), Contract.API_DATA_TYPE, c);
+        return new APIData(c.getAddress(), Contract.API_DATA_TYPE, c);
     }
 
     private List<APIData> toAPIData(List<Contract> contracts) {
