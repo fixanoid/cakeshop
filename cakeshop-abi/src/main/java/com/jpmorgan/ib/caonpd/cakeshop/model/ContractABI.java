@@ -183,6 +183,18 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
             public String toString() {
                 return format("%s%s%s", type.getCanonicalName(), (indexed != null && indexed) ? " indexed " : " ", name);
             }
+
+            public Boolean isIndexed() {
+                return indexed;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public SolidityType getType() {
+                return type;
+            }
         }
 
         public final Boolean anonymous;
@@ -253,6 +265,30 @@ public class ContractABI extends ArrayList<ContractABI.Entry> {
             }
 
             return result;
+        }
+
+        public Boolean isAnonymous() {
+            return anonymous;
+        }
+
+        public Boolean isConstant() {
+            return constant;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Param> getInputs() {
+            return inputs;
+        }
+
+        public List<Param> getOutputs() {
+            return outputs;
+        }
+
+        public Type getType() {
+            return type;
         }
     }
 
