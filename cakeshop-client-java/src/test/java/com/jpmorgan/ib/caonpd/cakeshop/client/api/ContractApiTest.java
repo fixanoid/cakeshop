@@ -4,11 +4,11 @@ import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.Contract.CodeTypeEnum;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractCompileCommand;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractCreateCommand;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractMethodCallCommand;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
 import java.util.List;
@@ -88,11 +88,9 @@ public class ContractApiTest extends BaseApiTest {
     public void testRead() {
         ContractApi contractApi = apiClient.buildClient(ContractApi.class);
         mockWebServer.enqueue(new MockResponse().setBody("{\"data\":[12],\"meta\":{\"version\":\"1.0\"}}"));
-        APIResponse<Object, Object> ret = contractApi.read(new ContractMethodCallCommand().address(contractAddress).method("get"));
-        Object res = ret.getApiData();
-        assertTrue(res instanceof List);
-        List rl = (List) res;
-        assertEquals(rl.get(0), 12);
+        APIResponse<List<Object>, Object> ret = contractApi.read(new ContractMethodCallCommand().address(contractAddress).method("get"));
+        List<Object> res = ret.getApiData();
+        assertEquals(res.get(0), 12);
     }
 
     @Test
@@ -102,7 +100,6 @@ public class ContractApiTest extends BaseApiTest {
         TransactionResult tr = contractApi.transact(new ContractMethodCallCommand().address(contractAddress).method("set").args(new Object[]{ 100 })).getData();
         assertNotNull(tr);
         assertEquals(tr.getId(), "0xe99819e37c0c92fc97653832275f5ba637547eeddc2c3e44b7eed9d955427a16");
-
     }
 
 }
