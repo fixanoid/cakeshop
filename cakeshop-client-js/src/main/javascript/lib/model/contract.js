@@ -111,7 +111,7 @@
                 Client.post(contract.url('read'),
                     {
                         from: options.from,
-                        id: contract.id,
+                        address: contract.id,
                         method: options.method,
                         args: options.args
                     }
@@ -143,7 +143,7 @@
                 Client.post(contract.url('transact'),
                     {
                         from: options.from,
-                        id: contract.id,
+                        address: contract.id,
                         method: options.method,
                         args: options.args
                     }
@@ -188,7 +188,7 @@
 
     Contract.get = function(id) {
         return new Promise(function(resolve, reject) {
-            Client.post(Contract.prototype.url('get'), { id: id }).
+            Client.post(Contract.prototype.url('get'), { address: id }).
                 done(function(res, status, xhr) {
                     resolve(new Contract(res.data.attributes));
                 }).
