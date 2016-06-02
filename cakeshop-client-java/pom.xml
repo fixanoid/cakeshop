@@ -9,7 +9,7 @@
         <version>${build.version}</version>
     </parent>
 
-    <artifactId>cakeshop-client-java</artifactId>
+    <artifactId>cakeshop-client</artifactId>
     <packaging>jar</packaging>
 
     <name>Cakeshop Java Client</name>
