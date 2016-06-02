@@ -236,6 +236,9 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 
         if (dest.startsWith(TRANSACTION_TOPIC)) {
         	String transactionKey = dest.substring(dest.lastIndexOf("/") + 1);
+        	if (transactionKey.contentEquals("all")) {
+        	    return; // special topic
+        	}
 
         	if (transactionsMap.containsKey(transactionKey)) {
         		Integer subscribers = transactionsMap.get(transactionKey);
