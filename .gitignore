@@ -22,6 +22,7 @@ node.conf
 .DS_Store
 /bin/
 WebContent/
+pom.xml.versionsBackup
 
 # node stuff
 npm-debug.log*
