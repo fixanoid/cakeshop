@@ -53,13 +53,13 @@ public class WebSocketClient {
         }
     }
 
-    private Timer reconnectTimer;
+    private final Timer reconnectTimer;
 
-    private long reconnectDelay;
+    private final long reconnectDelay;
 
-    private TaskScheduler taskScheduler;
+    private final TaskScheduler taskScheduler;
 
-    private String wsUri;
+    private final String wsUri;
 
     private WebSocketStompClient stompClient;
 
@@ -67,7 +67,9 @@ public class WebSocketClient {
 
     private JettyWebSocketClient jettyWebSocketClient;
 
-    private Map<String, List<EventHandler>> topicHandlers;
+    private final Map<String, List<EventHandler>> topicHandlers;
+
+    private boolean shutdown;
 
     public WebSocketClient(String wsUri) {
         this(wsUri, DEFAULT_RECONNECT_DELAY);
@@ -79,6 +81,7 @@ public class WebSocketClient {
         this.reconnectTimer = new Timer("ReconnectTimer");
         this.reconnectDelay = reconnectDelay;
         this.topicHandlers = new Hashtable<>();
+        this.shutdown = false;
     }
 
     public void subscribe(EventHandler handler) {
@@ -92,7 +95,10 @@ public class WebSocketClient {
         }
     }
 
-    public void reconnect() {
+    private void reconnect() {
+        if (this.shutdown) {
+            return;
+        }
         if (stompClient != null) {
             LOG.debug("Reconnecting");
             disconnect(stompClient);
@@ -109,7 +115,16 @@ public class WebSocketClient {
         doConnect();
     }
 
-    public void disconnect() {
+    public void shutdown() {
+        if (shutdown) {
+            return;
+        }
+        shutdown = true;
+        disconnect();
+        reconnectTimer.cancel();
+    }
+
+    private void disconnect() {
         if (stompClient != null && stompClient.isRunning()) {
             disconnect(stompClient);
             stompClient = null;
