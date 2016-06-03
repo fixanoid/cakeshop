@@ -20,6 +20,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     @Override
      public void configureMessageBroker(MessageBrokerRegistry  registry) {
         registry.enableSimpleBroker("/topic");
+
 //        registry.enableStompBrokerRelay("/topic")
 //                .setAutoStartup(true)
 //                .setSystemHeartbeatReceiveInterval(5000)
@@ -37,7 +38,6 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        //String [] endpoints = {"/node", "/block", "transaction"};
         registry
             .addEndpoint("ws")
             .setAllowedOrigins("*")
