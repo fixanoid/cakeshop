@@ -1,6 +1,9 @@
 package com.jpmorgan.ib.caonpd.cakeshop.client.ws;
 
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -43,7 +46,7 @@ public class WebSocketClient {
 
     private JettyWebSocketClient jettyWebSocketClient;
 
-    private final Map<String, List<EventHandler>> topicHandlers;
+    private final Map<String, List<EventHandler<?>>> topicHandlers;
 
     private boolean shutdown;
 
@@ -60,14 +63,15 @@ public class WebSocketClient {
         this.shutdown = false;
     }
 
-    public void subscribe(EventHandler handler) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void subscribe(EventHandler<?> handler) {
         if (topicHandlers.get(handler.getTopic()) == null) {
             topicHandlers.put(handler.getTopic(), (List) new Vector<>());
         }
         topicHandlers.get(handler.getTopic()).add(handler);
         if (stompSession != null && stompSession.isConnected()) {
             LOG.debug("Subscribing to " + handler.getTopic());
-            stompSession.subscribe(handler.getTopic(), handler);
+            handler.setStompSubscription(stompSession.subscribe(handler.getTopic(), handler));
         }
     }
 
@@ -182,12 +186,28 @@ public class WebSocketClient {
         if (topicHandlers == null || topicHandlers.isEmpty() || stompSession == null) {
             return;
         }
+
+        pruneInactiveTopicHandlers(); // cleanup handlers before resubscribing
+
         for (String topic : topicHandlers.keySet()) {
-            List<EventHandler> handlers = topicHandlers.get(topic);
-            for (EventHandler handler : handlers) {
-                LOG.debug("Resubscribing to " + topic);
-                stompSession.subscribe(topic, handler);
+            List<EventHandler<?>> handlers = topicHandlers.get(topic);
+            for (EventHandler<?> handler : handlers) {
+                if (handler.isActive()) {
+                    LOG.debug("Resubscribing to " + topic);
+                    handler.setStompSubscription(stompSession.subscribe(topic, handler));
+                }
             }
+        }
+    }
+
+    private void pruneInactiveTopicHandlers() {
+        for (String topic : topicHandlers.keySet()) {
+             Iterables.removeIf(topicHandlers.get(topic), new Predicate<EventHandler<?>>() {
+                @Override
+                public boolean apply(EventHandler<?> input) {
+                    return input.isActive();
+                }
+            });
         }
     }
 

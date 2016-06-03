@@ -1,42 +1,83 @@
 package com.jpmorgan.ib.caonpd.cakeshop.client.ws;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 
-public abstract class EventHandler implements StompFrameHandler {
+public abstract class EventHandler<T> implements StompFrameHandler {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private Subscription stompSubscription;
+
+    private boolean active;
+
     public EventHandler() {
+        this.active = true;
     }
 
+    /**
+     * Get the Topic name this handler should attach to
+     *
+     * @return
+     */
     public abstract String getTopic();
+
+    /**
+     * Jackson value type that is expected to be returned
+     *
+     * @return
+     */
+    public abstract JavaType getValType();
+
+    /**
+     * Listener method which fires when new data arrives
+     *
+     * @param data
+     */
+    public abstract void onData(T data);
 
     @Override
     public Type getPayloadType(StompHeaders headers) {
         return String.class;
     }
 
-//    private void initDataType() {
-//        Method[] methods = getClass().getDeclaredMethods();
-//        for (Method method : methods) {
-//            if (method.getName().contentEquals("onData")) {
-//                Type[] types = method.getGenericParameterTypes();
-//                this.dataType = (Class<T>) types[0];
-//                return;
-//            }
-//        }
-//    }
-//
-//    public Class<T> getDataType() {
-//        if (this.dataType == null) {
-//            initDataType();
-//        }
-//        return this.dataType;
-//    }
+    @Override
+    public void handleFrame(StompHeaders headers, Object payload) {
+        try {
+            APIResponse<APIData<T>, T> val = objectMapper.readValue((String) payload, getValType());
+            onData(val.getData());
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to decode message", e);
+        }
+    }
+
+    public void unsubscribe() {
+        this.active = false;
+        if (getStompSubscription() != null) {
+            getStompSubscription().unsubscribe();
+        }
+    }
+
+    public Subscription getStompSubscription() {
+        return stompSubscription;
+    }
+
+    public void setStompSubscription(Subscription stompSubscription) {
+        this.stompSubscription = stompSubscription;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 
 }

@@ -6,21 +6,16 @@ import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
-import java.io.IOException;
+public abstract class TransactionEventHandler extends EventHandler<Transaction> {
 
-import org.springframework.messaging.simp.stomp.StompHeaders;
-
-public abstract class TransactionEventHandler extends EventHandler {
-
-    protected final TypeToken<APIResponse<APIData<Transaction>, Transaction>> typeToken =
+    @SuppressWarnings("serial")
+    private static final TypeToken<APIResponse<APIData<Transaction>, Transaction>> typeToken =
             new TypeToken<APIResponse<APIData<Transaction>, Transaction>>(){};
 
-    protected final JavaType valType = objectMapper.constructType(typeToken.getType());
+    private static final JavaType valType = objectMapper.constructType(typeToken.getType());
 
     public static final String TOPIC = "/topic/transaction/";
     public static final String TOPIC_ALL = "/topic/transaction/all";
-
-    public abstract void onData(Transaction txn);
 
     private final String txId;
 
@@ -42,15 +37,8 @@ public abstract class TransactionEventHandler extends EventHandler {
     }
 
     @Override
-    public void handleFrame(StompHeaders headers, Object payload) {
-        try {
-            APIResponse<APIData<Transaction>, Transaction> val = objectMapper.readValue((String) payload, valType);
-            onData(val.getData());
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to decode message", e);
-        }
+    public JavaType getValType() {
+        return valType;
     }
-
 
 }

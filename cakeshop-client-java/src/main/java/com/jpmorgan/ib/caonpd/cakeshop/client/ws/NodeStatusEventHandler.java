@@ -6,18 +6,15 @@ import com.jpmorgan.ib.caonpd.cakeshop.client.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
-import java.io.IOException;
+public abstract class NodeStatusEventHandler extends EventHandler<Node> {
 
-import org.springframework.messaging.simp.stomp.StompHeaders;
+    @SuppressWarnings("serial")
+    private static final TypeToken<APIResponse<APIData<Node>, Node>> typeToken =
+            new TypeToken<APIResponse<APIData<Node>, Node>>() {};
 
-public abstract class NodeStatusEventHandler extends EventHandler {
-
-    protected final TypeToken<APIResponse<APIData<Node>, Node>> typeToken = new TypeToken<APIResponse<APIData<Node>,Node>>(){};
-    protected final JavaType valType = objectMapper.constructType(typeToken.getType());
+    private static final JavaType valType = objectMapper.constructType(typeToken.getType());
 
     public static final String TOPIC = "/topic/node/status";
-
-    public abstract void onData(Node node);
 
     @Override
     public String getTopic() {
@@ -25,15 +22,8 @@ public abstract class NodeStatusEventHandler extends EventHandler {
     }
 
     @Override
-    public void handleFrame(StompHeaders headers, Object payload) {
-        try {
-            APIResponse<APIData<Node>, Node> val = objectMapper.readValue((String) payload, valType);
-            onData(val.getData());
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to decode message", e);
-        }
+    public JavaType getValType() {
+        return valType;
     }
-
 
 }
