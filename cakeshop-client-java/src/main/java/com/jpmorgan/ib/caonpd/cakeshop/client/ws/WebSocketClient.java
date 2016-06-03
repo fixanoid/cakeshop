@@ -10,8 +10,6 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import org.springframework.messaging.simp.stomp.ConnectionLostException;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.scheduling.TaskScheduler;
@@ -30,28 +28,6 @@ public class WebSocketClient {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WebSocketClient.class);
 
     private static final long DEFAULT_RECONNECT_DELAY = 1000;
-
-    private class ConnectionHandler extends StompSessionHandlerAdapter {
-        @Override
-        public void afterConnected(StompSession newStompSession, StompHeaders stompHeaders) {
-            stompSession = newStompSession;
-            if (topicHandlers != null && !topicHandlers.isEmpty()) {
-                reconnectAllTopics();
-            }
-        }
-
-        @Override
-        public void handleException(StompSession stompSession, StompCommand stompCommand, StompHeaders stompHeaders, byte[] bytes, Throwable throwable) {
-        }
-
-        @Override
-        public void handleTransportError(StompSession stompSession, Throwable throwable) {
-            if (throwable instanceof ConnectionLostException) {
-                reconnect(); // reconnect the client
-                return;
-            }
-        }
-    }
 
     private final Timer reconnectTimer;
 
@@ -166,11 +142,24 @@ public class WebSocketClient {
     }
 
     private void doConnect() {
-        ListenableFuture<StompSession> future = stompClient.connect(wsUri, new ConnectionHandler());
+
+        ListenableFuture<StompSession> future = stompClient.connect(wsUri, new StompSessionHandlerAdapter() {
+            @Override
+            public void handleTransportError(StompSession session, Throwable exception) {
+                if (exception instanceof ConnectionLostException) {
+                    reconnect(); // reconnect the client
+                }
+            }
+        });
+
         future.addCallback(
             new SuccessCallback<StompSession>() {
                 @Override
-                public void onSuccess(StompSession stompSession) {
+                public void onSuccess(StompSession newStompSession) {
+                    stompSession = newStompSession;
+                    if (topicHandlers != null && !topicHandlers.isEmpty()) {
+                        reconnectAllTopics();
+                    }
                 }
             },
             new FailureCallback() {
