@@ -94,11 +94,6 @@
         <!-- SPRING WEBSOCKET -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-jms</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-messaging</artifactId>
         </dependency>
         <dependency>
