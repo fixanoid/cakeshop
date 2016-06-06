@@ -3,13 +3,16 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.api;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ApiClient;
 
 import java.io.IOException;
+import java.util.logging.ConsoleHandler;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
+import feign.Logger;
+import feign.Logger.JavaLogger;
 import feign.Logger.Level;
-import feign.slf4j.Slf4jLogger;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.QueueDispatcher;
 
@@ -21,6 +24,16 @@ public class BaseApiTest {
     protected MockWebServer mockWebServer;
 
     protected ApiClient apiClient;
+
+    @BeforeSuite
+    public void setupLogger() {
+        System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%n");
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Logger.class.getName());
+        logger.setLevel(java.util.logging.Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(java.util.logging.Level.FINE);
+        logger.addHandler(handler);
+    }
 
     @BeforeClass
     public void setupMockWebserver() throws IOException {
@@ -50,9 +63,9 @@ public class BaseApiTest {
     }
 
     @BeforeMethod
-    public void createApiClient() {
+    public void createApiClient() throws IOException {
         this.apiClient = new ApiClient().setBasePath(getTestUri());
-        this.apiClient.getFeignBuilder().logger(new Slf4jLogger()).logLevel(Level.FULL); // set logger to debug
+        this.apiClient.getFeignBuilder().logger(new JavaLogger()).logLevel(Level.FULL); // set logger to debug
     }
 
 }

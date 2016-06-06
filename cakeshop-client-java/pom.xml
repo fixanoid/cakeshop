@@ -16,7 +16,7 @@
 
     <properties>
         <swagger.core.version>1.5.6</swagger.core.version>
-        <feign.version>8.1.1</feign.version>
+        <feign.version>6.1.2</feign.version>
         <oltu.version>1.0.0</oltu.version>
         <handlebars.version>1.3.2</handlebars.version>
     </properties>
@@ -46,11 +46,14 @@
             <artifactId>feign-jackson</artifactId>
             <version>${feign.version}</version>
         </dependency>
+        
+        <!-- not avail in 6.x
         <dependency>
             <groupId>com.netflix.feign</groupId>
             <artifactId>feign-slf4j</artifactId>
             <version>${feign.version}</version>
         </dependency>
+        -->
 
         <!-- JSON processing: jackson -->
         <dependency>

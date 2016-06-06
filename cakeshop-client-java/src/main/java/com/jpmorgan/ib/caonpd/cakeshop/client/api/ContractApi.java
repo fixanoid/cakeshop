@@ -12,15 +12,16 @@ import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 
 import java.util.List;
 
+import javax.inject.Named;
+
 import feign.Headers;
-import feign.Param;
 import feign.RequestLine;
 
 public interface ContractApi extends ApiClient.Api {
 
     @RequestLine("POST /contract/get")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<APIData<Contract>, Contract> get(@Param("address") String address);
+    APIResponse<APIData<Contract>, Contract> get(@Named("address") String address);
 
     @RequestLine("POST /contract/list")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
@@ -44,6 +45,6 @@ public interface ContractApi extends ApiClient.Api {
 
     @RequestLine("POST /contract/transactions/list")
     @Headers({ "Content-type: application/json", "Accepts: application/json" })
-    APIResponse<List<APIData<Transaction>>, Transaction> listTransactions(@Param("address") String address);
+    APIResponse<List<APIData<Transaction>>, Transaction> listTransactions(@Named("address") String address);
 
 }
