@@ -205,7 +205,7 @@ public class WebSocketClient {
              Iterables.removeIf(topicHandlers.get(topic), new Predicate<EventHandler<?>>() {
                 @Override
                 public boolean apply(EventHandler<?> input) {
-                    return input.isActive();
+                    return !input.isActive();
                 }
             });
         }
