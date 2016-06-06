@@ -18,11 +18,7 @@ public abstract class EventHandler<T> implements StompFrameHandler {
 
     private Subscription stompSubscription;
 
-    private boolean active;
-
-    public EventHandler() {
-        this.active = true;
-    }
+    private boolean active = true;
 
     /**
      * Get the Topic name this handler should attach to
