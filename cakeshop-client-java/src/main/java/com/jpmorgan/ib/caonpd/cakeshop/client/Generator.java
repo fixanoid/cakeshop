@@ -35,6 +35,7 @@ public class Generator {
         options.addOption("f", "file", true, "File containing ABI JSON");
         options.addOption("p", "package", true, "Package name for generated code");
         options.addOption("c", "class", true, "Class name for generated code");
+        options.addOption("a", "abi-file", true, "Load ABI from classpath file instead of embedding in source");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -44,32 +45,25 @@ public class Generator {
             json = FileUtils.readFileToString(new File(cmd.getOptionValue("f")));
         }
 
-        String packageName = null;
-        if (cmd.hasOption("p")) {
-            packageName = cmd.getOptionValue("p");
-        }
+        String packageName = cmd.getOptionValue("p");
+        String className = cmd.getOptionValue("c");
+        String abiFile = cmd.getOptionValue("a");
 
-        String className = null;
-        if (cmd.hasOption("c")) {
-            className = cmd.getOptionValue("c");
-        }
-
-        new Generator(className, packageName, json).generate();
+        new Generator(className, packageName, json, abiFile).generate();
     }
 
     private String className;
     private String packageName;
     private String jsonAbi;
+    private String abiFile;
 
     private ContractABI abi;
 
-    private StringBuilder sb;
-
-    public Generator(String className, String packageName, String jsonAbi) {
-        this.sb = new StringBuilder();
+    public Generator(String className, String packageName, String jsonAbi, String abiFile) {
         this.className = className;
         this.packageName = packageName;
         this.jsonAbi = jsonAbi;
+        this.abiFile = abiFile;
     }
 
     public void generate() throws IOException {
@@ -87,6 +81,7 @@ public class Generator {
         context.put("packageName", packageName);
         context.put("jsonAbi", Escapers.builder().addEscape('"', "\\\"").build().escape(jsonAbi.trim()));
         context.put("abi", abi);
+        context.put("abiFile", abiFile);
 
         StringWriter sw = new StringWriter();
         t.merge(context, sw);

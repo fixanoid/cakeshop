@@ -3,19 +3,33 @@ package $packageName;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ContractProxy;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.ContractApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractMethodCallCommand;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 public class $className extends ContractProxy<$className> {
 
   #parse("methods-ref.vm")
 
+#if( $abiFile )
+  public static final String jsonAbi;
+  static {
+      try {
+          jsonAbi = IOUtils.toString(${className}.class.getClassLoader().getResourceAsStream("${abiFile}"));
+      } catch (IOException e) {
+          throw new RuntimeException("Unable to load ABI file ${abiFile} from classpath", e);
+      }
+  }
+#else
   public static final String jsonAbi = "$jsonAbi";
+#end
+
   public static final ContractABI abi = ContractABI.fromJson(jsonAbi);
 
   public static $className at(ContractApi contractApi, String contractAddress) {
