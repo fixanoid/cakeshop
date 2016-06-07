@@ -248,7 +248,9 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
         	}
         }
 
-        // send status as soon as there is a subscription
+        // send status as soon as there is a (new) subscription
+        // this can cause the message to be sent multiple times if there are
+        // multiple subscribers on this topic (once per subscriber)
         if (dest.startsWith(NODE_TOPIC)) {
             try {
                 previousNodeStatus = null; // force push
