@@ -46,7 +46,7 @@
             <artifactId>feign-jackson</artifactId>
             <version>${feign.version}</version>
         </dependency>
-        
+
         <!-- not avail in 6.x
         <dependency>
             <groupId>com.netflix.feign</groupId>
@@ -171,6 +171,17 @@
                     <compilerArguments>
                         <endorseddirs>${endorsed.dir}</endorseddirs>
                     </compilerArguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.jpmorgan.ib.caonpd.cakeshop.client.Generator</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
