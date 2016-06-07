@@ -18,6 +18,13 @@ import okhttp3.mockwebserver.QueueDispatcher;
 
 public class BaseApiTest {
 
+    class StdoutConsoleHandler extends ConsoleHandler {
+        public StdoutConsoleHandler() {
+            super();
+            setOutputStream(System.out);
+        }
+    }
+
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
             .getLogger(BaseApiTest.class);
 
@@ -28,10 +35,13 @@ public class BaseApiTest {
     @BeforeSuite
     public void setupLogger() {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%n");
+        ConsoleHandler handler = new StdoutConsoleHandler();
+        handler.setLevel(java.util.logging.Level.FINE);
+
+        java.util.logging.Logger.getLogger(MockWebServer.class.getName()).addHandler(handler);
+
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Logger.class.getName());
         logger.setLevel(java.util.logging.Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(java.util.logging.Level.FINE);
         logger.addHandler(handler);
     }
 
