@@ -2,9 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.client;
 
 import com.google.common.escape.Escapers;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Param;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
 import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType;
 import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType.AddressType;
 import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType.BoolType;
@@ -95,112 +93,14 @@ public class Generator {
         System.out.println(sw.toString());
     }
 
-    private void generateStrings() {
-
-        // add class header
-        sb.append("package ").append(packageName).append(";\n\n");
-        sb.append("import com.jpmorgan.ib.caonpd.cakeshop.client.ContractProxy;\n"
-                + "import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;\n"
-                + "import com.jpmorgan.ib.caonpd.cakeshop.client.model.req.ContractMethodCallCommand;\n"
-                + "import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;\n"
-                + "import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;\n"
-                + "import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;\n\n"
-                + "import java.math.BigInteger;\n\n");
-
-        sb.append("public class ").append(className).append(" extends ContractProxy {\n\n");
-
-        sb.append("  public static final String jsonAbi = \"");
-        sb.append(Escapers.builder().addEscape('"', "\\\"").build().escape(jsonAbi.trim()));
-        sb.append("\";\n");
-
-        sb.append("  public static final ContractABI abi = ContractABI.fromJson(jsonAbi);\n\n");
-
-        sb.append("  @Override\n");
-        sb.append("  public ContractABI getABI() {\n    return abi;\n  }\n");
-
-        // add each function definition
-        for (Entry entry : abi) {
-            if (entry.type == Entry.Type.function) {
-                generate((Function) entry);
-            }
-        }
-
-        sb.append("}\n");
-
-        System.out.println(sb.toString());
-
-
-    }
-
-    private void generate(Function func) {
-
-        sb.append("\n");
-        sb.append("  public ");
-
-        if (func.constant) {
-            sb.append("Object");
-        } else {
-            sb.append("TransactionResult");
-        }
-        sb.append(" ").append(func.name).append("(");
-
-        for (int i = 0; i < func.inputs.size(); i++) {
-            Param param = func.inputs.get(i);
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append(new VUtil().getJavaTypeFor(param.type));
-            if (param.type.isDynamicType() && !(param.type instanceof StringType)) {
-                sb.append("[]");
-            }
-            sb.append(" ").append(param.name);
-        }
-
-        sb.append(") {\n");
-
-        if (func.inputs.size() > 0) {
-            // collect inputs
-            sb.append("    ").append("Object[] inputs = new Object[]{");
-            for (int i = 0; i < func.inputs.size(); i++) {
-                Param param = func.inputs.get(i);
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                sb.append(param.name);
-            }
-            sb.append("};\n");
-
-            // process
-            sb.append("    ").append("inputs = processInputArgs(inputs);\n");
-
-        } else {
-            // no inputs, use null
-            sb.append("    ").append("Object[] inputs = null;\n");
-        }
-
-        // send!
-        if (func.constant) {
-            sb.append("    ").append("APIResponse<Object, Object> res = ");
-            sb.append("contractApi.read");
-        } else {
-            sb.append("    ").append("APIResponse<APIData<TransactionResult>, TransactionResult> res = ");
-            sb.append("contractApi.transact");
-        }
-        sb.append("(new ContractMethodCallCommand().address(contractAddress).method");
-        sb.append("(\"").append(func.name).append("\")");
-        sb.append(".args(inputs));\n");
-
-        if (func.constant) {
-            sb.append("    ").append("return res.getApiData();\n");
-        } else {
-            sb.append("    ").append("return res.getData();\n");
-        }
-
-        sb.append("  }\n");
-    }
-
     public class VUtil {
 
+        /**
+         * Get the list of params as used in a Java method signature
+         *
+         * @param inputs
+         * @return
+         */
         public String methodSignature(List<Param> inputs) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < inputs.size(); i++) {
@@ -208,15 +108,17 @@ public class Generator {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                sb.append(getJavaTypeFor(param.type));
-                if (param.type.isDynamicType() && !(param.type instanceof StringType)) {
-                    sb.append("[]");
-                }
-                sb.append(" ").append(param.name);
+                sb.append(typeSignature(param));
             }
             return sb.toString();
         }
 
+        /**
+         * Get the list of input params, without types
+         *
+         * @param inputs
+         * @return
+         */
         public String inputList(List<Param> inputs) {
             // collect inputs
             StringBuilder sb = new StringBuilder();
@@ -230,14 +132,35 @@ public class Generator {
             return sb.toString();
         }
 
+        /**
+         * Get the type signature for a parameter
+         *
+         * e.g., "bytes[] foo" for "bytes32 foo"
+         *
+         * @param param
+         * @return
+         */
         public String typeSignature(Param param) {
             String s = getJavaTypeFor(param.type);
-            if (param.type.isDynamicType() && !(param.type instanceof StringType)) {
+            if (isArrayType(param.type)) {
                 s += "[]";
             }
             return s + " " + param.name;
         }
 
+        public boolean isArrayType(SolidityType type) {
+            return (
+                (type.isDynamicType() && !(type instanceof StringType))
+                || type instanceof Bytes32Type
+                );
+        }
+
+        /**
+         * Map a solidity type to the comparable java type
+         *
+         * @param type
+         * @return
+         */
         public String getJavaTypeFor(SolidityType type) {
             if (type instanceof AddressType) {
                 return "String";
