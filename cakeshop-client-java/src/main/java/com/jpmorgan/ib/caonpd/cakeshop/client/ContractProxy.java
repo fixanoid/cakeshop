@@ -29,7 +29,7 @@ public abstract class ContractProxy<T extends ContractProxy<T>> {
 
     public abstract ContractABI getABI();
 
-    public ContractMethodCallCommand newCall(String method, Object[] args) {
+    public ContractMethodCallCommand newCall(String method, Object... args) {
         return new ContractMethodCallCommand().address(contractAddress).method(method).args(args);
     }
 
