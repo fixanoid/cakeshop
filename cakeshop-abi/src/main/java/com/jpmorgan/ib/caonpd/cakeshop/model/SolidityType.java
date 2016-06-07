@@ -80,7 +80,7 @@ public abstract class SolidityType {
             }
         }
 
-        SolidityType elementType;
+        public SolidityType elementType;
 
         public ArrayType(String name) {
             super(name);

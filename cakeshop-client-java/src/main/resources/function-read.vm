@@ -2,7 +2,6 @@
   public List<Object> ${entry.name}(${util.methodSignature($entry.inputs)}) {
     Object[] inputs = new Object[]{ ${util.inputList($entry.inputs)} };
     processInputArgs(inputs);
-    APIResponse<List<Object>, Object> res =
-      contractApi.read(new ContractMethodCallCommand().address(contractAddress).method("${entry.name}").args(inputs));
-    return res.getApiData();
+    APIResponse<List<Object>, Object> res = contractApi.read(newCall("${entry.name}", inputs));
+    return processOutputArgs(res.getApiData(), abi.getFunction("${entry.name}").outputs);
   }
