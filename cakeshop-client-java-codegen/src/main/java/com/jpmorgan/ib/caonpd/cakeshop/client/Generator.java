@@ -19,9 +19,12 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -32,13 +35,21 @@ public class Generator {
     public static void main(String[] args) throws ParseException, IOException {
 
         Options options = new Options();
-        options.addOption("f", "file", true, "File containing ABI JSON");
+        options.addOption(
+                Option.builder("f").longOpt("file").hasArg().argName("file")
+                    .desc("File containing ABI JSON (required)").build());
+
         options.addOption("p", "package", true, "Package name for generated code");
         options.addOption("c", "class", true, "Class name for generated code");
-        options.addOption("a", "abi-file", true, "Load ABI from classpath file instead of embedding in source");
+        options.addOption("a", "abi-file", true, "Load ABI from classpath (using given name) instead of embedding in source");
+        options.addOption("h", "help", false, "Display this help");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("h") || !cmd.hasOption("f")) {
+            showHelp(options);
+        }
 
         String json = null;
         if (cmd.hasOption("f")) {
@@ -49,13 +60,26 @@ public class Generator {
         String className = cmd.getOptionValue("c");
         String abiFile = cmd.getOptionValue("a");
 
+        // set some defaults
+        if (StringUtils.isBlank(packageName)) {
+            packageName = "com.foo.bar";
+        }
+        if (StringUtils.isBlank(className)) {
+            className = "Foobar";
+        }
+
         new Generator(className, packageName, json, abiFile).generate();
     }
 
-    private String className;
-    private String packageName;
-    private String jsonAbi;
-    private String abiFile;
+    private static void showHelp(Options options) {
+        new HelpFormatter().printHelp("codegen", options);
+        System.exit(1);
+    }
+
+    private final String className;
+    private final String packageName;
+    private final String jsonAbi;
+    private final String abiFile;
 
     private ContractABI abi;
 
