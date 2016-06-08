@@ -23,6 +23,7 @@ node.conf
 /bin/
 WebContent/
 pom.xml.versionsBackup
+dependency-reduced-pom.xml
 
 # node stuff
 npm-debug.log*
