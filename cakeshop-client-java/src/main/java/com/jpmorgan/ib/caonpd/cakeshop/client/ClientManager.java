@@ -17,9 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ClientManager {
 
-    private ApiClient apiClient;
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientManager.class);
 
-    private WebSocketClient wsClient;
+    private final ApiClient apiClient;
+
+    private final WebSocketClient wsClient;
 
     private final Map<Class<? extends Api>, Api> clients;
 
@@ -48,6 +50,9 @@ public class ClientManager {
         String baseUri = cakeshopUri.getHost() + ":" + port + cakeshopUri.getPath();
         String apiUri = scheme + "://" + baseUri + "/api";
         String wsUri = (scheme.contentEquals("http") ? "ws" : "wss") + "://" + baseUri + "/ws";
+
+        LOG.debug("Using API URI: " + apiUri);
+        LOG.debug("Using WS  URI: " + wsUri);
 
         return new ClientManager(
                 new ApiClient().setBasePath(apiUri),
@@ -87,6 +92,12 @@ public class ClientManager {
     public void subscribe(EventHandler<?> handler) {
         lazyStartWsClient();
         wsClient.subscribe(handler);
+    }
+
+    public void shutdown() {
+        if (wsClient != null && !wsClient.isShutdown()) {
+            wsClient.shutdown();
+        }
     }
 
 }
