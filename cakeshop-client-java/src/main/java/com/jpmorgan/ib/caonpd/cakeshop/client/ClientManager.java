@@ -1,12 +1,17 @@
 package com.jpmorgan.ib.caonpd.cakeshop.client;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ApiClient.Api;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.BlockApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.ContractApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.NodeApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.TransactionApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.WalletApi;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ws.EventHandler;
+import com.jpmorgan.ib.caonpd.cakeshop.client.ws.TransactionEventHandler;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ws.WebSocketClient;
 
 import java.net.URI;
@@ -98,6 +103,24 @@ public class ClientManager {
         if (wsClient != null && !wsClient.isShutdown()) {
             wsClient.shutdown();
         }
+    }
+
+    public ListenableFuture<Transaction> waitForTx(TransactionResult txResult) {
+        return waitforTx(txResult.getId());
+    }
+
+    public ListenableFuture<Transaction> waitforTx(String txId) {
+        final SettableFuture<Transaction> future = SettableFuture.create();
+
+        subscribe(new TransactionEventHandler(txId) {
+            @Override
+            public void onData(Transaction data) {
+                future.set(data);
+                unsubscribe();
+            }
+        });
+
+        return future;
     }
 
 }

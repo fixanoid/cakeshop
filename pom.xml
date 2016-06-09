@@ -31,7 +31,7 @@
         <gson.version>1.7.1</gson.version>
         <jackson.version>2.6.3</jackson.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>19.0</guava.version>
         <dropwizard-metrics.version>3.1.2</dropwizard-metrics.version>
 
         <hibernate.version>5.1.0.Final</hibernate.version>
