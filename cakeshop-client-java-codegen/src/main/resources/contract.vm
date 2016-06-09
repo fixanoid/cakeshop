@@ -1,5 +1,7 @@
 package $packageName;
 
+import static com.jpmorgan.ib.caonpd.cakeshop.client.ContractUtil.*;
+
 import com.jpmorgan.ib.caonpd.cakeshop.client.ContractProxy;
 import com.jpmorgan.ib.caonpd.cakeshop.client.api.ContractApi;
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
