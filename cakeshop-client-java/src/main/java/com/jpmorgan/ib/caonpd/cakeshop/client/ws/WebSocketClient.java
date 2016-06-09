@@ -48,6 +48,8 @@ public class WebSocketClient {
 
     private final Map<String, List<EventHandler<?>>> topicHandlers;
 
+    private boolean started;
+
     private boolean shutdown;
 
     public WebSocketClient(String wsUri) {
@@ -60,6 +62,7 @@ public class WebSocketClient {
         this.reconnectTimer = new Timer("ReconnectTimer");
         this.reconnectDelay = reconnectDelay;
         this.topicHandlers = new Hashtable<>();
+        this.started = false;
         this.shutdown = false;
     }
 
@@ -73,6 +76,14 @@ public class WebSocketClient {
             LOG.debug("Subscribing to " + handler.getTopic());
             handler.setStompSubscription(stompSession.subscribe(handler.getTopic(), handler));
         }
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public boolean isShutdown() {
+        return shutdown;
     }
 
     private void reconnect() {
@@ -90,6 +101,14 @@ public class WebSocketClient {
     }
 
     public void start() {
+        if (this.started) {
+            return;
+        }
+        this.started = true;
+        doStart();
+    }
+
+    private void doStart() {
         LOG.debug("Connecting");
         createClient();
         doConnect();
