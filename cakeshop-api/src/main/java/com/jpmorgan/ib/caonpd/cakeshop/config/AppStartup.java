@@ -175,7 +175,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     private String getLinuxInfo() {
 
         if (!SystemUtils.IS_OS_LINUX) {
-            return null;
+            return "";
         }
 
         // lists all the files ending with -release in the etc folder
