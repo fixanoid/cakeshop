@@ -11,14 +11,18 @@ public class APIData {
 
     private Object attributes;
 
-    public APIData(){
-
+    public APIData() {
     }
 
     public APIData(String id, String type, Object attributes) {
         this.id = id;
         this.type = type;
         this.attributes = attributes;
+    }
+
+    public APIData id(String id) {
+        this.id = id;
+        return this;
     }
 
     public String getId() {
@@ -29,12 +33,22 @@ public class APIData {
         this.id = id;
     }
 
+    public APIData type(String type) {
+        this.type = type;
+        return this;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public APIData attributes(Object attributes) {
+        this.attributes = attributes;
+        return this;
     }
 
     public Object getAttributes() {

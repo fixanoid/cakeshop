@@ -43,6 +43,10 @@ public class APIResponse {
         meta.put("version", AppConfig.API_VERSION);
     }
 
+    public APIResponse error(APIError error) {
+        addError(error);
+        return this;
+    }
     public void addError(APIError error) {
         if (getErrors() == null) {
             this.errors = new ArrayList<APIError>();
@@ -50,6 +54,10 @@ public class APIResponse {
         getErrors().add(error);
     }
 
+    public APIResponse data(Object data) {
+        this.data = data;
+        return this;
+    }
     public Object getData() {
         return data;
     }
