@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
 
 /**
@@ -9,6 +10,7 @@ import org.springframework.web.context.support.ServletRequestHandledEvent;
  * @author chetan
  *
  */
+@Component
 public class LoggingInterceptor {
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LoggingInterceptor.class);
