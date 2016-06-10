@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface NodeService {
 
-    public String NODE_RUNNING_STATUS="running";
-    public String NODE_NOT_RUNNING_STATUS="stopped";
+    public static final String NODE_RUNNING_STATUS = "running";
+    public static final String NODE_NOT_RUNNING_STATUS = "stopped";
 
     /**
      * Get node information
