@@ -231,6 +231,11 @@ $(function() {
 		}
 	});
 
+	// logo handler
+	$("a.tower-logo").click(function(e) {
+		e.preventDefault();
+		$("#console").click();
+	});
 
 	// Menu (burger) handler
 	$('.tower-toggle-btn').on('click', function() {
