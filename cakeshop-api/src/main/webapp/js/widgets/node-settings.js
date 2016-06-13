@@ -12,7 +12,7 @@
 		template: _.template(
 			'<div class="form-group">' +
 			'	<label for="committingTransactions">Commiting Transactions</label>' +
-			'	<select id="committingTransactions" class="form-control">' +
+			'	<select id="committingTransactions" class="form-control" style="transition: none;">' +
 			'		<option value="true">Yes</option>' +
 			'		<option value="false">No</option>' +
 			'	</select>' +
@@ -27,7 +27,7 @@
 			'</div>' +
 			'<div class="form-group">' +
 			'	<label for="logLevel">Log Level</label>' +
-			'	<select id="logLevel" class="form-control">' +
+			'	<select id="logLevel" class="form-control" style="transition: none;">' +
 			'		<option value="6">TRACE</option>' +
 			'		<option value="5">DEBUG</option>' +
 			'		<option value="4">INFO</option>' +
