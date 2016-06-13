@@ -22,23 +22,7 @@ var utils = {
 		return $.ajax(config);
 	},
 
-	subscribe: function(topic, handler) {
-		Tower.stomp_subscriptions[topic] = {topic: topic, handler: handler};
-		if (Tower.stomp && Tower.stomp.connected === true) {
-			Tower.debug('STOMP subscribing to ' + topic);
-
-			var sub = Tower.stomp.subscribe(topic, function(res) {
-				var status = JSON.parse(res.body);
-				status = status.data.attributes;
-
-				handler(status);
-			});
-			Tower.stomp_subscriptions[topic].fh = sub;
-			return sub;
-		}
-
-		return false;
-	},
+	subscribe: Client.subscribe,
 
 	prettyUpdate: function(oldValue, newValue, el) {
 		if (oldValue !== newValue) {
@@ -121,41 +105,31 @@ var utils = {
 	},
 
 	copyToClipboard: function(e) {
-	    var t = e.target,
+		var t = e.target,
 		 c = t.dataset.copytarget,
 		 inp = (c ? document.querySelector(c) : null);
 
-	    // is element selectable?
-	    if (inp && inp.select) {
-	        // select text
-	        inp.select();
+		// is element selectable?
+		if (inp && inp.select) {
+			// select text
+			inp.select();
 
-	        try {
-	    		// copy text
-	        	document.execCommand('copy');
-	        	inp.blur();
-	        } catch (err) {}
-	    }
+			try {
+				// copy text
+				document.execCommand('copy');
+				inp.blur();
+			} catch (err) {}
+		}
 	},
 
 	truncAddress: function(addr) {
-        var len = addr.startsWith('0x') ? 10 : 8;
+		var len = addr.startsWith('0x') ? 10 : 8;
 
-        return addr.substring(0, len);
-    }
-};
-
-
-var Client = {
-	post: function(url, data) {
-		var options = {
-			url: url,
-			data: data
-		}
-
-		return utils.load(options);
+		return addr.substring(0, len);
 	}
 };
+
+
 
 
 jQuery.fn.selectText = function() {

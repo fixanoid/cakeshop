@@ -18,28 +18,37 @@
 
     Client._stomp_subscriptions = {};
     Client.subscribe = function(topic, handler) {
-        Client._stomp_subscriptions[topic] = {topic: topic, handler: handler};
+        Client._stomp_subscriptions[topic] = {
+			topic: topic,
+			handler: handler
+		};
+
         if (Client.stomp && Client.stomp.connected === true) {
             console.log('STOMP subscribing to ' + topic);
 
             var sub = Client.stomp.subscribe(topic, function(res) {
                 handler(JSON.parse(res.body));
             });
+
             Client._stomp_subscriptions[topic].fh = sub;
+
             return sub;
         }
+
         return false;
     };
 
-	$(window).on("beforeunload", function() {
+	$(window).on('beforeunload', function() {
 		if (!(Client.stomp && Client.stomp.connected === true)) {
 			return;
 		}
+
 		_.values(Client._stomp_subscriptions).forEach(function(sub) {
 			if (sub && sub.fh) {
 				sub.fh.unsubscribe();
 			}
 		});
+
 		Client.stomp.disconnect();
 	});
 

@@ -1,8 +1,6 @@
 
 var Tower = {
 	ready: false,
-	stomp: null,
-	stomp_subscriptions: {},
 	current: null,
 	status: {},
 
@@ -33,19 +31,12 @@ var Tower = {
 		$('#_clipboard_button').on('click', utils.copyToClipboard);
 
 		this.processHash();
-		this.socketInit();
 
-		$(window).on("beforeunload", function() {
-			if (!(Tower.stomp && Tower.stomp.connected === true)) {
-				return;
-			}
-			_.values(Tower.stomp_subscriptions).forEach(function(sub) {
-				if (sub && sub.fh) {
-					sub.fh.unsubscribe();
-				}
-			});
-			Tower.stomp.disconnect();
-		});
+		// Reusing socket from cakeshop.js
+		Tower.stomp = Client.stomp;
+		Tower.stomp_subscriptions = Client._stomp_subscriptions;
+
+		Tower.section['default']();
 	},
 
 
@@ -89,25 +80,11 @@ var Tower = {
 		}
 	},
 
-
-	socketInit: function() {
-		var stomp = Tower.stomp = Stomp.over(new SockJS('/cakeshop/ws'));
-		stomp.debug = null;
-		stomp.connect({}, function(frame) {
-			_.each(Tower.stomp_subscriptions, function(sub, topic) {
-				utils.subscribe(topic, sub.handler);
-			});
-			Tower.section['default'](); // Startup & Update perma-widgets
-		}, function(err) {
-			Tower.section['default'](); // trigger status fallback -- Startup & Update perma-widgets
-			setTimeout(Tower.socketInit, 5000); // always reconnect
-		});
-	},
-
-
 	section: {
 		'default': function() {
-			var statusUpdate = function(status) {
+			var statusUpdate = function(response) {
+				var status = response.data.attributes;
+
 				if (status.status === 'running') {
 					$('#default-node-status').html( $('<span>', { html: 'Running' }) );
 
@@ -134,25 +111,20 @@ var Tower = {
 				}
 			};
 
-			if (Tower.stomp && Tower.stomp.connected === true) {
-				if (Tower.stomp_subscriptions['/topic/node/status'] ||
-					utils.subscribe('/topic/node/status', statusUpdate)) {
-
-					return;
-				}
-			}
-
-			Tower.debug('falling back to status polling');
-
 			$.when(
 				utils.load({ url: 'api/node/get' })
 			).done(function(response) {
-				var status = response.data.attributes;
-				statusUpdate(status);
+				statusUpdate(response);
 			}).fail(function() {
-				statusUpdate({status: "DOWN", peerCount: "n/a", latestBlock: "n/a", pendingTxn: "n/a"});
+				statusUpdate({
+					status: 'DOWN',
+					peerCount: 'n/a',
+					latestBlock: 'n/a',
+					pendingTxn: 'n/a'
+				});
 			});
 
+			utils.subscribe('/topic/node/status', statusUpdate);
 		},
 
 		'console': function() {
@@ -216,7 +188,7 @@ var Tower = {
 
 	debug: function(message) {
 		var _ref;
-		return typeof window !== "undefined" && window !== null ? (_ref = window.console) !== null ? _ref.log(message) : void 0 : void 0;
+		return typeof window !== 'undefined' && window !== null ? (_ref = window.console) !== null ? _ref.log(message) : void 0 : void 0;
     }
 };
 
