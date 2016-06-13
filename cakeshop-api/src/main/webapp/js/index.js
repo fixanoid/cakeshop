@@ -109,6 +109,8 @@ var Tower = {
 				if (!Tower.ready) {
 					Tower.isReady();
 				}
+
+				$(document).trigger('WidgetInternalEvent', [ 'node-status|announce' ]);
 			};
 
 			$.when(
