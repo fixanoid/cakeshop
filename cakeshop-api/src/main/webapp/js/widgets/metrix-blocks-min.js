@@ -17,19 +17,22 @@
 			$('#widget-' + widget.shell.id).html( '<div id="' + widget.name + '" class="epoch category10" style="width:100%; height: 210px;"></div>' );
 
 			widget.chart = $('#' + widget.name).epoch({
-			    type: 'time.area',
-			    data: [ {
-			    	label: 'Blocks per MIN',
-			    	values: [ { time: (new Date()).getTime() / 1000, y: 0 } ]
-			    } ],
-			    axes: ['left', 'right', 'bottom']
+				type: 'time.area',
+				data: [ {
+					label: 'Blocks per MIN',
+					values: [ { time: (new Date()).getTime() / 1000, y: 0 } ]
+				} ],
+				axes: ['left', 'right', 'bottom']
 			});
 		},
 
 		onData: function(data) {
+			data = data.data.attributes;
+
 			if (!data || !data.result) {
 				return;
 			}
+
 			var b = {
 				time: data.result.timestamp,
 				y: data.result.value

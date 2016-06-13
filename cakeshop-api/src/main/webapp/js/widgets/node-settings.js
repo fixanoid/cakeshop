@@ -12,7 +12,7 @@
 		template: _.template(
 			'<div class="form-group">' +
 			'	<label for="committingTransactions">Commiting Transactions</label>' +
-			'	<select id="committingTransactions" class="form-control">' +
+			'	<select id="committingTransactions" class="form-control" style="transition: none;">' +
 			'		<option value="true">Yes</option>' +
 			'		<option value="false">No</option>' +
 			'	</select>' +
@@ -27,7 +27,7 @@
 			'</div>' +
 			'<div class="form-group">' +
 			'	<label for="logLevel">Log Level</label>' +
-			'	<select id="logLevel" class="form-control">' +
+			'	<select id="logLevel" class="form-control" style="transition: none;">' +
 			'		<option value="6">TRACE</option>' +
 			'		<option value="5">DEBUG</option>' +
 			'		<option value="4">INFO</option>' +
@@ -46,22 +46,37 @@
 			'</div>'),
 
 
-		fetch: function() {
-			var _this = this;
 
-			$.when(
-				utils.load({ url: this.url })
-			).done(function(info) {
-				$('#widget-' + _this.shell.id + ' #networkId').val( info.data.attributes.config.networkId ? info.data.attributes.config.networkId : '' );
-				$('#widget-' + _this.shell.id + ' #identity').val( info.data.attributes.config.identity ? info.data.attributes.config.identity : '' );
-				$('#widget-' + _this.shell.id + ' #logLevel').val( info.data.attributes.config.logLevel ? info.data.attributes.config.logLevel : '4' );
-				$('#widget-' + _this.shell.id + ' #committingTransactions').val( info.data.attributes.config.committingTransactions ? 'true' : 'false' );
-				$('#widget-' + _this.shell.id + ' #extraParams').val( info.data.attributes.config.extraParams ? info.data.attributes.config.extraParams : '' );
-				$('#widget-' + _this.shell.id + ' #genesisBlock').val( info.data.attributes.config.genesisBlock ? info.data.attributes.config.genesisBlock : '' );
-
-				_this.postFetch();
+		subscribe: function() {
+			// adding listener to reload the widget if identity is updated
+			$(document).on('WidgetInternalEvent', function(ev, action) {
+				if (action === 'node-status|announce') {
+					widget.onData(Tower.status);
+				}
 			});
 		},
+
+		rendered: false,
+		onData:function(status) {
+			if (this.rendered) {
+				return;
+			}
+
+			this.rendered = true;
+			$('#widget-' + this.shell.id + ' #networkId').val( status.config.networkId ? status.config.networkId : '' );
+			$('#widget-' + this.shell.id + ' #identity').val( status.config.identity ? status.config.identity : '' );
+			$('#widget-' + this.shell.id + ' #logLevel').val( status.config.logLevel ? status.config.logLevel : '4' );
+			$('#widget-' + this.shell.id + ' #committingTransactions').val( status.config.committingTransactions ? 'true' : 'false' );
+			$('#widget-' + this.shell.id + ' #extraParams').val( status.config.extraParams ? status.config.extraParams : '' );
+			$('#widget-' + this.shell.id + ' #genesisBlock').val( status.config.genesisBlock ? status.config.genesisBlock : '' );
+		},
+
+
+		fetch: function() {
+			this.rendered = false;
+			widget.onData(Tower.status);
+		},
+
 
 		render: function() {
 			Dashboard.render.widget(this.name, this.shell.tpl);
@@ -71,9 +86,8 @@
 				.html( this.template({}) );
 
 			$('#widget-' + this.shell.id + ' .form-control').change(this._handler);
-
-			this.fetch();
 		},
+
 
 		_handler: function(ev) {
 			var _this = $(this),

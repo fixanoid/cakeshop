@@ -29,6 +29,8 @@
 		},
 
 		onNewBlock: function(data) {
+			data = data.data.attributes;
+
 			var b = {
 				num: data.number,
 				age: data.timestamp,
