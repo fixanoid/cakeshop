@@ -14,7 +14,7 @@
 
 		subscribe: function() {
 			// adding listener to reload the widget if identity is updated
-			$(document).on('WidgetInternalEvent', function(ev, action) {
+			Dashboard.Utils.on(function(ev, action) {
 				if (action === 'node-settings|updated|identity') {
 					widget.onData(Tower.status);
 				} else if (action === 'node-status|announce') {

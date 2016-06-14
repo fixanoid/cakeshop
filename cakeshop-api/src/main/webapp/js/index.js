@@ -9,7 +9,7 @@ var Tower = {
 		Tower.ready = true;
 
 		// let everyone listening in know
-		$(document).trigger('WidgetInternalEvent', [ 'tower-control|ready|true' ]);
+		Dashboard.Utils.emit('tower-control|ready|true');
 
 		return true;
 	},
@@ -20,7 +20,7 @@ var Tower = {
 
 		// Adding event for sleep / wake
 		$(document).on('visibilitychange', function(e) {
-			$(document).trigger('WidgetInternalEvent', [ 'tower-control|sleep|' + document.hidden]);
+			Dashboard.Utils.emit('tower-control|sleep|' + document.hidden);
 		});
 
 		// Adding event for hash changes
@@ -69,7 +69,7 @@ var Tower = {
 
 			// do when ready
 			if (!Tower.ready) {
-				$(document).on('WidgetInternalEvent', function(ev, action) {
+				Dashboard.Utils.on(function(ev, action) {
 					if (action.indexOf('tower-control|ready|') === 0) {
 						werk();
 					}
@@ -110,7 +110,7 @@ var Tower = {
 					Tower.isReady();
 				}
 
-				$(document).trigger('WidgetInternalEvent', [ 'node-status|announce' ]);
+				Dashboard.Utils.emit('node-status|announce');
 			};
 
 			$.when(

@@ -24,7 +24,7 @@
 
 		subscribe: function(data) {
 			// adding listener to add knownPeers
-			$(document).on('WidgetInternalEvent', function(ev, action) {
+			Dashboard.Utils.on(function(ev, action) {
 				if (action.indexOf('peers-list|fetch|') === 0) {
 					widget.knownPeers = [];
 

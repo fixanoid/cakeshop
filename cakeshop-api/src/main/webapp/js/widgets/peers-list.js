@@ -30,7 +30,7 @@
 						rows.push( _this.templateRow({ o: peer }) );
 					});
 
-					$(document).trigger('WidgetInternalEvent', [ widget.name + '|fetch|' + JSON.stringify(info.data.attributes) ] );
+					Dashboard.Utils.emit( widget.name + '|fetch|' + JSON.stringify(info.data.attributes) );
 
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 

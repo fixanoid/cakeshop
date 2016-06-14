@@ -54,7 +54,6 @@
 
 					var template;
 
-					console.log(val, key);
 					if (val == 'blockNumber') {
 						template = _this.templateBlockRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
 					} else if (val === 'decodedInput') {

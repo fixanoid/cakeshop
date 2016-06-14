@@ -49,7 +49,7 @@
 
 		subscribe: function() {
 			// adding listener to reload the widget if identity is updated
-			$(document).on('WidgetInternalEvent', function(ev, action) {
+			Dashboard.Utils.on(function(ev, action) {
 				if (action === 'node-status|announce') {
 					widget.onData(Tower.status);
 				}
@@ -101,7 +101,7 @@
 				utils.load({ url: widget.update_url, data: data })
 			).done(function(info) {
 				// trigger event update
-				$(document).trigger('WidgetInternalEvent', [ widget.name + '|updated|' + action] );
+				Dashboard.Utils.emit(widget.name + '|updated|' + action);
 			});
 		}
 	};

@@ -1,3 +1,20 @@
+/**
+ *	Widget template.
+ *
+ *	Loading flow:
+ *		1. Register in a section for displaying
+ *		2. Widget is pulled down
+ *		3. addWidget called on screenManager
+ *		4. screenManager calls widget.init
+ *			5. widget.setData is called by widget.init
+ *			6. widget.initialized is toggled
+ *			7. widget.ready is called by widget.init
+ *				8. widget.render is called by widget.init
+ *					9. widget.fetch is called by widget.render
+ *					10. widget.postRender is called by widget.render
+ *			11. widget.subscribe is called by widget.init
+ */
+
 var widgetRoot = {
 	hideLink: false,
 	hideRefresh: false,
@@ -21,6 +38,8 @@ var widgetRoot = {
 	subscribe: function() { },
 
 	init: function(data) {
+		Dashboard.Utils.emit('widget|init|' + this.name);
+
 		if (data) {
 			this.setData(data);
 		}
@@ -34,7 +53,12 @@ var widgetRoot = {
 		});
 
 		this.initialized = true;
+
+		Dashboard.Utils.emit('widget|ready|' + this.name);
+
 		this.ready();
+
+		Dashboard.Utils.emit('widget|render|' + this.name);
 
 		this.subscribe();
 	},
