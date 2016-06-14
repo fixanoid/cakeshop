@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.cakeshop")
+@Profile("spring-boot")
 public class SpringBootApplication {
 
     public static void main(String[] args) {

@@ -86,6 +86,7 @@
 				.html( this.template({}) );
 
 			$('#widget-' + this.shell.id + ' .form-control').change(this._handler);
+			$(document).trigger("WidgetInternalEvent", ["widget|rendered|" + this.name]);
 		},
 
 

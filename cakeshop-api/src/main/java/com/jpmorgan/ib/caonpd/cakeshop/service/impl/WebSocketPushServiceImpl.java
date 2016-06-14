@@ -111,9 +111,18 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 	@Override
 	@Scheduled(fixedDelay = 5000)
 	public void pushNodeStatus() throws APIException {
-		if (openedSessions <= 0 || !geth.isRunning()) {
-		    return;
-		}
+	    if (openedSessions <= 0) {
+	        return;
+	    }
+
+	    if (!geth.isRunning()) {
+	        // send back a node-down response
+	        Node node = new Node();
+	        node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
+	        template.convertAndSend(NODE_TOPIC,
+	                new APIResponse().data(new APIData(node.getId(), "node", node)));
+	        return;
+	    }
 
         Node node = nodeService.get();
 

@@ -1,7 +1,7 @@
 (function() {
 	var extended = {
 		name: 'node-info',
-		title: 'Node Client Info',
+		title: 'Node Info',
 		size: 'medium',
 
 		hideLink: true,

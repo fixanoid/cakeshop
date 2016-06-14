@@ -25,7 +25,7 @@
 			var _this = this;
 
 			$.when(
-				utils.load({ url: _this.url, data: { id: _this.contractId } })
+				utils.load({ url: _this.url, data: { address: _this.contractId } })
 			).fail(function(err) {
 				// TODO: Error will robinson!
 				_this.postFetch();
@@ -46,7 +46,11 @@
 						// Contract creation
 						text = _this.header(txn) + ' Contract \'<a href="#" data-widget="contract-detail" data-id="' + txn.contractAddress +'">' + _this.contractName + '</a>\' created';
 					} else {
-						text = _this.header(txn) + ' TXN <a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' + utils.truncAddress(txn.id) + '</a>: <span style="font-weight: bold; color: #375067;">' + txn.decodedInput.method +'</span>(<span style="font-weight: bold; color: #375067;">' + txn.decodedInput.args.join('</span>, <span style="font-weight: bold; color: #375067;">') + '</span>)';
+						text = _this.header(txn) + ' TXN <a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' +
+									utils.truncAddress(txn.id) + '</a>: <span style="font-weight: bold; color: #375067;">' +
+									txn.decodedInput.method +'</span>(<span style="font-weight: bold; color: #375067;">' +
+									txn.decodedInput.args.join('</span>, <span style="font-weight: bold; color: #375067;">') +
+									'</span>)';
 					}
 
 					rows.push( _this.templateRow({ text: text }) );

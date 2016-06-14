@@ -12,8 +12,8 @@ godep go install
 
 # COMMIT
 # new binary is now in /c/godev/bin/geth.exe
-cp -a /c/godev/bin/geth.exe /c/Users/chetan/workspace/ethereum-enterprise/geth-resources/bin/win/
-cd /c/Users/chetan/workspace/ethereum-enterprise
+cp -a /c/godev/bin/geth.exe /c/Users/chetan/workspace/cakeshop/cakeshop-api/src/main/resources/geth/bin/win/
+cd /c/Users/chetan/workspace/cakeshop
 git pull
-git add -u /c/Users/chetan/workspace/ethereum-enterprise/geth-resources/bin/win/geth.exe
+git add -u /c/Users/chetan/workspace/cakeshop/cakeshop-api/src/main/resources/geth/bin/win/geth.exe
 git commit

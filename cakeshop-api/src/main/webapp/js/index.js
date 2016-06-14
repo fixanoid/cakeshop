@@ -205,6 +205,11 @@ $(function() {
 		}
 	});
 
+	// logo handler
+	$("a.tower-logo").click(function(e) {
+		e.preventDefault();
+		$("#console").click();
+	});
 
 	// Menu (burger) handler
 	$('.tower-toggle-btn').on('click', function() {
@@ -216,13 +221,17 @@ $(function() {
 
 	// Navigation menu handler
 	$('.tower-sidebar li').click(function(e) {
-		if ($(this).attr('id') === 'sandbox') {
+		var id = $(this).attr('id');
+		if (id === 'sandbox') {
+			return;
+		} else if (id === 'help') {
+			Tower.tour.start(true);
 			return;
 		}
 
 		e.preventDefault();
 
-		Tower.current = $(this).attr('id');
+		Tower.current = id;
 
 		$('.tower-sidebar li').removeClass('active');
 		$(this).addClass('active');
@@ -231,6 +240,7 @@ $(function() {
 
 		$('.tower-page-title').html( $('<span>', { html: $(this).find('.tower-sidebar-item').html() }) );
 	});
+
 
 
 

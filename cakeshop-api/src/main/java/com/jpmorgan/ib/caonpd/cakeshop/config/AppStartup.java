@@ -60,7 +60,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
     private String gethVer;
 
-    private List<Error> errors;
+    private final List<Error> errors;
 
     public AppStartup() {
         errors = new ArrayList<>();
@@ -76,8 +76,12 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         this.healthy = testSystemHealth();
         if (this.healthy) {
             printWelcomeMessage();
-            autoStartGeth();
-        } else {
+            if (gethConfig.isAutoStart()) {
+                this.healthy = autoStartGeth();
+            }
+        }
+
+        if (!this.healthy) {
             System.out.println(event.getApplicationContext());
             printErrorReport();
         }
@@ -111,12 +115,9 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     private void printWelcomeMessage() {
     }
 
-    public void autoStartGeth() {
-        if (!gethConfig.isAutoStart()) {
-            return;
-        }
+    public boolean autoStartGeth() {
         LOG.info("Autostarting geth node");
-        geth.start();
+        return geth.start();
     }
 
     public String getDebugInfo(ServletContext servletContext) {
@@ -174,7 +175,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     private String getLinuxInfo() {
 
         if (!SystemUtils.IS_OS_LINUX) {
-            return null;
+            return "";
         }
 
         // lists all the files ending with -release in the etc folder
@@ -236,6 +237,11 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         return out.toString();
     }
 
+    /**
+     * Checks that all dependencies are functioning correctly
+     *
+     * @return
+     */
     private boolean testSystemHealth() {
         boolean healthy = true;
 

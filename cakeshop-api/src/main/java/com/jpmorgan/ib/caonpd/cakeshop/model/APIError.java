@@ -33,7 +33,10 @@ public class APIError {
     }
 
 
-
+    public APIError id(String id) {
+        this.id = id;
+        return this;
+    }
     public String getId() {
         return id;
     }
@@ -41,6 +44,10 @@ public class APIError {
         this.id = id;
     }
 
+    public APIError status(String status) {
+        this.status = status;
+        return this;
+    }
     public String getStatus() {
         return status;
     }
@@ -48,6 +55,10 @@ public class APIError {
         this.status = status;
     }
 
+    public APIError code(String code) {
+        this.code = code;
+        return this;
+    }
     public String getCode() {
         return code;
     }
@@ -55,6 +66,10 @@ public class APIError {
         this.code = code;
     }
 
+    public APIError title(String title) {
+        this.title = title;
+        return this;
+    }
     public String getTitle() {
         return title;
     }
@@ -62,6 +77,10 @@ public class APIError {
         this.title = title;
     }
 
+    public APIError detail(String detail) {
+        this.detail = detail;
+        return this;
+    }
     public String getDetail() {
         return detail;
     }
@@ -69,10 +88,13 @@ public class APIError {
         this.detail = detail;
     }
 
+    public APIError rootCause(String rootCause) {
+        this.rootCause = rootCause;
+        return this;
+    }
     public String getRootCause() {
         return rootCause;
     }
-
     public void setRootCause(String rootCause) {
         this.rootCause = rootCause;
     }

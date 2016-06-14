@@ -1,6 +1,6 @@
 Dashboard.TEMPLATES = {
 	_widget: function(opts) {
-		return '<div class="widget-shell col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + '" id="widget-shell-' + opts.id + '">\n'+
+		return '<div class="widget-shell col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + ' ' + opts.name + '" id="widget-shell-' + opts.id + '">\n'+
 				'	<div class="panel panel-default">\n'+
 				'		<div class="panel-heading">\n'+
 				'			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n'+
