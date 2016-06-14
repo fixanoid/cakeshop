@@ -73,15 +73,18 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         }
         autoStartFired = true;
 
-        this.healthy = testSystemHealth();
-        if (this.healthy) {
+        healthy = testSystemHealth();
+        if (healthy) {
             printWelcomeMessage();
             if (gethConfig.isAutoStart()) {
-                this.healthy = autoStartGeth();
+                healthy = autoStartGeth();
+                if (!healthy) {
+                    addError("GETH FAILED TO START");
+                }
             }
         }
 
-        if (!this.healthy) {
+        if (!healthy) {
             System.out.println(event.getApplicationContext());
             printErrorReport();
         }
@@ -221,6 +224,10 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public String getErrorInfo() {
+        if (errors.isEmpty()) {
+            return "(no errors logged)";
+        }
+
         FastDateFormat tsFormatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss,S");
         StringBuilder out = new StringBuilder();
         for (Error error : errors) {
@@ -248,74 +255,71 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         System.out.println();
         System.out.println();
         System.out.println(StringUtils.repeat("*", 80));
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
-        System.out.println("*" + StringUtils.rightPad(" Running system self-test...", 78) + "*");
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
+        System.out.println("Running pre-flight checks...");
+        System.out.println();
 
         // test ethereum data dir
         String dataDir = gethConfig.getDataDirPath();
-        System.out.println(StringUtils.rightPad("* Testing ethereum data dir path", 79) + "*");
-        System.out.println(StringUtils.rightPad("* " + dataDir, 79) + " *");
+        System.out.println("Testing ethereum data dir path");
+        System.out.println(dataDir);
         if (isDirAccesible(dataDir)) {
-            System.out.println(StringUtils.rightPad("* OK", 79) + "*");
+            System.out.println("OK");
         } else {
-            System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
+            System.out.println("FAILED");
             healthy = false;
         }
 
         // test config & db data dir
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
+        System.out.println();
         String dbDir = FileUtils.expandPath(CONFIG_ROOT, "db");
-        System.out.println(StringUtils.rightPad("* Testing db path", 79) + "*");
-        System.out.println(StringUtils.rightPad("* " + dbDir, 78) + " *");
+        System.out.println("Testing db path");
+        System.out.println(dbDir);
         if (isDirAccesible(dbDir)) {
-            System.out.println(StringUtils.rightPad("* OK", 79) + "*");
+            System.out.println("OK");
         } else {
-            System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
+            System.out.println("FAILED");
             healthy = false;
         }
 
         // test geth binary
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
-        System.out.println(StringUtils.rightPad("* Testing geth server binary", 79) + "*");
+        System.out.println();
+        System.out.println("Testing geth server binary");
         String gethOutput = testBinary(gethConfig.getGethPath(), "version");
         if (gethOutput == null || gethOutput.indexOf("Version:") < 0) {
             healthy = false;
-            System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
+            System.out.println("FAILED");
         } else {
             Matcher matcher = Pattern.compile("^Version: (.*)", Pattern.MULTILINE).matcher(gethOutput);
             if (matcher.find()) {
                 gethVer = matcher.group(1);
             }
-            System.out.println(StringUtils.rightPad("* OK", 79) + "*");
+            System.out.println("OK");
         }
 
         // test solc binary
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
-        System.out.println(StringUtils.rightPad("* Testing solc compiler binary", 79) + "*");
+        System.out.println();
+        System.out.println("Testing solc compiler binary");
         String solcOutput = testBinary(gethConfig.getNodePath(), gethConfig.getSolcPath(), "--version");
         if (solcOutput == null || solcOutput.indexOf("Version:") < 0) {
             healthy = false;
-            System.out.println(StringUtils.rightPad("* FAILED", 79) + "*");
+            System.out.println("FAILED");
         } else {
             Matcher matcher = Pattern.compile("^Version: (.*)", Pattern.MULTILINE).matcher(solcOutput);
             if (matcher.find()) {
                 solcVer = matcher.group(1);
             }
-            System.out.println(StringUtils.rightPad("* OK", 79) + "*");
+            System.out.println("OK");
         }
 
-        //healthy = false;
-
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
-        System.out.println("*" + StringUtils.repeat(" ", 78) + "*");
-        if (healthy) {
-            System.out.println("*" + StringUtils.rightPad(" 🎉🎉🎉 SYSTEM IS HEALTHY 🎉🎉🎉", 76) + "*");
-        } else {
-            System.out.println("*" + StringUtils.rightPad(" !!! SYSTEM FAILED SELF-TEST !!!", 78) + "*");
-        }
-        System.out.println(StringUtils.repeat("*", 80));
         System.out.println();
+        if (healthy) {
+            System.out.println("ALL TESTS PASSED!");
+        } else {
+            System.out.println("!!! SYSTEM FAILED SELF-TEST !!!");
+            System.out.println("!!!    NOT STARTING GETH    !!!");
+        }
+
+        System.out.println(StringUtils.repeat("*", 80));
         System.out.println();
 
         return healthy;
