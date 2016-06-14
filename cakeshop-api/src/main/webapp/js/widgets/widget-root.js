@@ -26,6 +26,7 @@ var widgetRoot = {
 		}
 
 		this.shell = Dashboard.TEMPLATES.widget({
+			name: this.name,
 			title: this.title,
 			size: this.size,
 			hideLink: this.hideLink,
@@ -52,6 +53,7 @@ var widgetRoot = {
 		});
 
 		this.postRender();
+		$(document).trigger("WidgetInternalEvent", ["widget|rendered|" + this.name]);
 	},
 
 	postRender: function() { },
