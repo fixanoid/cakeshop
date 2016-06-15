@@ -451,13 +451,17 @@ public class GethHttpServiceImpl implements GethHttpService {
 
 
         long timeStart = System.currentTimeMillis();
-        long timeout = 2000 * accounts.size(); // 2 sec per account
+        long timeout = gethConfig.getGethUnlockTimeout() * accounts.size(); // 2 sec per account
 
+        LOG.info("Waiting up to " + timeout + "ms for " + accounts.size() + " accounts to unlock");
+
+        int unlocked = 0;
         for (Account account : accounts) {
             while (true) {
                 try {
                     if (wallet.isUnlocked(account.getAddress())) {
                         LOG.debug("Account " + account.getAddress() + " unlocked");
+                        unlocked++;
                         break;
                     }
                 } catch (APIException e) {
@@ -465,7 +469,8 @@ public class GethHttpServiceImpl implements GethHttpService {
                 }
 
                 if (System.currentTimeMillis() - timeStart >= timeout) {
-                    LOG.error("Wallet did not unlock in a timely manner");
+                    LOG.error("Wallet did not unlock in a timely manner (" +
+                            unlocked + " of " + accounts.size() + " accounts unlocked)");
                     return false;
                 }
 
@@ -477,7 +482,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
         }
 
-        LOG.info("Geth wallet accounts unlocked");
+        LOG.info("Geth wallet accounts unlocked (" + unlocked + " accounts)");
         return true;
     }
 

@@ -65,6 +65,7 @@ public class GethConfigBean {
     private final String GETH_AUTO_START = "geth.auto.start";
     private final String GETH_AUTO_STOP = "geth.auto.stop";
     private final String GETH_START_TIMEOUT = "geth.start.timeout";
+    private final String GETH_UNLOCK_TIMEOUT = "geth.unlock.timeout";
 
     private final String GETH_DB_ENABLED = "geth.db.enabled";
 
@@ -390,6 +391,14 @@ public class GethConfigBean {
 
     public void setGethStartTimeout(int timeout) {
         props.setProperty(GETH_START_TIMEOUT, Integer.toString(timeout));
+    }
+
+    public int getGethUnlockTimeout() {
+        return Integer.parseInt(get(GETH_UNLOCK_TIMEOUT, "2000"));
+    }
+
+    public void setGethUnlockTimeout(int timeout) {
+        props.setProperty(GETH_UNLOCK_TIMEOUT, Integer.toString(timeout));
     }
 
 
