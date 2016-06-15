@@ -6,6 +6,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -28,7 +29,11 @@ public class BaseController {
     public ResponseEntity<APIResponse> handleException(Exception ex) {
 
         if (!(ex instanceof CompilerException)) {
-            LOG.warn("Caught exception: " + ex.getMessage(), ex);
+            if ((ex instanceof IOException) && ex.getMessage().contains("Broken pipe")) {
+                LOG.warn(ExceptionUtils.getMessage(ex));
+            } else {
+                LOG.warn("Caught exception: " + ex.getMessage(), ex);
+            }
         }
 
         APIResponse res = new APIResponse();
