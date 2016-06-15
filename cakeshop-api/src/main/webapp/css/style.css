@@ -254,6 +254,26 @@ a:active {
 	color: #1C7EBB;
 }
 
+.tower-sidebar li:nth-child(5n+1) .icon-bg {
+	background: #23AE89;
+}
+
+.tower-sidebar li:nth-child(5n+2) .icon-bg {
+	background: #E94B3B;
+}
+
+.tower-sidebar li:nth-child(5n+3) .icon-bg {
+	background: #1C7EBB;
+}
+
+.tower-sidebar li:nth-child(5n+4) .icon-bg {
+	background: #F98E33;
+}
+
+.tower-sidebar li:nth-child(5n+5) .icon-bg {
+	background: #6A55C2;
+}
+
 .tower-bg-primary {
 	background: #1C7EBB;
 }
@@ -288,6 +308,26 @@ a:active {
 
 .tower-bg-violet {
 	background: #6A55C2;
+}
+
+.tower-bg-crimson {
+	background: crimson;
+}
+
+.tower-bg-teal {
+	background: #1fb5ad;
+}
+
+.tower-bg-orange {
+	background: #ff503f;
+}
+
+.tower-bg-purple {
+	background: #4c2673;
+}
+
+.tower-bg-twitter {
+	background: #55acee;
 }
 
 .tower-logo-container.tower-nav-min {
@@ -565,26 +605,6 @@ a:active {
 	transition: all .2s linear;
 	margin-left: -230px;
 	display: none;
-}
-
-.tower-bg-crimson {
-	background: crimson;
-}
-
-.tower-bg-teal {
-	background: #1fb5ad;
-}
-
-.tower-bg-orange {
-	background: #ff503f;
-}
-
-.tower-bg-purple {
-	background: #4c2673;
-}
-
-.tower-bg-twitter {
-	background: #55acee;
 }
 
 .default {
