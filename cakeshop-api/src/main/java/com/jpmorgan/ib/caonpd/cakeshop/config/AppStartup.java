@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config;
 
 import com.google.common.collect.Lists;
+import com.jcabi.manifests.Manifests;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
@@ -93,6 +94,9 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
                 LOG.debug("\n" + getDebugInfo(null));
             }
         }
+
+        LOG.info("Cakeshop version: " + Manifests.read("Cakeshop-Version"));
+        LOG.info("Cakeshop build id: " + Manifests.read("Cakeshop-Build"));
     }
 
     private void printErrorReport() {
