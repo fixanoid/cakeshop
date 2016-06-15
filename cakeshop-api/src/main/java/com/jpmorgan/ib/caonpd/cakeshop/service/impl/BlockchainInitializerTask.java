@@ -4,12 +4,19 @@ import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +38,12 @@ public class BlockchainInitializerTask implements Runnable {
 
     @Autowired
     private NodeService nodeService;
+
+    @Autowired
+    private ContractService contractService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @Autowired
     private WalletService walletService;
@@ -57,13 +70,24 @@ public class BlockchainInitializerTask implements Runnable {
 
         LOG.info("Initializing empty blockchain");
         try {
-            nodeService.update(null, null, null, true, null, null);
+            nodeService.update(null, null, null, true, null, null); // make sure mining is enabled
 
             LOG.info("Deploying ContractRegistry to chain");
             contractRegistry.deploy();
 
         } catch (APIException e) {
             LOG.error("Error deploying ContractRegistry to chain: " + e.getMessage(), e);
+        }
+
+
+        LOG.info("Deploying sample contract (SimpleStorage) to chain");
+        try {
+            String code = FileUtils.readClasspathFile("contracts/SimpleStorage.sol");
+            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null);
+            transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
+
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error deploying SimpleStorage to chain: " + e.getMessage(), e);
         }
 
 

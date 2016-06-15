@@ -87,6 +87,11 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         if (!healthy) {
             System.out.println(event.getApplicationContext());
             printErrorReport();
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("PRINTING DEBUG INFO");
+                LOG.debug("\n" + getDebugInfo(null));
+            }
         }
     }
 
