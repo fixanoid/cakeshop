@@ -8,9 +8,10 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
-import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
+import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     private void saveContractRegistryAddress(String addr) throws APIException {
         try {
+            LOG.debug("Storing ContractRegistry address " + addr);
             gethConfig.setProperty("contract.registry.addr", addr);
             gethConfig.save();
         } catch (IOException e) {
@@ -85,12 +87,14 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     @Override
     public TransactionResult register(String from, String id, String name, String abi, String code, CodeType codeType, Long createdDate) throws APIException {
 
-        if (name.equalsIgnoreCase("ContractRegistry") ||
-                this.contractRegistryAddress == null || this.contractRegistryAddress.isEmpty()) {
-
+        if (StringUtils.isBlank(contractRegistryAddress)) {
             LOG.warn("Not going to register contract since ContractRegistry address is null");
-
             return null; // FIXME return silently because registry hasn't yet been registered
+        }
+
+        if (name.equalsIgnoreCase("ContractRegistry")) {
+            LOG.debug("Skipping registration for ContractRegistry");
+            return null;
         }
 
         return contractService.transact(
