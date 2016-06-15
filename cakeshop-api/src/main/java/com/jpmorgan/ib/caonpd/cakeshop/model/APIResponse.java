@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jcabi.manifests.Manifests;
 import com.jpmorgan.ib.caonpd.cakeshop.config.AppConfig;
 
 import java.util.ArrayList;
@@ -41,6 +42,10 @@ public class APIResponse {
     public APIResponse() {
         this.meta = new HashMap<>();
         meta.put("version", AppConfig.API_VERSION);
+        if (Manifests.exists("Cakeshop-Version")) {
+            meta.put("cakeshop-version", Manifests.read("Cakeshop-Version"));
+            meta.put("cakeshop-build-id", Manifests.read("Cakeshop-Build"));
+        }
     }
 
     public APIResponse error(APIError error) {

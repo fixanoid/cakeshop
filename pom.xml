@@ -17,6 +17,11 @@
 
     <name>cakeshop</name>
 
+    <scm>
+        <url>https://stash-prod6.us.jpmchase.net:8443/projects/NPD/repos/ethereum-enterprise</url>
+        <connection>scm:git:https://stash-prod6.us.jpmchase.net:8443/scm/npd/ethereum-enterprise.git</connection>
+    </scm>
+
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

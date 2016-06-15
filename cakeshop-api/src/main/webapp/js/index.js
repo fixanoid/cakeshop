@@ -83,6 +83,15 @@ var Tower = {
 	section: {
 		'default': function() {
 			var statusUpdate = function(response) {
+
+				if (!Tower._set_ver && response.meta && response.meta["cakeshop-version"]) {
+					Tower._set_ver = true;
+					$("nav").append('<div class="version-info">Cakeshop ' + response.meta["cakeshop-version"] + '</div>');
+					if (response.meta["cakeshop-build-id"].length > 0) {
+						$("nav").append('<div class="version-info">Build ' + response.meta["cakeshop-build-id"] + '</div>');
+					}
+				}
+
 				var status = response.data.attributes;
 
 				if (status.status === 'running') {

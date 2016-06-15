@@ -1,5 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config;
 
+import com.jcabi.manifests.Manifests;
+import com.jcabi.manifests.ServletMfs;
+
+import java.io.IOException;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -39,6 +44,11 @@ public class WebAppInit extends SpringBootServletInitializer {
     @Override
     public void onStartup(ServletContext container) throws ServletException {
         setLoggingPath(false);
+        try {
+            Manifests.DEFAULT.append(new ServletMfs(container));
+        } catch (IOException e) {
+            System.err.println("Failed to load servlet manifest: " + e.getMessage());
+        }
         super.onStartup(container);
     }
 

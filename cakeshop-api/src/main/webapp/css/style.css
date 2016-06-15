@@ -675,3 +675,8 @@ pre {
 	fill: #ff7f0e;
 	stroke: transparent;
 }
+
+.version-info {
+    text-align: center;
+    font-size: smaller;
+}
