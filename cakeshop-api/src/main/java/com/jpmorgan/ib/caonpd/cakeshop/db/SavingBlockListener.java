@@ -114,7 +114,6 @@ public class SavingBlockListener implements BlockListener {
         if (stompTemplate == null) {
             return;
         }
-        System.out.println("pushing txns to listeners....");
         for (Transaction txn : txns) {
             APIResponse res = new APIResponse();
             res.setData(txn.toAPIData());
