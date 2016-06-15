@@ -1,5 +1,7 @@
 package com.foo.bar;
 
+import com.foo.bar.contract.SimpleStorageContract;
+import com.foo.bar.contract.SimpleStorageContractApi;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.jpmorgan.ib.caonpd.cakeshop.client.ClientManager;
@@ -12,9 +14,6 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import contract.SimpleStorageContract;
-import contract.SimpleStorageContractApi;
 
 public class Main {
 

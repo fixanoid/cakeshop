@@ -1,4 +1,4 @@
-package contract;
+package com.foo.bar.contract;
 
 import static com.jpmorgan.ib.caonpd.cakeshop.client.ContractUtil.*;
 

@@ -1,4 +1,4 @@
-package contract;
+package com.foo.bar.contract;
 
 import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.client.proxy.ContractProxyBuilder;
