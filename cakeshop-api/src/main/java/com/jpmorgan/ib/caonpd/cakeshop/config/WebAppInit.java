@@ -32,8 +32,34 @@ public class WebAppInit extends SpringBootServletInitializer {
             return;
         }
 
-        // container
-        System.setProperty("logging.path", System.getProperty("catalina.home"));
+        // running in a container, find home path
+        if (StringUtils.isNotBlank(System.getProperty("catalina.base"))) {
+            // tomcat
+            System.setProperty("logging.path", System.getProperty("catalina.base") + "/logs");
+
+        } else if (StringUtils.isNotBlank(System.getProperty("catalina.home"))) {
+            // tomcat
+            System.setProperty("logging.path", System.getProperty("catalina.home") + "/logs");
+
+        } else if (StringUtils.isNotBlank(System.getProperty("jetty.logging.dir"))) {
+            // jetty
+            System.setProperty("logging.path", System.getProperty("jetty.logging.dir"));
+
+        } else if (StringUtils.isNotBlank(System.getProperty("jetty.home"))) {
+            // jetty
+            System.setProperty("logging.path", System.getProperty("jetty.home") + "/logs");
+
+        } else {
+            // use /tmp
+            System.err.println("WARNING: could not detect appserver home; writing logs to /tmp");
+            System.err.println();
+            System.err.println("Dumping system props:");
+            System.err.println(System.getProperties());
+            System.err.println();
+            System.setProperty("logging.path", "/tmp");
+        }
+
+
     }
 
     @Override
