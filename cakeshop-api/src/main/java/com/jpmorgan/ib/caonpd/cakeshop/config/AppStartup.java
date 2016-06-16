@@ -95,8 +95,11 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
             }
         }
 
-        LOG.info("Cakeshop version: " + Manifests.read("Cakeshop-Version"));
-        LOG.info("Cakeshop build id: " + Manifests.read("Cakeshop-Build"));
+        if (Manifests.exists("Cakeshop-Version")) {
+            LOG.info("Cakeshop version: " + Manifests.read("Cakeshop-Version"));
+            LOG.info("Cakeshop build id: " + Manifests.read("Cakeshop-Build"));
+            LOG.info("Cakeshop build date: " + Manifests.read("Cakeshop-Build-Date"));
+        }
     }
 
     private void printErrorReport() {

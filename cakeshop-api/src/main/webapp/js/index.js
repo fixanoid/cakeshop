@@ -87,8 +87,9 @@ var Tower = {
                 if (!Tower._set_ver && response.meta && response.meta["cakeshop-version"]) {
                     Tower._set_ver = true;
                     $("aside nav").append('<div class="version-info">Cakeshop ' + response.meta["cakeshop-version"] + '</div>');
-                    if (response.meta["cakeshop-build-id"].length > 0) {
-                        $("aside nav").append('<div class="version-info">Build ' + response.meta["cakeshop-build-id"] + '</div>');
+                    var build = response.meta["cakeshop-build-id"];
+                    if (build && build.length > 0) {
+                        $("aside nav").append('<div class="version-info" title="' + build + ' built on ' + response.meta["cakeshop-build-date"] + '">Build ' + build.substring(0, 8) + '</div>');
                     }
                 }
 

@@ -45,6 +45,7 @@ public class APIResponse {
         if (Manifests.exists("Cakeshop-Version")) {
             meta.put("cakeshop-version", Manifests.read("Cakeshop-Version"));
             meta.put("cakeshop-build-id", Manifests.read("Cakeshop-Build"));
+            meta.put("cakeshop-build-date", Manifests.read("Cakeshop-Build-Date"));
         }
     }
 
