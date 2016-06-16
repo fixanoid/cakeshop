@@ -38,8 +38,6 @@ public class AppConfig implements AsyncConfigurer {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
-    public static final String API_VERSION = "1.0";
-
     public static final String CONFIG_FILE = "env.properties";
 
 
