@@ -1,8 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
+import static com.jpmorgan.ib.caonpd.cakeshop.config.AppVersion.*;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jpmorgan.ib.caonpd.cakeshop.config.AppVersion;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +13,13 @@ import java.util.Map;
 
 @JsonInclude(Include.NON_NULL)
 public class APIResponse {
+
+    private static final Map<String, String> DEFAULT_META_INFO =
+            ImmutableMap.of(
+                    "version", API_VERSION,
+                    "cakeshop-version", BUILD_VERSION,
+                    "cakeshop-build-id", BUILD_ID,
+                    "cakeshop-build-date", BUILD_DATE);
 
     /**
      * Response data. Should be an instance of either {@link APIData} or List&lt;APIData&gt;.
@@ -39,11 +48,7 @@ public class APIResponse {
     }
 
     public APIResponse() {
-        this.meta = new HashMap<>();
-        meta.put("version", AppVersion.API_VERSION);
-        meta.put("cakeshop-version", AppVersion.BUILD_VERSION);
-        meta.put("cakeshop-build-id", AppVersion.BUILD_ID);
-        meta.put("cakeshop-build-date", AppVersion.BUILD_DATE);
+        this.meta = DEFAULT_META_INFO;
     }
 
     public APIResponse error(APIError error) {
