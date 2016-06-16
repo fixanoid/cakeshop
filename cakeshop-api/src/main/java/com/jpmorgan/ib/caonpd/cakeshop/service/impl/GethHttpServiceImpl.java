@@ -19,6 +19,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
+import com.jpmorgan.ib.caonpd.cakeshop.util.StreamLogAdapter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -57,6 +58,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     public static final Integer DEFAULT_NETWORK_ID = 1006;
 
     private static final Logger LOG = LoggerFactory.getLogger(GethHttpServiceImpl.class);
+    private static final Logger GETH_LOG = LoggerFactory.getLogger("geth");
 
     @Autowired
     private GethConfigBean gethConfig;
@@ -78,6 +80,9 @@ public class GethHttpServiceImpl implements GethHttpService {
     private Boolean running;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private StreamLogAdapter stdoutLogger;
+    private StreamLogAdapter stderrLogger;
 
     public GethHttpServiceImpl() {
         this.running = false;
@@ -199,6 +204,14 @@ public class GethHttpServiceImpl implements GethHttpService {
                 blockScanner.shutdown();
             }
 
+            if (stdoutLogger != null) {
+                stdoutLogger.stopAsync();
+            }
+
+            if (stderrLogger != null) {
+                stdoutLogger.stopAsync();
+            }
+
             return killProcess(readPidFromFile(gethConfig.getGethPidFilename()), "geth.exe");
 
         } catch (IOException | InterruptedException ex) {
@@ -291,8 +304,10 @@ public class GethHttpServiceImpl implements GethHttpService {
 
 
             ProcessBuilder builder = createProcessBuilder(gethConfig, createGethCommand(additionalParams));
-            builder.inheritIO();
             Process process = builder.start();
+
+            this.stdoutLogger = (StreamLogAdapter) new StreamLogAdapter(GETH_LOG, process.getInputStream()).startAsync();
+            this.stderrLogger = (StreamLogAdapter) new StreamLogAdapter(GETH_LOG, process.getErrorStream()).startAsync();
 
             Integer pid = getProcessPid(process);
             if (pid != null) {
@@ -332,7 +347,11 @@ public class GethHttpServiceImpl implements GethHttpService {
         ProcessBuilder builder = createProcessBuilder(gethConfig, createGethInitCommand());
         builder.inheritIO();
         try {
-            return (builder.start().waitFor() == 0);
+            Process process = builder.start();
+            new StreamLogAdapter(GETH_LOG, process.getInputStream()).startAsync();
+            new StreamLogAdapter(GETH_LOG, process.getErrorStream()).startAsync();
+
+            return (process.waitFor() == 0);
         } catch (InterruptedException e) {
             LOG.warn("Interrupted while waiting for geth init", e);
         }
