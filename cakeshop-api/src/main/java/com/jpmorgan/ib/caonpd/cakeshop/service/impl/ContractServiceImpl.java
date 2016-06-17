@@ -16,6 +16,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.task.ContractRegistrationTask;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StreamGobbler;
 
