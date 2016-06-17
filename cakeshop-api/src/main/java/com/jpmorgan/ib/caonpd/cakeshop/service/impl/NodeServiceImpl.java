@@ -5,6 +5,7 @@ import static com.jpmorgan.ib.caonpd.cakeshop.service.impl.GethHttpServiceImpl.*
 import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.model.NodeInfo;
@@ -42,6 +43,9 @@ public class NodeServiceImpl implements NodeService {
 
     @Autowired
     private GethConfigBean gethConfig;
+
+    @Autowired
+    private PeerDAO peerDAO;
 
     @Override
     public Node get() throws APIException {
@@ -258,11 +262,29 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public boolean addPeer(String address) throws APIException {
+
+        URI uri = null;
+        try {
+            uri = new URI(address);
+        } catch (URISyntaxException e) {
+            throw new APIException("Bad peer address URI: " + address, e);
+        }
+
         Map<String, Object> res = gethService.executeGethCall(AdminBean.ADMIN_PEERS_ADD, address);
         if (res == null) {
             return false;
         }
-        return (boolean) res.get(SIMPLE_RESULT);
+
+        boolean added = (boolean) res.get(SIMPLE_RESULT);
+        if (added && peerDAO.getById(uri.getUserInfo()) == null) {
+            Peer peer = new Peer();
+            peer.setId(uri.getUserInfo());
+            peer.setNodeIP(uri.getHost());
+            peer.setNodeUrl(address);
+            peerDAO.save(peer);
+        }
+
+        return added;
     }
 
     @SuppressWarnings("unchecked")

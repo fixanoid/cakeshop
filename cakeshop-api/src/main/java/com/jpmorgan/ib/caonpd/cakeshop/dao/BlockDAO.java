@@ -6,32 +6,20 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public class BlockDAO {
-
-    @Autowired
-    private SessionFactory sessionFactory;
-
-    @Autowired
-    private HibernateTemplate hibernateTemplate;
-
-    protected Session getCurrentSession() {
-        return sessionFactory.getCurrentSession();
-    }
+public class BlockDAO extends BaseDAO {
 
     public Block getById(String id) {
         return hibernateTemplate.get(Block.class, id);
     }
 
+    @SuppressWarnings("rawtypes")
     public Block getByNumber(Long number) {
         Criteria c = getCurrentSession().createCriteria(Block.class);
         c.add(Restrictions.eq("number", number));
@@ -49,6 +37,7 @@ public class BlockDAO {
         return block;
     }
 
+    @SuppressWarnings("rawtypes")
     public Block getLatest() {
         Criteria c = getCurrentSession().createCriteria(Block.class);
         c.setProjection(Projections.max("number"));
@@ -65,6 +54,7 @@ public class BlockDAO {
         hibernateTemplate.save(block);
     }
 
+    @Override
     public void reset() {
         Session session = getCurrentSession();
         session.createSQLQuery("DELETE FROM PUBLIC.\"Block_transactions\"").executeUpdate();

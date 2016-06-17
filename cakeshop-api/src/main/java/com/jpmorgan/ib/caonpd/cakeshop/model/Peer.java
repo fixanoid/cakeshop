@@ -1,29 +1,41 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+@Entity
+@Table(name="PEERS", schema="PUBLIC")
 public class Peer  {
 
     /**
-    *Node status
-    */
+     * Node status
+     */
     private String status;
+
     /**
-    *Node ID
-    */
+     * Node ID
+     */
+    @Id
     private String id;
 
-    /*
-    *Node Address
-    */
+    /**
+     * Node Address
+     */
     private String nodeUrl;
-    /*
-    *Node Name
-    */
+
+    /**
+     * Node Name
+     */
     private String nodeName;
-    /*
-    *Node IP
-    */
+
+    /**
+     * Node IP
+     */
     private String nodeIP;
 
     public String getStatus() {
@@ -68,15 +80,7 @@ public class Peer  {
 
     @Override
     public String toString()  {
-      StringBuilder sb = new StringBuilder();
-      sb.append("{\n");
-      sb.append("\"id\":").append("\"").append(id).append("\",").append("\n");
-      sb.append("\"status\":").append("\"").append(status).append("\",").append("\n");
-      sb.append("\"nodeUrl\":").append(nodeUrl).append(",").append("\n");
-      sb.append("\"nodeName\":").append(nodeName).append(",").append("\n");
-      sb.append("\"nodeIP\":").append(nodeIP);
-      sb.append("}\n");
-      return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
     @Override

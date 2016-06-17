@@ -8,27 +8,14 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public class TransactionDAO {
-
-    @Autowired
-    private SessionFactory sessionFactory;
-
-    @Autowired
-    private HibernateTemplate hibernateTemplate;
-
-    protected Session getCurrentSession() {
-        return sessionFactory.getCurrentSession();
-    }
+public class TransactionDAO extends BaseDAO {
 
     public Transaction getById(String id) {
         return hibernateTemplate.get(Transaction.class, id);
@@ -91,6 +78,7 @@ public class TransactionDAO {
         hibernateTemplate.save(tx);
     }
 
+    @Override
     public void reset() {
         Session session = getCurrentSession();
         session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();

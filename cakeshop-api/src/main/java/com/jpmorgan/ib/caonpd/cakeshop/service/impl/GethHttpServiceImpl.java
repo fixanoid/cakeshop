@@ -17,6 +17,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.task.BlockchainInitializerTask;
+import com.jpmorgan.ib.caonpd.cakeshop.service.task.LoadPeersTask;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StreamLogAdapter;
@@ -39,7 +41,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +87,10 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     private StreamLogAdapter stdoutLogger;
     private StreamLogAdapter stderrLogger;
+
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private TaskExecutor executor;
 
     public GethHttpServiceImpl() {
         this.running = false;
@@ -326,6 +334,9 @@ public class GethHttpServiceImpl implements GethHttpService {
                 BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
                 init.run();
             }
+
+            // Reconnect peers on startup
+            executor.execute(applicationContext.getBean(LoadPeersTask.class));
 
             // FIXME add a watcher thread to make sure it doesn't die..
 

@@ -1,4 +1,4 @@
-package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
+package com.jpmorgan.ib.caonpd.cakeshop.service.task;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
