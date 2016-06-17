@@ -15,10 +15,8 @@ public interface WebSocketPushService {
     public final String TRANSACTION_TOPIC = "/topic/transaction/";
     public final Integer MAX_ASYNC_POOL = 100;
 
-    public void pushContracts() throws APIException;
     public void pushNodeStatus() throws APIException;
     public void pushLatestBlocks() throws APIException;
-    public void pushPendingTransactions() throws APIException;
     public void pushTransactions() throws APIException;
 
 }

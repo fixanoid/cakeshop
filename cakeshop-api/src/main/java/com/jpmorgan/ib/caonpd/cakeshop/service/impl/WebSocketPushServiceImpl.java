@@ -5,9 +5,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
@@ -41,6 +39,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 public class WebSocketPushServiceImpl implements WebSocketPushService {
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WebSocketPushServiceImpl.class);
+
 	private Integer openedSessions = 0;
 
 	/**
@@ -90,22 +89,6 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 	    template.convertAndSend(
 	            "/topic/metrics/blocksPerMin",
 	            APIResponse.newSimpleResponse(metricsBlockListener.getBlockPerMin()));
-	}
-
-
-	@Override
-	// @Scheduled(fixedDelay = 5000)
-	public void pushContracts() throws APIException {
-		if (openedSessions <= 0 || !geth.isRunning()) {
-		    return;
-		}
-
-        List<Contract> contracts = contractService.list();
-        APIResponse apiResponse = new APIResponse();
-        APIData data = new APIData();
-        data.setAttributes(contracts);
-        apiResponse.setData(data);
-        template.convertAndSend(CONTRACT_TOPIC, apiResponse);
 	}
 
 	@Override
@@ -164,21 +147,6 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 	}
 
 	@Override
-	//@Scheduled(fixedDelay = 5000)
-	public void pushPendingTransactions() throws APIException {
-		if (openedSessions <= 0 || !geth.isRunning()) {
-		    return;
-		}
-
-        List<Transaction> transactions = transactionService.pending();
-        APIResponse apiResponse = new APIResponse();
-        APIData data = new APIData();
-        data.setAttributes(transactions);
-        apiResponse.setData(data);
-        template.convertAndSend(PENDING_TRANSACTIONS_TOPIC, apiResponse);
-	}
-
-	@Override
 	@Scheduled(fixedDelay = 200)
 	public void pushTransactions() throws APIException {
 		if (openedSessions <= 0 || transactionsMap.isEmpty() || !geth.isRunning()) {
@@ -188,10 +156,6 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
         for (String transactionAddress : transactionsMap.keySet()) {
             asyncPushService.pushTransactionAsync(transactionAddress, template, transactionsMap);
         }
-	}
-
-	public Integer getOpenedConnections() {
-		return openedSessions;
 	}
 
 	@EventListener

@@ -96,7 +96,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         this.running = false;
     }
 
-    private String executeGethCall(String json) throws APIException {
+    private String executeGethCallInternal(String json) throws APIException {
         try {
 
             if (LOG.isDebugEnabled()) {
@@ -139,7 +139,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> executeGethCall(RequestModel request) throws APIException {
-        String response = executeGethCall(requestToJson(request));
+        String response = executeGethCallInternal(requestToJson(request));
 
         if (StringUtils.isEmpty(response)) {
             throw new APIException("Received empty reply from server");
@@ -159,7 +159,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
-        String response = executeGethCall(requestToJson(requests));
+        String response = executeGethCallInternal(requestToJson(requests));
 
         List<Map<String, Object>> responses;
         try {
@@ -546,7 +546,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     private Boolean checkConnection() {
 
         try {
-            Map<String, Object> info = executeGethCall("admin_nodeInfo", null);
+            Map<String, Object> info = executeGethCall("admin_nodeInfo");
             if (info != null && StringUtils.isNotBlank((String) info.get("id"))) {
                 return true;
             }
