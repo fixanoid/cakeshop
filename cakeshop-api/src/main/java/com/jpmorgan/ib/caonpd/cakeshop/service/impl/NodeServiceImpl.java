@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class NodeServiceImpl implements NodeService {
 
         try {
             //check if node is available
-            data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO, null);
+            data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO);
 
             node.setRpcUrl(gethConfig.getRpcUrl());
             node.setDataDirectory(gethConfig.getDataDirPath());
@@ -92,22 +91,22 @@ public class NodeServiceImpl implements NodeService {
             }
 
             // check if mining
-            data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, null);
+            data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING);
             Boolean mining = (Boolean) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
 
             // peer count
-            data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT, null);
+            data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT);
             String peerCount = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
 
             // get last block number
-            data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER, null);
+            data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER);
             String blockNumber = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
 
             // get pending transactions
-            data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, null);
+            data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS);
             Integer pending = AbiUtils.hexToBigInteger((String) data.get("pending")).intValue();
             node.setPendingTxn(pending == null ? 0 : pending);
 
@@ -236,6 +235,7 @@ public class NodeServiceImpl implements NodeService {
         gethService.start();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Peer> peers() throws APIException {
         Map<String, Object> data = gethService.executeGethCall(AdminBean.ADMIN_PEERS);
@@ -245,56 +245,46 @@ public class NodeServiceImpl implements NodeService {
         }
 
         List<Peer> peerList = new ArrayList<>();
-        List peers = (List) data.get("_result");
+        List<Map<String, Object>> peers = (List<Map<String, Object>>) data.get("_result");
         if (peers != null) {
-            for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
-                Map peerMap = (Map) iterator.next();
-                Peer peer = populateNode(peerMap);
+            for (Map<String, Object> peerMap : peers) {
+                Peer peer = createPeer(peerMap);
                 peerList.add(peer);
             }
         }
+
         return peerList;
     }
 
     @Override
     public boolean addPeer(String address) throws APIException {
-        Map<String, Object> res = gethService.executeGethCall(AdminBean.ADMIN_ADD_PEER, address);
+        Map<String, Object> res = gethService.executeGethCall(AdminBean.ADMIN_PEERS_ADD, address);
         if (res == null) {
             return false;
         }
         return (boolean) res.get(SIMPLE_RESULT);
     }
 
-    private Peer populateNode(Map data) {
-        Peer peer = null;
-        URI uri = null;
+    @SuppressWarnings("unchecked")
+    private Peer createPeer(Map<String, Object> data) {
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
 
-        if (data != null) {
+        Peer peer = new Peer();
+        peer.setStatus("running");
+        peer.setId((String) data.get("id"));
+        peer.setNodeName((String) data.get("name"));
 
-            peer = new Peer();
-            peer.setStatus("running");
-            String id = (String) data.get("id");
-            peer.setId(id);
-            String name = (String) data.get("name");
-            peer.setNodeName(name);
-            String remoteAddress = (String) ((Map<String, Object>) data.get("network"))
-                    .get("remoteAddress");
-            try {
-                URI remoteURI = new URI("enode://" + remoteAddress);
+        try {
+            String remoteAddress = (String) ((Map<String, Object>) data.get("network")).get("remoteAddress");
+            URI uri = new URI("enode://" + peer.getId() + "@" + remoteAddress);
+            peer.setNodeUrl(uri.toString());
+            peer.setNodeIP(uri.getHost());
 
-                if (remoteURI.getHost() != null && remoteURI.getPort() != -1) {
-
-                    uri = new URI("enode", id, remoteURI.getHost(), remoteURI.getPort(), null, null,
-                            null);
-                    peer.setNodeUrl(uri.toString());
-                    peer.setNodeIP(remoteURI.getHost());
-                }
-
-            } catch (URISyntaxException ex) {
-                LOG.error("error parsing Peer Address ", ex.getMessage());
-                peer.setNodeUrl("");
-            }
-
+        } catch (URISyntaxException ex) {
+            LOG.error("error parsing Peer Address ", ex.getMessage());
+            peer.setNodeUrl("");
         }
 
         return peer;

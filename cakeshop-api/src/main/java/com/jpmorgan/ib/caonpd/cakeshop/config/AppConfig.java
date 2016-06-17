@@ -1,6 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config;
 
-import com.jpmorgan.ib.caonpd.cakeshop.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 
 import java.io.File;
@@ -144,11 +143,6 @@ public class AppConfig implements AsyncConfigurer {
         propConfig.setLocation(new FileSystemResource(configFile));
         propConfig.setProperties(localProps);
         return propConfig;
-    }
-
-    @Bean
-    public static AdminBean adminBean() {
-        return new AdminBean();
     }
 
     @Bean
