@@ -53,4 +53,13 @@ public interface NodeService {
      */
     public List<Peer> peers() throws APIException;
 
+    /**
+     * Connect to the given peer
+     *
+     * @param address
+     * @return
+     * @throws APIException
+     */
+    public boolean addPeer(String address) throws APIException;
+
 }

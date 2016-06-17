@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
+import static com.jpmorgan.ib.caonpd.cakeshop.service.impl.GethHttpServiceImpl.*;
+
 import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
@@ -189,9 +191,9 @@ public class NodeServiceImpl implements NodeService {
             if (!restart) {
                 // make it live immediately
                 if (mining == true) {
-                    gethService.executeGethCall(AdminBean.ADMIN_MINER_START, new String[]{"1"});
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_START, "1");
                 } else {
-                    gethService.executeGethCall(AdminBean.ADMIN_MINER_STOP, null);
+                    gethService.executeGethCall(AdminBean.ADMIN_MINER_STOP);
                 }
             }
         }
@@ -236,24 +238,31 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public List<Peer> peers() throws APIException {
-        String args[] = null;
-        Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS, args);
-        List peers = null;
-        List<Peer> peerList = new ArrayList<>();
+        Map<String, Object> data = gethService.executeGethCall(AdminBean.ADMIN_PEERS);
 
-        if (data != null) {
-
-            peers = (List) data.get("_result");
-            if (peers != null) {
-                for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
-                    Map peerMap = (Map) iterator.next();
-                    Peer peer = populateNode(peerMap);
-                    peerList.add(peer);
-                }
-            }
+        if (data == null) {
+            return null;
         }
 
+        List<Peer> peerList = new ArrayList<>();
+        List peers = (List) data.get("_result");
+        if (peers != null) {
+            for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
+                Map peerMap = (Map) iterator.next();
+                Peer peer = populateNode(peerMap);
+                peerList.add(peer);
+            }
+        }
         return peerList;
+    }
+
+    @Override
+    public boolean addPeer(String address) throws APIException {
+        Map<String, Object> res = gethService.executeGethCall(AdminBean.ADMIN_ADD_PEER, address);
+        if (res == null) {
+            return false;
+        }
+        return (boolean) res.get(SIMPLE_RESULT);
     }
 
     private Peer populateNode(Map data) {

@@ -10,6 +10,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -99,26 +100,29 @@ public class NodeController extends BaseController {
         }
     }
 
+    @RequestMapping("/peers/add")
+    public ResponseEntity<APIResponse> addPeer(@JsonBodyParam String address) throws APIException {
+        if (StringUtils.isBlank(address)) {
+            return new ResponseEntity<>(
+                    new APIResponse().error(new APIError().title("Missing param 'address'")),
+                    HttpStatus.BAD_REQUEST);
+        }
+        boolean added = nodeService.addPeer(address);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(added), HttpStatus.OK);
+    }
+
     @RequestMapping("/peers")
     public ResponseEntity<APIResponse> peers() throws APIException {
-
-        APIResponse res = new APIResponse();
-        APIData data = new APIData();
-
-        List<Peer> nodes = nodeService.peers();
-
-        if(nodes != null){
-            data.setAttributes(nodes);
-            data.setType("peer");
-            res.setData(data);
-            return new ResponseEntity<>(res, HttpStatus.OK);
+        List<Peer> peers = nodeService.peers();
+        List<APIData> data = new ArrayList<>();
+        if (peers != null && !peers.isEmpty()) {
+            for (Peer peer : peers) {
+                data.add(new APIData(peer.getId(), "peer", peer));
+            }
         }
 
-        APIError err = new APIError();
-        err.setStatus("400");
-        err.setTitle("Bad Request");
-        res.addError(err);
-        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+        APIResponse res = new APIResponse().data(data);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @RequestMapping("/start")

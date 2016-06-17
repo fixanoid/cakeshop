@@ -7,7 +7,7 @@
 		hideLink: true,
 		hideRefresh: true,
 
-		url: 'api/node/add_peer',
+		url: 'api/node/peers/add',
 
 		template: _.template(
 			'  <div class="form-group">' +
@@ -37,7 +37,7 @@
 			}
 
 			$.when(
-				utils.load({ url: widget.url, data: { "args": input.val() } })
+				utils.load({ url: widget.url, data: { "address": input.val() } })
 			).done(function(r) {
 				notif.show();
 
