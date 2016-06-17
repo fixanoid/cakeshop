@@ -25,12 +25,14 @@
 			).done(function(info) {
 				var rows = [];
 
-				if (info.data.attributes.length > 0) {
-					_.each(info.data.attributes, function(peer) {
-						rows.push( _this.templateRow({ o: peer }) );
+				console.log(info);
+
+				if (info.data.length > 0) {
+					_.each(info.data, function(peer) {
+						rows.push( _this.templateRow({ o: peer.attributes }) );
 					});
 
-					Dashboard.Utils.emit( widget.name + '|fetch|' + JSON.stringify(info.data.attributes) );
+					Dashboard.Utils.emit( widget.name + '|fetch|' + JSON.stringify(info.data) );
 
 					$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 
