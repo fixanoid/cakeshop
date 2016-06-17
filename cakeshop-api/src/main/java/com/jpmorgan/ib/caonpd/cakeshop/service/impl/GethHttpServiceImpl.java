@@ -123,11 +123,14 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
+    @Override
+    public Map<String, Object> executeGethCall(String funcName, Object... args) throws APIException {
+        return executeGethCall(new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID));
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> executeGethCall(String funcName, Object[] args) throws APIException {
-
-        RequestModel request = new RequestModel(funcName, args, GETH_API_VERSION, GETH_REQUEST_ID);
+    public Map<String, Object> executeGethCall(RequestModel request) throws APIException {
         String response = executeGethCall(requestToJson(request));
 
         if (StringUtils.isEmpty(response)) {
