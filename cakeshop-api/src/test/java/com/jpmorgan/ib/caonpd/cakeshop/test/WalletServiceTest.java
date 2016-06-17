@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+@Test(singleThreaded=true)
 public class WalletServiceTest extends BaseGethRpcTest {
 
     @Autowired
@@ -21,7 +22,7 @@ public class WalletServiceTest extends BaseGethRpcTest {
     @Autowired
     private WalletDAO walletDAO;
 
-    @Test(priority=0)
+    @Test(priority=1)
     public void testList() throws APIException {
         List<Account> accounts = wallet.list();
         assertNotNull(accounts);
