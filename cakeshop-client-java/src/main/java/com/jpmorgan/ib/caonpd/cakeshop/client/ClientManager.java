@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SuccessCallback;
 
 public class ClientManager {
 
@@ -99,6 +102,15 @@ public class ClientManager {
         wsClient.subscribe(handler);
     }
 
+    public void addConnectListener(SuccessCallback<StompSession> listener) {
+        wsClient.addConnectListener(listener);
+        lazyStartWsClient();
+    }
+
+    public void addDisconnectListener(FailureCallback listener) {
+        wsClient.addDisconnectListener(listener);
+    }
+
     public void shutdown() {
         if (wsClient != null && !wsClient.isShutdown()) {
             wsClient.shutdown();
@@ -122,5 +134,6 @@ public class ClientManager {
 
         return future;
     }
+
 
 }

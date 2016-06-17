@@ -48,6 +48,10 @@ public class WebSocketClient {
 
     private final Map<String, List<EventHandler<?>>> topicHandlers;
 
+    private final List<SuccessCallback<StompSession>> connectListeners;
+
+    private final List<FailureCallback> disconnectListeners;
+
     private boolean started;
 
     private boolean shutdown;
@@ -62,6 +66,8 @@ public class WebSocketClient {
         this.reconnectTimer = new Timer("ReconnectTimer");
         this.reconnectDelay = reconnectDelay;
         this.topicHandlers = new Hashtable<>();
+        this.connectListeners = new Vector<>();
+        this.disconnectListeners = new Vector<>();
         this.started = false;
         this.shutdown = false;
     }
@@ -76,6 +82,22 @@ public class WebSocketClient {
             LOG.debug("Subscribing to " + handler.getTopic());
             handler.setStompSubscription(stompSession.subscribe(handler.getTopic(), handler));
         }
+    }
+
+    /**
+     * Add a listener to fire on successful WebSocket/Stomp connection
+     * @param listener
+     */
+    public void addConnectListener(SuccessCallback<StompSession> listener) {
+        connectListeners.add(listener);
+    }
+
+    /**
+     * Add a listener which fires when the WebSocket/Stomp connection is broken (or fails to connect)
+     * @param listener
+     */
+    public void addDisconnectListener(FailureCallback listener) {
+        disconnectListeners.add(listener);
     }
 
     public boolean isStarted() {
@@ -170,6 +192,7 @@ public class WebSocketClient {
             @Override
             public void handleTransportError(StompSession session, Throwable exception) {
                 if (exception instanceof ConnectionLostException) {
+                    notifyDisconnectListeners(exception);
                     reconnect(); // reconnect the client
                 }
             }
@@ -183,12 +206,14 @@ public class WebSocketClient {
                     if (topicHandlers != null && !topicHandlers.isEmpty()) {
                         reconnectAllTopics();
                     }
+                    notifyConnectListeners(newStompSession);
                 }
             },
             new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
                     LOG.debug("Failed to connect: " + throwable.getMessage());
+                    notifyDisconnectListeners(throwable);
                     reconnectTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
@@ -199,6 +224,18 @@ public class WebSocketClient {
             }
         );
 
+    }
+
+    private void notifyConnectListeners(StompSession session) {
+        for (SuccessCallback<StompSession> successCallback : connectListeners) {
+            successCallback.onSuccess(session);
+        }
+    }
+
+    private void notifyDisconnectListeners(Throwable throwable) {
+        for (FailureCallback failCallback : disconnectListeners) {
+            failCallback.onFailure(throwable);
+        }
     }
 
     private void reconnectAllTopics() {
