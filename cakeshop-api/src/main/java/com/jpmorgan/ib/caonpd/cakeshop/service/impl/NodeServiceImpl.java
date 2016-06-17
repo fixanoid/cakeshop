@@ -9,8 +9,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
-import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
+import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils.IP;
 
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class NodeServiceImpl implements NodeService {
                 try {
                     URI uri = new URI(nodeURI);
                     String host = uri.getHost();
-                    //if host or IP aren't set, then populate with localhost IP
+                    // if host or IP aren't set, then populate with correct IP
                     if(StringUtils.isEmpty(host) || "[::]".equals(host) ||  "0.0.0.0".equalsIgnoreCase(host)){
 
                         try {
@@ -80,7 +80,7 @@ public class NodeServiceImpl implements NodeService {
                             node.setNodeIP(host);
                         }
 
-                    }else{
+                    } else {
                         node.setNodeUrl(nodeURI);
                     }
                 } catch (URISyntaxException ex) {
@@ -89,22 +89,22 @@ public class NodeServiceImpl implements NodeService {
                 }
             }
 
-            //check if mining
+            // check if mining
             data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING, null);
-            Boolean mining = (Boolean)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            Boolean mining = (Boolean) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
 
-            //peer count
+            // peer count
             data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT, null);
-            String peerCount = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            String peerCount = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
 
-            //get last block number
+            // get last block number
             data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER, null);
-            String blockNumber = (String)data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            String blockNumber = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
 
-            //get pending transactions
+            // get pending transactions
             data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS, null);
             Integer pending = AbiUtils.hexToBigInteger((String) data.get("pending")).intValue();
             node.setPendingTxn(pending == null ? 0 : pending);
@@ -235,18 +235,18 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public List<Peer> peers() throws APIException{
+    public List<Peer> peers() throws APIException {
         String args[] = null;
         Map data = gethService.executeGethCall(AdminBean.ADMIN_PEERS, args);
         List peers = null;
         List<Peer> peerList = new ArrayList<>();
 
-        if(data != null){
+        if (data != null) {
 
-            peers =(List) data.get("_result");
-            if(peers != null){
+            peers = (List) data.get("_result");
+            if (peers != null) {
                 for (Iterator iterator = peers.iterator(); iterator.hasNext();) {
-                    Map peerMap = (Map)iterator.next();
+                    Map peerMap = (Map) iterator.next();
                     Peer peer = populateNode(peerMap);
                     peerList.add(peer);
                 }
@@ -256,31 +256,33 @@ public class NodeServiceImpl implements NodeService {
         return peerList;
     }
 
-    private Peer populateNode(Map data){
+    private Peer populateNode(Map data) {
         Peer peer = null;
         URI uri = null;
 
-        if(data != null){
+        if (data != null) {
 
             peer = new Peer();
             peer.setStatus("running");
-            String id = (String)data.get("id");
+            String id = (String) data.get("id");
             peer.setId(id);
-            String name = (String)data.get("name");
+            String name = (String) data.get("name");
             peer.setNodeName(name);
-            String remoteAddress = (String)((Map<String, Object>) data.get("network")).get("remoteAddress");
+            String remoteAddress = (String) ((Map<String, Object>) data.get("network"))
+                    .get("remoteAddress");
             try {
                 URI remoteURI = new URI("enode://" + remoteAddress);
 
-                if(remoteURI.getHost() != null && remoteURI.getPort() != -1){
+                if (remoteURI.getHost() != null && remoteURI.getPort() != -1) {
 
-                    uri = new URI("enode",id, remoteURI.getHost(),remoteURI.getPort(), null, null, null);
+                    uri = new URI("enode", id, remoteURI.getHost(), remoteURI.getPort(), null, null,
+                            null);
                     peer.setNodeUrl(uri.toString());
                     peer.setNodeIP(remoteURI.getHost());
                 }
 
             } catch (URISyntaxException ex) {
-                LOG.error("error parsing Peer Address ",ex.getMessage());
+                LOG.error("error parsing Peer Address ", ex.getMessage());
                 peer.setNodeUrl("");
             }
 
