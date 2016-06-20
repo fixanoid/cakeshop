@@ -1,10 +1,10 @@
-package com.jpmorgan.ib.caonpd.cakeshop.bean;
+package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 /**
  *
  * @author n631539
  */
-public class AdminBean {
+public interface GethRpcConstants {
 
     public static final String ADMIN_PEERS = "admin_peers";
     public static final String ADMIN_PEERS_ADD = "admin_addPeer";

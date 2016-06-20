@@ -3,7 +3,6 @@ package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 import static com.jpmorgan.ib.caonpd.cakeshop.service.impl.GethHttpServiceImpl.*;
 
 import com.google.common.base.Joiner;
-import com.jpmorgan.ib.caonpd.cakeshop.bean.AdminBean;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
@@ -11,6 +10,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.model.NodeInfo;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.GethRpcConstants;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.EEUtils;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
 @Service
-public class NodeServiceImpl implements NodeService {
+public class NodeServiceImpl implements NodeService, GethRpcConstants {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
 
@@ -56,13 +56,13 @@ public class NodeServiceImpl implements NodeService {
 
         try {
             //check if node is available
-            data = gethService.executeGethCall(AdminBean.ADMIN_NODE_INFO);
+            data = gethService.executeGethCall(ADMIN_NODE_INFO);
 
             node.setRpcUrl(gethConfig.getRpcUrl());
             node.setDataDirectory(gethConfig.getDataDirPath());
 
             node.setId((String) data.get("id"));
-            node.setStatus(StringUtils.isEmpty((String) data.get("id")) ? NodeService.NODE_NOT_RUNNING_STATUS : NodeService.NODE_RUNNING_STATUS);
+            node.setStatus(StringUtils.isEmpty((String) data.get("id")) ? NODE_NOT_RUNNING_STATUS : NODE_RUNNING_STATUS);
             node.setNodeName((String) data.get("name"));
 
             String nodeURI = (String) data.get("enode");
@@ -95,22 +95,22 @@ public class NodeServiceImpl implements NodeService {
             }
 
             // check if mining
-            data = gethService.executeGethCall(AdminBean.ADMIN_MINER_MINING);
-            Boolean mining = (Boolean) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            data = gethService.executeGethCall(ADMIN_MINER_MINING);
+            Boolean mining = (Boolean) data.get(SIMPLE_RESULT);
             node.setMining(mining == null ? false : mining);
 
             // peer count
-            data = gethService.executeGethCall(AdminBean.ADMIN_NET_PEER_COUNT);
-            String peerCount = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            data = gethService.executeGethCall(ADMIN_NET_PEER_COUNT);
+            String peerCount = (String) data.get(SIMPLE_RESULT);
             node.setPeerCount(peerCount == null ? 0 : Integer.decode(peerCount));
 
             // get last block number
-            data = gethService.executeGethCall(AdminBean.ADMIN_ETH_BLOCK_NUMBER);
-            String blockNumber = (String) data.get(GethHttpServiceImpl.SIMPLE_RESULT);
+            data = gethService.executeGethCall(ADMIN_ETH_BLOCK_NUMBER);
+            String blockNumber = (String) data.get(SIMPLE_RESULT);
             node.setLatestBlock(blockNumber == null ? 0 : Integer.decode(blockNumber));
 
             // get pending transactions
-            data = gethService.executeGethCall(AdminBean.ADMIN_TXPOOL_STATUS);
+            data = gethService.executeGethCall(ADMIN_TXPOOL_STATUS);
             Integer pending = AbiUtils.hexToBigInteger((String) data.get("pending")).intValue();
             node.setPendingTxn(pending == null ? 0 : pending);
 
@@ -169,7 +169,7 @@ public class NodeServiceImpl implements NodeService {
             gethConfig.setVerbosity(logLevel);
             if (!restart) {
                 // make it live immediately
-                gethService.executeGethCall(AdminBean.ADMIN_VERBOSITY, new Object[]{ logLevel });
+                gethService.executeGethCall(ADMIN_VERBOSITY, new Object[]{ logLevel });
             }
         }
 
@@ -194,9 +194,9 @@ public class NodeServiceImpl implements NodeService {
             if (!restart) {
                 // make it live immediately
                 if (mining == true) {
-                    gethService.executeGethCall(AdminBean.ADMIN_MINER_START, "1");
+                    gethService.executeGethCall(ADMIN_MINER_START, "1");
                 } else {
-                    gethService.executeGethCall(AdminBean.ADMIN_MINER_STOP);
+                    gethService.executeGethCall(ADMIN_MINER_STOP);
                 }
             }
         }
@@ -242,7 +242,7 @@ public class NodeServiceImpl implements NodeService {
     @SuppressWarnings("unchecked")
     @Override
     public List<Peer> peers() throws APIException {
-        Map<String, Object> data = gethService.executeGethCall(AdminBean.ADMIN_PEERS);
+        Map<String, Object> data = gethService.executeGethCall(ADMIN_PEERS);
 
         if (data == null) {
             return null;
@@ -270,7 +270,7 @@ public class NodeServiceImpl implements NodeService {
             throw new APIException("Bad peer address URI: " + address, e);
         }
 
-        Map<String, Object> res = gethService.executeGethCall(AdminBean.ADMIN_PEERS_ADD, address);
+        Map<String, Object> res = gethService.executeGethCall(ADMIN_PEERS_ADD, address);
         if (res == null) {
             return false;
         }
