@@ -24,4 +24,9 @@
 	}
 
 	window.Dashboard.Utils = Utils;
+
+	// Adding event for sleep / wake
+	$(document).on('visibilitychange', function(e) {
+		Dashboard.Utils.emit('tower-control|sleep|' + document.hidden);
+	});
 })();
