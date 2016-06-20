@@ -125,15 +125,13 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
         } catch (APIException ex) {
             Throwable cause = ex.getCause();
             if (cause instanceof ResourceAccessException) {
-                node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
+                node.setStatus(NODE_NOT_RUNNING_STATUS);
                 return node;
             }
 
             throw ex;
 
         } catch (NumberFormatException ex){
-
-            node.setStatus(NodeService.NODE_NOT_RUNNING_STATUS);
             LOG.error(ex.getMessage());
             throw new APIException(ex.getMessage());
 
