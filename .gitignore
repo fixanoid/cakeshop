@@ -20,7 +20,6 @@ meth.log
 meth.pid
 node.conf
 .DS_Store
-/bin/
 WebContent/
 pom.xml.versionsBackup
 dependency-reduced-pom.xml
@@ -43,4 +42,3 @@ SandboxTest.java
 app/
 Appfile
 Dockerfile
-
