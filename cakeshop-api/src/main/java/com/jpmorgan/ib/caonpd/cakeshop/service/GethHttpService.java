@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
+import com.jpmorgan.ib.caonpd.cakeshop.error.ErrorLog;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 
 import java.util.List;
@@ -74,5 +75,12 @@ public interface GethHttpService {
      * @return
      */
     public Boolean deletePid();
+
+    /**
+     * Get startup errors, if any
+     *
+     * @return
+     */
+    List<ErrorLog> getStartupErrors();
 
 }

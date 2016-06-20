@@ -118,10 +118,10 @@ public class ClientManager {
     }
 
     public ListenableFuture<Transaction> waitForTx(TransactionResult txResult) {
-        return waitforTx(txResult.getId());
+        return waitForTx(txResult.getId());
     }
 
-    public ListenableFuture<Transaction> waitforTx(String txId) {
+    public ListenableFuture<Transaction> waitForTx(String txId) {
         final SettableFuture<Transaction> future = SettableFuture.create();
 
         subscribe(new TransactionEventHandler(txId) {

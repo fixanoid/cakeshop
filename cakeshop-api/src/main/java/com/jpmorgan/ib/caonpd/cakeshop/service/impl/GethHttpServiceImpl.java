@@ -6,6 +6,7 @@ import static org.springframework.http.MediaType.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
@@ -13,6 +14,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
+import com.jpmorgan.ib.caonpd.cakeshop.error.ErrorLog;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
@@ -88,12 +90,15 @@ public class GethHttpServiceImpl implements GethHttpService {
     private StreamLogAdapter stdoutLogger;
     private StreamLogAdapter stderrLogger;
 
+    private List<ErrorLog> startupErrors;
+
     @Autowired
     @Qualifier("asyncExecutor")
     private TaskExecutor executor;
 
     public GethHttpServiceImpl() {
         this.running = false;
+        this.startupErrors = new ArrayList<>();
     }
 
     private String executeGethCallInternal(String json) throws APIException {
@@ -291,6 +296,8 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Override
     public Boolean start(String... additionalParams) {
 
+        startupErrors.clear();
+
         if (isProcessRunning(readPidFromFile(gethConfig.getGethPidFilename()))) {
             LOG.info("Ethereum was already running; not starting again");
             return this.running = true;
@@ -303,7 +310,10 @@ public class GethHttpServiceImpl implements GethHttpService {
             File chainDataDir = new File(FileUtils.expandPath(dataDir, "chaindata"));
             if (!chainDataDir.exists()) {
                 chainDataDir.mkdirs();
-                initGeth();
+                if (!initGeth()) {
+                    logError("Geth datadir failed to initialize");
+                    return this.running = false;
+                }
 
                 File keystoreDir = new File(FileUtils.expandPath(dataDir, "keystore"));
                 if (!keystoreDir.exists()) {
@@ -326,7 +336,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             }
 
             if (!(checkGethStarted() && checkWalletUnlocked())) {
-                LOG.error("Ethereum failed to start");
+                logError("Ethereum failed to start");
                 return this.running = false;
             }
 
@@ -341,7 +351,7 @@ public class GethHttpServiceImpl implements GethHttpService {
             // FIXME add a watcher thread to make sure it doesn't die..
 
         } catch (IOException ex) {
-            LOG.error("Cannot start process: " + ex.getMessage());
+            logError("Cannot start process: " + ex.getMessage());
             return this.running = false;
         }
 
@@ -365,9 +375,14 @@ public class GethHttpServiceImpl implements GethHttpService {
             new StreamLogAdapter(GETH_LOG, process.getInputStream()).startAsync();
             new StreamLogAdapter(GETH_LOG, process.getErrorStream()).startAsync();
 
-            return (process.waitFor() == 0);
+            int ret = process.waitFor();
+            if (ret != 0) {
+                logError("geth init returned non-zero exit code: " + ret);
+            }
+            return (ret == 0);
         } catch (InterruptedException e) {
             LOG.warn("Interrupted while waiting for geth init", e);
+            startupErrors.add(new ErrorLog("Interrupted while waiting for geth to init"));
         }
         return false;
     }
@@ -479,12 +494,14 @@ public class GethHttpServiceImpl implements GethHttpService {
             accounts = wallet.list();
         } catch (APIException e) {
             LOG.warn("Failed to list wallet accounts", e);
+            startupErrors.add(new ErrorLog("Failed to list wallet accounts: " + ExceptionUtils.getMessage(e)));
+            startupErrors.add(new ErrorLog(ExceptionUtils.getStackTrace(e)));
             return false;
         }
 
 
         long timeStart = System.currentTimeMillis();
-        long timeout = gethConfig.getGethUnlockTimeout() * accounts.size(); // 2 sec per account
+        long timeout = gethConfig.getGethUnlockTimeout() * accounts.size(); // default 2 sec per account
 
         LOG.info("Waiting up to " + timeout + "ms for " + accounts.size() + " accounts to unlock");
 
@@ -502,7 +519,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 }
 
                 if (System.currentTimeMillis() - timeStart >= timeout) {
-                    LOG.error("Wallet did not unlock in a timely manner (" +
+                    logError("Wallet did not unlock in a timely manner (" +
                             unlocked + " of " + accounts.size() + " accounts unlocked)");
                     return false;
                 }
@@ -510,6 +527,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 try {
                     TimeUnit.MILLISECONDS.sleep(50);
                 } catch (InterruptedException e) {
+                    logError("Interrupted while waiting for wallet to unlock");
                     return false;
                 }
             }
@@ -530,7 +548,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
             if (System.currentTimeMillis() - timeStart >= gethConfig.getGethStartTimeout()) {
                 // Something went wrong and RPC did not start within timeout
-                LOG.error("Geth did not start within " + gethConfig.getGethStartTimeout() + "ms");
+                logError("Geth RPC did not start within " + gethConfig.getGethStartTimeout() + "ms");
                 break;
             }
             try {
@@ -554,6 +572,16 @@ public class GethHttpServiceImpl implements GethHttpService {
             LOG.debug("geth not yet up: " + e.getMessage());
         }
         return false;
+    }
+
+    private void logError(String err) {
+        LOG.error(err);
+        startupErrors.add(new ErrorLog(err));
+    }
+
+    @Override
+    public List<ErrorLog> getStartupErrors() {
+        return ImmutableList.copyOf(startupErrors);
     }
 
 }

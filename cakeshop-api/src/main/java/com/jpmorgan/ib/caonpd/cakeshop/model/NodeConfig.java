@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  *
  * @author I629630
  */
-public class NodeInfo {
+public class NodeConfig {
 
     private String identity;
     private Boolean committingTransactions;
@@ -15,7 +15,7 @@ public class NodeInfo {
     private String genesisBlock;
     private String extraParams;
 
-    public NodeInfo (String identity, Boolean mining, Integer networkid, Integer verbosity, String genesisBlock, String extraParams) {
+    public NodeConfig (String identity, Boolean mining, Integer networkid, Integer verbosity, String genesisBlock, String extraParams) {
         this.identity = identity;
         this.committingTransactions = mining;
         this.networkId = networkid;
