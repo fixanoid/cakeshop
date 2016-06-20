@@ -9,19 +9,21 @@ public class ErrorLog {
 
     public static final FastDateFormat tsFormatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss,S");
 
-    public long ts;
-
-    public Object err;
+    public final long ts;
+    public final long nanos;
+    public final Object err;
 
     public ErrorLog(Object err) {
-        this.ts = System.nanoTime();
+        this.nanos = System.nanoTime();
+        this.ts = System.currentTimeMillis();
         this.err = err;
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("[" + tsFormatter.format(ts/1000) + "] ");
+
+        out.append("[" + tsFormatter.format(ts) + "] ");
         if (err instanceof String) {
             out.append(err);
         } else if (err instanceof Throwable) {

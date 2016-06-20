@@ -229,10 +229,11 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         List<ErrorLog> allErrors = new ArrayList<>();
         allErrors.addAll(errors);
         allErrors.addAll(geth.getStartupErrors());
+
         Collections.sort(allErrors, new Comparator<ErrorLog>() {
             @Override
             public int compare(ErrorLog o1, ErrorLog o2) {
-                long result = o1.ts - o2.ts;
+                long result = o1.nanos - o2.nanos;
                 if (result < 0) {
                     return -1;
                 } else if (result > 0) {
@@ -242,7 +243,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
                 }
             }
         });
-        return getAllErrors();
+        return allErrors;
     }
 
     public String getErrorInfo() {
