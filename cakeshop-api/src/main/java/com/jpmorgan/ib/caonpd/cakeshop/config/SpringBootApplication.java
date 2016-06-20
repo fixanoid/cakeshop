@@ -13,7 +13,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.jetty.JettyEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -86,9 +86,9 @@ public class SpringBootApplication {
     @Bean
     @Profile("spring-boot")
     public EmbeddedServletContainerFactory embeddedServletContainerFactory() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
-        tomcat.setContextPath("/cakeshop");
-        return tomcat;
+        JettyEmbeddedServletContainerFactory jetty = new JettyEmbeddedServletContainerFactory();
+        jetty.setContextPath("/cakeshop");
+        return jetty;
     }
 
 }
