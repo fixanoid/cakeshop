@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.config;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.cakeshop.error.ErrorLog;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
@@ -12,6 +13,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,8 +22,6 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -31,15 +32,6 @@ import org.springframework.stereotype.Service;
 @Order(999999)
 @Service(value="appStartup")
 public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
-
-    class Error {
-        public long ts;
-        public Object err;
-        public Error(Object err) {
-            this.ts = System.currentTimeMillis();
-            this.err = err;
-        }
-    }
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AppStartup.class);
 
@@ -60,7 +52,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
     private String gethVer;
 
-    private final List<Error> errors;
+    private final List<ErrorLog> errors;
 
     public AppStartup() {
         errors = new ArrayList<>();
@@ -232,23 +224,36 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         return str.toString();
     }
 
+    private List<ErrorLog> getAllErrors() {
+        // gather all errors and sort
+        List<ErrorLog> allErrors = new ArrayList<>();
+        allErrors.addAll(errors);
+        allErrors.addAll(geth.getStartupErrors());
+        Collections.sort(allErrors, new Comparator<ErrorLog>() {
+            @Override
+            public int compare(ErrorLog o1, ErrorLog o2) {
+                long result = o1.ts - o2.ts;
+                if (result < 0) {
+                    return -1;
+                } else if (result > 0) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        return getAllErrors();
+    }
+
     public String getErrorInfo() {
-        if (errors.isEmpty()) {
+        List<ErrorLog> allErrors = getAllErrors();
+        if (allErrors.isEmpty()) {
             return "(no errors logged)";
         }
 
-        FastDateFormat tsFormatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss,S");
         StringBuilder out = new StringBuilder();
-        for (Error error : errors) {
-            out.append("[" + tsFormatter.format(error.ts) + "] ");
-            if (error.err instanceof String) {
-                out.append(error.err);
-            } else if (error.err instanceof Exception) {
-                out.append(ExceptionUtils.getStackTrace((Throwable) error.err));
-            } else {
-                out.append(StringUtils.toString(error.err));
-            }
-            out.append("\n\n");
+        for (ErrorLog err : allErrors) {
+            out.append(err.toString()).append("\n\n");
         }
         return out.toString();
     }
@@ -400,11 +405,7 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public void addError(Object err) {
-        this.errors.add(new Error(err));
-    }
-
-    public List<Error> getErrors() {
-        return errors;
+        this.errors.add(new ErrorLog(err));
     }
 
 }

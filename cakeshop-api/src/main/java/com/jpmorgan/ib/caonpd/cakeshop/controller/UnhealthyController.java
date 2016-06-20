@@ -22,6 +22,7 @@ public class UnhealthyController {
     @Autowired
     private AppStartup appStartup;
 
+    @RequestMapping(produces = TEXT_HTML_VALUE)
     public ModelAndView unhealthy(HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("unhealthy");
         mav.addObject("appStartup", appStartup);
@@ -29,7 +30,7 @@ public class UnhealthyController {
         return mav;
     }
 
-    @RequestMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<APIResponse> unhealthyJson(HttpServletRequest request) {
         APIResponse res = new APIResponse()
             .error(new APIError().title("Service did not start cleanly"))
