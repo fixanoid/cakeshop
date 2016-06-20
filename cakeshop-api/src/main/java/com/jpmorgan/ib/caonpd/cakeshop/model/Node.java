@@ -66,7 +66,7 @@ public class Node  {
     /**
      * Node configuration
      */
-    private NodeInfo config;
+    private NodeConfig config;
 
     /**
      * Connected peer list
@@ -146,11 +146,11 @@ public class Node  {
         return nodeIP;
     }
 
-    public NodeInfo getConfig() {
+    public NodeConfig getConfig() {
         return config;
     }
 
-    public void setConfig(NodeInfo config) {
+    public void setConfig(NodeConfig config) {
         this.config = config;
     }
 

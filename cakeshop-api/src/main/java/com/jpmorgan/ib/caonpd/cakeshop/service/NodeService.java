@@ -2,7 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
-import com.jpmorgan.ib.caonpd.cakeshop.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.cakeshop.model.NodeConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface NodeService {
      * @return
      * @throws APIException
      */
-    public NodeInfo update(
+    public NodeConfig update(
             Integer logLevel,
             Integer networkID,
             String identity,

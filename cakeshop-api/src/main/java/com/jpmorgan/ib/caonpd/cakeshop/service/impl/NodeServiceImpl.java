@@ -7,7 +7,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
-import com.jpmorgan.ib.caonpd.cakeshop.model.NodeInfo;
+import com.jpmorgan.ib.caonpd.cakeshop.model.NodeConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethRpcConstants;
@@ -115,7 +115,7 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             node.setPendingTxn(pending == null ? 0 : pending);
 
             try {
-                node.setConfig(createNodeInfo());
+                node.setConfig(createNodeConfig());
             } catch (IOException e) {
                 throw new APIException("Failed to read genesis block file", e);
             }
@@ -142,13 +142,13 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
         return node;
     }
 
-    private NodeInfo createNodeInfo() throws IOException {
-        return new NodeInfo(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(),
+    private NodeConfig createNodeConfig() throws IOException {
+        return new NodeConfig(gethConfig.getIdentity(), gethConfig.isMining(), gethConfig.getNetworkId(),
                 gethConfig.getVerbosity(), gethConfig.getGenesisBlock(), gethConfig.getExtraParams());
     }
 
     @Override
-    public NodeInfo update(
+    public NodeConfig update(
             Integer logLevel, Integer networkID, String identity, Boolean mining,
             String extraParams, String genesisBlock) throws APIException {
 
@@ -201,10 +201,10 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             }
         }
 
-        NodeInfo nodeInfo;
+        NodeConfig nodeInfo;
         try {
             gethConfig.save();
-            nodeInfo = createNodeInfo();
+            nodeInfo = createNodeConfig();
         } catch (IOException e) {
             LOG.error("Error saving config", e);
             throw new APIException("Error saving config", e);
