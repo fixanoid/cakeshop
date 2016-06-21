@@ -11,6 +11,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Entry.Param;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
 import com.jpmorgan.ib.caonpd.cakeshop.model.SolidityType.Bytes32Type;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
@@ -127,16 +128,38 @@ public class ContractController extends BaseController {
             @JsonBodyParam Object[] args,
             @JsonBodyParam(required=false) Object blockNumber) throws APIException {
 
-        ContractABI abi = lookupABI(address);
-        args = decodeArgs(abi.getFunction(method), args);
-
-        Object result = contractService.read(address, abi, from, method, args, blockNumber);
+        Object result = contractService.read(createTransactionRequest(from, address, method, args, true, blockNumber));
         APIResponse res = new APIResponse();
         res.setData(result);
 
         return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
     }
 
+    private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
+        ContractABI abi = lookupABI(address);
+        if (abi == null) {
+            throw new APIException("Contract adddress " + address + " is not in the registry");
+        }
+
+        Function func = abi.getFunction(method);
+        if (func == null) {
+            throw new APIException("Method '" + method + "' does not exist in contract at " + address);
+        }
+
+        args = decodeArgs(func, args);
+
+        return new TransactionRequest(from, address, abi, method, args, isRead);
+    }
+
+    /**
+     * Handle Base64 encoded byte/string inputs (byte arrays must be base64 encoded to put them on
+     * the wire w/ JSON)
+     *
+     * @param method
+     * @param args
+     * @return
+     * @throws APIException
+     */
     private Object[] decodeArgs(Function method, Object[] args) throws APIException {
         if (args == null || args.length == 0) {
             return args;
@@ -161,10 +184,7 @@ public class ContractController extends BaseController {
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args) throws APIException {
 
-        ContractABI abi = lookupABI(address);
-        args = decodeArgs(abi.getFunction(method), args);
-
-        TransactionResult tr = contractService.transact(address, abi, from, method, args);
+        TransactionResult tr = contractService.transact(createTransactionRequest(from, address, method, args, false, null));
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 

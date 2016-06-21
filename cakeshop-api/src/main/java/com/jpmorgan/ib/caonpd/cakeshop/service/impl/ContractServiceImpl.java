@@ -253,13 +253,20 @@ public class ContractServiceImpl implements ContractService {
 	        req.setBlockNumber(blockNumber);
 	    }
 
-	    Map<String, Object> readRes = geth.executeGethCall("eth_call", req.getArgsArray());
+	    return read(req);
+	}
+
+	@Override
+	public Object[] read(TransactionRequest request) throws APIException {
+	    request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
+
+	    Map<String, Object> readRes = geth.executeGethCall("eth_call", request.toGethArgs());
 	    String res = (String) readRes.get("_result");
 	    if (StringUtils.isNotBlank(res) && res.length() == 2 && res.contentEquals("0x")) {
 	        throw new APIException("eth_call failed (returned 0 bytes)");
 	    }
 
-	    Object[] decodedResults = req.getFunction().decodeHexResult(res).toArray();
+	    Object[] decodedResults = request.getFunction().decodeHexResult(res).toArray();
 
 	    return decodedResults;
 	}
@@ -272,8 +279,13 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException {
 	    TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, false);
+	    return transact(req);
+	}
 
-	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", req.getArgsArray());
+	@Override
+	public TransactionResult transact(TransactionRequest request) throws APIException {
+	    request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
+	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
 	    return new TransactionResult((String) readRes.get("_result"));
 	}
 

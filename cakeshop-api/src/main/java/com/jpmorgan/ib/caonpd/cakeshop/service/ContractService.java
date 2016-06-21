@@ -4,6 +4,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 
 import java.util.List;
@@ -125,6 +126,8 @@ public interface ContractService {
 	 */
 	public Object[] read(String id, ContractABI abi, String from, String method, Object[] args, Object blockNumber) throws APIException;
 
+	public Object[] read(TransactionRequest request) throws APIException;
+
 	/**
 	 * Call a transactional method on the given contract. No state will change
 	 * until the transaction is committed into a Block.
@@ -155,5 +158,7 @@ public interface ContractService {
 	 * @throws APIException
 	 */
 	public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException;
+
+	public TransactionResult transact(TransactionRequest request) throws APIException;
 
 }

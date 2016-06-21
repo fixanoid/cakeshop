@@ -6,7 +6,12 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class TransactionRequest {
+
+    public static final String BLOCK_LATEST = "latest";
 
     public static final int DEFAULT_GAS = 10_000_000;
 
@@ -18,41 +23,46 @@ public class TransactionRequest {
 
     private Function function;
 
-    private Map<String, Object> args;
+    private Object[] args;
 
     private Object blockNumber;
 
     private boolean isRead;
 
     public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args, boolean isRead) throws APIException {
+        this(fromAddress, contractAddress, abi, method, args, isRead, null);
+    }
 
+    public TransactionRequest(String fromAddress, String contractAddress, ContractABI abi, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
         this.fromAddress = fromAddress;
         this.contractAddress = contractAddress;
         this.abi = abi;
         this.isRead = isRead;
+        this.blockNumber = blockNumber;
+        this.args = args;
 
 	    this.function = abi.getFunction(method);
 	    if (this.function == null) {
 	        throw new APIException("Invalid method '" + method + "'");
 	    }
-
-	    this.args = new HashMap<>();
-	    this.args.put("from", this.fromAddress);
-	    this.args.put("to", this.contractAddress);
-	    this.args.put("gas", DEFAULT_GAS);
-	    this.args.put("data", this.function.encodeAsHex(args));
-
     }
 
-    public Object[] getArgsArray() {
+    public Object[] toGethArgs() {
+
+        Map<String, Object> req = new HashMap<>();
+	    req.put("from", fromAddress);
+	    req.put("to", contractAddress);
+	    req.put("gas", DEFAULT_GAS);
+	    req.put("data", function.encodeAsHex(args));
+
         if (isRead) {
             if (blockNumber == null) {
-                return new Object[] { getArgs(), "latest" };
+                return new Object[] { req, BLOCK_LATEST };
             } else {
-                return new Object[] { getArgs(), blockNumber };
+                return new Object[] { req, blockNumber };
             }
         } else {
-            return new Object[] { getArgs() };
+            return new Object[] { req };
         }
     }
 
@@ -88,20 +98,17 @@ public class TransactionRequest {
         this.function = function;
     }
 
-    public Map<String, Object> getArgs() {
-        return args;
-    }
-
-    public void setArgs(Map<String, Object> args) {
-        this.args = args;
-    }
-
     public Object getBlockNumber() {
         return blockNumber;
     }
 
     public void setBlockNumber(Object blockNumber) {
         this.blockNumber = blockNumber;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
 }
