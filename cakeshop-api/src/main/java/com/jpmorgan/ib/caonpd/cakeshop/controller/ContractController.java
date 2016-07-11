@@ -183,7 +183,7 @@ public class ContractController extends BaseController {
             @JsonBodyParam String address,
             @JsonBodyParam String method,
             @JsonBodyParam Object[] args,
-            @JsonBodyParam String geminiTo) throws APIException {
+            @JsonBodyParam List<String> geminiTo) throws APIException {
 
         TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
         req.setGeminiTo(geminiTo);

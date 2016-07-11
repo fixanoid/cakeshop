@@ -2,9 +2,9 @@ package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
-import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -26,7 +26,7 @@ public class TransactionRequest {
 
     private final Object[] args;
 
-    private String geminiTo;
+    private List<String> geminiTo;
 
     private Object blockNumber;
 
@@ -58,7 +58,7 @@ public class TransactionRequest {
 	    req.put("gas", DEFAULT_GAS);
 	    req.put("data", function.encodeAsHex(args));
 
-	    if (StringUtils.isNotBlank(geminiTo)) {
+	    if (geminiTo != null && !geminiTo.isEmpty()) {
             req.put("geminiTo", geminiTo);
 	    }
 
@@ -118,11 +118,11 @@ public class TransactionRequest {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    public String getGeminiTo() {
+    public List<String> getGeminiTo() {
         return geminiTo;
     }
 
-    public void setGeminiTo(String geminiTo) {
+    public void setGeminiTo(List<String> geminiTo) {
         this.geminiTo = geminiTo;
     }
 
