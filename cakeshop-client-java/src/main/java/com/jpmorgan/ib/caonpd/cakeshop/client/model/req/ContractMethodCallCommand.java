@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.client.model.req;
 
+import java.util.List;
+
 public class ContractMethodCallCommand {
 
     private String from;
@@ -7,6 +9,7 @@ public class ContractMethodCallCommand {
     private String method;
     private Object[] args;
     private Object blockNumber;
+    private List<String> geminiTo;
 
 
     /**
@@ -64,6 +67,11 @@ public class ContractMethodCallCommand {
         return this;
     }
 
+    public ContractMethodCallCommand geminiTo(List<String> geminiTo) {
+        this.geminiTo = geminiTo;
+        return this;
+    }
+
 
     public String getFrom() {
         return from;
@@ -103,6 +111,14 @@ public class ContractMethodCallCommand {
 
     public void setBlockNumber(Object blockNumber) {
         this.blockNumber = blockNumber;
+    }
+
+    public List<String> getGeminiTo() {
+        return geminiTo;
+    }
+
+    public void setGeminiTo(List<String> geminiTo) {
+        this.geminiTo = geminiTo;
     }
 
 }
