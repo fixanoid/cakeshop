@@ -121,6 +121,10 @@ public class JsonMethodArgumentResolver implements HandlerMethodArgumentResolver
             }
         }
 
+        if (paramType == List.class && val instanceof List) {
+            return val;
+        }
+
         LOG.warn("Param type mismatch for '" + parameter.getParameterName() + "'; got " + val.getClass().toString());
         return null;
     }
