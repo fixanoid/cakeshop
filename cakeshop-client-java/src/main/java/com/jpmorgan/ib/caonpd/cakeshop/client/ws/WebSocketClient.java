@@ -5,7 +5,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -65,9 +66,9 @@ public class WebSocketClient {
         this.taskScheduler = new ThreadPoolTaskScheduler();
         this.reconnectTimer = new Timer("ReconnectTimer");
         this.reconnectDelay = reconnectDelay;
-        this.topicHandlers = new Hashtable<>();
-        this.connectListeners = new Vector<>();
-        this.disconnectListeners = new Vector<>();
+        this.topicHandlers = Collections.synchronizedMap(new LinkedHashMap<String, List<EventHandler<?>>>());
+        this.connectListeners = Collections.synchronizedList(new ArrayList<SuccessCallback<StompSession>>());
+        this.disconnectListeners = Collections.synchronizedList(new ArrayList<FailureCallback>());
         this.started = false;
         this.shutdown = false;
     }
@@ -75,7 +76,7 @@ public class WebSocketClient {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void subscribe(EventHandler<?> handler) {
         if (topicHandlers.get(handler.getTopic()) == null) {
-            topicHandlers.put(handler.getTopic(), (List) new Vector<>());
+            topicHandlers.put(handler.getTopic(), Collections.synchronizedList(new ArrayList<EventHandler<?>>()));
         }
         topicHandlers.get(handler.getTopic()).add(handler);
         if (stompSession != null && stompSession.isConnected()) {
@@ -172,7 +173,7 @@ public class WebSocketClient {
 
         // setup transports & socksjs
         jettyWebSocketClient = new JettyWebSocketClient();
-        List<Transport> transports = new ArrayList<Transport>(2);
+        List<Transport> transports = new ArrayList<>(2);
         transports.add(new WebSocketTransport(jettyWebSocketClient));
         //transports.add(new RestTemplateXhrTransport());
 
