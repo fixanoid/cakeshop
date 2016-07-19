@@ -5,11 +5,14 @@ import com.jpmorgan.ib.caonpd.cakeshop.config.SpringBootApplication;
 import com.jpmorgan.ib.caonpd.cakeshop.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.cakeshop.config.WebConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.db.BlockScanner;
+import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.impl.ContractRegistryServiceImpl;
 import com.jpmorgan.ib.caonpd.cakeshop.test.TestBlockScanner;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -58,5 +61,4 @@ public class TestAppConfig extends AppConfig {
     public BlockScanner createBlockScanner() {
         return new TestBlockScanner();
     }
-
 }
