@@ -33,7 +33,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
     private static final Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceTest.class);
 
     @Autowired
-    private ContractRegistryService contractRegistry;
+    ContractRegistryService contractRegistry;
 
     @Autowired
     private ContractService contractService;
@@ -116,39 +116,4 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 
 	}
 
-
-	
-	@Autowired
-	CacheManager manager;
-
-	@Test
-	public void testCache() throws IOException, InterruptedException, APIException  {
-		ContractRegistryService contractRegistry = Mockito.mock(ContractRegistryServiceImpl.class);
-
-		String addr = "0x1234567890";
-
-	    Contract first = new Contract();
-	    Contract second = new Contract();
-
-	    Mockito.when(contractRegistry.getById(addr)).thenReturn(first, second);
-
-	    Reporter.log("#################### " + manager.getCache("contracts").get(addr), true);
-
-	    // First invocation returns object returned by the method
-	    Contract result = contractRegistry.getById(addr);
-	    assertEquals(result, first);
-
-	    Reporter.log("#################### " + manager.getCache("contracts").get(addr), true);
-	    
-//	    Reporter.log("#################### " + Mockito.verify(contractRegistry, Mockito.times(1)).getById(addr), true);
-//	    Reporter.log("#################### " + manager.getCache("contracts"), true);
-
-	    // Second invocation should return cached value, *not* second (as set up above)
-	    result = contractRegistry.getById(addr);
-	    assertEquals(result, first);
-
-	    // Verify repository method was invoked once
-	    Mockito.verify(contractRegistry, Mockito.times(1)).getById(addr);
-	    assertNotNull(manager.getCache("contracts").get(addr));
-	}
 }

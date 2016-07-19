@@ -40,7 +40,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 
 @ActiveProfiles("integration-test")
-@ContextConfiguration(classes = {TestAppConfig.class})
+@ContextConfiguration(classes = {TestAppConfig.class,ContractRegisrtryCacheTest.TestConfiguration.class})
 //@Listeners(CleanConsoleListener.class) // uncomment for extra debug help
 @DirtiesContext(classMode=ClassMode.AFTER_CLASS)
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
