@@ -108,7 +108,6 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
     @Override
     public Contract getById(String id) throws APIException {
     	LOG.debug("Contract Registry cache miss for: " + id);
-    	System.out.println("Contract Registry cache miss for: " + id);
 
         Object[] res = contractService.read(
                 contractRegistryAddress, this.abi, null,
