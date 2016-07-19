@@ -24,6 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -103,8 +104,11 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
 
+    @Cacheable(value="contracts", key="#id")
     @Override
     public Contract getById(String id) throws APIException {
+    	LOG.debug("Contract Registry cache miss for: " + id);
+    	System.out.println("Contract Registry cache miss for: " + id);
 
         Object[] res = contractService.read(
                 contractRegistryAddress, this.abi, null,

@@ -135,21 +135,6 @@ public class ContractController extends BaseController {
         return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
     }
 
-    private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
-        ContractABI abi = lookupABI(address);
-        if (abi == null) {
-            throw new APIException("Contract adddress " + address + " is not in the registry");
-        }
-
-        Function func = abi.getFunction(method);
-        if (func == null) {
-            throw new APIException("Method '" + method + "' does not exist in contract at " + address);
-        }
-
-        args = decodeArgs(func, args);
-
-        return new TransactionRequest(from, address, abi, method, args, isRead);
-    }
 
     /**
      * Handle Base64 encoded byte/string inputs (byte arrays must be base64 encoded to put them on
@@ -175,24 +160,6 @@ public class ContractController extends BaseController {
         }
 
         return args;
-    }
-
-    @RequestMapping("/transact")
-    public ResponseEntity<APIResponse> transact(
-            @JsonBodyParam String from,
-            @JsonBodyParam String address,
-            @JsonBodyParam String method,
-            @JsonBodyParam Object[] args,
-            @JsonBodyParam List<String> geminiTo) throws APIException {
-
-        TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
-        req.setGeminiTo(geminiTo);
-
-        TransactionResult tr = contractService.transact(req);
-        APIResponse res = new APIResponse();
-        res.setData(tr.toAPIData());
-
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
     }
 
     @RequestMapping("/transactions/list")
@@ -225,6 +192,46 @@ public class ContractController extends BaseController {
         return data;
     }
 
+    
+    /*
+     * Notes:
+     * 1. createTransactionRequest -> lookupABI = Geth RPC call
+     * 2. transact = Geth RPC call
+     */
+    @RequestMapping("/transact")
+    public ResponseEntity<APIResponse> transact(
+            @JsonBodyParam String from,
+            @JsonBodyParam String address,
+            @JsonBodyParam String method,
+            @JsonBodyParam Object[] args,
+            @JsonBodyParam List<String> geminiTo) throws APIException {
+
+        TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
+        req.setGeminiTo(geminiTo);
+
+        TransactionResult tr = contractService.transact(req);
+        APIResponse res = new APIResponse();
+        res.setData(tr.toAPIData());
+
+        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+    }
+
+    private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
+        ContractABI abi = lookupABI(address);
+        if (abi == null) {
+            throw new APIException("Contract adddress " + address + " is not in the registry");
+        }
+
+        Function func = abi.getFunction(method);
+        if (func == null) {
+            throw new APIException("Method '" + method + "' does not exist in contract at " + address);
+        }
+
+        args = decodeArgs(func, args);
+
+        return new TransactionRequest(from, address, abi, method, args, isRead);
+    }
+    
     private ContractABI lookupABI(String id) throws APIException {
         Contract contract = contractRegistry.getById(id);
         if (contract == null) {
