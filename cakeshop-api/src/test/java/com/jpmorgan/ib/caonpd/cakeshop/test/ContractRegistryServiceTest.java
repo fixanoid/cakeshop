@@ -1,6 +1,19 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.Test;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
@@ -8,25 +21,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
-import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
-import com.jpmorgan.ib.caonpd.cakeshop.service.impl.ContractRegistryServiceImpl;
-import com.jpmorgan.ib.caonpd.cakeshop.test.config.TestAppConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Bean;
-import org.testng.Reporter;
-import org.testng.annotations.Test;
+import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 
 public class ContractRegistryServiceTest extends BaseGethRpcTest {
 

@@ -24,7 +24,7 @@ import static org.testng.Assert.assertNull;
  */
 
 
-public class ContractRegisrtryCacheTest extends BaseGethRpcTest {
+public class ContractRegistryCacheTest extends BaseGethRpcTest {
     
 	@Autowired
     @Qualifier("cacheManager")
