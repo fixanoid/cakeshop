@@ -37,7 +37,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	@Autowired
 	private TransactionService transactionService;
 
-	@Test(enabled = false)
+	@Test
 	public void testRegisterAndGet() throws IOException, InterruptedException {
 
 	    String addr = createContract();
@@ -62,7 +62,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(val.intValue(), 100);
 	}
 
-	@Test(enabled = false)
+	@Test
 	public void testGetInvalidId() throws APIException  {
 	    Contract contract = contractRegistry.getById("0x62061a15259c8dd9c49312ddc9335333c4212abe");
 	    assertNull(contract);
@@ -79,7 +79,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertNotNull(tx);
     }
 
-	@Test(enabled = false)
+	@Test
 	public void testList() throws IOException, InterruptedException {
 
 	    Long createdDate = (System.currentTimeMillis() / 1000);
