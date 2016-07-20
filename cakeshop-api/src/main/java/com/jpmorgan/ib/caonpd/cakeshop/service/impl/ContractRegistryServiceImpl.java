@@ -104,10 +104,10 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
 
-    @Cacheable(value="contracts", key="#id")
+    @Cacheable(value="contracts", key="#id", unless="#result == null")
     @Override
     public Contract getById(String id) throws APIException {
-    	LOG.debug("Contract Registry cache miss for: " + id);
+    	LOG.info("Contract Registry cache miss for: " + id);
 
         Object[] res = contractService.read(
                 contractRegistryAddress, this.abi, null,
@@ -124,14 +124,15 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
             return null; // contract is not [yet] registered
         }
 
+        LOG.info("Returning contract for address " + id);
         return new Contract(
-                (String) res[0],
-                (String) res[1],
-                (String) res[2],
-                (String) res[3],
-                CodeType.valueOf((String) res[4]),
-                null,
-                createdDate);
+                        (String) res[0],
+                        (String) res[1],
+                        (String) res[2],
+                        (String) res[3],
+                        CodeType.valueOf((String) res[4]),
+                        null,
+                        createdDate);
     }
 
     @Override
