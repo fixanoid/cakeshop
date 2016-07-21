@@ -54,14 +54,14 @@ public class ContractController extends BaseController {
 
         if (contract != null) {
             res.setData(toAPIData(contract));
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("404");
         err.setTitle("Contract not found");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping("/compile")
@@ -76,14 +76,14 @@ public class ContractController extends BaseController {
 
         if (contracts != null) {
             res.setData(toAPIData(contracts));
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping("/create")
@@ -101,14 +101,14 @@ public class ContractController extends BaseController {
 
         if (tx != null) {
             res.setData(tx.toAPIData());
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping("/list")
@@ -132,7 +132,7 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
         res.setData(result);
 
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
@@ -192,7 +192,7 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
         res.setData(tr.toAPIData());
 
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @RequestMapping("/transactions/list")
@@ -209,7 +209,7 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
         res.setData(data);
 
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 
@@ -231,7 +231,7 @@ public class ContractController extends BaseController {
             throw new APIException("Contract not in registry " + id);
         }
 
-        return ContractABI.fromJson(contract.getABI());
+        return contract.getContractAbi();
     }
 
 

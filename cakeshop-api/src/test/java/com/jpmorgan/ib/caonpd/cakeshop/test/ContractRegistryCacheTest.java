@@ -45,16 +45,22 @@ public class ContractRegistryCacheTest extends BaseGethRpcTest {
 	    // First invocation returns object returned by the method
 	    Contract result = contractRegistry.getById(addr);
 	    assertEquals(result.getAddress(), first.getAddress());
+        Reporter.log("######### ABI " + result.getContractAbi(), true);
 	    Reporter.log("######### " + manager.getCache("contracts").get(addr).get(), true);
 
 	    // Second invocation should return cached value
 	    Contract result2 = contractRegistry.getById(addr);
 	    assertEquals(result2.getAddress(), first.getAddress());
+        Reporter.log("######### ABI " + result2.getContractAbi(), true);
         Reporter.log("######### " + manager.getCache("contracts").get(addr).get(), true);
 
 	    // Verify repository method was invoked once
 	    assertNotNull(manager.getCache("contracts").get(addr).get());
+        Contract cachedContract = (Contract)manager.getCache("contracts").get(addr).get();
+        assertEquals(cachedContract.getAddress(), first.getAddress());
+        Reporter.log("######### Cached ABI " + cachedContract.getContractAbi(), true);
         
+        //Forced null
         addr = "0x1234567890";
         
         //first invocation with forced null value. Should be null in the cache

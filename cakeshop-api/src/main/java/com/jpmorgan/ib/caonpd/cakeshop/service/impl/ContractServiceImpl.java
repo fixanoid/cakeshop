@@ -334,7 +334,7 @@ public class ContractServiceImpl implements ContractService {
 	        throw new APIException("Contract not in registry " + id);
 	    }
 
-        return ContractABI.fromJson(contract.getABI());
+        return contract.getContractAbi();
 	}
 
 }
