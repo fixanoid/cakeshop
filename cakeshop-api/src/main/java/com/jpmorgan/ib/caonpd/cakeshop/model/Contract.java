@@ -65,7 +65,7 @@ public class Contract {
      * Hash of each method signaature (required for making EVM calls)
      */
     private Map<String, String> functionHashes;
-    
+
     private ContractABI contractAbi;
 
 
@@ -75,12 +75,11 @@ public class Contract {
     public Contract(String address, String name, String abi, String code, CodeType codeType, String binary, Long createdDate) {
         this.address = address;
         this.name = name;
-        this.abi = abi;
         this.code = code;
         this.codeType = codeType;
         this.binary = binary;
         this.createdDate = createdDate;
-        this.contractAbi = ContractABI.fromJson(abi);
+        setABI(abi);
     }
 
 

@@ -5,18 +5,19 @@
  */
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
+import static org.testng.Assert.*;
+
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
+
 import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
-import static org.testng.Assert.assertEquals;
 import org.testng.Reporter;
 import org.testng.annotations.Test;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 
 /**
  *
@@ -25,15 +26,15 @@ import static org.testng.Assert.assertNull;
 
 
 public class ContractRegistryCacheTest extends BaseGethRpcTest {
-    
+
 	@Autowired
     @Qualifier("cacheManager")
 	CacheManager manager;
-	
+
     @Autowired
     ContractRegistryService contractRegistry;
-    
-    
+
+
     @Test
 	public void testCache() throws IOException, InterruptedException, APIException  {
 
@@ -50,6 +51,7 @@ public class ContractRegistryCacheTest extends BaseGethRpcTest {
 
 	    // Second invocation should return cached value
 	    Contract result2 = contractRegistry.getById(addr);
+	    assertNotNull(result2.getABI());
 	    assertEquals(result2.getAddress(), first.getAddress());
         Reporter.log("######### ABI " + result2.getContractAbi(), true);
         Reporter.log("######### " + manager.getCache("contracts").get(addr).get(), true);
@@ -59,15 +61,15 @@ public class ContractRegistryCacheTest extends BaseGethRpcTest {
         Contract cachedContract = (Contract)manager.getCache("contracts").get(addr).get();
         assertEquals(cachedContract.getAddress(), first.getAddress());
         Reporter.log("######### Cached ABI " + cachedContract.getContractAbi(), true);
-        
+
         //Forced null
         addr = "0x1234567890";
-        
+
         //first invocation with forced null value. Should be null in the cache
         result = contractRegistry.getById(addr);
         assertNull(result);
         Reporter.log("######### WITH FORCED NULL VALUE " + manager.getCache("contracts").get(addr), true);
-        
+
         //second invocation with forced null value. Should still be null in the cache
         result = contractRegistry.getById(addr);
         assertNull(result);

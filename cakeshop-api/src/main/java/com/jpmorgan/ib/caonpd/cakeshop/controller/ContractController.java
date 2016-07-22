@@ -136,7 +136,7 @@ public class ContractController extends BaseController {
     }
 
     private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
-        ContractABI abi = lookupABI(address);
+        ContractABI abi = contractService.get(address).getContractAbi();
         if (abi == null) {
             throw new APIException("Contract adddress " + address + " is not in the registry");
         }
@@ -224,15 +224,5 @@ public class ContractController extends BaseController {
         }
         return data;
     }
-
-    private ContractABI lookupABI(String id) throws APIException {
-        Contract contract = contractRegistry.getById(id);
-        if (contract == null) {
-            throw new APIException("Contract not in registry " + id);
-        }
-
-        return contract.getContractAbi();
-    }
-
 
 }

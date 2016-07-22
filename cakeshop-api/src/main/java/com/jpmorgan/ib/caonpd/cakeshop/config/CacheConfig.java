@@ -1,9 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config;
 
 import com.google.common.cache.CacheBuilder;
-import java.util.concurrent.TimeUnit;
-import org.springframework.cache.Cache;
 
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,7 +22,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableCaching
 public class CacheConfig implements CachingConfigurer {
-    
+
+    // TODO change qualifier name to be more specific
     @Bean(name = "cacheManager")
     @Override
     public CacheManager cacheManager() {

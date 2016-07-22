@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
@@ -185,7 +186,7 @@ public class ContractServiceImpl implements ContractService {
         }
 
 
-		Map<String, Object> contractArgs = new HashMap<String, Object>();
+		Map<String, Object> contractArgs = new HashMap<>();
 		contractArgs.put("from", getAddress(from));
 		contractArgs.put("data", data);
 		contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
@@ -206,25 +207,30 @@ public class ContractServiceImpl implements ContractService {
 		throw new APIException("Not yet implemented"); // TODO
 	}
 
+	@Cacheable(value="contracts", unless="#result == null")
 	@Override
 	public Contract get(String address) throws APIException {
-		Contract contract = contractRegistry.getById(address);
-		Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
+	    if (LOG.isDebugEnabled()) {
+	        LOG.debug("Contract cache miss for: " + address);
+	    }
 
-		String bin = (String) contractRes.get("_result");
-		if (bin.contentEquals("0x")) {
-		    return null;
-		}
+	    Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
 
-		if (contract == null) {
-		    // not [yet] in registry. only binary code will be returned (assuming it exists)
-		    contract = new Contract();
-		    contract.setAddress(address);
-		}
+	    String bin = (String) contractRes.get("_result");
+	    if (bin.contentEquals("0x")) {
+	        throw new APIException("Contract not in registry " + address);
+	    }
 
-		contract.setBinary(bin);
+	    Contract contract = contractRegistry.getById(address);
+	    if (contract == null) {
+	        // not [yet] in registry. only binary code will be returned (assuming it exists)
+	        contract = new Contract();
+	        contract.setAddress(address);
+	    }
 
-		return contract;
+	    contract.setBinary(bin);
+
+	    return contract;
 	}
 
 	@Override
@@ -331,7 +337,6 @@ public class ContractServiceImpl implements ContractService {
 	private ContractABI lookupABI(String id) throws APIException {
 	    Contract contract = contractRegistry.getById(id);
 	    if (contract == null) {
-	        throw new APIException("Contract not in registry " + id);
 	    }
 
         return contract.getContractAbi();

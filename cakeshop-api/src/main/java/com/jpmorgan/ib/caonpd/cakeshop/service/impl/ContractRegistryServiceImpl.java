@@ -24,7 +24,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -104,11 +103,8 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
                 new Object[] { id, name, abi, code, codeType.toString(), createdDate });
     }
 
-    @Cacheable(value="contracts", key="#id", unless="#result == null")
     @Override
     public Contract getById(String id) throws APIException {
-    	LOG.info("Contract Registry cache miss for: " + id);
-
         Object[] res = contractService.read(
                 contractRegistryAddress, this.abi, null,
                 "getById",
@@ -124,15 +120,14 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
             return null; // contract is not [yet] registered
         }
 
-        LOG.info("Returning contract for address " + id);
         return new Contract(
-                        (String) res[0],
-                        (String) res[1],
-                        (String) res[2],
-                        (String) res[3],
-                        CodeType.valueOf((String) res[4]),
-                        null,
-                        createdDate);
+                (String) res[0],
+                (String) res[1],
+                (String) res[2],
+                (String) res[3],
+                CodeType.valueOf((String) res[4]),
+                null,
+                createdDate);
     }
 
     @Override
