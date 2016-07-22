@@ -19,6 +19,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,21 +179,27 @@ public class ContractController extends BaseController {
     }
 
     @RequestMapping("/transact")
-    public ResponseEntity<APIResponse> transact(
-            @JsonBodyParam String from,
-            @JsonBodyParam String address,
-            @JsonBodyParam String method,
-            @JsonBodyParam Object[] args,
-            @JsonBodyParam List<String> geminiTo) throws APIException {
+    public Callable<ResponseEntity<APIResponse>> transact(
+            @JsonBodyParam final String from,
+            @JsonBodyParam final String address,
+            @JsonBodyParam final String method,
+            @JsonBodyParam final Object[] args,
+            @JsonBodyParam final List<String> geminiTo) throws APIException {
 
-        TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
-        req.setGeminiTo(geminiTo);
+        Callable<ResponseEntity<APIResponse>> asyncTask = new Callable<ResponseEntity<APIResponse>>() {
+            @Override
+            public ResponseEntity<APIResponse> call() throws Exception {
+                TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
+                req.setGeminiTo(geminiTo);
 
-        TransactionResult tr = contractService.transact(req);
-        APIResponse res = new APIResponse();
-        res.setData(tr.toAPIData());
-
-        return new ResponseEntity<>(res, HttpStatus.OK);
+                TransactionResult tr = contractService.transact(req);
+                APIResponse res = new APIResponse();
+                res.setData(tr.toAPIData());
+                ResponseEntity<APIResponse> response = new ResponseEntity<>(res, HttpStatus.OK);
+                return response;
+            }
+        };
+        return asyncTask;
     }
 
     @RequestMapping("/transactions/list")
