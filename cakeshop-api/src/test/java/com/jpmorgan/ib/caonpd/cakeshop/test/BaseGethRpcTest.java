@@ -39,7 +39,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 
-@ActiveProfiles("integration-test")
+@ActiveProfiles("test")
 @ContextConfiguration(classes = {TestAppConfig.class})
 //@Listeners(CleanConsoleListener.class) // uncomment for extra debug help
 @DirtiesContext(classMode=ClassMode.AFTER_CLASS)
@@ -48,7 +48,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     private static final Logger LOG = LoggerFactory.getLogger(BaseGethRpcTest.class);
 
     static {
-        System.setProperty("eth.environment", "test");
+        System.setProperty("spring.profiles.active", "test");
     }
 
 	@Autowired

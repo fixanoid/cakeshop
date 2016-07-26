@@ -10,18 +10,16 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
 @EnableAutoConfiguration
-@Profile("container")
 @ComponentScan(basePackages = "com.jpmorgan.ib.caonpd.cakeshop")
 public class WebAppInit extends SpringBootServletInitializer {
-
+    
+    
     public static void setLoggingPath(boolean isSpringBoot) {
         // setup logging path for spring-boot
         if (StringUtils.isNotBlank(System.getProperty("logging.path"))) {
@@ -62,10 +60,10 @@ public class WebAppInit extends SpringBootServletInitializer {
 
     }
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.profiles("container");
-    }
+//    @Override
+//    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+//        return builder.profiles(env.getActiveProfiles());
+//    }
 
     @Override
     public void onStartup(ServletContext container) throws ServletException {
