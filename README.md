@@ -28,9 +28,9 @@ APIs for directly integrating applications with the chain.
 * Java app server (Tomcat, Jetty, etc)
 
 ### Installation
-
 * Download WAR file
 * Put in `/webapps` folder of your app server
+* Add Java environment variable -Dspring.profiles.active=local|dev|uat|prod to startup script
 * Start app server
 * Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/)
 
