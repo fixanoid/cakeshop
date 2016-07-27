@@ -157,7 +157,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
         ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
         exec.setCorePoolSize(10);
         exec.setMaxPoolSize(500);
-        exec.setQueueCapacity(10000);
+        exec.setQueueCapacity(2000);
         exec.setThreadNamePrefix("EE-SDK-");
         exec.afterPropertiesSet();
         return exec;

@@ -26,7 +26,7 @@ public class HttpClientConfig {
                 .readTimeout(120, TimeUnit.SECONDS)
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .connectTimeout(1, TimeUnit.SECONDS)
-                .connectionPool(new ConnectionPool(maxIdleSize, 5, TimeUnit.MINUTES))
+                .connectionPool(new ConnectionPool(maxIdleSize, 1, TimeUnit.MINUTES))
                 .build();
     }
 

@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.WebAsyncTask;
 
 @RestController
 @RequestMapping(value = "/api/contract",
@@ -179,14 +180,14 @@ public class ContractController extends BaseController {
     }
 
     @RequestMapping("/transact")
-    public Callable<ResponseEntity<APIResponse>> transact(
+    public WebAsyncTask<ResponseEntity<APIResponse>> transact(
             @JsonBodyParam final String from,
             @JsonBodyParam final String address,
             @JsonBodyParam final String method,
             @JsonBodyParam final Object[] args,
             @JsonBodyParam final List<String> geminiTo) throws APIException {
 
-        Callable<ResponseEntity<APIResponse>> asyncTask = new Callable<ResponseEntity<APIResponse>>() {
+        Callable<ResponseEntity<APIResponse>> callable = new Callable<ResponseEntity<APIResponse>>() {
             @Override
             public ResponseEntity<APIResponse> call() throws Exception {
                 TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
@@ -199,6 +200,7 @@ public class ContractController extends BaseController {
                 return response;
             }
         };
+        WebAsyncTask asyncTask = new WebAsyncTask(callable);
         return asyncTask;
     }
 
