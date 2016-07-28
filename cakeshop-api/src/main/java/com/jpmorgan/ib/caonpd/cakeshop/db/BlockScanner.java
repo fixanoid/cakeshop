@@ -205,7 +205,7 @@ public class BlockScanner extends Thread {
             gethConfig.setProperty("contract.registry.addr", addr);
             gethConfig.save();
         } catch (IOException e) {
-            LOG.warn("Unable to update env.properties", e);
+            LOG.warn("Unable to update application.properties", e);
             throw new APIException("Unable to update env.properties", e);
         }
     }
