@@ -117,6 +117,7 @@ public class ContractServiceImpl implements ContractService {
             res = objectMapper.readValue(stdout.getString(), Map.class);
 
         } catch (IOException | InterruptedException e) {
+            LOG.error("REASON FOR CONTRATC FAILURE " + e.getMessage());
             throw new APIException("Failed to compile contract", e);
         }
 
