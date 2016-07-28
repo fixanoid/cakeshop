@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert.ThrowingRunnable;
@@ -22,6 +24,8 @@ import org.testng.collections.Lists;
 
 public class TransactionServiceTest extends BaseGethRpcTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionServiceTest.class);
+    
 	@Autowired
 	private ContractService contractService;
 
@@ -33,6 +37,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		String code = readTestFile("contracts/simplestorage.sol");
 
 		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
+        LOG.info("EXECUTING testGet ");
 		assertNotNull(result);
 		assertNotNull(result.getId());
 		assertTrue(!result.getId().isEmpty());
@@ -49,7 +54,9 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 	public void testGetBatch() throws IOException, InterruptedException {
 
 		String code = readTestFile("contracts/simplestorage.sol");
+        LOG.info("EXECUTING testGetBatch 1 ");
 		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
+        LOG.info("EXECUTING testGetBatch 2 ");
 		TransactionResult result2 = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 
     	List<Transaction> txns = transactionService.get(Lists.newArrayList(result.getId(), result2.getId()));
@@ -76,10 +83,12 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		String code = readTestFile("contracts/simplestorage.sol");
 	    ContractABI abi = ContractABI.fromJson(readTestFile("contracts/simplestorage.abi.txt"));
 
+        LOG.info("EXECUTING testGetPendingTx ");
 		TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
 		assertNotNull(result);
 		assertNotNull(result.getId());
 
+         LOG.info("EXECUTING testGetPendingTx 2");         
 		Transaction createTx = transactionService.waitForTx(result, 20, TimeUnit.MILLISECONDS);
 
 		// stop mining and submit tx
