@@ -2,9 +2,6 @@ package com.jpmorgan.ib.caonpd.cakeshop.bean;
 
 import static com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils.*;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils.*;
-import static org.apache.commons.io.FileUtils.*;
-
-import com.jpmorgan.ib.caonpd.cakeshop.config.AppConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
@@ -85,7 +82,7 @@ public class GethConfigBean {
      * @throws IOException
      */
     public void initFromVendorConfig() throws IOException {
-        AppConfig.initVendorConfig(new File(configFile));
+//        AppConfig.initVendorConfig(new File(configFile));
         initBean();
     }
 
@@ -93,7 +90,7 @@ public class GethConfigBean {
     private void initBean() throws IOException {
 
         // load props
-        configFile = FileUtils.expandPath(CONFIG_ROOT, "env.properties");
+        configFile = FileUtils.expandPath(CONFIG_ROOT, "application.properties");
         props = new Properties();
         props.load(new FileInputStream(configFile));
 

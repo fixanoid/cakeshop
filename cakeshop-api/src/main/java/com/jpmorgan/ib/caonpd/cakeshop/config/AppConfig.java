@@ -8,36 +8,35 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.client.RestTemplate;
-
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
 
 @Configuration
 @EnableAsync
-@Profile("container")
-public class AppConfig implements AsyncConfigurer {
+public class AppConfig implements AsyncConfigurer, EnvironmentAware {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
-    public static final String CONFIG_FILE = "env.properties";
+    public static final String CONFIG_FILE = "application.properties";
+    
+    private Environment env;
+    
+    @Override
+    public  void setEnvironment(Environment e) {
+        this.env = e;
+    }
 
 
     /**
@@ -50,15 +49,13 @@ public class AppConfig implements AsyncConfigurer {
      *
      * @return Environment name
      */
-    public static String getEnv() {
-        String env = getProp("ETH_ENV", "eth.environment");
-        if (StringUtils.isBlank(env)) {
+    public  String getEnv() {
+        //String env = getProp("ETH_ENV", "eth.environment");
+        if (null == env) {
             // FIXME only default to local based on a flag passed down from maven build?
-            LOG.warn("defaulting to 'local' env");
-            System.setProperty("eth.environment", "local");
-            return "local";
+            LOG.warn("spring.profiles.active is not set");
         }
-        return env;
+        return env.getActiveProfiles()[0];
     }
 
     /**
@@ -71,7 +68,7 @@ public class AppConfig implements AsyncConfigurer {
      *
      * @return
      */
-    public static String getConfigPath() {
+    public  String getConfigPath() {
         String configPath = getProp("ETH_CONFIG", "eth.config.dir");
         if (!StringUtils.isBlank(configPath)) {
             return FileUtils.expandPath(configPath, getEnv());
@@ -99,25 +96,25 @@ public class AppConfig implements AsyncConfigurer {
     }
 
     @Bean
-    @Profile("container")
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        return createPropConfigurer(getEnv(), getConfigPath());
+//    @Profile("container")
+    public  PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
+        return createPropConfigurer(env, getConfigPath());
     }
 
-    public static String getVendorConfigFile() {
-        return getEnv() + File.separator + CONFIG_FILE;
+    public  String getVendorConfigFile() {
+        return "config".concat(File.separator).concat("application-").concat(env.getActiveProfiles()[0]).concat(".properties");
     }
 
-    public static void initVendorConfig(File configFile) throws IOException {
+    public  void initVendorConfig(File configFile) throws IOException {
         LOG.info("Initializing new config from " + FileUtils.getClasspathPath(getVendorConfigFile()).toString());
         FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(getVendorConfigFile()), configFile);
     }
 
-    protected static PropertySourcesPlaceholderConfigurer createPropConfigurer(String env,
+    public  PropertySourcesPlaceholderConfigurer createPropConfigurer(Environment env,
             String configDir) throws IOException {
 
-        if (StringUtils.isBlank(env)) {
-            throw new IOException("ENV var 'eth.environment' not set; unable to load config");
+        if (null == env) {
+            throw new IOException("ENV var 'spring.profiles.active' not set; unable to load config");
         }
 
         LOG.info("eth.environment=" + env);
@@ -150,37 +147,17 @@ public class AppConfig implements AsyncConfigurer {
         PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
         propConfig.setLocation(new FileSystemResource(configFile));
         propConfig.setProperties(localProps);
+       
         return propConfig;
-    }
-
-    @Bean
-    public OkHttpClient okHttpClient() {
-        return new OkHttpClient.Builder()
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(120, TimeUnit.SECONDS)
-                .connectTimeout(1, TimeUnit.SECONDS)
-                .connectionPool(new ConnectionPool()) // TODO tune via env props?
-                .build();
-    }
-
-    @Bean
-    public ClientHttpRequestFactory httpRequestFactory(OkHttpClient okc) {
-        return new OkHttp3ClientHttpRequestFactory(okc);
-    }
-
-    @Bean
-    @Scope("prototype")
-    public RestTemplate createRestTemplate(ClientHttpRequestFactory httpRequestFactory) {
-        return new RestTemplate(httpRequestFactory);
     }
 
     @Bean(name="asyncExecutor")
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-        exec.setCorePoolSize(250);
+        exec.setCorePoolSize(10);
         exec.setMaxPoolSize(500);
-        exec.setQueueCapacity(10000);
+        exec.setQueueCapacity(2000);
         exec.setThreadNamePrefix("EE-SDK-");
         exec.afterPropertiesSet();
         return exec;
@@ -190,5 +167,6 @@ public class AppConfig implements AsyncConfigurer {
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new SimpleAsyncUncaughtExceptionHandler();
     }
+
 
 }

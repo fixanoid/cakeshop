@@ -6,11 +6,13 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -21,18 +23,14 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author I629630
  */
 @Configuration
-@Profile("container")
 @EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter {
+    
+    @Autowired
+    private Environment env;
 
     @Autowired
     private RequestMappingHandlerAdapter adapter;
-
-    @Value("${geth.apistore.url}")
-    private String appStoreUrl;
-
-    @Value("${geth.cors.enabled:true}")
-    private boolean corsEnabled;
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
@@ -58,10 +56,15 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Override
+    public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+        configurer.setTaskExecutor(createMvcAsyncExecutor());
+    }
+
+    @Override
     public void addCorsMappings(CorsRegistry registry) {
-        if (corsEnabled) {
+        if (Boolean.valueOf(env.getProperty("geth.cors.enabled:true"))) {
             registry.addMapping("/**")
-                    .allowedOrigins(appStoreUrl)
+                    .allowedOrigins(env.getProperty("geth.apistore.url"))
                     .allowedMethods("POST");
         }
     }
@@ -70,6 +73,22 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         // Enable DefaultServlet handler for static resources at /**
         configurer.enable();
+    }
+
+    /**
+     * Thread pool used by Spring WebMVC async 'Callable'
+     * https://spring.io/blog/2012/05/10/spring-mvc-3-2-preview-making-a-controller-method-asynchronous/
+     *
+     * @return
+     */
+    private AsyncTaskExecutor createMvcAsyncExecutor() {
+        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        exec.setCorePoolSize(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.threads.core")));
+        exec.setMaxPoolSize(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.threads.max")));
+        exec.setQueueCapacity(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.queue.max")));
+        exec.setThreadNamePrefix("WebMvc-");
+        exec.afterPropertiesSet();
+        return exec;
     }
 
 }

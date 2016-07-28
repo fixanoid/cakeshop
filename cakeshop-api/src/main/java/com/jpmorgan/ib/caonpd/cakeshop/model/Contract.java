@@ -66,6 +66,8 @@ public class Contract {
      */
     private Map<String, String> functionHashes;
 
+    private ContractABI contractAbi;
+
 
     public Contract() {
     }
@@ -73,11 +75,11 @@ public class Contract {
     public Contract(String address, String name, String abi, String code, CodeType codeType, String binary, Long createdDate) {
         this.address = address;
         this.name = name;
-        this.abi = abi;
         this.code = code;
         this.codeType = codeType;
         this.binary = binary;
         this.createdDate = createdDate;
+        setABI(abi);
     }
 
 
@@ -124,6 +126,7 @@ public class Contract {
 
     public void setABI(String abi) {
         this.abi = abi;
+        this.contractAbi = ContractABI.fromJson(this.abi);
     }
 
     public Long getCreatedDate() {
@@ -172,6 +175,13 @@ public class Contract {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    /**
+     * @return the contractAbi
+     */
+    public ContractABI getContractAbi() {
+        return contractAbi;
     }
 
 }

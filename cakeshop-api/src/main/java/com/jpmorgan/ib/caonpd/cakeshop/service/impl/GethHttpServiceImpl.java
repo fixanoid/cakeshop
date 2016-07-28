@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpEntity;
@@ -96,9 +97,17 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Qualifier("asyncExecutor")
     private TaskExecutor executor;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private final HttpHeaders jsonContentHeaders;
+
     public GethHttpServiceImpl() {
         this.running = false;
         this.startupErrors = new ArrayList<>();
+
+        this.jsonContentHeaders = new HttpHeaders();
+        this.jsonContentHeaders.setContentType(APPLICATION_JSON);
     }
 
     private String executeGethCallInternal(String json) throws APIException {
@@ -108,10 +117,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 LOG.debug("> " + json);
             }
 
-            RestTemplate restTemplate = applicationContext.getBean(RestTemplate.class);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(APPLICATION_JSON);
-            HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
+            HttpEntity<String> httpEntity = new HttpEntity<>(json, jsonContentHeaders);
             ResponseEntity<String> response = restTemplate.exchange(gethConfig.getRpcUrl(), POST, httpEntity, String.class);
 
             String res = response.getBody();
@@ -236,6 +242,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
+    @CacheEvict(value="contracts", allEntries=true)
     @Override
     public Boolean reset() {
 

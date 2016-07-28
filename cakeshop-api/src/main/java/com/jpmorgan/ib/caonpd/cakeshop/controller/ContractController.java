@@ -19,6 +19,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.WebAsyncTask;
 
 @RestController
 @RequestMapping(value = "/api/contract",
@@ -54,14 +56,14 @@ public class ContractController extends BaseController {
 
         if (contract != null) {
             res.setData(toAPIData(contract));
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("404");
         err.setTitle("Contract not found");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping("/compile")
@@ -76,14 +78,14 @@ public class ContractController extends BaseController {
 
         if (contracts != null) {
             res.setData(toAPIData(contracts));
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping("/create")
@@ -101,14 +103,14 @@ public class ContractController extends BaseController {
 
         if (tx != null) {
             res.setData(tx.toAPIData());
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("400");
         err.setTitle("Bad Request");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping("/list")
@@ -132,11 +134,11 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
         res.setData(result);
 
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     private TransactionRequest createTransactionRequest(String from, String address, String method, Object[] args, boolean isRead, Object blockNumber) throws APIException {
-        ContractABI abi = lookupABI(address);
+        ContractABI abi = contractService.get(address).getContractAbi();
         if (abi == null) {
             throw new APIException("Contract adddress " + address + " is not in the registry");
         }
@@ -178,21 +180,28 @@ public class ContractController extends BaseController {
     }
 
     @RequestMapping("/transact")
-    public ResponseEntity<APIResponse> transact(
-            @JsonBodyParam String from,
-            @JsonBodyParam String address,
-            @JsonBodyParam String method,
-            @JsonBodyParam Object[] args,
-            @JsonBodyParam List<String> geminiTo) throws APIException {
+    public WebAsyncTask<ResponseEntity<APIResponse>> transact(
+            @JsonBodyParam final String from,
+            @JsonBodyParam final String address,
+            @JsonBodyParam final String method,
+            @JsonBodyParam final Object[] args,
+            @JsonBodyParam final List<String> geminiTo) throws APIException {
 
-        TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
-        req.setGeminiTo(geminiTo);
+        Callable<ResponseEntity<APIResponse>> callable = new Callable<ResponseEntity<APIResponse>>() {
+            @Override
+            public ResponseEntity<APIResponse> call() throws Exception {
+                TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
+                req.setGeminiTo(geminiTo);
 
-        TransactionResult tr = contractService.transact(req);
-        APIResponse res = new APIResponse();
-        res.setData(tr.toAPIData());
-
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+                TransactionResult tr = contractService.transact(req);
+                APIResponse res = new APIResponse();
+                res.setData(tr.toAPIData());
+                ResponseEntity<APIResponse> response = new ResponseEntity<>(res, HttpStatus.OK);
+                return response;
+            }
+        };
+        WebAsyncTask asyncTask = new WebAsyncTask(callable);
+        return asyncTask;
     }
 
     @RequestMapping("/transactions/list")
@@ -209,7 +218,7 @@ public class ContractController extends BaseController {
         APIResponse res = new APIResponse();
         res.setData(data);
 
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 
@@ -224,15 +233,5 @@ public class ContractController extends BaseController {
         }
         return data;
     }
-
-    private ContractABI lookupABI(String id) throws APIException {
-        Contract contract = contractRegistry.getById(id);
-        if (contract == null) {
-            throw new APIException("Contract not in registry " + id);
-        }
-
-        return ContractABI.fromJson(contract.getABI());
-    }
-
 
 }

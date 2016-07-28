@@ -8,12 +8,12 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Input;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
-import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -116,7 +116,12 @@ public class ContractServiceTest extends BaseGethRpcTest {
             }
         });
 
-		assertNull(contractService.get("0x81635fe3d9cecbcf44aa58e967af1ab7ceefb816"));
+	    assertThrows(APIException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                contractService.get("0x81635fe3d9cecbcf44aa58e967af1ab7ceefb816");
+            }
+        });
 	}
 
 	@Test

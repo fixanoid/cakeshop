@@ -79,6 +79,11 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 
 	@Scheduled(fixedDelay = 1000)
 	public void pushTxnPerMin() {
+        
+        if (openedSessions <= 0) {
+	        return;
+	    }
+        
 	    template.convertAndSend(
 	            "/topic/metrics/txnPerMin",
 	            APIResponse.newSimpleResponse(metricsBlockListener.getTxnPerMin()));
@@ -86,6 +91,11 @@ public class WebSocketPushServiceImpl implements WebSocketPushService {
 
 	@Scheduled(fixedDelay = 1000)
 	public void pushBlockPerMin() {
+        
+        if (openedSessions <= 0) {
+	        return;
+	    }
+        
 	    template.convertAndSend(
 	            "/topic/metrics/blocksPerMin",
 	            APIResponse.newSimpleResponse(metricsBlockListener.getBlockPerMin()));

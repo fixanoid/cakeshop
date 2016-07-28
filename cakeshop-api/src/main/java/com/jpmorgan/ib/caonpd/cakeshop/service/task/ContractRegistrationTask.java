@@ -10,7 +10,9 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +33,10 @@ public class ContractRegistrationTask implements Runnable {
 
     private final TransactionResult transactionResult;
     private final Contract contract;
+
+    @Autowired
+    @Qualifier("cacheManager")
+    CacheManager cacheManager;
 
     public ContractRegistrationTask(Contract contract, TransactionResult transactionResult) {
         this.contract = contract;
@@ -61,8 +67,24 @@ public class ContractRegistrationTask implements Runnable {
         try {
             contract.setAddress(tx.getContractAddress());
             LOG.info("Registering newly mined contract at address " + contract.getAddress());
-            contractRegistry.register(contract.getOwner(), tx.getContractAddress(), contract.getName(), contract.getABI(),
+            TransactionResult regTx = contractRegistry.register(contract.getOwner(), tx.getContractAddress(), contract.getName(), contract.getABI(),
                     contract.getCode(), contract.getCodeType(), contract.getCreatedDate());
+
+            if (regTx == null) {
+                return;
+            }
+
+            // invalidate cache
+
+            try {
+                transactionService.waitForTx(regTx, pollDelayMillis, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                LOG.warn("Interrupted while waiting for registration tx to mine", e);
+                return;
+            }
+
+            cacheManager.getCache("contracts").evict(contract.getAddress());
+
         } catch (APIException e) {
             LOG.warn("Failed to register contract at address " + tx.getContractAddress(), e);
         }

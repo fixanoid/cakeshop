@@ -12,6 +12,9 @@ import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +22,11 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.ActiveProfiles;
+import org.testng.annotations.BeforeClass;
 
 @Configuration
 @ComponentScan(basePackages="com.jpmorgan.ib.caonpd.cakeshop",
@@ -32,24 +37,29 @@ import org.springframework.test.context.ActiveProfiles;
         )
     }
 )
-@ActiveProfiles("integration-test")
+@ActiveProfiles("test")
 @Order(1)
 @EnableAsync
-public class TestAppConfig extends AppConfig {
+public class TestAppConfig implements  EnvironmentAware{
 
     private static final Logger LOG = LoggerFactory.getLogger(TestAppConfig.class);
+    private Environment env;
 
-    static {
-        System.setProperty("eth.environment", "test");
+    
+    @BeforeClass
+    public static void setUp() {        
+        System.setProperty("spring.profiles.active", "test");
     }
 
     @Bean
-    @Profile("integration-test")
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        return createPropConfigurer(getEnv(), TempFileManager.getTempPath());
+    @Profile("test")
+    public  PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
+        AppConfig appConfig = new AppConfig();
+        appConfig.setEnvironment(env);
+        return appConfig.createPropConfigurer(env, TempFileManager.getTempPath());
     }
 
-    @Override
+    @Bean(name="asyncExecutor")
     public Executor getAsyncExecutor() {
         return new SyncTaskExecutor();
     }
@@ -59,4 +69,12 @@ public class TestAppConfig extends AppConfig {
         return new TestBlockScanner();
     }
 
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new SimpleAsyncUncaughtExceptionHandler();
+    }
+
+    @Override
+    public void setEnvironment(Environment e) {
+        this.env = e;
+    }
 }

@@ -79,7 +79,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
             gethConfig.setProperty("contract.registry.addr", addr);
             gethConfig.save();
         } catch (IOException e) {
-            LOG.warn("Unable to update env.properties", e);
+            LOG.warn("Unable to update application.properties", e);
             throw new APIException("Unable to update env.properties", e);
         }
     }
@@ -105,7 +105,6 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
     @Override
     public Contract getById(String id) throws APIException {
-
         Object[] res = contractService.read(
                 contractRegistryAddress, this.abi, null,
                 "getById",

@@ -84,7 +84,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public static Path getClasspathPath(String path) {
     	if (SystemUtils.IS_OS_WINDOWS) {
     		// flip slashes so it doesn't get escaped in the resulting URL
-    		// like \test%5cenv.properties
+    		// like \test%5capplication.properties
     		path = path.replace('\\', '/');
     	}
         URL url = AbiUtils.class.getClassLoader().getResource(path);

@@ -8,8 +8,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
-import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
+import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -26,7 +26,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
     private static final Logger LOG = LoggerFactory.getLogger(ContractRegistryServiceTest.class);
 
     @Autowired
-    private ContractRegistryService contractRegistry;
+    ContractRegistryService contractRegistry;
 
     @Autowired
     private ContractService contractService;
@@ -52,7 +52,7 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    assertEquals(contract.getCode(), code);
 	    assertEquals(contract.getCodeType(), CodeType.solidity);
 	    assertNotNull(contract.getCreatedDate());
-	    assertEquals(contract.getCreatedDate(), createdDate);
+	    assertTrue(contract.getCreatedDate() >= createdDate);
 	    assertEquals(contract.getName(), "SimpleStorage");
 
 	    BigInteger val = (BigInteger) contractService.read(addr, null, "get", null, null)[0];
@@ -64,7 +64,6 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    Contract contract = contractRegistry.getById("0x62061a15259c8dd9c49312ddc9335333c4212abe");
 	    assertNull(contract);
 	}
-
 
     private void registerContract(String addr, String abi, String code, Long createdDate)
             throws APIException, InterruptedException {
