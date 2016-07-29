@@ -34,12 +34,12 @@ public class BlockControllerTest extends BaseControllerTest {
     @Test
     public void testGetBlockByNumber() throws Exception {
         assertNotNull(mockMvc);
-        commonTest("{\"number\":0}", 0);
+        commonTest("{\"number\":0}", 0L);
     }
 
     @Test
     public void testGetBlockByHash() throws Exception {
-        commonTest("{\"hash\":\"0x4c5dc2805d90a33fa4e5358346d5335d4f6aeefd7e839952ef4e070e3a8412d2\"}", 0);
+        commonTest("{\"hash\":\"0x4c5dc2805d90a33fa4e5358346d5335d4f6aeefd7e839952ef4e070e3a8412d2\"}", 0L);
     }
 
     @Test
@@ -54,10 +54,10 @@ public class BlockControllerTest extends BaseControllerTest {
     @Test    
     public void testGetBlockByTag() throws Exception {
         Block block = blockService.get(null, null, "latest");
-        commonTest("{\"tag\":\"latest\"}", block.getNumber().intValue());
+        commonTest("{\"tag\":\"latest\"}", block.getNumber());
     }
 
-    private void commonTest(String postBody, int blockNum) throws Exception {
+    private void commonTest(String postBody, long blockNum) throws Exception {
         mockMvc.perform(post("/api/block/get")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(postBody))
             .andExpect(status().isOk())
