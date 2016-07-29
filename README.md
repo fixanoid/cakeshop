@@ -35,3 +35,12 @@ APIs for directly integrating applications with the chain.
 * Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/)
 
 That's it!
+
+MInimum requirements for tomcat (conf/server.xml)
+
+    <Connector port="8080" protocol="HTTP/1.1"
+               enableLookups="false" 
+               maxKeepAliveRequests="-1"
+               maxConnections="10000" 
+               redirectPort="8443" 
+               connectionTimeout="20000"/>
