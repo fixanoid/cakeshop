@@ -121,7 +121,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     private boolean _startGeth() throws IOException {
         gethConfig.setGenesisBlockFilename(FileUtils.getClasspathPath("genesis_block.json").toAbsolutePath().toString());
         gethConfig.setKeystorePath(FileUtils.getClasspathPath("keystore").toAbsolutePath().toString());
-        gethConfig.setExtraParams("--blocktime 100 --nokdf");
+        gethConfig.setExtraParams("--blocktime 1000 --nokdf");
         return geth.start();
     }
 
