@@ -46,9 +46,9 @@ public class BlockControllerTest extends BaseControllerTest {
             .andExpect(content().string(containsString("\"errors\":")));
     }
 
-    @Test
+    @Test    
     public void testGetBlockByTag() throws Exception {
-        commonTest("{\"tag\":\"latest\"}", 3);
+        commonTest("{\"tag\":\"latest\"}", 7);
     }
 
     private void commonTest(String postBody, int blockNum) throws Exception {
