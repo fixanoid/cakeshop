@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.controller.BlockController;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,6 +18,9 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Autowired
     BlockController blockController;
+    
+    @Autowired
+    BlockService blockService;
 
     public BlockControllerTest() {
         super();
@@ -48,7 +53,8 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Test    
     public void testGetBlockByTag() throws Exception {
-        commonTest("{\"tag\":\"latest\"}", 6);
+        Block block = blockService.get(null, null, "latest");
+        commonTest("{\"tag\":\"latest\"}", block.getNumber().intValue());
     }
 
     private void commonTest(String postBody, int blockNum) throws Exception {
