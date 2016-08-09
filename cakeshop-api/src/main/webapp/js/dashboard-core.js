@@ -129,13 +129,13 @@ var Dashboard = {
 		}
 
 		if (this.loaded[opts.widgetId]) {
+      var $shell = $('#widget-shell-' + this.loaded[opts.widgetId].shell.id);
 			// been loaded, execute?
-			if ($('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css('display') === 'none') {
+			if ($shell.css('display') === 'none') {
 				// Remove .panel-close
-				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id)
-					.children().removeClass('panel-close');
+				$shell.children().removeClass('panel-close');
 
-				$('#widget-shell-' + this.loaded[opts.widgetId].shell.id).css({
+				$shell.css({
 					'display': 'block'
 				});
 			}
