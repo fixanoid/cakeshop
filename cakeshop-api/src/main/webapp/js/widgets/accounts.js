@@ -21,7 +21,7 @@
 			Account.list().then(function(accounts) {
 				var rows = [];
 				accounts.forEach(function(acct) {
-					var b = parseInt(acct.get("balance"), 10) / 1000000000000000000;
+					var b = parseInt(acct.get('balance'), 10) / 1000000000000000000;
 
 					if (b > 1000000000) {
 						b = 'Unlimited';
@@ -41,11 +41,11 @@
 
 		postRender: function() {
 			var _this = this;
-			$("i.add-account").click(function(e) {
+			$('#widget-shell-' + _this.shell.id + ' i.add-account').click(function(e) {
 				$.when(
 					utils.load({ url: _this.url_create })
 				).done(function() {
-					$(e.target).parent().parent().find(".fa-rotate-right").click();
+					$(e.target).parent().parent().find('.fa-rotate-right').click();
 				});
 
 			});
