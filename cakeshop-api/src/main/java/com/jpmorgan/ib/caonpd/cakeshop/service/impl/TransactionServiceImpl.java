@@ -98,6 +98,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		// Decode tx input
+        LOG.info("BEFORE DECODING INPUT :");
 		if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
 
 		    // lookup contract
@@ -142,6 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
             LOG.info("TRANS INPUT :" + tx.getInput());
 		}
+        LOG.info("AFTER DECODING INPUT :");
 
 
 		if (txData.get("logs") != null) {
