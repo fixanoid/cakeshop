@@ -137,9 +137,10 @@ public class TransactionServiceImpl implements TransactionService {
                         LOG.warn("Failed to load gemini payload: " + e.getMessage());
                     }             
                 }
+                LOG.info("DECODING  INPUT FOR RAW TRANS :" + tx.getInput());
                 tx.decodeRawInput(tx.getInput());
             }
-
+            LOG.info("TRANS INPUT :" + tx.getInput());
 		}
 
 
