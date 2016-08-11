@@ -73,7 +73,9 @@ public class WebAppInit extends SpringBootServletInitializer {
         } catch (IOException e) {
             System.err.println("Failed to load servlet manifest: " + e.getMessage());
         }
+        container.addListener(new SessionListener());
         super.onStartup(container);
+        
     }
 
 }

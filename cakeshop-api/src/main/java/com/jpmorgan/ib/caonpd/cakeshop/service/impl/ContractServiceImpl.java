@@ -319,7 +319,7 @@ public class ContractServiceImpl implements ContractService {
 	            }
 	        }
 
-	        tx.decodeInput(abi);
+	        tx.decodeContractInput(abi);
 	    }
 
 	    return txns;

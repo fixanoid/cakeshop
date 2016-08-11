@@ -7,18 +7,22 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Input;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Status;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
+import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +40,14 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Autowired
 	private EventService eventService;
+    
+    @Autowired
+	private WalletService walletService;
 
 	@Autowired
 	private ApplicationContext applicationContext;
+    
+    private String defaultFromAddress;
 
 	@Override
 	public Transaction get(String id) throws APIException {
@@ -94,7 +103,11 @@ public class TransactionServiceImpl implements TransactionService {
 
 		    // lookup contract
 		    ContractService contractService = applicationContext.getBean(ContractService.class);
-            Contract contract = contractService.get(tx.getTo());
+            Contract contract = null;
+            try {
+               contract = contractService.get(tx.getTo());
+            } catch (APIException e) {}
+            
             if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
                 ContractABI abi = ContractABI.fromJson(contract.getABI());
 
@@ -111,8 +124,21 @@ public class TransactionServiceImpl implements TransactionService {
                     }
                 }
 
-                tx.decodeInput(abi);
+                tx.decodeContractInput(abi);
                 tx.setInput(origInput); // restore original input after [gemini] decode
+            } else {
+                if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
+                    // handle gemini payloads
+                    try {
+                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+                        if (res.get("_result") != null) {
+                            tx.setInput((String) res.get("_result"));
+                        }
+                    } catch (APIException e) {
+                        LOG.warn("Failed to load gemini payload: " + e.getMessage());
+                    }             
+                }
+                tx.decodeRawInput(tx.getInput());
             }
 
 		}
@@ -195,6 +221,19 @@ public class TransactionServiceImpl implements TransactionService {
 	        pollDelayUnit.sleep(pollDelay);
 	    }
 	    return tx;
+	}
+    
+    @Override
+	public TransactionResult rawTransact(TransactionRawRequest request) throws APIException {
+        if (defaultFromAddress == null) {
+            defaultFromAddress = walletService.list().get(0).getAddress();
+        }
+	    request.setFromAddress(
+                StringUtils.isNotBlank(request.getFromAddress()) ?
+                        request.getFromAddress() : 
+                        defaultFromAddress); // make sure we have a non-null from address
+	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
+	    return new TransactionResult((String) readRes.get("_result"));
 	}
 
 }

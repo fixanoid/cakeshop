@@ -2,6 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 
 import java.util.List;
@@ -49,10 +50,20 @@ public interface TransactionService {
 	 * Wait for the given Transaction to be mined (blocks until completed)
 	 *
 	 * @param result
+     * @param pollDelay
+     * @param pollDelayUnit
 	 * @return {@link Transaction}
 	 * @throws APIException
 	 * @throws InterruptedException
 	 */
     public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit) throws APIException, InterruptedException;
+    
+    
+    /**
+	 * @param request
+	 * @return {@link TransactionResult}
+     * @throws com.jpmorgan.ib.caonpd.cakeshop.error.APIException
+	 */
+    public TransactionResult rawTransact(TransactionRawRequest request) throws APIException;
 
 }

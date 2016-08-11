@@ -1,8 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
+import java.io.IOException;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -17,6 +21,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bouncycastle.util.encoders.Hex;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name="TRANSACTIONS", schema="PUBLIC")
@@ -232,7 +237,7 @@ public class Transaction {
         return data;
     }
 
-    public void decodeInput(ContractABI abi) {
+    public void decodeContractInput(ContractABI abi) {
         if (getContractAddress() != null || getTo() == null
                 || getInput() == null || getInput().isEmpty()) {
 
@@ -252,6 +257,18 @@ public class Transaction {
         if (func != null) {
             decodedInput = new Input(func.name, func.decodeHex(input).toArray());
         }
+    }
+    
+    public void decodeRawInput(String method) {
+        final String rawInput = getInput();
+        ObjectMapper mapper = new ObjectMapper();
+        Object [] data;
+        try {
+            data = mapper.readValue(new String(Hex.decode(rawInput.replaceFirst("0x", ""))), Object [].class );
+            decodedInput = new Input(method, data); 
+        } catch (IOException ex) {
+            Logger.getLogger(Transaction.class.getName()).log(Level.SEVERE, null, ex);
+        }              
     }
 
     public Input getDecodedInput() {
