@@ -98,7 +98,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		// Decode tx input
-        LOG.info("BEFORE DECODING INPUT :");
+        LOG.info("BEFORE DECODING INPUT :" + tx.getContractAddress() + " " + tx.getStatus());
 		if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
 
 		    // lookup contract
