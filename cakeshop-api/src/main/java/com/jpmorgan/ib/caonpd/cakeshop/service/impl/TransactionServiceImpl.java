@@ -7,7 +7,6 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Input;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
@@ -126,7 +125,7 @@ public class TransactionServiceImpl implements TransactionService {
 
                 tx.decodeContractInput(abi);
                 tx.setInput(origInput); // restore original input after [gemini] decode
-            } else {
+            } else if (contract == null){
                 if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
                     // handle gemini payloads
                     try {
