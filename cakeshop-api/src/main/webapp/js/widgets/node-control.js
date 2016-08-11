@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'node-control',
 		title: 'Node Control',
@@ -44,4 +44,4 @@
 
 	// register presence
 	Dashboard.addWidget(widget);
-})();
+};

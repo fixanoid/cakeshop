@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'block-list',
 		title: 'Block List',
@@ -103,4 +103,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

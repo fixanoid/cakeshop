@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'contract-list',
 		title: 'Deployed Contract List',
@@ -50,4 +50,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

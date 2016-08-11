@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'contract-detail',
 		title: 'Contract Detail',
@@ -66,4 +66,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

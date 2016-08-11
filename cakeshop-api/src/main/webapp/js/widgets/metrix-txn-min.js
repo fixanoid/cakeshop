@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'metrix-txn-min',
 		title: 'Transactions/min',
@@ -47,4 +47,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

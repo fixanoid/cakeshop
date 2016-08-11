@@ -1,4 +1,4 @@
-Dashboard.TEMPLATES = {
+window.Dashboard.TEMPLATES = {
 	_widget: function(opts) {
 		return '<div class="widget-shell col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + ' ' + opts.name + '" id="widget-shell-' + opts.id + '">\n'+
 				'	<div class="panel panel-default">\n'+

@@ -15,7 +15,7 @@
  *			11. widget.subscribe is called by widget.init
  */
 
-var widgetRoot = {
+window.widgetRoot = {
 	hideLink: false,
 	hideRefresh: false,
 

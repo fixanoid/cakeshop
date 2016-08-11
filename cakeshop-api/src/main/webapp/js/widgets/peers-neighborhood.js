@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'peers-neighborhood',
 		title: 'Peer Neighborhood',
@@ -133,4 +133,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

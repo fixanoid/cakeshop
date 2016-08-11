@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'contract-paper-tape',
 		title: 'Contract Paper Tape',
@@ -84,4 +84,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

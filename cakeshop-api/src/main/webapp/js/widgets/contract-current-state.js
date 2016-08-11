@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'contract-current-state',
 		title: 'Contract State',
@@ -46,4 +46,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

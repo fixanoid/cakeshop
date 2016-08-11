@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'block-view',
 		title: 'Find Block / Transaction',
@@ -61,4 +61,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'doc-frame',
 		title: 'API Documentation',
@@ -32,4 +32,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'node-settings',
 		title: 'Node Settings',
@@ -112,4 +112,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

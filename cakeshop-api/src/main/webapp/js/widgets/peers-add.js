@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'peers-add',
 		title: 'Add Peer',
@@ -68,4 +68,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};

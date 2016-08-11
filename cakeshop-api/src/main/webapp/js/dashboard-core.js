@@ -1,4 +1,29 @@
-var Dashboard = {
+// import this first because it sets a global all the rest need
+import './widgets/widget-root';
+
+const Scripts = {
+  'accounts'               : require('./widgets/accounts'),
+  'block-detail'           : require('./widgets/block-detail'),
+  'block-list'             : require('./widgets/block-list'),
+  'block-view'             : require('./widgets/block-view'),
+  'contract-current-state' : require('./widgets/contract-current-state'),
+  'contract-detail'        : require('./widgets/contract-detail'),
+  'contract-list'          : require('./widgets/contract-list'),
+  'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
+  'doc-frame'              : require('./widgets/doc-frame'),
+  'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
+  'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
+  'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
+  'node-control'           : require('./widgets/node-control'),
+  'node-info'              : require('./widgets/node-info'),
+  'node-settings'          : require('./widgets/node-settings'),
+  'peers-add'              : require('./widgets/peers-add'),
+  'peers-list'             : require('./widgets/peers-list'),
+  'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
+  'txn-detail'             : require('./widgets/txn-detail'),
+};
+
+window.Dashboard = {
 	// section to widget mapping
 	sectionMap: {},
 
@@ -17,19 +42,19 @@ var Dashboard = {
 
 	// debounced refreshing of the packery layout
 	refresh: _.debounce(function() {
-		Dashboard.grid.packery('layout');
+    Dashboard.grid.packery('layout');
 	}, 0),
 
 	// DOM anchor for the widget field and packery grid
 	setGrounds: function(el) {
 		Dashboard.grounds = el;
-		Dashboard.grid = el.packery({
+    Dashboard.grid = el.packery({
 			columnWidth: '.widget-sizer',
 			//rowHeight: '.widget-sizer',
 			percentPosition: true,
 			itemSelector: '.widget-shell',
-			gutter: 0
-		});
+      gutter: 0,
+    });
 	},
 
 	// Optional module to enforce placement order
@@ -172,14 +197,7 @@ var Dashboard = {
 			// drop placement stub
 			Dashboard.render.stub(opts.widgetId);
 
-			// load widget and then run its payload
-			$.getScript('js/widgets/' + opts.widgetId + '.js').fail(
-				function(jqxhr, settings, e) {
-					Dashboard.sectionMap[opts.section] = _.without(Dashboard.sectionMap[opts.section], opts.widgetId);
-					Dashboard.queued = _.without(Dashboard.queued, opts.widgetId);
-
-					Dashboard.Utils.debug(opts.widgetId + ' loading failed with: ' + e);
-				});
+      Scripts[opts.widgetId]();
 		}
 	},
 

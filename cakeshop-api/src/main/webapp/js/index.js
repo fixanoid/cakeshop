@@ -1,5 +1,8 @@
+import './dashboard-core';
+import './dashboard-util';
+import './dashboard-template';
 
-var Tower = {
+window.Tower = {
 	ready: false,
 	current: null,
 	status: {},

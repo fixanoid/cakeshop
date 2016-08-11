@@ -1,4 +1,4 @@
-(function() {
+module.exports = function() {
 	var extended = {
 		name: 'txn-detail',
 		size: 'medium',
@@ -97,4 +97,4 @@
 
 	// register presence with screen manager
 	Dashboard.addWidget(widget);
-})();
+};
