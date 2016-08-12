@@ -108,10 +108,11 @@ public class TransactionServiceImpl implements TransactionService {
                contract = contractService.get(tx.getTo());
             } catch (APIException e) {}
             
+            LOG.info("CONTRACT :" + contract);
+            LOG.info("CONTRACT ABI :" + (contract != null ? contract.getABI() : null));
+            String origInput = tx.getInput();
             if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
                 ContractABI abi = ContractABI.fromJson(contract.getABI());
-
-                String origInput = tx.getInput();
                 if (origInput != null && origInput.startsWith("0xfa")) {
                     // handle gemini payloads
                     try {
@@ -140,6 +141,7 @@ public class TransactionServiceImpl implements TransactionService {
                 }
                 LOG.info("DECODING  INPUT FOR RAW TRANS :" + tx.getInput());
                 tx.decodeRawInput(tx.getInput());
+                tx.setInput(origInput); // restore original input after [gemini] decode
             }
             LOG.info("TRANS INPUT :" + tx.getInput());
 		}
