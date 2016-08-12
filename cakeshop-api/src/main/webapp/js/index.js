@@ -1,20 +1,13 @@
-import 'jquery'
-import 'jquery-slimscroll';
-import 'underscore';
 import 'bootstrap';
-import 'backbone';
 import 'bluebird';
 import 'moment';
-import 'sockjs-client';
 import 'd3';
-import 'epoch-charting';
 import 'bootstrap-tour';
 import 'jquery-ui';
-import 'packery';
 
 import './vendor/stomp.min';
 import './vendor/cakeshop';
-import './utils';
+import utils from './utils';
 import './tour';
 
 import './dashboard-core';

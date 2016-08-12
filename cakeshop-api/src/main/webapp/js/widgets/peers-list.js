@@ -1,3 +1,5 @@
+import utils from '../utils';
+
 module.exports = function() {
 	var extended = {
 		name: 'peers-list',

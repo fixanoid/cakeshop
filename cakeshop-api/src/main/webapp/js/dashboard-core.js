@@ -1,3 +1,10 @@
+import Packery from 'packery';
+import Draggabilly from 'draggabilly';
+
+// side effecting
+import 'epoch-charting';
+
+
 // import this first because it sets a global all the rest need
 import './widgets/widget-root';
 
@@ -42,13 +49,13 @@ window.Dashboard = {
 
 	// debounced refreshing of the packery layout
 	refresh: _.debounce(function() {
-    Dashboard.grid.packery('layout');
+    Dashboard.grid.layout();
 	}, 0),
 
 	// DOM anchor for the widget field and packery grid
 	setGrounds: function(el) {
 		Dashboard.grounds = el;
-    Dashboard.grid = el.packery({
+    Dashboard.grid = new Packery(el[0], {
 			columnWidth: '.widget-sizer',
 			//rowHeight: '.widget-sizer',
 			percentPosition: true,
@@ -102,28 +109,13 @@ window.Dashboard = {
 		this.queued = _.without(this.queued, widget.name);
 		delete this.initData[widget.name];
 
-		// packery registration, and draggable + resizable init
-		this.grid.packery('appended', $('#widget-shell-' + widget.shell.id)[0] );
+    const shell = document.getElementById('widget-shell-' + widget.shell.id);
 
-		$('#widget-shell-' + widget.shell.id)
-			.draggable({ handle: '.panel-heading' })
-			.resizable({
-				minHeight: $('.widget-sizer').height(),
-				minWidth: 200,
+		// packery registration, and draggable init
+		this.grid.appended(shell);
 
-				grid: [ 5, 5 ],
-				resize: function( event, ui ) {
-					$('#widget-' + widget.shell.id).css({
-						height: ui.size.height - 76,
-						width: ui.size.width - 35
-					});
-
-					Dashboard.refresh();
-				}
-			});
-
-		this.grid.packery( 'bindUIDraggableEvents', $('#widget-shell-' + widget.shell.id) );
-
+    const draggie = new Draggabilly(shell, {handle: '.panel-heading'});
+		this.grid.bindDraggabillyEvents(draggie)
 
 		this.refresh();
 	},

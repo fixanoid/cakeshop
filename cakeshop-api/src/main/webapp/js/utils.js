@@ -1,4 +1,4 @@
-var utils = {
+export default {
 	load: function(opts) {
 		var config = {
 			headers: {
