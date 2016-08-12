@@ -34,89 +34,89 @@ public class TransactionServiceImpl implements TransactionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
-	@Autowired
-	private GethHttpService geth;
-
-	@Autowired
-	private EventService eventService;
-    
     @Autowired
-	private WalletService walletService;
+    private GethHttpService geth;
 
-	@Autowired
-	private ApplicationContext applicationContext;
-    
+    @Autowired
+    private EventService eventService;
+
+    @Autowired
+    private WalletService walletService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
     private String defaultFromAddress;
 
-	@Override
-	public Transaction get(String id) throws APIException {
+    @Override
+    public Transaction get(String id) throws APIException {
 
-	    List<RequestModel> reqs = new ArrayList<>();
-	    reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{ id }, 1L));
-	    reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{ id }, 2L));
-	    List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
+        List<RequestModel> reqs = new ArrayList<>();
+        reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{id}, 1L));
+        reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{id}, 2L));
+        List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
 
-		if (batchRes.isEmpty() || batchRes.get(0) == null) {
-		    return null;
-		}
+        if (batchRes.isEmpty() || batchRes.get(0) == null) {
+            return null;
+        }
 
-		Map<String, Object> txData = batchRes.get(0);
-		if (batchRes.get(1) != null) {
-		    txData.putAll(batchRes.get(1));
-		}
+        Map<String, Object> txData = batchRes.get(0);
+        if (batchRes.get(1) != null) {
+            txData.putAll(batchRes.get(1));
+        }
 
-		Transaction tx = processTx(txData);
+        Transaction tx = processTx(txData);
 
-		return tx;
-	}
+        return tx;
+    }
 
     private Transaction processTx(Map<String, Object> txData) throws APIException {
         Transaction tx = new Transaction();
 
-		tx.setId((String) txData.get("hash"));
-		tx.setBlockId((String) txData.get("blockHash"));
-		tx.setContractAddress((String) txData.get("contractAddress"));
-		tx.setNonce((String) txData.get("nonce"));
-		tx.setInput((String) txData.get("input"));
-		tx.setFrom((String) txData.get("from"));
-		tx.setTo((String) txData.get("to"));
-		tx.setGasPrice(toLong("gasPrice", txData));
+        tx.setId((String) txData.get("hash"));
+        tx.setBlockId((String) txData.get("blockHash"));
+        tx.setContractAddress((String) txData.get("contractAddress"));
+        tx.setNonce((String) txData.get("nonce"));
+        tx.setInput((String) txData.get("input"));
+        tx.setFrom((String) txData.get("from"));
+        tx.setTo((String) txData.get("to"));
+        tx.setGasPrice(toLong("gasPrice", txData));
 
-		tx.setTransactionIndex(toLong("transactionIndex", txData));
-		tx.setBlockNumber(toLong("blockNumber", txData));
-		tx.setValue(toLong("value", txData));
-		tx.setGas(toLong("gas", txData));
-		tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
-		tx.setGasUsed(toLong("gasUsed", txData));
+        tx.setTransactionIndex(toLong("transactionIndex", txData));
+        tx.setBlockNumber(toLong("blockNumber", txData));
+        tx.setValue(toLong("value", txData));
+        tx.setGas(toLong("gas", txData));
+        tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
+        tx.setGasUsed(toLong("gasUsed", txData));
 
-		if (tx.getBlockId() == null || tx.getBlockNumber() == null
-		        || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
+        if (tx.getBlockId() == null || tx.getBlockNumber() == null
+                || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
 
-			tx.setStatus(Status.pending);
-		} else {
-			tx.setStatus(Status.committed);
-		}
+            tx.setStatus(Status.pending);
+        } else {
+            tx.setStatus(Status.committed);
+        }
 
-		// Decode tx input
-        LOG.info("BEFORE DECODING INPUT :" + tx.getContractAddress() + " " + tx.getStatus());
-		if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
+        // Decode tx input
+        //LOG.info("BEFORE DECODING INPUT :" + tx.getContractAddress() + " " + tx.getStatus());
+        //Output BEFORE DECODING INPUT :0x7fc70bb7a045c29361c6a0eca1105edec1a6fb70 committed on dev
 
-		    // lookup contract
-		    ContractService contractService = applicationContext.getBean(ContractService.class);
+        if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
+
+            // lookup contract
+            ContractService contractService = applicationContext.getBean(ContractService.class);
             Contract contract = null;
             try {
-               contract = contractService.get(tx.getTo());
-            } catch (APIException e) {}
-            
-            LOG.info("CONTRACT :" + contract);
-            LOG.info("CONTRACT ABI :" + (contract != null ? contract.getABI() : null));
+                contract = contractService.get(tx.getTo());
+            } catch (APIException e) {
+            }
             String origInput = tx.getInput();
             if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
                 ContractABI abi = ContractABI.fromJson(contract.getABI());
                 if (origInput != null && origInput.startsWith("0xfa")) {
                     // handle gemini payloads
                     try {
-                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
                         if (res.get("_result") != null) {
                             tx.setInput((String) res.get("_result"));
                         }
@@ -127,117 +127,129 @@ public class TransactionServiceImpl implements TransactionService {
 
                 tx.decodeContractInput(abi);
                 tx.setInput(origInput); // restore original input after [gemini] decode
-            } else if (contract == null){
+            } else if (contract == null) {
                 if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
                     // handle gemini payloads
                     try {
-                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
                         if (res.get("_result") != null) {
                             tx.setInput((String) res.get("_result"));
                         }
                     } catch (APIException e) {
                         LOG.warn("Failed to load gemini payload: " + e.getMessage());
-                    }             
+                    }
                 }
-                LOG.info("DECODING  INPUT FOR RAW TRANS :" + tx.getInput());
                 tx.decodeRawInput(tx.getInput());
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }
-            LOG.info("TRANS INPUT :" + tx.getInput());
-		}
-        LOG.info("AFTER DECODING INPUT :");
+            //TODO : this is a little hack for dev. Investigate why txData has contract adress on dev    
+        } else if (StringUtils.isNotBlank(tx.getContractAddress()) && tx.getStatus() == Status.committed) {
+            String origInput = tx.getInput();
+            if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
+                // handle gemini payloads
+                try {
+                    Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
+                    if (res.get("_result") != null) {
+                        tx.setInput((String) res.get("_result"));
+                    }
+                } catch (APIException e) {
+                    LOG.warn("Failed to load gemini payload: " + e.getMessage());
+                }
+            }
+            LOG.info("DECODING  INPUT FOR RAW TRANS :" + tx.getInput());
+            tx.decodeRawInput(tx.getInput());
+            tx.setInput(origInput); // restore original input after [gemini] decode
+        }
 
-
-		if (txData.get("logs") != null) {
-		    List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
-		    if (!logs.isEmpty()) {
-		        tx.setLogs(eventService.processEvents(logs));
-		    }
-		}
-
+        if (txData.get("logs") != null) {
+            List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
+            if (!logs.isEmpty()) {
+                tx.setLogs(eventService.processEvents(logs));
+            }
+        }
 
         return tx;
     }
 
-	@Override
-	public List<Transaction> get(List<String> ids) throws APIException {
+    @Override
+    public List<Transaction> get(List<String> ids) throws APIException {
 
-	    List<RequestModel> reqs = new ArrayList<>();
-	    for (String id : ids) {
-            reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{ id }, 1L));
-            reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{ id }, 2L));
+        List<RequestModel> reqs = new ArrayList<>();
+        for (String id : ids) {
+            reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{id}, 1L));
+            reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{id}, 2L));
         }
-	    List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
+        List<Map<String, Object>> batchRes = geth.batchExecuteGethCall(reqs);
 
-	    // merge pairs of requests for all txns into single map
-	    Map<String, Map<String, Object>> txnResponses = new HashMap<>();
-	    for (Map<String, Object> res : batchRes) {
-	        if (res != null) {
-	            String hash = null;
-	            if (res.get("hash") != null) {
-	                hash = (String) res.get("hash");
-	            } else if (res.get("transactionHash") != null) {
-	                hash = (String) res.get("transactionHash");
-	            }
-	            if (hash != null) {
+        // merge pairs of requests for all txns into single map
+        Map<String, Map<String, Object>> txnResponses = new HashMap<>();
+        for (Map<String, Object> res : batchRes) {
+            if (res != null) {
+                String hash = null;
+                if (res.get("hash") != null) {
+                    hash = (String) res.get("hash");
+                } else if (res.get("transactionHash") != null) {
+                    hash = (String) res.get("transactionHash");
+                }
+                if (hash != null) {
                     Map<String, Object> map = txnResponses.get(hash);
                     if (map != null) {
                         map.putAll(res); // add to existing map
                     } else {
                         txnResponses.put(hash, res); // insert new map
                     }
-	            }
-	        }
+                }
+            }
         }
 
-	    // collect txns in the order they were requested
-	    List<Transaction> txns = new ArrayList<>();
-	    for (String id : ids) {
-	        Map<String, Object> txData = txnResponses.get(id);
-	        txns.add(processTx(txData));
+        // collect txns in the order they were requested
+        List<Transaction> txns = new ArrayList<>();
+        for (String id : ids) {
+            Map<String, Object> txData = txnResponses.get(id);
+            txns.add(processTx(txData));
         }
 
-	    return txns;
-	}
+        return txns;
+    }
 
-	@Override
-	public List<Transaction> list(String blockHash, Integer blockNumber) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Transaction> pending() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit)
-	        throws APIException, InterruptedException {
-
-	    Transaction tx = null;
-	    while (true) {
-	        tx = this.get(result.getId());
-	        if (tx.getStatus() == Status.committed) {
-	            break;
-	        }
-	        pollDelayUnit.sleep(pollDelay);
-	    }
-	    return tx;
-	}
-    
     @Override
-	public TransactionResult rawTransact(TransactionRawRequest request) throws APIException {
+    public List<Transaction> list(String blockHash, Integer blockNumber) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Transaction> pending() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit)
+            throws APIException, InterruptedException {
+
+        Transaction tx = null;
+        while (true) {
+            tx = this.get(result.getId());
+            if (tx.getStatus() == Status.committed) {
+                break;
+            }
+            pollDelayUnit.sleep(pollDelay);
+        }
+        return tx;
+    }
+
+    @Override
+    public TransactionResult rawTransact(TransactionRawRequest request) throws APIException {
         if (defaultFromAddress == null) {
             defaultFromAddress = walletService.list().get(0).getAddress();
         }
-	    request.setFromAddress(
-                StringUtils.isNotBlank(request.getFromAddress()) ?
-                        request.getFromAddress() : 
-                        defaultFromAddress); // make sure we have a non-null from address
-	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
-	    return new TransactionResult((String) readRes.get("_result"));
-	}
+        request.setFromAddress(
+                StringUtils.isNotBlank(request.getFromAddress())
+                        ? request.getFromAddress()
+                        : defaultFromAddress); // make sure we have a non-null from address
+        Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
+        return new TransactionResult((String) readRes.get("_result"));
+    }
 
 }
