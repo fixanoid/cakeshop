@@ -16,6 +16,7 @@ module.exports = {
       Backbone: "backbone",
       _: "underscore",
       SockJS: "sockjs-client",
+      moment: "moment",
     }),
   ],
   module: {

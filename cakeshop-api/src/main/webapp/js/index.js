@@ -1,9 +1,9 @@
 import 'bootstrap';
 import 'bluebird';
-import 'moment';
 import 'd3';
 import 'bootstrap-tour';
 import 'jquery-ui';
+import moment from 'moment';
 
 import './vendor/stomp.min';
 import './vendor/cakeshop';
@@ -13,6 +13,10 @@ import './tour';
 import './dashboard-core';
 import './dashboard-util';
 import './dashboard-template';
+
+// HACK(joel): workaround since some templates require utils and moment globals
+window.utils = utils;
+window.moment = moment;
 
 window.Tower = {
 	ready: false,
