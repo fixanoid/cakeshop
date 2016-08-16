@@ -110,6 +110,10 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
 		</dependency>
+        <dependency>
+          <groupId>org.springframework.data</groupId>
+          <artifactId>spring-data-jpa</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
@@ -199,6 +203,20 @@
 			<artifactId>bcprov-jdk15on</artifactId>
 			<version>1.52</version>
 		</dependency>
+        <!--CASSASNDRA -->
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>            
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-cassandra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.0.9.Final</version>
+        </dependency>
 
 		<!-- MISC -->
 		<!-- JNA is required for Windows platform PID handling -->
@@ -267,7 +285,8 @@
 		</dependency>
 
 		<!-- must be last (not sure why) -->
-		<dependency>
+	 
+	 <dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>6.0</version>

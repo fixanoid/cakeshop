@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import okhttp3.OkHttpClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private RequestMappingHandlerAdapter adapter;
+    
+    @Autowired
+    private OkHttpClient okHttpClient;
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
@@ -74,6 +79,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         // Enable DefaultServlet handler for static resources at /**
         configurer.enable();
     }
+    
+    @PreDestroy
+    public void shutdown() {
+        okHttpClient.connectionPool().evictAll();
+    }
+
 
     /**
      * Thread pool used by Spring WebMVC async 'Callable'
