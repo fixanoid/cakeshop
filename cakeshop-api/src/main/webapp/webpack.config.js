@@ -23,7 +23,10 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        exclude: /(node_modules)/,
+        include: [
+          path.resolve(__dirname, "js"),
+          path.resolve(__dirname, "node_modules/dashboard-framework"),
+        ],
         loader: 'babel',
         query: {
           presets: ['es2015']

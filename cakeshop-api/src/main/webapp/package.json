@@ -4,7 +4,8 @@
   "description": "",
   "main": "js/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack --config webpack.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +21,7 @@
     "bootstrap": "^3.3.7",
     "bootstrap-tour": "^0.11.0",
     "d3": "^4.2.1",
+    "dashboard-framework": "github:noirqs/dashboard-framework",
     "draggabilly": "^2.1.1",
     "epoch-charting": "^0.8.4",
     "jquery": "^2.1.3",
