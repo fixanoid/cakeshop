@@ -10,9 +10,13 @@ import './vendor/cakeshop';
 import utils from './utils';
 import './tour';
 
-import './dashboard-core';
-import './dashboard-util';
-import './dashboard-template';
+import 'dashboard-framework/dashboard-core';
+import 'dashboard-framework/dashboard-util';
+import 'dashboard-framework/dashboard-template';
+
+// import this first because it sets a global all the rest of the widgets need
+import './widgets/widget-root';
+
 
 // HACK(joel): workaround since some templates require utils and moment globals
 window.utils = utils;
@@ -35,6 +39,28 @@ window.Tower = {
 
 
 	init: function() {
+    Dashboard.registerWidgets({
+      'accounts'               : require('./widgets/accounts'),
+      'block-detail'           : require('./widgets/block-detail'),
+      'block-list'             : require('./widgets/block-list'),
+      'block-view'             : require('./widgets/block-view'),
+      'contract-current-state' : require('./widgets/contract-current-state'),
+      'contract-detail'        : require('./widgets/contract-detail'),
+      'contract-list'          : require('./widgets/contract-list'),
+      'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
+      'doc-frame'              : require('./widgets/doc-frame'),
+      'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
+      'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
+      'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
+      'node-control'           : require('./widgets/node-control'),
+      'node-info'              : require('./widgets/node-info'),
+      'node-settings'          : require('./widgets/node-settings'),
+      'peers-add'              : require('./widgets/peers-add'),
+      'peers-list'             : require('./widgets/peers-list'),
+      'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
+      'txn-detail'             : require('./widgets/txn-detail'),
+    });
+
 		Dashboard.setGrounds($('#grounds'));
 
 		// Adding event for hash changes
@@ -58,7 +84,8 @@ window.Tower = {
 		// http://localhost:8080/cakeshop/index.html#section=explorer&widgetId=txn-detail&data=0xd6398cb5cb5bac9d191de62665c1e7e4ef8cd9fe1e9ff94eec181a7b4046345c
 		// http://localhost:8080/cakeshop/index.html#section=explorer&widgetId=block-detail&data=2
 		if (window.location.hash) {
-			var params = {}, hash = window.location.hash.substring(1, window.location.hash.length);
+			const params = {};
+      const hash = window.location.hash.substring(1, window.location.hash.length);
 
 			_.each(hash.split('&'), function(pair) {
 				pair = pair.split('=');
@@ -67,7 +94,7 @@ window.Tower = {
 
 			var werk = function() {
 				if (params.section) {
-					$('.tower-sidebar #' + params.section).click();
+					$('#' + params.section).click();
 				}
 
 				if (params.data) {
@@ -77,7 +104,11 @@ window.Tower = {
 				}
 
 				if (params.widgetId) {
-					Dashboard.show({ widgetId: params.widgetId, section: params.section ? params.section : Tower.current, data: params.data, refetch: true });
+					Dashboard.show({
+            widgetId: params.widgetId,
+            section: params.section ? params.section : Tower.current,
+            data: params.data, refetch: true,
+          });
 				}
 			};
 
