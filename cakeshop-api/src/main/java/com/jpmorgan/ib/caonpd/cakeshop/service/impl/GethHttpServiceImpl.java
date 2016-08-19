@@ -9,16 +9,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
+
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.ErrorLog;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+//import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.task.BlockchainInitializerTask;
 import com.jpmorgan.ib.caonpd.cakeshop.service.task.LoadPeersTask;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
@@ -70,14 +76,24 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Autowired
     private GethConfigBean gethConfig;
 
-    @Autowired
-    private BlockDAO blockDAO;
+//    @Autowired
+//    private BlockDAO blockDAO;
 
+//    @Autowired
+//    private TransactionDAO txDAO;
+    
+//    @Autowired
+//    private WalletDAO walletDAO;
+    
+    //cassandra repos
     @Autowired
-    private TransactionDAO txDAO;
-
+    private TransactionRepository txnRepository;
+    
     @Autowired
-    private WalletDAO walletDAO;
+    private BlockRepository blockRepository;
+    
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -261,9 +277,13 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
 
         // delete db
-        blockDAO.reset();
-        txDAO.reset();
-        walletDAO.reset();
+//        blockDAO.reset();
+//        txDAO.reset();
+//        walletDAO.reset();
+        //delete cassandra db
+        blockRepository.reset();
+        txnRepository.reset();
+        walletRepository.reset();
 
         return this.start();
     }
@@ -405,7 +425,8 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         // Figure out how many accounts need unlocking
         String accountsToUnlock = "";
-        int numAccounts = walletDAO.list().size();
+//        int numAccounts = walletDAO.list().size();
+        int numAccounts = walletRepository.list().size();
         if (numAccounts == 0) {
             accountsToUnlock = "0,1,2"; // default to accounts we ship
 

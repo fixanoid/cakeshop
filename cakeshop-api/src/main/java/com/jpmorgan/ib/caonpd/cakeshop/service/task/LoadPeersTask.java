@@ -1,8 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.task;
 
-import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.PeerRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 
 import java.util.List;
@@ -25,7 +27,8 @@ public class LoadPeersTask implements Runnable {
             .getLogger(LoadPeersTask.class);
 
     @Autowired
-    private PeerDAO peerDAO;
+    private PeerRepository peerDAO;
+//    private PeerDAO peerDAO;
 
     @Autowired
     private NodeService nodeService;

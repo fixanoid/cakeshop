@@ -1,12 +1,15 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.EventsRepository;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
@@ -15,6 +18,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,14 +46,22 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private WalletService walletService;
+    @Autowired
+    private EventsRepository eventDAO;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     private String defaultFromAddress;
+    
+    private String defaultToAddress;
 
     @Override
     public Transaction get(String id) throws APIException {
+        
+        if (defaultToAddress == null) {
+            defaultToAddress = walletService.list().get(1).getAddress();
+        }
 
         List<RequestModel> reqs = new ArrayList<>();
         reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{id}, 1L));
@@ -75,33 +87,29 @@ public class TransactionServiceImpl implements TransactionService {
 
         tx.setId((String) txData.get("hash"));
         tx.setBlockId((String) txData.get("blockHash"));
-        tx.setContractAddress((String) txData.get("contractAddress"));
+        tx.setContractAddress(null != txData.get("contractAddress") ? (String) txData.get("contractAddress") : defaultToAddress);
         tx.setNonce((String) txData.get("nonce"));
         tx.setInput((String) txData.get("input"));
         tx.setFrom((String) txData.get("from"));
-        tx.setTo((String) txData.get("to"));
-        tx.setGasPrice(toLong("gasPrice", txData));
+        tx.setTo(null != txData.get("to") ? (String) txData.get("to") : defaultToAddress);
+        tx.setGasPrice(new BigInteger(String.valueOf(toLong("gasPrice", txData))));
 
-        tx.setTransactionIndex(toLong("transactionIndex", txData));
-        tx.setBlockNumber(toLong("blockNumber", txData));
-        tx.setValue(toLong("value", txData));
-        tx.setGas(toLong("gas", txData));
-        tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
-        tx.setGasUsed(toLong("gasUsed", txData));
+        tx.setTransactionIndex(null != toLong("transactionIndex", txData) ? new BigInteger(String.valueOf(toLong("transactionIndex", txData))): null);
+        tx.setBlockNumber(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("blockNumber", txData))) : null);
+        tx.setValue(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("value", txData))): null);
+        tx.setGas(null != toLong("gas", txData) ? new BigInteger(String.valueOf(toLong("gas", txData))): null);
+        tx.setCumulativeGasUsed(null !=  toLong("cumulativeGasUsed", txData) ? new BigInteger(String.valueOf(toLong("cumulativeGasUsed", txData))): null);
+        tx.setGasUsed(null != toLong("gasUsed", txData) ? new BigInteger(String.valueOf(toLong("gasUsed", txData))) : null);
 
         if (tx.getBlockId() == null || tx.getBlockNumber() == null
                 || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
 
-            tx.setStatus(Status.pending);
+            tx.setStatus(Status.pending.toString());
         } else {
-            tx.setStatus(Status.committed);
+            tx.setStatus(Status.committed.toString());
         }
 
-        // Decode tx input
-        //LOG.info("BEFORE DECODING INPUT :" + tx.getContractAddress() + " " + tx.getStatus());
-        //Output BEFORE DECODING INPUT :0x7fc70bb7a045c29361c6a0eca1105edec1a6fb70 committed on dev
-
-        if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
+        if (tx.getContractAddress() == null && (tx.getStatus() == null ? Status.committed.toString() == null : tx.getStatus().equals(Status.committed.toString()))) {
 
             // lookup contract
             ContractService contractService = applicationContext.getBean(ContractService.class);
@@ -147,6 +155,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (txData.get("logs") != null) {
             List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
             if (!logs.isEmpty()) {
+                eventDAO.save(eventService.processEvents(logs));
                 tx.setLogs(eventService.processEvents(logs));
             }
         }
@@ -214,7 +223,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction tx = null;
         while (true) {
             tx = this.get(result.getId());
-            if (tx.getStatus() == Status.committed) {
+            if (tx.getStatus() == null ? Status.committed.toString() == null : tx.getStatus().equals(Status.committed.toString())) {
                 break;
             }
             pollDelayUnit.sleep(pollDelay);

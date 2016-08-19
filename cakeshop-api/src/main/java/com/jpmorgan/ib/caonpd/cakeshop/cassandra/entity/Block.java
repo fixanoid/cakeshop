@@ -2,7 +2,9 @@ package com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity;
 
 
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
-import java.util.UUID;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -20,14 +22,15 @@ public class Block {
     public static final String API_DATA_TYPE = "block";
 
     @PrimaryKeyColumn(
-            name = "id",
+            name = "id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    private String id;
+    
+    @PrimaryKeyColumn(
+            name = "blockNumber",
             ordinal = 1,
             type = PrimaryKeyType.CLUSTERED,
             ordering = Ordering.DESCENDING)
-    private UUID id;
-    @PrimaryKeyColumn(
-            name = "block_number", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    private Long blockNumber;
+    private BigInteger blockNumber;
     @Column
     private String parentId;
     @Column
@@ -43,41 +46,55 @@ public class Block {
     @Column
     private String miner;
     @Column
-    private Long difficulty;
+    private BigInteger difficulty;
     @Column
-    private Long totalDifficulty;
+    private BigInteger totalDifficulty;
     @Column
     private String extraData;
     @Column
-    private Long gasLimit;
+    private BigInteger gasLimit;
     @Column
-    private Long gasUsed;
+    private BigInteger gasUsed;
     @Column
-    private Long timestamp;
+    private BigInteger timestamp;
+    @Column
+    private List<String> transactions = new ArrayList<>();
+    @Column
+    private List<String> uncles = new ArrayList<>();
 
 
     /**
      * Block number
      * @return 
      **/
-    public Long getBlockNumber() {
+    public BigInteger getBlockNumber() {
         return blockNumber;
     }
 
-    public void setBlockNumber(Long number) {
+    public void setBlockNumber(BigInteger number) {
         this.blockNumber = number;
+    }
+    
+    public Block withBlockNunmer(BigInteger number) {
+        this.blockNumber = number;
+        return this;
     }
 
     /**
      * id of the block
      * @return 
      **/
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
+    }
+    
+    public Block withId(String id) {
+        this.id = id;
+        return this;
     }
 
     /**
@@ -90,6 +107,11 @@ public class Block {
 
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+    
+    public Block withParentId(String parentId) {
+        this.parentId = parentId;
+        return this;
     }
 
     /**
@@ -104,6 +126,11 @@ public class Block {
         this.nonce = nonce;
     }
 
+    public Block withNonce(String nonce) {
+        this.nonce = nonce;
+        return this;
+    }
+    
     /**
      * SHA3 of the uncles data in the block (32 bytes)
      * @return 
@@ -114,6 +141,11 @@ public class Block {
 
     public void setSha3Uncles(String sha3Uncles) {
         this.sha3Uncles = sha3Uncles;
+    }
+    
+    public Block withSha3Uncles(String sha3Uncles) {
+        this.sha3Uncles = sha3Uncles;
+        return this;
     }
 
     /**
@@ -126,6 +158,11 @@ public class Block {
 
     public void setLogsBloom(String logsBloom) {
         this.logsBloom = logsBloom;
+    }
+    
+    public Block withLogsBloom(String logsBloom) {
+        this.logsBloom = logsBloom;
+        return this;
     }
 
     /**
@@ -140,6 +177,11 @@ public class Block {
         this.transactionsRoot = transactionsRoot;
     }
 
+    public Block withTransactionsRoot(String transactionsRoot) {
+        this.transactionsRoot = transactionsRoot;
+        return this;
+    }
+    
     /**
      * the root of the final state trie of the block (32 bytes)
      * @return 
@@ -152,6 +194,12 @@ public class Block {
         this.stateRoot = stateRoot;
     }
 
+    public Block withStateRoot(String stateRoot) {
+        this.stateRoot = stateRoot;
+        return this;
+    }
+    
+    
     /**
      * the address of the beneficiary to whom the mining rewards were given (20
      * bytes)
@@ -164,16 +212,21 @@ public class Block {
     public void setMiner(String miner) {
         this.miner = miner;
     }
+    
+    public Block withMiner(String miner) {
+        this.miner = miner;
+        return this;
+    }
 
     /**
      * integer of the difficulty of this block
      * @return 
      **/
-    public Long getDifficulty() {
+    public BigInteger getDifficulty() {
         return difficulty;
     }
 
-    public void setDifficulty(Long difficulty) {
+    public void setDifficulty(BigInteger difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -181,12 +234,17 @@ public class Block {
      * integer of the total difficulty of the chain until this block
      * @return 
      **/
-    public Long getTotalDifficulty() {
+    public BigInteger getTotalDifficulty() {
         return totalDifficulty;
     }
 
-    public void setTotalDifficulty(Long totalDifficulty) {
+    public void setTotalDifficulty(BigInteger totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
+    }
+    
+    public Block withTotalDifficulty(BigInteger totalDifficulty) {
+        this.totalDifficulty = totalDifficulty;
+        return this;
     }
 
     /**
@@ -201,40 +259,98 @@ public class Block {
         this.extraData = extraData;
     }
 
+    public Block withExtraData(String extraData) {
+        this.extraData = extraData;
+        return this;
+    }
+    
     /**
      * the maximum gas allowed in this block
      * @return 
      **/
-    public Long getGasLimit() {
+    public BigInteger getGasLimit() {
         return gasLimit;
     }
 
-    public void setGasLimit(Long gasLimit) {
+    public void setGasLimit(BigInteger gasLimit) {
         this.gasLimit = gasLimit;
     }
 
+    public Block withGasLimit(BigInteger gasLimit) {
+        this.gasLimit = gasLimit;
+        return this;
+    }
+    
     /**
      * the total gas used by all transactions in this block
      * @return 
      **/
-    public Long getGasUsed() {
+    public BigInteger getGasUsed() {
         return gasUsed;
     }
 
-    public void setGasUsed(Long gasUsed) {
+    public void setGasUsed(BigInteger gasUsed) {
         this.gasUsed = gasUsed;
     }
 
+    public Block withGasUsed(BigInteger gasUsed) {
+        this.gasUsed = gasUsed;
+        return this;
+    }
+    
     /**
      * the unix timestamp for when the block was collated
      * @return 
      **/
-    public Long getTimestamp() {
+    public BigInteger getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Long timestamp) {
+    public void setTimestamp(BigInteger timestamp) {
         this.timestamp = timestamp;
+    }
+    
+    public Block withTimestamp(BigInteger timestamp) {
+        this.timestamp = timestamp;
+        return this;
+    }
+
+    /**
+     * @return the transactions
+     */
+    public List<String> getTransactions() {
+        return transactions;
+    }
+    
+    public Block withTransactions(List<String> transactions) {
+        this.transactions = transactions;
+        return this;
+    }
+
+    /**
+     * @param transactions the transactions to set
+     */
+    public void setTransactions(List<String> transactions) {
+        this.transactions = transactions;
+    }
+
+    /**
+     * @return the uncles
+     */
+    public List<String> getUncles() {
+        return uncles;
+    }
+
+    /**
+     * @param uncles the uncles to set
+     */
+    public void setUncles(List<String> uncles) {
+        this.uncles = uncles;
+    }
+    
+    public Block withUncles(List<String> uncles) {
+        this.uncles = uncles;
+        return this;
     }
 
     @Override
@@ -244,7 +360,7 @@ public class Block {
 
     public APIData toAPIData() {
         APIData data = new APIData();
-        data.setId(getId().toString());
+        data.setId(getId());
         data.setType(API_DATA_TYPE);
         data.setAttributes(this);
         return data;
@@ -257,6 +373,6 @@ public class Block {
     @Override
     public boolean equals(Object obj) {
         Block otherBlock = (Block) obj;
-        return this.id.toString().contentEquals(otherBlock.getId().toString());
+        return this.id.contentEquals(otherBlock.getId());
     }
 }

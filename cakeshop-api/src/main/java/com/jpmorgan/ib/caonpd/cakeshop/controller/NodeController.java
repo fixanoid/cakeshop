@@ -1,12 +1,13 @@
 package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 

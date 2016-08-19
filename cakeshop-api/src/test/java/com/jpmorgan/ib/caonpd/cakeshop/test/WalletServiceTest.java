@@ -1,10 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import static org.testng.Assert.*;
 
-import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 
 import java.util.List;
@@ -20,7 +22,8 @@ public class WalletServiceTest extends BaseGethRpcTest {
     private WalletService wallet;
 
     @Autowired
-    private WalletDAO walletDAO;
+    private WalletRepository walletDAO;
+//    private WalletDAO walletDAO;
 
     @Test(priority=1)
     public void testList() throws APIException {

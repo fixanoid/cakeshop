@@ -3,8 +3,9 @@ package com.jpmorgan.ib.caonpd.cakeshop.db;
 import com.codahale.metrics.FastMeter;
 import com.codahale.metrics.SimpleRollingMeter;
 import com.codahale.metrics.TickListener;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 
 import javax.annotation.PreDestroy;
 
@@ -130,9 +131,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         blockPerMinMeter.mark();
         if (block.getTransactions() != null && block.getTransactions().size() > 0)  {
             if (previousTxCount != null) {
-                long elapsedSec = block.getTimestamp() - previousBlockTime;
+                long elapsedSec = block.getTimestamp().longValue() - previousBlockTime.longValue();
                 currentTxRate = ((double) block.getTransactions().size()) / elapsedSec;
-                pushTxnPerSecRate(block.getTimestamp());
+                pushTxnPerSecRate(block.getTimestamp().longValue());
             }
             txnPerSecMeter.mark(block.getTransactions().size());
             txnPerMinMeter.mark(block.getTransactions().size());
@@ -146,12 +147,12 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 
             if (previousTxCount != null) {
                 currentTxRate = 0.0;
-                pushTxnPerSecRate(block.getTimestamp());
+                pushTxnPerSecRate(block.getTimestamp().longValue());
             }
             previousTxCount = 0;
 
         }
-        previousBlockTime = block.getTimestamp();
+        previousBlockTime = block.getTimestamp().longValue();
     }
 
     @Override

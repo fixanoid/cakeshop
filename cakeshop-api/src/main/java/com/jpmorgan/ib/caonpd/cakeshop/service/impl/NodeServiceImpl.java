@@ -4,11 +4,13 @@ import static com.jpmorgan.ib.caonpd.cakeshop.service.impl.GethHttpServiceImpl.*
 
 import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.PeerRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.model.NodeConfig;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethRpcConstants;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
@@ -45,7 +47,8 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
     private GethConfigBean gethConfig;
 
     @Autowired
-    private PeerDAO peerDAO;
+    private PeerRepository peerDAO;
+//    private PeerDAO peerDAO;
 
     @Override
     public Node get() throws APIException {

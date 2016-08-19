@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.db.SavingBlockListener;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;

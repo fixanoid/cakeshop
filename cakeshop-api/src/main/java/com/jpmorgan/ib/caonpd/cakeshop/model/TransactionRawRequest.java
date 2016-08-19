@@ -1,18 +1,13 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.bouncycastle.util.encoders.Hex;
 
 public class TransactionRawRequest {
 
