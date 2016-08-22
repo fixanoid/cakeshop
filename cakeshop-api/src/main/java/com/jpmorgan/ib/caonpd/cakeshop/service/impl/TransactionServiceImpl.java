@@ -143,23 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }
             //TODO : this is a little hack for dev. Investigate why txData has contract adress on dev    
-        } else if (StringUtils.isNotBlank(tx.getContractAddress()) && tx.getStatus() == Status.committed) {
-            String origInput = tx.getInput();
-            if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
-                // handle gemini payloads
-                try {
-                    Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
-                    if (res.get("_result") != null) {
-                        tx.setInput((String) res.get("_result"));
-                    }
-                } catch (APIException e) {
-                    LOG.warn("Failed to load gemini payload: " + e.getMessage());
-                }
-            }
-            LOG.info("DECODING  INPUT FOR RAW TRANS :" + tx.getInput());
-            tx.decodeRawInput(tx.getInput());
-            tx.setInput(origInput); // restore original input after [gemini] decode
-        }
+        } 
 
         if (txData.get("logs") != null) {
             List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
