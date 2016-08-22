@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
@@ -72,6 +73,9 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private GethConfigBean gethConfig;
+    
+    @Autowired
+    private CassandraClusterFactoryBean cluster;
 
 //    @Autowired
 //    @Qualifier("hsql")
@@ -108,12 +112,10 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
     }
     
     @AfterClass(alwaysRun=true)
-    public void shutdownCassandra() {
+    public void shutdownCassandra() {        
         LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
         EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
-    }
-    
-
+    }    
 
     @BeforeClass
     public void startGeth() throws IOException {

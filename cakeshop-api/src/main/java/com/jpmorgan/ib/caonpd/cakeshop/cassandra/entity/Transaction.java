@@ -36,26 +36,25 @@ public class Transaction {
 	}
 
     //primary keys
-	@PrimaryKeyColumn(
-            name = "id",
-            ordinal = 4,
+	
+    @PrimaryKeyColumn(
+            name = "blockNumber",
+            ordinal = 2,
             type = PrimaryKeyType.CLUSTERED,
             ordering = Ordering.DESCENDING)
-	private String id;
-    @PrimaryKeyColumn(
-            name = "blockNumber", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
 	private BigInteger blockNumber;
     @PrimaryKeyColumn(
             name = "contractAddress", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
 	private String contractAddress;
-        @PrimaryKeyColumn(
+    @PrimaryKeyColumn(
             name = "to_address", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
 	private String to;
     @PrimaryKeyColumn(
-            name = "blockId", ordinal = 3, type = PrimaryKeyType.PARTITIONED)
-	private String blockId;    
-    
+            name = "id", ordinal = 3)
+	private String id;
     //rest of the columns
+    @Column
+	private String blockId;    
     @Column
 	private String status;
     @Column
@@ -215,7 +214,7 @@ public class Transaction {
     }
 
     public void decodeContractInput(ContractABI abi) {
-        if (getContractAddress() != null || getTo() == null
+        if (!getContractAddress().equalsIgnoreCase("0x") || getTo() == null
                 || getInput() == null || getInput().isEmpty()) {
 
             return;

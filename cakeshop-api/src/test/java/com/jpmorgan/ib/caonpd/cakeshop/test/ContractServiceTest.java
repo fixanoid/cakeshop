@@ -249,7 +249,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertTrue(!txns.isEmpty());
 	    assertEquals(txns.size(), 2);
 
-	    Transaction txSet = txns.get(1);
+	    Transaction txSet = txns.get(0);
 	    Input decodedInput = txSet.getDecodedInput();
 	    assertNotNull(decodedInput);
 	    assertEquals(decodedInput.getMethod(), "set");
