@@ -1,5 +1,4 @@
 import 'bootstrap';
-import 'bluebird';
 import 'd3';
 import 'bootstrap-tour';
 import 'jquery-ui';

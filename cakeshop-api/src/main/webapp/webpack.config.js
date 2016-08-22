@@ -29,7 +29,11 @@ module.exports = {
         ],
         loader: 'babel',
         query: {
-          presets: ['es2015']
+          presets: ['es2015'],
+          plugins: [
+            'transform-promise-to-bluebird',
+            'transform-runtime'
+          ],
         }
       }
     ]
