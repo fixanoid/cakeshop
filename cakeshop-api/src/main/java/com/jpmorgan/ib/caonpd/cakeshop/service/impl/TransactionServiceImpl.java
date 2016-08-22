@@ -141,8 +141,7 @@ public class TransactionServiceImpl implements TransactionService {
                 }
                 tx.decodeRawInput(tx.getInput());
                 tx.setInput(origInput); // restore original input after [gemini] decode
-            }
-            //TODO : this is a little hack for dev. Investigate why txData has contract adress on dev    
+            }  
         } 
 
         if (txData.get("logs") != null) {
