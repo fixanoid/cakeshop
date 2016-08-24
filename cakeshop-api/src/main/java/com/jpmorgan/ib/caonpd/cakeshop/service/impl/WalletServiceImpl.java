@@ -1,8 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethRpcConstants;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
@@ -30,7 +32,9 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
     private GethHttpService gethService;
 
     @Autowired
-    private WalletDAO walletDAO;
+    private WalletRepository walletRepository;
+//    @Autowired
+//    private WalletDAO walletDAO;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -70,7 +74,8 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
         Account a = new Account();
         a.setAddress(newAddress);
 
-        walletDAO.save(a);
+        //walletDAO.save(a);
+        walletRepository.save(a);
         return a;
     }
 

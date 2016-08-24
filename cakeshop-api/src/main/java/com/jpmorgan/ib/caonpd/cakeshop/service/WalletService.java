@@ -1,7 +1,8 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service;
 
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 
 import java.util.List;
 

@@ -4,15 +4,17 @@ import static org.testng.Assert.*;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.config.AppStartup;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.test.config.TempFileManager;
 import com.jpmorgan.ib.caonpd.cakeshop.test.config.TestAppConfig;
+import com.jpmorgan.ib.caonpd.cakeshop.test.config.TestCassandraConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
 
@@ -21,15 +23,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import javax.sql.DataSource;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
@@ -40,7 +40,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {TestAppConfig.class})
+@ContextConfiguration(classes = {TestAppConfig.class, TestCassandraConfig.class})
 //@Listeners(CleanConsoleListener.class) // uncomment for extra debug help
 @DirtiesContext(classMode=ClassMode.AFTER_CLASS)
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
@@ -49,6 +49,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     static {
         System.setProperty("spring.profiles.active", "test");
+//        System.setProperty("cassandra.config", "file:///Users/I629630/workspace/ethereum-ee/ethereum-enterprise/cakeshop-api/src/test/resources/cassandra.yml");
+        
     }
 
 	@Autowired
@@ -71,10 +73,13 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private GethConfigBean gethConfig;
-
+    
     @Autowired
-    @Qualifier("hsql")
-    private DataSource embeddedDb;
+    private CassandraClusterFactoryBean cluster;
+
+//    @Autowired
+//    @Qualifier("hsql")
+//    private DataSource embeddedDb;
 
     public BaseGethRpcTest() {
         super();
@@ -105,6 +110,12 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         } catch (IOException e) {
         }
     }
+    
+    @AfterClass(alwaysRun=true)
+    public void shutdownCassandra() {        
+        LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
+        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+    }    
 
     @BeforeClass
     public void startGeth() throws IOException {
@@ -117,13 +128,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         LOG.info("Starting Ethereum at test startup");
         assertTrue(_startGeth());
     }
-
+    
     private boolean _startGeth() throws IOException {
         gethConfig.setGenesisBlockFilename(FileUtils.getClasspathPath("genesis_block.json").toAbsolutePath().toString());
         gethConfig.setKeystorePath(FileUtils.getClasspathPath("keystore").toAbsolutePath().toString());
-        gethConfig.setExtraParams("--blocktime 1000 --nokdf");
+        gethConfig.setExtraParams("--blocktime 500 --nokdf");
         return geth.start();
     }
+    
 
     /**
      * Stop geth & delete data dir
@@ -135,6 +147,8 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         }
         LOG.info("Stopping Ethereum at test teardown");
         _stopGeth();
+//        LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
+//        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
     }
 
     private void _stopGeth() {
@@ -144,7 +158,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         } catch (IOException e) {
             logger.warn(e);
         }
-        ((EmbeddedDatabase) embeddedDb).shutdown();
+//        ((EmbeddedDatabase) embeddedDb).shutdown(); 
     }
 
     /**

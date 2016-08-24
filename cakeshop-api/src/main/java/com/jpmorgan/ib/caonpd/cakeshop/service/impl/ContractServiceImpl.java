@@ -3,13 +3,15 @@ package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Constructor;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
@@ -57,7 +59,8 @@ public class ContractServiceImpl implements ContractService {
 	private ContractRegistryService contractRegistry;
 
 	@Autowired
-	private TransactionDAO transactionDAO;
+    private TransactionRepository transactionDAO;
+//	private TransactionDAO transactionDAO;
 
 	@Autowired
 	private WalletService walletService;

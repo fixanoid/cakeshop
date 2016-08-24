@@ -1,26 +1,37 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventServiceImpl implements EventService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EventServiceImpl.class);
 
     class BlockRangeFilter {
         private final String fromBlock;
@@ -62,10 +73,11 @@ public class EventServiceImpl implements EventService {
         for (Map<String, Object> data : rawEvents) {
 
             Event event = new Event();
+            event.setId(new BigInteger(String.valueOf(System.nanoTime())));
             event.setBlockId((String) data.get("blockHash"));
-            event.setBlockNumber(toLong("blockNumber", data));
+            event.setBlockNumber(new BigInteger(String.valueOf(toLong("blockNumber", data))));
 
-            event.setLogIndex(toLong("logIndex", data));
+            event.setLogIndex(new BigInteger(String.valueOf(toLong("logIndex", data))));
             event.setTransactionId((String) data.get("transactionHash"));
             event.setContractId((String) data.get("address"));
 
@@ -92,12 +104,43 @@ public class EventServiceImpl implements EventService {
                 topicData[i] = Hex.decode(t.substring(2));
             }
 
-            Object[] decodeHex = abiEvent.decode(logData, topicData).toArray();
-            event.setData(decodeHex);
+//            Object[] decodeHex = abiEvent.decode(logData, topicData).toArray();
+            List <Object> decodeHex = (List <Object>) abiEvent.decode(logData, topicData);
+            List <String> dataList = new ArrayList<>();
+            for (Object decodeOdj : decodeHex) {
+                try {
+                    dataList.add(serialize(decodeOdj));
+                } catch (IOException ex) {
+                    LOG.error(ex.getMessage());
+                }
+            }
+            event.setData(dataList);
 
             events.add(event);
         }
         return events;
     }
+    
+    
+
+    @Override
+    public String serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (ObjectOutputStream os = new ObjectOutputStream(out)) {
+            os.writeObject(obj);
+        }
+        return out.toString("ISO-8859-1");
+    }
+
+    @Override
+    public Object deserialize(String data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes("ISO-8859-1"));
+        Object deserialized;
+        try (ObjectInputStream is = new ObjectInputStream(in)) {
+            deserialized = is.readObject();
+        }
+        return deserialized;
+    }
+
 
 }

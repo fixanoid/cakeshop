@@ -1,9 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.task;
 
-import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
@@ -49,14 +52,16 @@ public class BlockchainInitializerTask implements Runnable {
     private WalletService walletService;
 
     @Autowired
-    private WalletDAO walletDAO;
+    private WalletRepository walletDAO;
+//    private WalletDAO walletDAO;
+    
 
     @Override
     public void run() {
 
         try {
             Block block = blockService.get(null, null, "latest");
-            if (block.getNumber() > 0) {
+            if (block.getNumber().longValue() > 0) {
                 LOG.warn("Blockchain not on block zero (on #" + block.getNumber() + "); not initializing");
                 return;
             }

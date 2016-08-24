@@ -2,12 +2,17 @@ package com.jpmorgan.ib.caonpd.cakeshop.db;
 
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.LatestBlockNumber;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WebSocketPushService;
 
@@ -53,10 +58,12 @@ public class SavingBlockListener implements BlockListener {
     private static final Logger LOG = LoggerFactory.getLogger(SavingBlockListener.class);
 
     @Autowired
-    private BlockDAO blockDAO;
+    private BlockRepository blockDAO;
+//    private BlockDAO blockDAO;
 
     @Autowired
-    private TransactionDAO txDAO;
+    private TransactionRepository txDAO;
+//    private TransactionDAO txDAO;
 
     @Autowired
     private TransactionService txService;
@@ -91,7 +98,10 @@ public class SavingBlockListener implements BlockListener {
         if (!gethConfig.isDbEnabled()) {
             return;
         }
-        LOG.debug("Persisting block #" + block.getNumber());
+        LOG.info("Persisting block #" + block.getNumber());
+        LatestBlockNumber latest = new LatestBlockNumber();
+        latest.setBlockNumber(block.getNumber());
+        blockDAO.save(latest);
         blockDAO.save(block);
         if (!block.getTransactions().isEmpty()) {
             List<String> transactions = block.getTransactions();

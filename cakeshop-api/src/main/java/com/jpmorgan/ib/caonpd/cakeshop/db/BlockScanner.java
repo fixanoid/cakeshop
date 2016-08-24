@@ -1,16 +1,21 @@
 package com.jpmorgan.ib.caonpd.cakeshop.db;
 
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
-import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
-import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +44,12 @@ public class BlockScanner extends Thread {
     private static final Logger LOG = LoggerFactory.getLogger(BlockScanner.class);
 
     @Autowired
-    private BlockDAO blockDAO;
+    private BlockRepository blockDAO;
+//    private BlockDAO blockDAO;
 
     @Autowired
-    private TransactionDAO txDAO;
+    private TransactionRepository txDAO;
+//    private TransactionDAO txDAO;
 
     @Autowired
     private NodeService nodeService;
@@ -109,16 +116,20 @@ public class BlockScanner extends Thread {
             LOG.warn("Failed to read latest block: " + e.getMessage(), e);
             return;
         }
-
+        
+        
         if (largestSavedBlock == null) {
-            fillBlockRange(0, chainBlock.getNumber());
+            fillBlockRange(0, chainBlock.getNumber().longValue());
 
-        } else if (chainBlock.getNumber() > largestSavedBlock.getNumber()) {
-            fillBlockRange(largestSavedBlock.getNumber() + 1, chainBlock.getNumber());
+        } else if (chainBlock.getNumber().longValue() > largestSavedBlock.getNumber().longValue()) {
+        	LOG.info("BLOCK NUMBERs " + largestSavedBlock.getNumber().longValue() + "   " + chainBlock.getNumber().longValue());
+            fillBlockRange(largestSavedBlock.getNumber().longValue() + 1, chainBlock.getNumber().longValue());
 
         } else if (chainBlock.equals(largestSavedBlock)) {
             previousBlock = chainBlock;
         }
+        
+        
 
     }
 
@@ -212,7 +223,7 @@ public class BlockScanner extends Thread {
 
     private void checkDbSync() throws APIException {
         Block firstChainBlock = blockService.get(null, 1L, null);
-        Block firstKnownBlock = blockDAO.getByNumber(1L);
+        Block firstKnownBlock = blockDAO.getByNumber(new BigInteger("1"));
         if ((firstKnownBlock != null && firstChainBlock != null && !firstKnownBlock.equals(firstChainBlock))
                 || (firstChainBlock == null && firstKnownBlock != null)) {
 
@@ -283,9 +294,9 @@ public class BlockScanner extends Thread {
                 }
 
                 if (previousBlock == null || !previousBlock.equals(latestBlock)) {
-                    if (previousBlock != null && (latestBlock.getNumber() - previousBlock.getNumber()) > 1) {
+                    if (previousBlock != null && (latestBlock.getNumber().longValue() - previousBlock.getNumber().longValue()) > 1) {
                         // block that was just polled is ahead of what we have in our DB
-                        fillBlockRange(previousBlock.getNumber() + 1, latestBlock.getNumber() - 1);
+                        fillBlockRange(previousBlock.getNumber().longValue() + 1, latestBlock.getNumber().longValue() - 1);
                     }
 
                     LOG.debug("Saving new block #" + latestBlock.getNumber());
