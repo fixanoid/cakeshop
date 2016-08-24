@@ -98,9 +98,9 @@ public class SavingBlockListener implements BlockListener {
         if (!gethConfig.isDbEnabled()) {
             return;
         }
-        LOG.info("Persisting block #" + block.getBlockNumber());
+        LOG.info("Persisting block #" + block.getNumber());
         LatestBlockNumber latest = new LatestBlockNumber();
-        latest.setBlockNumber(block.getBlockNumber());
+        latest.setBlockNumber(block.getNumber());
         blockDAO.save(latest);
         blockDAO.save(block);
         if (!block.getTransactions().isEmpty()) {

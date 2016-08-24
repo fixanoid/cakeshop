@@ -61,8 +61,8 @@ public class BlockchainInitializerTask implements Runnable {
 
         try {
             Block block = blockService.get(null, null, "latest");
-            if (block.getBlockNumber().longValue() > 0) {
-                LOG.warn("Blockchain not on block zero (on #" + block.getBlockNumber() + "); not initializing");
+            if (block.getNumber().longValue() > 0) {
+                LOG.warn("Blockchain not on block zero (on #" + block.getNumber() + "); not initializing");
                 return;
             }
 

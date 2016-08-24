@@ -116,16 +116,20 @@ public class BlockScanner extends Thread {
             LOG.warn("Failed to read latest block: " + e.getMessage(), e);
             return;
         }
-
+        
+        
         if (largestSavedBlock == null) {
-            fillBlockRange(0, chainBlock.getBlockNumber().longValue());
+            fillBlockRange(0, chainBlock.getNumber().longValue());
 
-        } else if (chainBlock.getBlockNumber().longValue() > largestSavedBlock.getBlockNumber().longValue()) {
-            fillBlockRange(largestSavedBlock.getBlockNumber().longValue() + 1, chainBlock.getBlockNumber().longValue());
+        } else if (chainBlock.getNumber().longValue() > largestSavedBlock.getNumber().longValue()) {
+        	LOG.info("BLOCK NUMBERs " + largestSavedBlock.getNumber().longValue() + "   " + chainBlock.getNumber().longValue());
+            fillBlockRange(largestSavedBlock.getNumber().longValue() + 1, chainBlock.getNumber().longValue());
 
         } else if (chainBlock.equals(largestSavedBlock)) {
             previousBlock = chainBlock;
         }
+        
+        
 
     }
 
@@ -290,12 +294,12 @@ public class BlockScanner extends Thread {
                 }
 
                 if (previousBlock == null || !previousBlock.equals(latestBlock)) {
-                    if (previousBlock != null && (latestBlock.getBlockNumber().longValue() - previousBlock.getBlockNumber().longValue()) > 1) {
+                    if (previousBlock != null && (latestBlock.getNumber().longValue() - previousBlock.getNumber().longValue()) > 1) {
                         // block that was just polled is ahead of what we have in our DB
-                        fillBlockRange(previousBlock.getBlockNumber().longValue() + 1, latestBlock.getBlockNumber().longValue() - 1);
+                        fillBlockRange(previousBlock.getNumber().longValue() + 1, latestBlock.getNumber().longValue() - 1);
                     }
 
-                    LOG.debug("Saving new block #" + latestBlock.getBlockNumber());
+                    LOG.debug("Saving new block #" + latestBlock.getNumber());
                     notifyListeners(latestBlock);
                     previousBlock = latestBlock;
                 }

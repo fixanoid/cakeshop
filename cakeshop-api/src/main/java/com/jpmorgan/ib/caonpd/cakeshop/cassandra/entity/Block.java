@@ -22,15 +22,14 @@ public class Block {
     public static final String API_DATA_TYPE = "block";
 
     @PrimaryKeyColumn(
-            name = "id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    private String id;
-    
-    @PrimaryKeyColumn(
-            name = "blockNumber",
+            name = "id",
             ordinal = 1,
             type = PrimaryKeyType.CLUSTERED,
             ordering = Ordering.DESCENDING)
-    private BigInteger blockNumber;
+    private String id;
+    @PrimaryKeyColumn(
+            name = "blockNumber", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    private BigInteger number;
     @Column
     private String parentId;
     @Column
@@ -67,16 +66,16 @@ public class Block {
      * Block number
      * @return 
      **/
-    public BigInteger getBlockNumber() {
-        return blockNumber;
+    public BigInteger getNumber() {
+        return number;
     }
 
-    public void setBlockNumber(BigInteger number) {
-        this.blockNumber = number;
+    public void setNumber(BigInteger number) {
+        this.number = number;
     }
     
-    public Block withBlockNunmer(BigInteger number) {
-        this.blockNumber = number;
+    public Block withNunmer(BigInteger number) {
+        this.number = number;
         return this;
     }
 

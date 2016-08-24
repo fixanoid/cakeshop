@@ -42,8 +42,9 @@ public class BlockRepository {
     
     public Block getByNumber(final BigInteger number) {
 
-        Select.Where select = QueryBuilder.select().all().from("block").
-                where(QueryBuilder.eq("blockNumber", number));
+        Select select = QueryBuilder.select().all().from("block").
+                where(QueryBuilder.eq("blockNumber", number)).limit(1).allowFiltering();
+        
         if (null == creatorBlock) {
             creatorBlock = new CachedPreparedStatementCreator(select.getQueryString());
         }
@@ -75,7 +76,7 @@ public class BlockRepository {
             @Override
             public BigInteger extractData(ResultSet resultSet) throws DriverException, DataAccessException {
                 if (resultSet.iterator().hasNext())
-                    return resultSet.one().getVarint("id");
+                    return resultSet.one().getVarint("blocknumber");
                 else
                     return null;
             }
@@ -88,27 +89,23 @@ public class BlockRepository {
         cassandraTemplate.deleteAll(Block.class);
     }
     
-    private Block getBlock(Row row) {
-        Block block = new Block();
-        block
-                .withBlockNunmer(row.getVarint("blockNumber"))
-                .withId(row.getString("id"))
-                .withExtraData(row.getString("extraData"))
-                .withGasLimit(row.getVarint("gasLimit"))
-                .withGasUsed(row.getVarint("gasUsed"))
-                .withLogsBloom(row.getString("logsBloom"))
-                .withMiner(row.getString("miner"))
-                .withNonce(row.getString("nonce"))
-                .withParentId(row.getString("parentId"))
-                .withSha3Uncles(row.getString("sha3Uncles"))
-                .withStateRoot(row.getString("stateRoot"))
-                .withTimestamp(row.getVarint("timestamp"))
-                .withTotalDifficulty(row.getVarint("totalDifficulty"))
-                .withTransactions(row.getList("transactions", String.class))
-                .withTransactionsRoot(row.getString("transactionsRoot"))
-                .withUncles(row.getList("uncles", String.class));
+	private Block getBlock(Row row) {
+		if (null != row) {
+			Block block = new Block();
+			block.withNunmer(row.getVarint("blockNumber")).withId(row.getString("id"))
+					.withExtraData(row.getString("extraData")).withGasLimit(row.getVarint("gasLimit"))
+					.withGasUsed(row.getVarint("gasUsed")).withLogsBloom(row.getString("logsBloom"))
+					.withMiner(row.getString("miner")).withNonce(row.getString("nonce"))
+					.withParentId(row.getString("parentId")).withSha3Uncles(row.getString("sha3Uncles"))
+					.withStateRoot(row.getString("stateRoot")).withTimestamp(row.getVarint("timestamp"))
+					.withTotalDifficulty(row.getVarint("totalDifficulty"))
+					.withTransactions(row.getList("transactions", String.class))
+					.withTransactionsRoot(row.getString("transactionsRoot"))
+					.withUncles(row.getList("uncles", String.class));
 
-        return block;
-    }
+			return block;
+		}
+		return null;
+	}
     
 }

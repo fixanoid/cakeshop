@@ -73,7 +73,7 @@ public class BlockServiceImpl implements BlockService {
         block.setUncles((List<String>) blockData.get("uncles"));
 
         // convert longs
-        block.setBlockNumber(new BigInteger(String.valueOf(toLong("number", blockData))));
+        block.setNumber(new BigInteger(String.valueOf(toLong("number", blockData))));
         block.setDifficulty(new BigInteger(String.valueOf(toLong("difficulty", blockData))));
         block.setTotalDifficulty(new BigInteger(String.valueOf(toLong("totalDifficulty", blockData))));
         block.setGasLimit(new BigInteger(String.valueOf(toLong("gasLimit", blockData))));

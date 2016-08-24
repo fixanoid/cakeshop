@@ -7,10 +7,10 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 
 public abstract class BaseDAO {
 
-    @Autowired
+    //@Autowired
     private SessionFactory sessionFactory;
 
-    @Autowired
+    //@Autowired
     protected HibernateTemplate hibernateTemplate;
 
     protected Session getCurrentSession() {

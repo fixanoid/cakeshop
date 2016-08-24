@@ -216,7 +216,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-cassandra</artifactId>
-            <version>1.4.2.RELEASE</version>
+            <version>1.4.2.RELEASE</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
         <dependency>
             <groupId>org.apache.cassandra</groupId>
