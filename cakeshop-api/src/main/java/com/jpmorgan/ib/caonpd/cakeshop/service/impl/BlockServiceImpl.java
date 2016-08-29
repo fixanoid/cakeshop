@@ -1,10 +1,9 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
