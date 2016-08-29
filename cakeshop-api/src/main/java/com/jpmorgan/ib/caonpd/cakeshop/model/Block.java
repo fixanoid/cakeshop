@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
+import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -14,8 +17,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-@Table(name="BLOCKS", schema="PUBLIC")
-public class Block {
+@Table(name="BLOCKS", schema="BLOCKCHAIN", indexes = {@Index(name="block_number_idx", columnList = "block_number")})
+public class Block implements Serializable {
 
     public static final String API_DATA_TYPE = "block";
 
@@ -23,7 +26,8 @@ public class Block {
     private String id;
 
     private String parentId;
-    private Long number;
+    @Column(name = "block_number")
+    private BigInteger number;
 
     private String nonce;
     private String sha3Uncles;
@@ -34,32 +38,35 @@ public class Block {
     private String transactionsRoot;
     private String stateRoot;
     private String miner;
-    private Long difficulty;
-    private Long totalDifficulty;
+    private BigInteger difficulty;
+    private BigInteger totalDifficulty;
     private String extraData;
-    private Long gasLimit;
-    private Long gasUsed;
-    private Long timestamp;
+    private BigInteger gasLimit;
+    private BigInteger gasUsed;
+    @Column(name = "timestamp_val")
+    private BigInteger timestamp;
 
     @ElementCollection
-    private List<String> transactions = new ArrayList<String>();
+    private List<String> transactions = new ArrayList<>();
 
     @ElementCollection
-    private List<String> uncles = new ArrayList<String>();
+    private List<String> uncles = new ArrayList<>();
 
     /**
      * Block number
+     * @return 
      **/
-    public Long getNumber() {
+    public BigInteger getNumber() {
         return number;
     }
 
-    public void setNumber(Long number) {
+    public void setNumber(BigInteger number) {
         this.number = number;
     }
 
     /**
      * id of the block
+     * @return 
      **/
     public String getId() {
         return id;
@@ -71,6 +78,7 @@ public class Block {
 
     /**
      * id of the parent block
+     * @return 
      **/
     public String getParentId() {
         return parentId;
@@ -82,6 +90,7 @@ public class Block {
 
     /**
      * hash of the generated proof-of-work (if avail)
+     * @return 
      **/
     public String getNonce() {
         return nonce;
@@ -93,6 +102,7 @@ public class Block {
 
     /**
      * SHA3 of the uncles data in the block (32 bytes)
+     * @return 
      **/
     public String getSha3Uncles() {
         return sha3Uncles;
@@ -104,6 +114,7 @@ public class Block {
 
     /**
      * the bloom filter for the logs of the block (256 bytes)
+     * @return 
      **/
     public String getLogsBloom() {
         return logsBloom;
@@ -115,6 +126,7 @@ public class Block {
 
     /**
      * the root of the transaction trie of the block (32 bytes)
+     * @return 
      **/
     public String getTransactionsRoot() {
         return transactionsRoot;
@@ -126,6 +138,7 @@ public class Block {
 
     /**
      * the root of the final state trie of the block (32 bytes)
+     * @return 
      **/
     public String getStateRoot() {
         return stateRoot;
@@ -138,6 +151,7 @@ public class Block {
     /**
      * the address of the beneficiary to whom the mining rewards were given (20
      * bytes)
+     * @return 
      **/
     public String getMiner() {
         return miner;
@@ -149,28 +163,31 @@ public class Block {
 
     /**
      * integer of the difficulty of this block
+     * @return 
      **/
-    public Long getDifficulty() {
+    public BigInteger getDifficulty() {
         return difficulty;
     }
 
-    public void setDifficulty(Long difficulty) {
+    public void setDifficulty(BigInteger difficulty) {
         this.difficulty = difficulty;
     }
 
     /**
      * integer of the total difficulty of the chain until this block
+     * @return 
      **/
-    public Long getTotalDifficulty() {
+    public BigInteger getTotalDifficulty() {
         return totalDifficulty;
     }
 
-    public void setTotalDifficulty(Long totalDifficulty) {
+    public void setTotalDifficulty(BigInteger totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
 
     /**
      * the \"extra data\" field for this block
+     * @return 
      **/
     public String getExtraData() {
         return extraData;
@@ -182,39 +199,43 @@ public class Block {
 
     /**
      * the maximum gas allowed in this block
+     * @return 
      **/
-    public Long getGasLimit() {
+    public BigInteger getGasLimit() {
         return gasLimit;
     }
 
-    public void setGasLimit(Long gasLimit) {
+    public void setGasLimit(BigInteger gasLimit) {
         this.gasLimit = gasLimit;
     }
 
     /**
      * the total gas used by all transactions in this block
+     * @return 
      **/
-    public Long getGasUsed() {
+    public BigInteger getGasUsed() {
         return gasUsed;
     }
 
-    public void setGasUsed(Long gasUsed) {
+    public void setGasUsed(BigInteger gasUsed) {
         this.gasUsed = gasUsed;
     }
 
     /**
      * the unix timestamp for when the block was collated
+     * @return 
      **/
-    public Long getTimestamp() {
+    public BigInteger getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Long timestamp) {
+    public void setTimestamp(BigInteger timestamp) {
         this.timestamp = timestamp;
     }
 
     /**
      * Array of transaction hashes
+     * @return 
      **/
     public List<String> getTransactions() {
         return transactions;
@@ -226,6 +247,7 @@ public class Block {
 
     /**
      * Array of uncle hashes
+     * @return 
      **/
     public List<String> getUncles() {
         return uncles;

@@ -3,6 +3,8 @@ package com.jpmorgan.ib.caonpd.cakeshop.model;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Function;
 import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigInteger;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -13,6 +15,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -21,11 +24,18 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bouncycastle.util.encoders.Hex;
-import org.springframework.util.StringUtils;
 
 @Entity
-@Table(name="TRANSACTIONS", schema="PUBLIC")
-public class Transaction {
+@Table(
+        name = "TRANSACTIONS", schema = "BLOCKCHAIN",
+        indexes = {
+            @Index(name = "tr_block_number_idx", columnList = "blockNumber"),
+            @Index(name = "tr_contract_addr_idx", columnList = "contractAddress"),
+            @Index(name = "tr_to_addr_idx", columnList = "to_address")
+        }
+)
+
+public class Transaction implements Serializable {
 
     public class Input {
         private String method;
@@ -69,26 +79,28 @@ public class Transaction {
 
 	private String blockId;
 
-	private Long blockNumber;
+	private BigInteger blockNumber;
 
-	private Long transactionIndex;
+	private BigInteger transactionIndex;
 
+    @Column(name = "from_address")
 	private String from;
+    @Column(name = "to_address")
 	private String to;
-
-	private Long value;
-	private Long gas;
-	private Long gasPrice;
+    @Column(name = "trans_value")
+	private BigInteger value;
+	private BigInteger gas;
+	private BigInteger gasPrice;
 
 	@Lob
-	@Column(length=Integer.MAX_VALUE)
+	@Column(name = "input_data", length=Integer.MAX_VALUE)
 	private String input;
 
 	@Transient
 	private Input decodedInput;
 
-	private Long cumulativeGasUsed;
-	private Long gasUsed;
+	private BigInteger cumulativeGasUsed;
+	private BigInteger gasUsed;
 
 	private String contractAddress;
 
@@ -120,19 +132,19 @@ public class Transaction {
 		this.blockId = blockId;
 	}
 
-	public Long getBlockNumber() {
+	public BigInteger getBlockNumber() {
 		return blockNumber;
 	}
 
-	public void setBlockNumber(Long blockNumber) {
+	public void setBlockNumber(BigInteger blockNumber) {
 		this.blockNumber = blockNumber;
 	}
 
-	public Long getTransactionIndex() {
+	public BigInteger getTransactionIndex() {
 		return transactionIndex;
 	}
 
-	public void setTransactionIndex(Long transactionIndex) {
+	public void setTransactionIndex(BigInteger transactionIndex) {
 		this.transactionIndex = transactionIndex;
 	}
 
@@ -152,27 +164,27 @@ public class Transaction {
 		this.to = to;
 	}
 
-	public Long getValue() {
+	public BigInteger getValue() {
 		return value;
 	}
 
-	public void setValue(Long value) {
+	public void setValue(BigInteger value) {
 		this.value = value;
 	}
 
-	public Long getGas() {
+	public BigInteger getGas() {
 		return gas;
 	}
 
-	public void setGas(Long gas) {
+	public void setGas(BigInteger gas) {
 		this.gas = gas;
 	}
 
-	public Long getGasPrice() {
+	public BigInteger getGasPrice() {
 		return gasPrice;
 	}
 
-	public void setGasPrice(Long gasPrice) {
+	public void setGasPrice(BigInteger gasPrice) {
 		this.gasPrice = gasPrice;
 	}
 
@@ -184,19 +196,19 @@ public class Transaction {
 		this.input = input;
 	}
 
-	public Long getCumulativeGasUsed() {
+	public BigInteger getCumulativeGasUsed() {
 		return cumulativeGasUsed;
 	}
 
-	public void setCumulativeGasUsed(Long cumulativeGasUsed) {
+	public void setCumulativeGasUsed(BigInteger cumulativeGasUsed) {
 		this.cumulativeGasUsed = cumulativeGasUsed;
 	}
 
-	public Long getGasUsed() {
+	public BigInteger getGasUsed() {
 		return gasUsed;
 	}
 
-	public void setGasUsed(Long gasUsed) {
+	public void setGasUsed(BigInteger gasUsed) {
 		this.gasUsed = gasUsed;
 	}
 
@@ -244,18 +256,17 @@ public class Transaction {
             return;
         }
 
-        final String input = getInput();
-        //System.out.println(input);
+        final String inputStr = getInput();
 
         Function func = abi.findFunction(new Predicate<ContractABI.Function>() {
             @Override
             public boolean evaluate(Function f) {
-                return input.startsWith("0x" + Hex.toHexString(f.encodeSignature()));
+                return inputStr.startsWith("0x" + Hex.toHexString(f.encodeSignature()));
             }
         });
 
         if (func != null) {
-            decodedInput = new Input(func.name, func.decodeHex(input).toArray());
+            decodedInput = new Input(func.name, func.decodeHex(inputStr).toArray());
         }
     }
     
