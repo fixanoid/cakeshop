@@ -1,11 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;

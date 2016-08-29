@@ -1,11 +1,10 @@
 package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 
 import java.util.ArrayList;
@@ -54,11 +53,10 @@ public class WalletController extends BaseController {
 
     @RequestMapping("/create")
     public ResponseEntity<APIResponse> create() throws APIException {
-        com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account account = walletService.create();
-
+        Account account = walletService.create();
         APIResponse res = new APIResponse();
         res.setData(new APIData(account.getAddress(), "wallet", account));
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 }
