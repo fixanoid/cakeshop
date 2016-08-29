@@ -1,6 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.dao;
 
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import java.math.BigInteger;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class BlockDAO extends BaseDAO {
     }
 
     @SuppressWarnings("rawtypes")
-    public Block getByNumber(Long number) {
+    public Block getByNumber(BigInteger number) {
         Criteria c = getCurrentSession().createCriteria(Block.class);
         c.add(Restrictions.eq("number", number));
         List list = c.list();
@@ -47,7 +48,7 @@ public class BlockDAO extends BaseDAO {
             return null;
         }
 
-        return getByNumber((Long) list.get(0));
+        return getByNumber((BigInteger) list.get(0));
     }
 
     public void save(Block block) {

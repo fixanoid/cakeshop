@@ -42,7 +42,7 @@ public class PeerDAO extends BaseDAO {
     @Override
     public void reset() {
         Session session = getCurrentSession();
-        session.createSQLQuery("DELETE FROM PUBLIC.PEERS").executeUpdate();
+        session.createSQLQuery("DELETE FROM PEERS").executeUpdate();
         session.flush();
         session.clear();
     }
