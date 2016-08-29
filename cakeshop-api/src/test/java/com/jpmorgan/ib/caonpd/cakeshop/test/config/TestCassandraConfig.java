@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cassandra.core.keyspace.CreateKeyspaceSpecification;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.config.java.AbstractCassandraConfiguration;
@@ -38,6 +39,7 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
  * @author I629630
  */
 @Configuration
+@Order(2)
 @EnableCassandraRepositories(
         basePackages = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository")
 public class TestCassandraConfig extends AbstractCassandraConfiguration {

@@ -28,7 +28,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TransactionRepository {
 
-    @Autowired
+    @Autowired(required = false)
     private CassandraOperations cassandraTemplate;
 
     private CachedPreparedStatementCreator creatorTrans;

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShutdownExecutors  implements DisposableBean {
 
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("asyncTaskExecutor")
     private ThreadPoolTaskExecutor asyncTaskExecutor;
 

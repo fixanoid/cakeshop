@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class EventsRepository {
     
-    @Autowired
+    @Autowired(required = false)
     private CassandraOperations cassandraTemplate;
     
     private CachedPreparedStatementCreator creator;

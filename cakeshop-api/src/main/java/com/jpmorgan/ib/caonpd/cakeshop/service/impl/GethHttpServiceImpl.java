@@ -8,23 +8,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.ErrorLog;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
-//import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.task.BlockchainInitializerTask;
 import com.jpmorgan.ib.caonpd.cakeshop.service.task.LoadPeersTask;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
@@ -76,23 +75,23 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Autowired
     private GethConfigBean gethConfig;
 
-//    @Autowired
-//    private BlockDAO blockDAO;
+    @Autowired(required=false)
+    private BlockDAO blockDAO;
 
-//    @Autowired
-//    private TransactionDAO txDAO;
-    
-//    @Autowired
-//    private WalletDAO walletDAO;
-    
+    @Autowired(required=false)
+    private TransactionDAO txDAO;
+
+    @Autowired(required=false)
+    private WalletDAO walletDAO;
+
     //cassandra repos
-    @Autowired
+    @Autowired(required=false)
     private TransactionRepository txnRepository;
-    
-    @Autowired
+
+    @Autowired(required=false)
     private BlockRepository blockRepository;
-    
-    @Autowired
+
+    @Autowired(required=false)
     private WalletRepository walletRepository;
 
     @Autowired
@@ -182,7 +181,6 @@ public class GethHttpServiceImpl implements GethHttpService {
         return processResponse(data);
     }
 
-
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> batchExecuteGethCall(List<RequestModel> requests) throws APIException {
@@ -202,7 +200,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             throw new APIException("RPC call failed", e);
         }
     }
-
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> processResponse(Map<String, Object> data) throws APIException {
@@ -258,7 +255,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
     }
 
-    @CacheEvict(value="contracts", allEntries=true)
+    @CacheEvict(value = "contracts", allEntries = true)
     @Override
     public Boolean reset() {
 
@@ -277,13 +274,25 @@ public class GethHttpServiceImpl implements GethHttpService {
         }
 
         // delete db
-//        blockDAO.reset();
-//        txDAO.reset();
-//        walletDAO.reset();
+        if (null != blockDAO) {
+            blockDAO.reset();
+        }
+        if (null != txDAO) {
+            txDAO.reset();
+        }
+        if (null != walletDAO) {
+            walletDAO.reset();
+        }
         //delete cassandra db
-        blockRepository.reset();
-        txnRepository.reset();
-        walletRepository.reset();
+        if (null != blockRepository) {
+            blockRepository.reset();
+        }
+        if (null != txnRepository) {
+            txnRepository.reset();
+        }
+        if (null != walletRepository) {
+            walletRepository.reset();
+        }
 
         return this.start();
     }
@@ -294,7 +303,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     @PreDestroy
-    protected void autoStop () {
+    protected void autoStop() {
         if (!gethConfig.isAutoStop()) {
             return;
         }
@@ -350,7 +359,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                 newGethInstall = true;
             }
 
-
             ProcessBuilder builder = createProcessBuilder(gethConfig, createGethCommand(additionalParams));
             Process process = builder.start();
 
@@ -376,7 +384,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             executor.execute(applicationContext.getBean(LoadPeersTask.class));
 
             // FIXME add a watcher thread to make sure it doesn't die..
-
         } catch (IOException ex) {
             logError("Cannot start process: " + ex.getMessage());
             return this.running = false;
@@ -390,7 +397,9 @@ public class GethHttpServiceImpl implements GethHttpService {
     }
 
     /**
-     * Initialize geth datadir via "geth init" command, using the configured genesis block
+     * Initialize geth datadir via "geth init" command, using the configured
+     * genesis block
+     *
      * @return
      * @throws IOException
      */
@@ -418,15 +427,20 @@ public class GethHttpServiceImpl implements GethHttpService {
         return Lists.newArrayList(gethConfig.getGethPath(),
                 "--datadir", gethConfig.getDataDirPath(),
                 "init", gethConfig.getGenesisBlockFilename()
-                );
+        );
     }
 
     private List<String> createGethCommand(String... additionalParams) {
 
         // Figure out how many accounts need unlocking
         String accountsToUnlock = "";
-//        int numAccounts = walletDAO.list().size();
-        int numAccounts = walletRepository.list().size();
+        int numAccounts = 0;
+        if (null != walletDAO) {
+            numAccounts = walletDAO.list().size();
+        }
+        if (null != walletRepository) {
+            numAccounts = walletRepository.list().size();
+        }
         if (numAccounts == 0) {
             accountsToUnlock = "0,1,2"; // default to accounts we ship
 
@@ -451,7 +465,7 @@ public class GethHttpServiceImpl implements GethHttpService {
                 "--rpc", "--rpcaddr", "127.0.0.1", "--rpcport", gethConfig.getRpcPort(), "--rpcapi", gethConfig.getRpcApiList(),
                 "--ipcdisable",
                 "--fakepow"
-                );
+        );
 
         if (null != additionalParams && additionalParams.length > 0) {
             commands.addAll(Lists.newArrayList(additionalParams));
@@ -527,7 +541,6 @@ public class GethHttpServiceImpl implements GethHttpService {
             return false;
         }
 
-
         long timeStart = System.currentTimeMillis();
         long timeout = gethConfig.getGethUnlockTimeout() * accounts.size(); // default 2 sec per account
 
@@ -547,8 +560,8 @@ public class GethHttpServiceImpl implements GethHttpService {
                 }
 
                 if (System.currentTimeMillis() - timeStart >= timeout) {
-                    logError("Wallet did not unlock in a timely manner (" +
-                            unlocked + " of " + accounts.size() + " accounts unlocked)");
+                    logError("Wallet did not unlock in a timely manner ("
+                            + unlocked + " of " + accounts.size() + " accounts unlocked)");
                     return false;
                 }
 

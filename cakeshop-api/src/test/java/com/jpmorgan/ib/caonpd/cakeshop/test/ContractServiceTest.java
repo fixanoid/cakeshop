@@ -1,7 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.model.Input;
 import static com.jpmorgan.ib.caonpd.cakeshop.test.Assert.*;
 import static org.testng.Assert.*;
 
@@ -9,8 +7,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.db.BlockScanner;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Input;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Input;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService.CodeType;
@@ -249,7 +247,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertTrue(!txns.isEmpty());
 	    assertEquals(txns.size(), 2);
 
-	    Transaction txSet = txns.get(0);
+	    Transaction txSet = txns.get(1);
 	    Input decodedInput = txSet.getDecodedInput();
 	    assertNotNull(decodedInput);
 	    assertEquals(decodedInput.getMethod(), "set");

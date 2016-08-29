@@ -17,7 +17,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-@Table(name="BLOCKS", schema="BLOCKCHAIN", indexes = {@Index(name="block_number_idx", columnList = "block_number")})
+@Table(name="BLOCKS", indexes = {@Index(name="block_number_idx", columnList = "block_number")})
 public class Block implements Serializable {
 
     public static final String API_DATA_TYPE = "block";

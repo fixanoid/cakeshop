@@ -3,9 +3,8 @@ package com.jpmorgan.ib.caonpd.cakeshop.db;
 import com.codahale.metrics.FastMeter;
 import com.codahale.metrics.SimpleRollingMeter;
 import com.codahale.metrics.TickListener;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 
 import javax.annotation.PreDestroy;
 

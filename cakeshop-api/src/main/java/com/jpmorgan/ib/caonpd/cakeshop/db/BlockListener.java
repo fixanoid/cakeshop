@@ -1,8 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.db;
 
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
-
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 
 
 public interface BlockListener {

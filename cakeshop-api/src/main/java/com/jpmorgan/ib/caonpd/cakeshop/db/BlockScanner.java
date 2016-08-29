@@ -1,15 +1,13 @@
 package com.jpmorgan.ib.caonpd.cakeshop.db;
 
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.NodeService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
@@ -24,6 +22,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -43,13 +42,15 @@ public class BlockScanner extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockScanner.class);
 
-    @Autowired
-    private BlockRepository blockDAO;
-//    private BlockDAO blockDAO;
+    @Autowired(required = false)
+    private BlockRepository blockRepository;
+    @Autowired(required = false)
+    private BlockDAO blockDAO;
 
-    @Autowired
-    private TransactionRepository txDAO;
-//    private TransactionDAO txDAO;
+    @Autowired(required = false)
+    private TransactionRepository txRepository;
+    @Autowired(required = false)
+    private TransactionDAO txDAO;
 
     @Autowired
     private NodeService nodeService;
@@ -108,8 +109,15 @@ public class BlockScanner extends Thread {
     protected void backfillBlocks() {
 
         // get the max block at startup
-        Block largestSavedBlock = blockDAO.getLatest();
-        Block chainBlock = null;
+        Block largestSavedBlock = null;
+        if (null != blockDAO) {
+            largestSavedBlock = blockDAO.getLatest();
+        } else if (null != blockRepository) {
+            largestSavedBlock = new Block();
+            com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block block = blockRepository.getLatest();
+            BeanUtils.copyProperties(block, largestSavedBlock);
+        }
+        Block chainBlock;
         try {
             chainBlock = blockService.get(null, null, "latest");
         } catch (APIException e) {
@@ -202,9 +210,14 @@ public class BlockScanner extends Thread {
 
         // flush db
         LOG.info("Flushing DB");
-//        dbConfig.reset();
-        blockDAO.reset();
-        txDAO.reset();
+        if (null != blockDAO && txDAO != null) {
+            blockDAO.reset();
+            txDAO.reset();
+        }
+        if (null != blockRepository && txRepository != null) {
+            txRepository.reset();
+            blockRepository.reset();
+        }
 
         // fill
         LOG.info("Backfilling blocks with new chain");

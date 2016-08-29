@@ -3,15 +3,14 @@ package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
-//import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
+import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI.Constructor;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractRegistryService;
@@ -33,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,32 +52,33 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private GethConfigBean gethConfig;
 
-	@Autowired
-	private GethHttpService geth;
+    @Autowired
+    private GethHttpService geth;
 
-	@Autowired
-	private ContractRegistryService contractRegistry;
+    @Autowired
+    private ContractRegistryService contractRegistry;
 
-	@Autowired
-    private TransactionRepository transactionDAO;
-//	private TransactionDAO transactionDAO;
+    @Autowired(required = false)
+    private TransactionRepository transactionRepository;
+    @Autowired(required = false)
+    private TransactionDAO transactionDAO;
 
-	@Autowired
-	private WalletService walletService;
+    @Autowired
+    private WalletService walletService;
 
-	private String defaultFromAddress;
+    private String defaultFromAddress;
 
-	@Autowired
-	@Qualifier("asyncExecutor")
-	private TaskExecutor executor;
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private TaskExecutor executor;
 
-	@Autowired
-	private ApplicationContext appContext;
+    @Autowired
+    private ApplicationContext appContext;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public List<Contract> compile(String code, CodeType codeType, Boolean optimize) throws APIException {
 
         if (codeType != CodeType.solidity) {
@@ -116,7 +117,6 @@ public class ContractServiceImpl implements ContractService {
             }
 
             //System.out.println(stdout.getString());
-
             res = objectMapper.readValue(stdout.getString(), Map.class);
 
         } catch (IOException | InterruptedException e) {
@@ -128,8 +128,8 @@ public class ContractServiceImpl implements ContractService {
             throw new CompilerException((List<String>) res.get("errors"));
         }
 
-		// res is a hash of contract name -> compiled result map
-		for (Entry<String, Object> contractRes : res.entrySet()) {
+        // res is a hash of contract name -> compiled result map
+        for (Entry<String, Object> contractRes : res.entrySet()) {
             Contract contract = new Contract();
             contract.setName(contractRes.getKey());
             contract.setCreatedDate(createdDate);
@@ -148,7 +148,7 @@ public class ContractServiceImpl implements ContractService {
             contracts.add(contract);
         }
 
-		return contracts;
+        return contracts;
     }
 
     @Override
@@ -177,7 +177,6 @@ public class ContractServiceImpl implements ContractService {
 
         contract.setOwner(from);
 
-
         // handle constructor args
         String data = contract.getBinary();
         if (args != null && args.length > 0) {
@@ -189,161 +188,173 @@ public class ContractServiceImpl implements ContractService {
             data = data + Hex.toHexString(constructor.encode(args));
         }
 
+        Map<String, Object> contractArgs = new HashMap<>();
+        contractArgs.put("from", getAddress(from));
+        contractArgs.put("data", data);
+        contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
 
-		Map<String, Object> contractArgs = new HashMap<>();
-		contractArgs.put("from", getAddress(from));
-		contractArgs.put("data", data);
-		contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
+        Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{contractArgs});
 
-		Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{ contractArgs });
+        TransactionResult tr = new TransactionResult();
+        tr.setId((String) contractRes.get("_result"));
 
-		TransactionResult tr = new TransactionResult();
-		tr.setId((String) contractRes.get("_result"));
+        // defer contract registration
+        executor.execute(appContext.getBean(ContractRegistrationTask.class, contract, tr));
 
-		// defer contract registration
-		executor.execute(appContext.getBean(ContractRegistrationTask.class, contract, tr));
+        return tr;
+    }
 
-		return tr;
-	}
+    @Override
+    public TransactionResult delete() throws APIException {
+        throw new APIException("Not yet implemented"); // TODO
+    }
 
-	@Override
-	public TransactionResult delete() throws APIException {
-		throw new APIException("Not yet implemented"); // TODO
-	}
+    @Cacheable(value = "contracts", unless = "#result == null")
+    @Override
+    public Contract get(String address) throws APIException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Contract cache miss for: " + address);
+        }
 
-	@Cacheable(value="contracts", unless="#result == null")
-	@Override
-	public Contract get(String address) throws APIException {
-	    if (LOG.isDebugEnabled()) {
-	        LOG.debug("Contract cache miss for: " + address);
-	    }
+        Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{address, "latest"});
 
-	    Map<String, Object> contractRes = geth.executeGethCall("eth_getCode", new Object[]{ address, "latest" });
+        String bin = (String) contractRes.get("_result");
+        if (bin.contentEquals("0x")) {
+            throw new APIException("Contract not in registry " + address);
+        }
 
-	    String bin = (String) contractRes.get("_result");
-	    if (bin.contentEquals("0x")) {
-	        throw new APIException("Contract not in registry " + address);
-	    }
+        Contract contract = contractRegistry.getById(address);
+        if (contract == null) {
+            // not [yet] in registry. only binary code will be returned (assuming it exists)
+            contract = new Contract();
+            contract.setAddress(address);
+        }
 
-	    Contract contract = contractRegistry.getById(address);
-	    if (contract == null) {
-	        // not [yet] in registry. only binary code will be returned (assuming it exists)
-	        contract = new Contract();
-	        contract.setAddress(address);
-	    }
+        contract.setBinary(bin);
 
-	    contract.setBinary(bin);
+        return contract;
+    }
 
-	    return contract;
-	}
+    @Override
+    public List<Contract> list() throws APIException {
+        return contractRegistry.list();
+    }
 
-	@Override
-	public List<Contract> list() throws APIException {
-	    return contractRegistry.list();
-	}
+    @Override
+    public TransactionResult migrate() throws APIException {
+        throw new APIException("Not yet implemented"); // TODO
+    }
 
-	@Override
-	public TransactionResult migrate() throws APIException {
-		throw new APIException("Not yet implemented"); // TODO
-	}
+    @Override
+    public Object[] read(String id, String from, String method, Object[] args, Object blockNumber) throws APIException {
+        return read(id, lookupABI(id), from, method, args, blockNumber);
+    }
 
-	@Override
-	public Object[] read(String id, String from, String method, Object[] args, Object blockNumber) throws APIException {
-	    return read(id, lookupABI(id), from, method, args, blockNumber);
-	}
+    @Override
+    public Object[] read(String id, ContractABI abi, String from, String method, Object[] args, Object blockNumber) throws APIException {
+        TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, true);
 
-	@Override
-	public Object[] read(String id, ContractABI abi, String from, String method, Object[] args, Object blockNumber) throws APIException {
-	    TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, true);
+        if (blockNumber != null) {
+            if (!(blockNumber instanceof Number || blockNumber instanceof String)) {
+                throw new APIException("Invalid value for blockNumber: must be long or string");
+            }
+            req.setBlockNumber(blockNumber);
+        }
 
-	    if (blockNumber != null) {
-	        if (!(blockNumber instanceof Number || blockNumber instanceof String)) {
-	            throw new APIException("Invalid value for blockNumber: must be long or string");
-	        }
-	        req.setBlockNumber(blockNumber);
-	    }
+        return read(req);
+    }
 
-	    return read(req);
-	}
+    @Override
+    public Object[] read(TransactionRequest request) throws APIException {
+        request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
 
-	@Override
-	public Object[] read(TransactionRequest request) throws APIException {
-	    request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
+        Map<String, Object> readRes = geth.executeGethCall("eth_call", request.toGethArgs());
+        String res = (String) readRes.get("_result");
+        if (StringUtils.isNotBlank(res) && res.length() == 2 && res.contentEquals("0x")) {
+            throw new APIException("eth_call failed (returned 0 bytes)");
+        }
 
-	    Map<String, Object> readRes = geth.executeGethCall("eth_call", request.toGethArgs());
-	    String res = (String) readRes.get("_result");
-	    if (StringUtils.isNotBlank(res) && res.length() == 2 && res.contentEquals("0x")) {
-	        throw new APIException("eth_call failed (returned 0 bytes)");
-	    }
+        Object[] decodedResults = request.getFunction().decodeHexResult(res).toArray();
 
-	    Object[] decodedResults = request.getFunction().decodeHexResult(res).toArray();
+        return decodedResults;
+    }
 
-	    return decodedResults;
-	}
+    @Override
+    public TransactionResult transact(String id, String from, String method, Object[] args) throws APIException {
+        return transact(id, lookupABI(id), from, method, args);
+    }
 
-	@Override
-	public TransactionResult transact(String id, String from, String method, Object[] args) throws APIException {
-	    return transact(id, lookupABI(id), from, method, args);
-	}
+    @Override
+    public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException {
+        TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, false);
+        return transact(req);
+    }
 
-	@Override
-	public TransactionResult transact(String id, ContractABI abi, String from, String method, Object[] args) throws APIException {
-	    TransactionRequest req = new TransactionRequest(getAddress(from), id, abi, method, args, false);
-	    return transact(req);
-	}
+    @Override
+    public TransactionResult transact(TransactionRequest request) throws APIException {
+        request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
+        Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
+        return new TransactionResult((String) readRes.get("_result"));
+    }
 
-	@Override
-	public TransactionResult transact(TransactionRequest request) throws APIException {
-	    request.setFromAddress(getAddress(request.getFromAddress())); // make sure we have a non-null from address
-	    Map<String, Object> readRes = geth.executeGethCall("eth_sendTransaction", request.toGethArgs());
-	    return new TransactionResult((String) readRes.get("_result"));
-	}
+    @Override
+    public List<Transaction> listTransactions(String contractId) throws APIException {
 
-	@Override
-	public List<Transaction> listTransactions(String contractId) throws APIException {
+        Contract contract = get(contractId);
+        ContractABI abi = ContractABI.fromJson(contract.getABI());
 
-	    Contract contract = get(contractId);
-	    ContractABI abi = ContractABI.fromJson(contract.getABI());
+        List<Transaction> txns = new ArrayList();
+        if (null != transactionDAO) {
+            txns = transactionDAO.listForContractId(contractId);
+        } else if (null != transactionRepository) {
+            List<com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction> cassTxns
+                    = transactionRepository.listForContractId(contractId);
+            if (null != cassTxns) {
+                for (com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction cassTxn : cassTxns) {
+                    Transaction txn = new Transaction();
+                    BeanUtils.copyProperties(cassTxn, txn);
+                    txns.add(txn);
+                }
+            }
+        } 
 
-	    List<Transaction> txns = transactionDAO.listForContractId(contractId);
+        for (Transaction tx : txns) {
 
-	    for (Transaction tx : txns) {
+            if (tx.getInput().startsWith("0xfa")) {
+                // handle gemini payloads
+                try {
+                    Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
+                    if (res.get("_result") != null) {
+                        tx.setInput((String) res.get("_result"));
+                    }
+                } catch (APIException e) {
+                    LOG.warn("Failed to load gemini payload: " + e.getMessage());
+                    continue;
+                }
+            }
 
-	        if (tx.getInput().startsWith("0xfa")) {
-	            // handle gemini payloads
-	            try {
-	                Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
-	                if (res.get("_result") != null) {
-	                    tx.setInput((String) res.get("_result"));
-	                }
-	            } catch (APIException e) {
-	                LOG.warn("Failed to load gemini payload: " + e.getMessage());
-	                continue;
-	            }
-	        }
+            tx.decodeContractInput(abi);
+        }
 
-	        tx.decodeContractInput(abi);
-	    }
+        return txns;
+    }
 
-	    return txns;
-	}
-
-	private String getAddress(String from) throws APIException {
-	    if (StringUtils.isNotBlank(from)) {
-	        return from;
-	    }
+    private String getAddress(String from) throws APIException {
+        if (StringUtils.isNotBlank(from)) {
+            return from;
+        }
         if (defaultFromAddress == null) {
             defaultFromAddress = walletService.list().get(0).getAddress();
         }
         return defaultFromAddress;
-	}
+    }
 
-	private ContractABI lookupABI(String id) throws APIException {
-	    Contract contract = contractRegistry.getById(id);
-	    if (contract == null) {
-	    }
-
-        return contract.getContractAbi();
-	}
+    private ContractABI lookupABI(String id) throws APIException {
+        Contract contract = contractRegistry.getById(id);
+        if (contract != null) {
+            return contract.getContractAbi();
+        }
+        return null;
+    }
 
 }

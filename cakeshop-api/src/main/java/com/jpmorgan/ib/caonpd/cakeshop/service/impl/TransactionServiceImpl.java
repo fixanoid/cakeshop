@@ -1,14 +1,16 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.EventsRepository;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Status;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
@@ -17,6 +19,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import java.io.IOException;
 import java.math.BigInteger;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -45,15 +49,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private WalletService walletService;
-    @Autowired
-    private EventsRepository eventDAO;
+    @Autowired(required = false)
+    private EventsRepository eventRepository;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     private String defaultFromAddress;
-    
-    private final String EMPTY_ADDRESS = "0x";
 
     @Override
     public Transaction get(String id) throws APIException {
@@ -78,12 +80,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Transaction processTx(Map<String, Object> txData) throws APIException {
         Transaction tx = new Transaction();
-
         tx.setId((String) txData.get("hash"));
         tx.setBlockId((String) txData.get("blockHash"));
         //TODO: this is a hack to make test happy. Need to evaluate the logic to have to and contract address always present.
-        tx.setContractAddress(null != txData.get("contractAddress") ? (String) txData.get("contractAddress") : EMPTY_ADDRESS);
-        tx.setTo(null != txData.get("to") ? (String) txData.get("to") : EMPTY_ADDRESS);
+        tx.setContractAddress((String) txData.get("contractAddress"));
+        tx.setTo((String)txData.get("to"));
         //hack end
         tx.setNonce((String) txData.get("nonce"));
         tx.setInput((String) txData.get("input"));
@@ -101,13 +102,12 @@ public class TransactionServiceImpl implements TransactionService {
         if (tx.getBlockId() == null || tx.getBlockNumber() == null
                 || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
 
-            tx.setStatus(Status.pending.toString());
+            tx.setStatus(Status.pending);
         } else {
-            tx.setStatus(Status.committed.toString());
+            tx.setStatus(Status.committed);
         }
 
-        if (tx.getContractAddress().equalsIgnoreCase(EMPTY_ADDRESS)
-                && (StringUtils.isNotBlank(tx.getStatus()) && tx.getStatus().equalsIgnoreCase("committed")) ) {
+        if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {  
 
             // lookup contract
             ContractService contractService = applicationContext.getBean(ContractService.class);
@@ -148,12 +148,23 @@ public class TransactionServiceImpl implements TransactionService {
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }  
         } 
-
         if (txData.get("logs") != null) {
             List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
             if (!logs.isEmpty()) {
-                eventDAO.save(eventService.processEvents(logs));
-                tx.setLogs(eventService.processEvents(logs));
+                List<Event> events = eventService.processEvents(logs);
+                tx.setLogs(events);
+                if (null != eventRepository) {
+                    List <com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event> cassEvents = new ArrayList();
+                    for (Event event : events) {
+                        com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event cassEvent 
+                                = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event();
+                        BeanUtils.copyProperties(event, cassEvent, new String [] {"data"});
+                        cassEvent.setData(decodeCassEvent(event.getData()));
+                        cassEvents.add(cassEvent);
+                        
+                    }
+                    eventRepository.save(cassEvents);
+                }
             }
         }
 
@@ -220,7 +231,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction tx = null;
         while (true) {
             tx = this.get(result.getId());
-            if (tx.getStatus() == null ? Status.committed.toString() == null : tx.getStatus().equals(Status.committed.toString())) {
+            if (tx.getStatus() == null ? Status.committed.toString() == null : tx.getStatus().equals(Status.committed)) {
                 break;
             }
             pollDelayUnit.sleep(pollDelay);
@@ -241,4 +252,16 @@ public class TransactionServiceImpl implements TransactionService {
         return new TransactionResult((String) readRes.get("_result"));
     }
 
+    private List<String> decodeCassEvent(Object [] decodeHex) {
+
+        List<String> dataList = new ArrayList<>();
+        for (Object decodeOdj : decodeHex) {
+            try {
+                dataList.add(eventService.serialize(decodeOdj));
+            } catch (IOException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
+        return dataList;
+    }
 }

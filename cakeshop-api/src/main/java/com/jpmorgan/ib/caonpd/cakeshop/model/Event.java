@@ -15,7 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="EVENTS", schema="BLOCKCHAIN")
+@Table(name="EVENTS")
 public class Event implements Serializable {
 
     public static final String API_DATA_TYPE = "event";

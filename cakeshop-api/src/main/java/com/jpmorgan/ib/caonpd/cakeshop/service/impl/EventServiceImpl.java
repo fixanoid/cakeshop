@@ -1,12 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
@@ -104,17 +104,8 @@ public class EventServiceImpl implements EventService {
                 topicData[i] = Hex.decode(t.substring(2));
             }
 
-//            Object[] decodeHex = abiEvent.decode(logData, topicData).toArray();
-            List <Object> decodeHex = (List <Object>) abiEvent.decode(logData, topicData);
-            List <String> dataList = new ArrayList<>();
-            for (Object decodeOdj : decodeHex) {
-                try {
-                    dataList.add(serialize(decodeOdj));
-                } catch (IOException ex) {
-                    LOG.error(ex.getMessage());
-                }
-            }
-            event.setData(dataList);
+            Object[] decodeHex = abiEvent.decode(logData, topicData).toArray();
+            event.setData(decodeHex);
 
             events.add(event);
         }

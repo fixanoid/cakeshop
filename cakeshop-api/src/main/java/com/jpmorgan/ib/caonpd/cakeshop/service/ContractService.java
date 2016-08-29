@@ -1,10 +1,9 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 

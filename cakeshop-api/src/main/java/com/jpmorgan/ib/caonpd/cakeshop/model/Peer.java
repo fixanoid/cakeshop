@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-@Table(name="PEERS", schema="BLOCKCHAIN")
+@Table(name="PEERS")
 public class Peer implements Serializable  {
 
     /**

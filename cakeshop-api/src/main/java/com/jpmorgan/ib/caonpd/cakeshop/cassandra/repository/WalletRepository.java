@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class WalletRepository {
     
-    @Autowired
+    @Autowired(required = false)
     private CassandraOperations cassandraTemplate;
         
     public void save (Account account) {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpmorgan.ib.caonpd.cakeshop.config;
+package com.jpmorgan.ib.caonpd.cakeshop.config.cassandra;
 
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
@@ -19,9 +19,14 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.core.env.Environment;
 import org.springframework.data.cassandra.config.CassandraClusterFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
@@ -37,12 +42,16 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 @Configuration
 @EnableCassandraRepositories(
         basePackages = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository")
-public class CassandraConfig extends AbstractCassandraConfiguration {
+@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, 
+        pattern = "com.jpmorgan.ib.caonpd.cakeshop.dao.*"))
+public class CassandraConfig extends AbstractCassandraConfiguration implements ApplicationContextAware {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CassandraConfig.class);
 
     @Autowired
     private Environment env;
+    
+    protected ApplicationContext applicationContext;
 
     @Override
     protected String getKeyspaceName() {
@@ -109,6 +118,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
     @Override
     public String[] getEntityBasePackages() {
         return new String[]{"com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity"};
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
 }

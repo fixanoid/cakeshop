@@ -1,8 +1,8 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test.config;
 
 import com.jpmorgan.ib.caonpd.cakeshop.config.AppConfig;
-import com.jpmorgan.ib.caonpd.cakeshop.config.CassandraConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.config.DatabaseConfig;
+import com.jpmorgan.ib.caonpd.cakeshop.config.cassandra.CassandraConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.config.SpringBootApplication;
 import com.jpmorgan.ib.caonpd.cakeshop.config.WebAppInit;
 import com.jpmorgan.ib.caonpd.cakeshop.config.WebConfig;
@@ -35,12 +35,12 @@ import org.testng.annotations.BeforeClass;
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
             value = { SpringBootApplication.class, WebConfig.class, WebAppInit.class,
-                            BlockScanner.class, CassandraConfig.class }
+                            BlockScanner.class, CassandraConfig.class, DatabaseConfig.class }
         )
     }
 )
 @ActiveProfiles("test")
-@Order(1)
+@Order(0)
 @EnableAsync
 public class TestAppConfig implements  EnvironmentAware{
 
@@ -51,7 +51,7 @@ public class TestAppConfig implements  EnvironmentAware{
     @BeforeClass
     public static void setUp() {        
         System.setProperty("spring.profiles.active", "test");
-//        System.setProperty("cassandra.config", "file:///Users/I629630/workspace/ethereum-ee/ethereum-enterprise/cakeshop-api/src/test/resources/cassandra.yml");
+        System.setProperty("cakeshop.database.name", "hsql");
     }
 
     @Bean

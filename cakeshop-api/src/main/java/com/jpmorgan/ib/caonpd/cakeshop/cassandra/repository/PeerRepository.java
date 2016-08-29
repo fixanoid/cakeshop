@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PeerRepository {
     
-    @Autowired
+    @Autowired(required = false)
     private CassandraOperations cassandraTemplate;
     
     public void save (Peer peer) {

@@ -1,11 +1,11 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import static org.testng.Assert.*;
 
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
@@ -52,12 +52,17 @@ public class EventServiceTest extends BaseGethRpcTest {
 	}
 
     private void testEvent(Event event) throws IOException, ClassNotFoundException {
-//        Object[] data = event.getData();
+        Object[] data = event.getData();       
+        assertNotNull(data);
+		assertEquals(data.length, 2);
+		assertEquals(data[0], "change val");
+		assertEquals(data[1], BigInteger.valueOf(100L));
+
+    }
+    
+    private void testCassEvent(com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event event) throws IOException, ClassNotFoundException {
         List<String> data = event.getData();
         assertNotNull(data);
-//		assertEquals(data.length, 2);
-//		assertEquals(data[0], "change val");
-//		assertEquals(data[1], BigInteger.valueOf(100L));
         assertEquals(data.size(), 2);
         assertEquals(eventService.deserialize(data.get(0)), "change val");
         assertEquals(eventService.deserialize(data.get(1)), BigInteger.valueOf(100L));

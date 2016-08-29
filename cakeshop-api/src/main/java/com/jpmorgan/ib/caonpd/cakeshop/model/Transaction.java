@@ -27,7 +27,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 @Entity
 @Table(
-        name = "TRANSACTIONS", schema = "BLOCKCHAIN",
+        name = "TRANSACTIONS",
         indexes = {
             @Index(name = "tr_block_number_idx", columnList = "blockNumber"),
             @Index(name = "tr_contract_addr_idx", columnList = "contractAddress"),

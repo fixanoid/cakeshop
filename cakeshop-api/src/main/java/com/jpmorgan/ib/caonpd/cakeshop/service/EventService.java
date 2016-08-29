@@ -1,7 +1,8 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import java.io.IOException;
 
 import java.util.List;
