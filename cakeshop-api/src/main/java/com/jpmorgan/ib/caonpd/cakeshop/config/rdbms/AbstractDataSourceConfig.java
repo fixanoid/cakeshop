@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@Order(1)
 @ComponentScan(basePackages = {"com.jpmorgan.ib.caonpd.cakeshop.model"},
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.*"))
 public abstract class AbstractDataSourceConfig implements ApplicationContextAware {
@@ -35,6 +33,13 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractDataSourceConfig.class);
     private final String JNDI_NAME_PROP = "cakeshop.jndi.name";
     private final String JNDI_NAME = System.getProperty(JNDI_NAME_PROP);
+    
+    protected final String JDBC_URL = "cakeshop.jdbc.url";
+    protected final String JDBC_USER = "cakeshop.jdbc.user";
+    protected final String JDBC_PASS =  "cakeshop.jdbc.pass";
+    protected final String JDBC_BATCH_SIZE = "cakeshop.hibernate.jdbc.batch_size";
+    protected final String HBM_2DDL_AUTO = "cakeshop.hibernate.hbm2ddl.auto";
+    protected final String HIBERNATE_DIALECT = "cakeshop.hibernate.dialect";
 
     @Autowired
     protected Environment env;

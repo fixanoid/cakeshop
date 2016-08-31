@@ -9,6 +9,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.config.rdbms;
 import com.jpmorgan.ib.caonpd.cakeshop.conditions.OracleDataSourceConditon;
 import java.util.Properties;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -36,9 +37,12 @@ public class OracleDataSourceConfig extends AbstractDataSourceConfig {
         LOG.info("USING ORACLE HIBERNATE DIALECT");
         return new Properties() {
             {
-                setProperty("hibernate.jdbc.batch_size", env.getProperty("cakeshop.hibernate.jdbc.batch_size", "500"));
-                setProperty("hibernate.hbm2ddl.auto", env.getProperty("cakeshop.hibernate.hbm2ddl.auto", "update"));
-                setProperty("hibernate.dialect", env.getProperty("cakeshop.hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect"));
+                setProperty("hibernate.jdbc.batch_size", StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE)) 
+                        ? System.getProperty(JDBC_BATCH_SIZE) : env.getProperty(JDBC_BATCH_SIZE, "20"));
+                setProperty("hibernate.hbm2ddl.auto", StringUtils.isNotBlank(System.getProperty(HBM_2DDL_AUTO)) 
+                        ? System.getProperty(HBM_2DDL_AUTO) : env.getProperty(HBM_2DDL_AUTO, "update"));
+                setProperty("hibernate.dialect", StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT))
+                        ? System.getProperty(HIBERNATE_DIALECT) : env.getProperty(HIBERNATE_DIALECT, "org.hibernate.dialect.Oracle10gDialect"));
                 setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
@@ -52,10 +56,12 @@ public class OracleDataSourceConfig extends AbstractDataSourceConfig {
     @Override
     protected DataSource getSimpleDataSource() throws ClassNotFoundException {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
-        dataSource.setDriverClass(oracle.jdbc.OracleDriver.class);
-        dataSource.setUrl(env.getProperty("cakeshop.jdbc.url"));
-        dataSource.setUsername(env.getProperty("cakeshop.jdbc.user"));
-        dataSource.setPassword(env.getProperty("cakeshop.jdbc.pass"));
+        dataSource.setUrl(StringUtils.isNotBlank(System.getProperty(JDBC_URL)) 
+                ? System.getProperty(JDBC_URL)  : env.getProperty(JDBC_URL));
+        dataSource.setUsername(StringUtils.isNotBlank(System.getProperty(JDBC_USER)) 
+                ? System.getProperty(JDBC_USER) : env.getProperty(JDBC_USER));
+        dataSource.setPassword(StringUtils.isNotBlank(System.getProperty(JDBC_PASS)) 
+                ? System.getProperty(JDBC_PASS) : env.getProperty(JDBC_PASS));
         return dataSource;
     }
 

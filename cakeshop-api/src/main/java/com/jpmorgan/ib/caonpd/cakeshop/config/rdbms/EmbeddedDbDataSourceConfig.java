@@ -93,6 +93,7 @@ public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
                 setProperty("hibernate.jdbc.batch_size", hibernateBatchSize);
                 setProperty("hibernate.hbm2ddl.auto", hibernateAuto);
                 setProperty("hibernate.dialect", hibernateDialect);
+                setProperty("hibernate.default_schema", "PUBLIC");
                 setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
@@ -104,10 +105,6 @@ public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
         dataSource.setUrl("jdbc:hsqldb:file:" + getDbStoragePath() + ";hsqldb.default_table_type=cached");
         dataSource.setUsername("sdk");
         dataSource.setPassword("sdk");
-//        dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-//        dataSource.setUrl(env.getProperty("jdbc.url"));
-//        dataSource.setUsername(env.getProperty("jdbc.user"));
-//        dataSource.setPassword(env.getProperty("jdbc.pass"));
         return dataSource;
     }
 
