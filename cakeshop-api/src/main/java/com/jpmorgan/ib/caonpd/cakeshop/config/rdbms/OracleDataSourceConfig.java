@@ -6,12 +6,14 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config.rdbms;
 
 
+import com.jpmorgan.ib.caonpd.cakeshop.conditions.OracleDataSourceConditon;
 import java.util.Properties;
 import javax.sql.DataSource;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -21,6 +23,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
  * @author I629630
  */
 @Configuration
+@Conditional(OracleDataSourceConditon.class)
 public class OracleDataSourceConfig extends AbstractDataSourceConfig {    
 
     @Bean

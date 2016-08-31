@@ -54,8 +54,9 @@ public class BlockchainInitializerTask implements Runnable {
     @Autowired
     private WalletService walletService;
 
-    @Autowired(required = false)
+//    @Autowired(required = false)
     private WalletRepository walletRepository;
+    @Autowired(required = false)
     private WalletDAO walletDAO;
     
 
@@ -105,8 +106,7 @@ public class BlockchainInitializerTask implements Runnable {
             for (Account account : list) {
                 if (null != walletDAO) {
                     walletDAO.save(account);
-                }
-                if (null != walletRepository) {
+                } else if (null != walletRepository) {
                     com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account cassAcc
                             = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account();
                     BeanUtils.copyProperties(account, cassAcc);

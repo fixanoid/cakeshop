@@ -58,7 +58,7 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private ContractRegistryService contractRegistry;
 
-    @Autowired(required = false)
+    //@Autowired(required = false)
     private TransactionRepository transactionRepository;
     @Autowired(required = false)
     private TransactionDAO transactionDAO;

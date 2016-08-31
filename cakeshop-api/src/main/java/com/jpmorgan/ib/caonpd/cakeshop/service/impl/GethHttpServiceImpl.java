@@ -85,13 +85,13 @@ public class GethHttpServiceImpl implements GethHttpService {
     private WalletDAO walletDAO;
 
     //cassandra repos
-    @Autowired(required=false)
+    //@Autowired(required=false)
     private TransactionRepository txnRepository;
 
-    @Autowired(required=false)
+    //@Autowired(required=false)
     private BlockRepository blockRepository;
 
-    @Autowired(required=false)
+    //@Autowired(required=false)
     private WalletRepository walletRepository;
 
     @Autowired
@@ -437,8 +437,7 @@ public class GethHttpServiceImpl implements GethHttpService {
         int numAccounts = 0;
         if (null != walletDAO) {
             numAccounts = walletDAO.list().size();
-        }
-        if (null != walletRepository) {
+        } else if (null != walletRepository) {
             numAccounts = walletRepository.list().size();
         }
         if (numAccounts == 0) {

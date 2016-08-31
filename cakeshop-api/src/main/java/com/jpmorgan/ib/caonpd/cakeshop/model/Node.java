@@ -1,6 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.model;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer;
+
 import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 
 import java.util.List;

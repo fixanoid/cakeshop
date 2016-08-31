@@ -1,7 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test.config;
 
 import com.jpmorgan.ib.caonpd.cakeshop.config.AppConfig;
-import com.jpmorgan.ib.caonpd.cakeshop.config.DatabaseConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.config.cassandra.CassandraConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.config.SpringBootApplication;
 import com.jpmorgan.ib.caonpd.cakeshop.config.WebAppInit;
@@ -35,12 +34,12 @@ import org.testng.annotations.BeforeClass;
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
             value = { SpringBootApplication.class, WebConfig.class, WebAppInit.class,
-                            BlockScanner.class, CassandraConfig.class, DatabaseConfig.class }
+                            BlockScanner.class, CassandraConfig.class}
         )
     }
 )
 @ActiveProfiles("test")
-@Order(0)
+@Order(1)
 @EnableAsync
 public class TestAppConfig implements  EnvironmentAware{
 
@@ -51,7 +50,7 @@ public class TestAppConfig implements  EnvironmentAware{
     @BeforeClass
     public static void setUp() {        
         System.setProperty("spring.profiles.active", "test");
-        System.setProperty("cakeshop.database.name", "hsql");
+        System.setProperty("cakeshop.database.vendor", "hsqldb");
     }
 
     @Bean

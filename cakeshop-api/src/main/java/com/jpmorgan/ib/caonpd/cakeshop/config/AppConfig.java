@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -161,6 +162,13 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
         exec.setThreadNamePrefix("EE-SDK-");
         exec.afterPropertiesSet();
         return exec;
+    }
+    
+    @Bean
+    public AnnotationMBeanExporter annotationMBeanExporter() {
+        AnnotationMBeanExporter annotationMBeanExporter = new AnnotationMBeanExporter();
+        annotationMBeanExporter.addExcludedBean("dataSource");
+        return annotationMBeanExporter;
     }
 
     @Override

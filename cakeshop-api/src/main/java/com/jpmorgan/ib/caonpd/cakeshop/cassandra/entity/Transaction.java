@@ -17,15 +17,15 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bouncycastle.util.encoders.Hex;
-import org.springframework.cassandra.core.Ordering;
-import org.springframework.cassandra.core.PrimaryKeyType;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.mapping.Table;
+//import org.springframework.cassandra.core.Ordering;
+//import org.springframework.cassandra.core.PrimaryKeyType;
+//import org.springframework.data.annotation.Transient;
+//import org.springframework.data.cassandra.mapping.Column;
+//import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+//import org.springframework.data.cassandra.mapping.Table;
 
 
-@Table(value = "transaction")
+//@Table(value = "transaction")
 public class Transaction {
 
     public static final String API_DATA_TYPE = "transaction";
@@ -37,47 +37,47 @@ public class Transaction {
 
     //primary keys
 	
-    @PrimaryKeyColumn(
-            name = "blockNumber",
-            ordinal = 2,
-            type = PrimaryKeyType.CLUSTERED,
-            ordering = Ordering.DESCENDING)
+//    @PrimaryKeyColumn(
+//            name = "blockNumber",
+//            ordinal = 2,
+//            type = PrimaryKeyType.CLUSTERED,
+//            ordering = Ordering.DESCENDING)
 	private BigInteger blockNumber;
-    @PrimaryKeyColumn(
-            name = "contractAddress", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "contractAddress", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
 	private String contractAddress;
-    @PrimaryKeyColumn(
-            name = "to_address", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "to_address", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
 	private String to;
-    @PrimaryKeyColumn(
-            name = "id", ordinal = 3)
+//    @PrimaryKeyColumn(
+//            name = "id", ordinal = 3)
 	private String id;
     //rest of the columns
-    @Column
+//    @Column
 	private String blockId;    
-    @Column
+//    @Column
 	private String status;
-    @Column
+//    @Column
 	private String nonce;    
-    @Column
+//    @Column
 	private BigInteger transactionIndex;
-    @Column(value = "from_address")
+//    @Column(value = "from_address")
 	private String from;    
-    @Column
+//    @Column
 	private BigInteger value;
-    @Column
+//    @Column
 	private BigInteger gas;
-    @Column
+//    @Column
 	private BigInteger gasPrice;
-	@Column
+//	@Column
 	private String input;
-    @Column
+//    @Column
 	private BigInteger cumulativeGasUsed;
-    @Column
+//    @Column
 	private BigInteger gasUsed;    
-    @Transient
+//    @Transient
     private Input decodedInput;
-    @Transient
+//    @Transient
     private List<Event> logs;
 
 	public String getId() {

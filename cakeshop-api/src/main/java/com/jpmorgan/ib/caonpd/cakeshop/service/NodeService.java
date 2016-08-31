@@ -1,10 +1,9 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
 import com.jpmorgan.ib.caonpd.cakeshop.model.NodeConfig;
-//import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 
 import java.util.List;
 

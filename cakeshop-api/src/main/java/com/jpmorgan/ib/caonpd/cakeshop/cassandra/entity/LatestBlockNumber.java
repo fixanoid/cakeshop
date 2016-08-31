@@ -6,22 +6,22 @@
 package com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity;
 
 import java.math.BigInteger;
-import org.springframework.cassandra.core.PrimaryKeyType;
-import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.mapping.Table;
+//import org.springframework.cassandra.core.PrimaryKeyType;
+//import org.springframework.data.cassandra.mapping.Column;
+//import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+//import org.springframework.data.cassandra.mapping.Table;
 
 /**
  *
  * @author I629630
  */
-@Table(value = "latest_block")
+//@Table(value = "latest_block")
 public class LatestBlockNumber {
     
-    @PrimaryKeyColumn(
-            name = "id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private final BigInteger id = new BigInteger ("0");
-    @Column
+//    @Column
     private BigInteger blockNumber;
 
     /**

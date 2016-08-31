@@ -61,12 +61,12 @@ public class SavingBlockListener implements BlockListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(SavingBlockListener.class);
 
-    @Autowired(required = false)
+   // @Autowired(required = false)
     private BlockRepository blockRepository;
     @Autowired(required = false)
     private BlockDAO blockDAO;
 
-    @Autowired(required = false)
+    //@Autowired(required = false)
     private TransactionRepository txRepository;
     @Autowired(required = false)
     private TransactionDAO txDAO;
@@ -105,16 +105,16 @@ public class SavingBlockListener implements BlockListener {
             return;
         }
         LOG.info("Persisting block #" + block.getNumber());
-        if (null != blockRepository) {
+        if (null != blockDAO) {
+            blockDAO.save(block);
+        } else if (null != blockRepository) {
             LatestBlockNumber latest = new LatestBlockNumber();
             latest.setBlockNumber(block.getNumber());
             blockRepository.save(latest);
             com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block cassBlock = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block();
             BeanUtils.copyProperties(block, cassBlock);
             blockRepository.save(cassBlock);
-        } else if (null != blockDAO) {
-            blockDAO.save(block);
-        }
+        } 
         
         if (!block.getTransactions().isEmpty()) {
             List<String> transactions = block.getTransactions();
@@ -122,7 +122,9 @@ public class SavingBlockListener implements BlockListener {
             for (List<String> txnChunk : txnChunks) {
                 try {
                     List<Transaction> txns = txService.get(txnChunk);
-                    if (null != txRepository) {
+                    if (null != txDAO) {
+                        txDAO.save(txns);
+                    } else if (null != txRepository) {
                         List<com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction> cassTxns = new ArrayList();
                         for (Transaction txn : txns) {
                             com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction cassTxn = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction();
@@ -138,9 +140,7 @@ public class SavingBlockListener implements BlockListener {
                         }
                         txRepository.save(cassTxns);                        
                     }
-                    if (null != txDAO) {
-                        txDAO.save(txns);
-                    }
+                    
                     pushTransactions(txns); // push to subscribers after saving
                 } catch (APIException e) {
                     LOG.warn("Failed to load transaction details for tx", e);

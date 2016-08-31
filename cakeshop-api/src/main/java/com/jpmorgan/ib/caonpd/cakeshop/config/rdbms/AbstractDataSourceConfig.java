@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
-import org.springframework.jndi.JndiTemplate;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -27,12 +27,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
+@Order(1)
 @ComponentScan(basePackages = {"com.jpmorgan.ib.caonpd.cakeshop.model"},
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.*"))
 public abstract class AbstractDataSourceConfig implements ApplicationContextAware {
     
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractDataSourceConfig.class);
-    private final String JNDI_NAME = System.getProperty("jndi.name");
+    private final String JNDI_NAME_PROP = "cakeshop.jndi.name";
+    private final String JNDI_NAME = System.getProperty(JNDI_NAME_PROP);
 
     @Autowired
     protected Environment env;
@@ -70,11 +72,12 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
     protected abstract DataSource getSimpleDataSource() throws ClassNotFoundException;
     
     @Bean
-    @Order(0)
-    public DataSource dataSource() throws ClassNotFoundException, NamingException {
-        if (StringUtils.isNotBlank(JNDI_NAME)) {
-            JndiTemplate jndi = new JndiTemplate();
-            DataSource dataSource = (DataSource) jndi.lookup(JNDI_NAME);
+    public DataSource dataSource() throws ClassNotFoundException, NamingException { 
+        String jndiName = StringUtils.isNotBlank(JNDI_NAME) ? JNDI_NAME : env.getProperty(JNDI_NAME_PROP);
+        if (StringUtils.isNotBlank(jndiName)) {
+            final JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+            dataSourceLookup.setResourceRef(true);
+            DataSource dataSource = (DataSource) dataSourceLookup.getDataSource(jndiName);
             return dataSource;
         } else {
             return  getSimpleDataSource();

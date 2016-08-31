@@ -2,14 +2,14 @@ package com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.springframework.cassandra.core.Ordering;
-import org.springframework.cassandra.core.PrimaryKeyType;
-import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.mapping.Table;
+//import org.springframework.cassandra.core.Ordering;
+//import org.springframework.cassandra.core.PrimaryKeyType;
+//import org.springframework.data.cassandra.mapping.Column;
+//import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+//import org.springframework.data.cassandra.mapping.Table;
 
 
-@Table(value="peer")
+//@Table(value="peer")
 public class Peer  {
 
     /**
@@ -20,30 +20,30 @@ public class Peer  {
     /**
      * Node ID
      */
-    @PrimaryKeyColumn(
-            name = "id",
-            ordinal = 1,
-            type = PrimaryKeyType.CLUSTERED,
-            ordering = Ordering.DESCENDING)
+//    @PrimaryKeyColumn(
+//            name = "id",
+//            ordinal = 1,
+//            type = PrimaryKeyType.CLUSTERED,
+//            ordering = Ordering.DESCENDING)
     private String id;
 
     /**
      * Node Address
      */
-    @PrimaryKeyColumn(
-            name = "nodeUrl", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "nodeUrl", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String nodeUrl;
 
     /**
      * Node Name
      */
-    @Column
+//    @Column
     private String nodeName;
 
     /**
      * Node IP
      */
-    @Column
+//    @Column
     private String nodeIP;
 
     public String getStatus() {

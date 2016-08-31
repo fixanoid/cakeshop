@@ -42,12 +42,12 @@ public class BlockScanner extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockScanner.class);
 
-    @Autowired(required = false)
+    //@Autowired(required = false)
     private BlockRepository blockRepository;
     @Autowired(required = false)
     private BlockDAO blockDAO;
 
-    @Autowired(required = false)
+    //@Autowired(required = false)
     private TransactionRepository txRepository;
     @Autowired(required = false)
     private TransactionDAO txDAO;

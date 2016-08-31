@@ -222,7 +222,7 @@
 			<artifactId>bcprov-jdk15on</artifactId>
 			<version>1.52</version>
 		</dependency>
-        <!--CASSASNDRA -->
+        <!--CASSASNDRA 
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>            
@@ -230,7 +230,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-cassandra</artifactId>
-            <version>1.4.2.RELEASE</version><!--$NO-MVN-MAN-VER$-->
+            <version>1.4.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cassandra</groupId>
@@ -241,7 +241,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.0.9.Final</version>
-        </dependency>
+        </dependency> -->
 
 		<!-- MISC -->
 		<!-- JNA is required for Windows platform PID handling -->
@@ -300,7 +300,7 @@
 			<scope>test</scope>
 		</dependency>
         
-        <!-- cassandra embedded for junit -->
+        <!-- cassandra embedded for junit 
         <dependency>
             <groupId>org.cassandraunit</groupId>
             <artifactId>cassandra-unit-spring</artifactId>
@@ -323,7 +323,8 @@
             <groupId>org.hectorclient</groupId>
             <artifactId>hector-core</artifactId>
             <version>2.0-0</version>
-        </dependency>
+            <scope>test</scope>
+        </dependency> -->
 
 		<!-- bean validator api impl -->
 		<dependency>

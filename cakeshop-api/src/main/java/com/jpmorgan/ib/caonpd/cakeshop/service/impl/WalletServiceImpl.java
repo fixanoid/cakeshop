@@ -31,7 +31,7 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
     @Autowired
     private GethHttpService gethService;
 
-    @Autowired(required=false)
+//    @Autowired(required=false)
     private WalletRepository walletRepository;
     @Autowired(required=false)
     private WalletDAO walletDAO;

@@ -8,57 +8,57 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.springframework.cassandra.core.Ordering;
+//import org.springframework.cassandra.core.Ordering;
+//
+//import org.springframework.cassandra.core.PrimaryKeyType;
+//import org.springframework.data.cassandra.mapping.Column;
+//import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+//import org.springframework.data.cassandra.mapping.Table;
 
-import org.springframework.cassandra.core.PrimaryKeyType;
-import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.mapping.Table;
 
-
-@Table(value = "block")
+//@Table(value = "block")
 public class Block {
 
     public static final String API_DATA_TYPE = "block";
 
-    @PrimaryKeyColumn(
-            name = "id",
-            ordinal = 1,
-            type = PrimaryKeyType.CLUSTERED,
-            ordering = Ordering.DESCENDING)
+//    @PrimaryKeyColumn(
+//            name = "id",
+//            ordinal = 1,
+//            type = PrimaryKeyType.CLUSTERED,
+//            ordering = Ordering.DESCENDING)
     private String id;
-    @PrimaryKeyColumn(
-            name = "blockNumber", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "blockNumber", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private BigInteger number;
-    @Column
+//    @Column
     private String parentId;
-    @Column
+//    @Column
     private String nonce;
-    @Column
+//    @Column
     private String sha3Uncles;
-    @Column
+//    @Column
     private String logsBloom;
-    @Column
+//    @Column
     private String transactionsRoot;
-    @Column
+//    @Column
     private String stateRoot;
-    @Column
+//    @Column
     private String miner;
-    @Column
+//    @Column
     private BigInteger difficulty;
-    @Column
+//    @Column
     private BigInteger totalDifficulty;
-    @Column
+//    @Column
     private String extraData;
-    @Column
+//    @Column
     private BigInteger gasLimit;
-    @Column
+//    @Column
     private BigInteger gasUsed;
-    @Column
+//    @Column
     private BigInteger timestamp;
-    @Column
+//    @Column
     private List<String> transactions = new ArrayList<>();
-    @Column
+//    @Column
     private List<String> uncles = new ArrayList<>();
 
 

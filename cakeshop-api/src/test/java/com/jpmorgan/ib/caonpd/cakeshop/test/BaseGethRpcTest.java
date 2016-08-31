@@ -13,7 +13,6 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.test.config.TempFileManager;
 import com.jpmorgan.ib.caonpd.cakeshop.test.config.TestAppConfig;
-import com.jpmorgan.ib.caonpd.cakeshop.test.config.TestDatabaseConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 import com.jpmorgan.ib.caonpd.cakeshop.util.ProcessUtils;
 
@@ -24,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+//import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {TestDatabaseConfig.class, TestAppConfig.class})
+@ContextConfiguration(classes = {TestAppConfig.class})
 //@Listeners(CleanConsoleListener.class) // uncomment for extra debug help
 @DirtiesContext(classMode=ClassMode.AFTER_CLASS)
 public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
@@ -51,7 +50,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     static {
         System.setProperty("spring.profiles.active", "test");
-        System.setProperty("cakeshop.database.name", "hsqldb");
+        System.setProperty("cakeshop.database.vendor", "hsqldb");
     }
 
 	@Autowired
@@ -110,11 +109,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         }
     }
     
-    @AfterClass(alwaysRun=true)
-    public void shutdownCassandra() {        
-        LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
-        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
-    }    
+    @AfterClass(alwaysRun = true)
+    public void shutdownCassandra() {
+        String db = System.getProperty("cakeshop.database.vendor");
+        if (db.equalsIgnoreCase("cassandra")) {
+            LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
+//            EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+        }
+    }
 
     @BeforeClass
     public void startGeth() throws IOException {
@@ -146,7 +148,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         }
         LOG.info("Stopping Ethereum at test teardown");
         _stopGeth();
-        LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
     }
 
     private void _stopGeth() {
@@ -156,7 +157,10 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         } catch (IOException e) {
             logger.warn(e);
         }
-        ((EmbeddedDatabase) embeddedDb).shutdown();                
+        String db = System.getProperty("cakeshop.database.vendor");
+        if (db.equalsIgnoreCase("hsqldb")) {
+            ((EmbeddedDatabase) embeddedDb).shutdown();
+        }
     }
 
     /**

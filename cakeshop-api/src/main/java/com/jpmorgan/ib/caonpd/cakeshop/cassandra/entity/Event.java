@@ -3,41 +3,41 @@ package com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
 import java.math.BigInteger;
 import java.util.List;
-import org.springframework.cassandra.core.Ordering;
-import org.springframework.cassandra.core.PrimaryKeyType;
-import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.mapping.Table;
+//import org.springframework.cassandra.core.Ordering;
+//import org.springframework.cassandra.core.PrimaryKeyType;
+//import org.springframework.data.cassandra.mapping.Column;
+//import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+//import org.springframework.data.cassandra.mapping.Table;
 
-@Table(value="events")
+//@Table(value="events")
 public class Event {
 
     public static final String API_DATA_TYPE = "event";
 
-    @PrimaryKeyColumn(
-            name = "id",
-            ordinal = 4,
-            type = PrimaryKeyType.CLUSTERED,
-            ordering = Ordering.DESCENDING)
+//    @PrimaryKeyColumn(
+//            name = "id",
+//            ordinal = 4,
+//            type = PrimaryKeyType.CLUSTERED,
+//            ordering = Ordering.DESCENDING)
     private BigInteger id;
    
-    @PrimaryKeyColumn(
-            name = "blockNumber", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "blockNumber", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private BigInteger blockNumber;
-    @PrimaryKeyColumn(
-            name = "transactionId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "transactionId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     private String transactionId;
-    @PrimaryKeyColumn(
-            name = "contractId", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "contractId", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
     private String contractId;
-    @PrimaryKeyColumn(
-            name = "blockId", ordinal = 3, type = PrimaryKeyType.PARTITIONED)
+//    @PrimaryKeyColumn(
+//            name = "blockId", ordinal = 3, type = PrimaryKeyType.PARTITIONED)
     private String blockId;
-    @Column
+//    @Column
     private BigInteger logIndex;    
-    @Column
+//    @Column
     private String name;
-    @Column
+//    @Column
     private List<String> data;
 
     public BigInteger getId() {

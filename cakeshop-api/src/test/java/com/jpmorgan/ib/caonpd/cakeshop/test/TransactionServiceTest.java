@@ -47,7 +47,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		assertNotNull(tx);
 		assertNotNull(tx.getId());
 		assertEquals(tx.getId(), result.getId());
-		assertEquals(tx.getStatus(), Status.committed.toString());
+		assertEquals(tx.getStatus(), Status.committed);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		Transaction tx = transactionService.get(tr.getId());
 		assertNotNull(tx);
 		assertEquals(tx.getId(), tr.getId());
-		assertEquals(tx.getStatus(), Status.pending.toString());
+		assertEquals(tx.getStatus(), Status.pending);
 	}
 
 }

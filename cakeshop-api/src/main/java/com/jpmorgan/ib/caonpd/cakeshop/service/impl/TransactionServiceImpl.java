@@ -49,7 +49,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private WalletService walletService;
-    @Autowired(required = false)
+   // @Autowired(required = false)
     private EventsRepository eventRepository;
 
     @Autowired
