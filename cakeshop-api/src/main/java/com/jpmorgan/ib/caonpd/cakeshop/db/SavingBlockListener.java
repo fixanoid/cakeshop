@@ -104,7 +104,7 @@ public class SavingBlockListener implements BlockListener {
         if (!gethConfig.isDbEnabled()) {
             return;
         }
-        LOG.info("Persisting block #" + block.getNumber());
+        LOG.debug("Persisting block #" + block.getNumber());
         if (null != blockDAO) {
             blockDAO.save(block);
         } else if (null != blockRepository) {
