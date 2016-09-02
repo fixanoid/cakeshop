@@ -47,7 +47,6 @@ public class PostgresDataSourceConfig extends AbstractDataSourceConfig {
                 setProperty("hibernate.dialect", 
                         StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT)) 
                                 ? System.getProperty(HIBERNATE_DIALECT) : env.getProperty(HIBERNATE_DIALECT, "org.hibernate.dialect.PostgreSQL82Dialect"));
-                setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
     }

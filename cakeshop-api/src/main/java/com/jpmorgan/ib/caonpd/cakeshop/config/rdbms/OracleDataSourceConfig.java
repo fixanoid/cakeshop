@@ -43,7 +43,6 @@ public class OracleDataSourceConfig extends AbstractDataSourceConfig {
                         ? System.getProperty(HBM_2DDL_AUTO) : env.getProperty(HBM_2DDL_AUTO, "update"));
                 setProperty("hibernate.dialect", StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT))
                         ? System.getProperty(HIBERNATE_DIALECT) : env.getProperty(HIBERNATE_DIALECT, "org.hibernate.dialect.Oracle10gDialect"));
-                setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
     }

@@ -72,9 +72,9 @@ public class BlockDAO extends BaseDAO {
     public void reset() {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
-            session.createSQLQuery("DELETE FROM PUBLIC.\"Block_transactions\"").executeUpdate();
-            session.createSQLQuery("DELETE FROM PUBLIC.\"Block_uncles\"").executeUpdate();
-            session.createSQLQuery("DELETE FROM PUBLIC.BLOCKS").executeUpdate();
+            session.createSQLQuery("DELETE FROM Block_transactions").executeUpdate();
+            session.createSQLQuery("DELETE FROM Block_uncles").executeUpdate();
+            session.createSQLQuery("DELETE FROM BLOCKS").executeUpdate();
             session.flush();
             session.clear();
         }
