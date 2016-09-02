@@ -54,10 +54,9 @@ public class WalletController extends BaseController {
     @RequestMapping("/create")
     public ResponseEntity<APIResponse> create() throws APIException {
         Account account = walletService.create();
-
         APIResponse res = new APIResponse();
         res.setData(new APIData(account.getAddress(), "wallet", account));
-        return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 }

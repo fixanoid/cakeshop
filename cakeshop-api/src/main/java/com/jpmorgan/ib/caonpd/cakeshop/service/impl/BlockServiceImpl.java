@@ -7,6 +7,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
+import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,12 +72,12 @@ public class BlockServiceImpl implements BlockService {
         block.setUncles((List<String>) blockData.get("uncles"));
 
         // convert longs
-        block.setNumber(toLong("number", blockData));
-        block.setDifficulty(toLong("difficulty", blockData));
-        block.setTotalDifficulty(toLong("totalDifficulty", blockData));
-        block.setGasLimit(toLong("gasLimit", blockData));
-        block.setGasUsed(toLong("gasUsed", blockData));
-        block.setTimestamp(toLong("timestamp", blockData));
+        block.setNumber(new BigInteger(String.valueOf(toLong("number", blockData))));
+        block.setDifficulty(new BigInteger(String.valueOf(toLong("difficulty", blockData))));
+        block.setTotalDifficulty(new BigInteger(String.valueOf(toLong("totalDifficulty", blockData))));
+        block.setGasLimit(new BigInteger(String.valueOf(toLong("gasLimit", blockData))));
+        block.setGasUsed(new BigInteger(String.valueOf(toLong("gasUsed", blockData))));
+        block.setTimestamp(new BigInteger(String.valueOf(toLong("timestamp", blockData))));
 
         return block;
     }

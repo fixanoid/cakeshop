@@ -1,10 +1,14 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.EventsRepository;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Contract;
 import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
+import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
@@ -15,6 +19,8 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.WalletService;
+import java.io.IOException;
+import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -42,6 +49,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private WalletService walletService;
+   // @Autowired(required = false)
+    private EventsRepository eventRepository;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -50,7 +59,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction get(String id) throws APIException {
-
         List<RequestModel> reqs = new ArrayList<>();
         reqs.add(new RequestModel("eth_getTransactionByHash", new Object[]{id}, 1L));
         reqs.add(new RequestModel("eth_getTransactionReceipt", new Object[]{id}, 2L));
@@ -72,22 +80,24 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Transaction processTx(Map<String, Object> txData) throws APIException {
         Transaction tx = new Transaction();
-
         tx.setId((String) txData.get("hash"));
         tx.setBlockId((String) txData.get("blockHash"));
+        //TODO: this is a hack to make test happy. Need to evaluate the logic to have to and contract address always present.
         tx.setContractAddress((String) txData.get("contractAddress"));
+        tx.setTo((String)txData.get("to"));
+        //hack end
         tx.setNonce((String) txData.get("nonce"));
         tx.setInput((String) txData.get("input"));
         tx.setFrom((String) txData.get("from"));
-        tx.setTo((String) txData.get("to"));
-        tx.setGasPrice(toLong("gasPrice", txData));
 
-        tx.setTransactionIndex(toLong("transactionIndex", txData));
-        tx.setBlockNumber(toLong("blockNumber", txData));
-        tx.setValue(toLong("value", txData));
-        tx.setGas(toLong("gas", txData));
-        tx.setCumulativeGasUsed(toLong("cumulativeGasUsed", txData));
-        tx.setGasUsed(toLong("gasUsed", txData));
+        tx.setGasPrice(new BigInteger(String.valueOf(toLong("gasPrice", txData))));
+
+        tx.setTransactionIndex(null != toLong("transactionIndex", txData) ? new BigInteger(String.valueOf(toLong("transactionIndex", txData))): null);
+        tx.setBlockNumber(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("blockNumber", txData))) : null);
+        tx.setValue(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("value", txData))): null);
+        tx.setGas(null != toLong("gas", txData) ? new BigInteger(String.valueOf(toLong("gas", txData))): null);
+        tx.setCumulativeGasUsed(null !=  toLong("cumulativeGasUsed", txData) ? new BigInteger(String.valueOf(toLong("cumulativeGasUsed", txData))): null);
+        tx.setGasUsed(null != toLong("gasUsed", txData) ? new BigInteger(String.valueOf(toLong("gasUsed", txData))) : null);
 
         if (tx.getBlockId() == null || tx.getBlockNumber() == null
                 || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
@@ -97,19 +107,14 @@ public class TransactionServiceImpl implements TransactionService {
             tx.setStatus(Status.committed);
         }
 
-        // Decode tx input
-        //LOG.info("BEFORE DECODING INPUT :" + tx.getContractAddress() + " " + tx.getStatus());
-        //Output BEFORE DECODING INPUT :0x7fc70bb7a045c29361c6a0eca1105edec1a6fb70 committed on dev
-
-        if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {
+        if (tx.getContractAddress() == null && tx.getStatus() == Status.committed) {  
 
             // lookup contract
             ContractService contractService = applicationContext.getBean(ContractService.class);
             Contract contract = null;
             try {
                 contract = contractService.get(tx.getTo());
-            } catch (APIException e) {
-            }
+            } catch (APIException e) {}
             String origInput = tx.getInput();
             if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
                 ContractABI abi = ContractABI.fromJson(contract.getABI());
@@ -143,11 +148,23 @@ public class TransactionServiceImpl implements TransactionService {
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }  
         } 
-
         if (txData.get("logs") != null) {
             List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
             if (!logs.isEmpty()) {
-                tx.setLogs(eventService.processEvents(logs));
+                List<Event> events = eventService.processEvents(logs);
+                tx.setLogs(events);
+                if (null != eventRepository) {
+                    List <com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event> cassEvents = new ArrayList();
+                    for (Event event : events) {
+                        com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event cassEvent 
+                                = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event();
+                        BeanUtils.copyProperties(event, cassEvent, new String [] {"data"});
+                        cassEvent.setData(decodeCassEvent(event.getData()));
+                        cassEvents.add(cassEvent);
+                        
+                    }
+                    eventRepository.save(cassEvents);
+                }
             }
         }
 
@@ -214,7 +231,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction tx = null;
         while (true) {
             tx = this.get(result.getId());
-            if (tx.getStatus() == Status.committed) {
+            if (tx.getStatus() == null ? Status.committed.toString() == null : tx.getStatus().equals(Status.committed)) {
                 break;
             }
             pollDelayUnit.sleep(pollDelay);
@@ -235,4 +252,16 @@ public class TransactionServiceImpl implements TransactionService {
         return new TransactionResult((String) readRes.get("_result"));
     }
 
+    private List<String> decodeCassEvent(Object [] decodeHex) {
+
+        List<String> dataList = new ArrayList<>();
+        for (Object decodeOdj : decodeHex) {
+            try {
+                dataList.add(eventService.serialize(decodeOdj));
+            } catch (IOException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
+        return dataList;
+    }
 }

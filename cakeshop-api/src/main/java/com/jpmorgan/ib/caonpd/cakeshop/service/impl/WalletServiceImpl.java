@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
@@ -29,7 +31,9 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
     @Autowired
     private GethHttpService gethService;
 
-    @Autowired
+//    @Autowired(required=false)
+    private WalletRepository walletRepository;
+    @Autowired(required=false)
     private WalletDAO walletDAO;
 
     @SuppressWarnings("unchecked")
@@ -64,14 +68,19 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
 
     @Override
     public Account create() throws APIException {
-        Map<String, Object> result = gethService.executeGethCall("personal_newAccount", new Object[] { "" });
+        Map<String, Object> result = gethService.executeGethCall("personal_newAccount", new Object[]{""});
         String newAddress = (String) result.get("_result");
 
-        Account a = new Account();
-        a.setAddress(newAddress);
-
-        walletDAO.save(a);
-        return a;
+        Account account = new Account();
+        account.setAddress(newAddress);
+        if (null != walletDAO) {
+            walletDAO.save(account);
+        } else if (null != walletRepository) {
+            com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account cassAcc = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account();
+            cassAcc.setAddress(newAddress);
+            walletRepository.save(cassAcc);
+        }
+        return account;
     }
 
     @Override
@@ -82,7 +91,7 @@ public class WalletServiceImpl implements WalletService, GethRpcConstants {
                 return true;
             }
         } catch (APIException e) {
-            if (e.getMessage().indexOf("account is locked") < 0) {
+            if (!e.getMessage().contains("account is locked")) {
                 throw e;
             }
         }

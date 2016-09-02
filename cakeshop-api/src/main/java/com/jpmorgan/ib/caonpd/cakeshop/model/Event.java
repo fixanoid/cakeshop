@@ -2,6 +2,8 @@ package com.jpmorgan.ib.caonpd.cakeshop.model;
 
 import com.jpmorgan.ib.caonpd.cakeshop.db.JpaJsonConverter;
 import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
+import java.io.Serializable;
+import java.math.BigInteger;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,19 +15,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="EVENTS", schema="PUBLIC")
-public class Event {
+@Table(name="EVENTS")
+public class Event implements Serializable {
 
     public static final String API_DATA_TYPE = "event";
 
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    private long id;
+    private BigInteger id;
 
     private String blockId;
-    private Long blockNumber;
+    private BigInteger blockNumber;
 
-    private long logIndex;
+    private BigInteger logIndex;
     private String transactionId;
     private String contractId;
 
@@ -33,15 +35,15 @@ public class Event {
 
     //@Lob // does not work, not sure why. hibernate issue.
     @Basic
-    @Column(length = Integer.MAX_VALUE)
-    @Convert(converter = JpaJsonConverter.class)
+    @Column(name = "event_data", length = Integer.MAX_VALUE)
+    @Convert(converter = JpaJsonConverter.class)    
     private Object[] data;
 
-    public long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
@@ -53,19 +55,19 @@ public class Event {
         this.blockId = blockId;
     }
 
-    public Long getBlockNumber() {
+    public BigInteger getBlockNumber() {
         return blockNumber;
     }
 
-    public void setBlockNumber(Long blockNumber) {
+    public void setBlockNumber(BigInteger blockNumber) {
         this.blockNumber = blockNumber;
     }
 
-    public long getLogIndex() {
+    public BigInteger getLogIndex() {
         return logIndex;
     }
 
-    public void setLogIndex(long logIndex) {
+    public void setLogIndex(BigInteger logIndex) {
         this.logIndex = logIndex;
     }
 

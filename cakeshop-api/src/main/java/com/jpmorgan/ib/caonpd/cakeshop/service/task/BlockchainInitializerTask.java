@@ -1,8 +1,13 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.task;
 
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
+//import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
+//import com.jpmorgan.ib.caonpd.cakeshop.model.Account;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.BlockService;
@@ -20,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -48,15 +54,18 @@ public class BlockchainInitializerTask implements Runnable {
     @Autowired
     private WalletService walletService;
 
-    @Autowired
+//    @Autowired(required = false)
+    private WalletRepository walletRepository;
+    @Autowired(required = false)
     private WalletDAO walletDAO;
+    
 
     @Override
     public void run() {
 
         try {
             Block block = blockService.get(null, null, "latest");
-            if (block.getNumber() > 0) {
+            if (block.getNumber().longValue() > 0) {
                 LOG.warn("Blockchain not on block zero (on #" + block.getNumber() + "); not initializing");
                 return;
             }
@@ -95,7 +104,13 @@ public class BlockchainInitializerTask implements Runnable {
         try {
             List<Account> list = walletService.list();
             for (Account account : list) {
-                walletDAO.save(account);
+                if (null != walletDAO) {
+                    walletDAO.save(account);
+                } else if (null != walletRepository) {
+                    com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account cassAcc
+                            = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account();
+                    BeanUtils.copyProperties(account, cassAcc);
+                }
             }
         } catch (APIException e) {
             LOG.error("Error reading local wallet", e);

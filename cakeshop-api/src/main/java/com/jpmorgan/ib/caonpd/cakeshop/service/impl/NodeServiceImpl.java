@@ -4,6 +4,7 @@ import static com.jpmorgan.ib.caonpd.cakeshop.service.impl.GethHttpServiceImpl.*
 
 import com.google.common.base.Joiner;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
+import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.PeerRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.PeerDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Node;
@@ -44,7 +45,9 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
     @Autowired
     private GethConfigBean gethConfig;
 
-    @Autowired
+   // @Autowired(required = false)
+    private PeerRepository peerRepository;
+    @Autowired(required = false)
     private PeerDAO peerDAO;
 
     @Override
@@ -274,12 +277,19 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
         }
 
         boolean added = (boolean) res.get(SIMPLE_RESULT);
-        if (added && peerDAO.getById(uri.getUserInfo()) == null) {
+        if (null != peerDAO) {
             Peer peer = new Peer();
             peer.setId(uri.getUserInfo());
             peer.setNodeIP(uri.getHost());
             peer.setNodeUrl(address);
             peerDAO.save(peer);
+        } else if (null !=  peerRepository && added && peerRepository.getById(uri.getUserInfo()) == null) {
+            com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer peer 
+                    = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Peer();
+            peer.setId(uri.getUserInfo());
+            peer.setNodeIP(uri.getHost());
+            peer.setNodeUrl(address);
+            peerRepository.save(peer);
         }
 
         return added;

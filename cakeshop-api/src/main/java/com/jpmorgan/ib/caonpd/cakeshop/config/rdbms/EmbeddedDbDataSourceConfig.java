@@ -1,5 +1,11 @@
-package com.jpmorgan.ib.caonpd.cakeshop.config;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.jpmorgan.ib.caonpd.cakeshop.config.rdbms;
 
+import com.jpmorgan.ib.caonpd.cakeshop.conditions.HsqlDataSourceConditon;
 import com.jpmorgan.ib.caonpd.cakeshop.util.FileUtils;
 
 import java.sql.Driver;
@@ -9,6 +15,7 @@ import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -29,10 +37,13 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@Conditional(HsqlDataSourceConditon.class)
 @Configuration
 @EnableTransactionManagement
 @ComponentScan({ "com.jpmorgan.ib.caonpd.cakeshop.model" })
-public class DatabaseConfig implements ApplicationContextAware {
+public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
+    
+    protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(EmbeddedDbDataSourceConfig.class);
 
     @Value("${config.path}")
     private String CONFIG_ROOT;
@@ -82,6 +93,7 @@ public class DatabaseConfig implements ApplicationContextAware {
                 setProperty("hibernate.jdbc.batch_size", hibernateBatchSize);
                 setProperty("hibernate.hbm2ddl.auto", hibernateAuto);
                 setProperty("hibernate.dialect", hibernateDialect);
+                setProperty("hibernate.default_schema", "PUBLIC");
                 setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
@@ -93,10 +105,6 @@ public class DatabaseConfig implements ApplicationContextAware {
         dataSource.setUrl("jdbc:hsqldb:file:" + getDbStoragePath() + ";hsqldb.default_table_type=cached");
         dataSource.setUsername("sdk");
         dataSource.setPassword("sdk");
-//        dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-//        dataSource.setUrl(env.getProperty("jdbc.url"));
-//        dataSource.setUsername(env.getProperty("jdbc.user"));
-//        dataSource.setPassword(env.getProperty("jdbc.pass"));
         return dataSource;
     }
 
@@ -107,6 +115,7 @@ public class DatabaseConfig implements ApplicationContextAware {
     @Bean(name="hsql")
     @Order(0)
     public DataSource startDb() {
+        LOG.info("USING Embedded HSQL DB");
         DataSourceFactory dataSourceFactory = new DataSourceFactory() {
             @Override
             public DataSource getDataSource() {

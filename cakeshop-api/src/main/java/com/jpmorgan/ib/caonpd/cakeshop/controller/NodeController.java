@@ -128,14 +128,14 @@ public class NodeController extends BaseController {
     @RequestMapping("/start")
     protected @ResponseBody ResponseEntity<APIResponse> startGeth() {
         Boolean started = gethService.start();
-        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(started), HttpStatus.OK);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(started), HttpStatus.OK);
     }
 
     @RequestMapping("/stop")
     protected @ResponseBody ResponseEntity<APIResponse> stopGeth() {
         Boolean stopped = gethService.stop();
         gethService.deletePid();
-        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(stopped), HttpStatus.OK);
     }
 
     @RequestMapping("/restart")
@@ -146,19 +146,19 @@ public class NodeController extends BaseController {
         if (stopped && deleted) {
             restarted = gethService.start();
         }
-        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(restarted), HttpStatus.OK);
     }
 
     @RequestMapping("/reset")
     protected @ResponseBody ResponseEntity<APIResponse> resetGeth() {
         Boolean reset = gethService.reset();
-        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
 
     @RequestMapping("/settings/reset")
     protected @ResponseBody ResponseEntity<APIResponse> resetNodeInfo() {
         Boolean reset = nodeService.reset();
-        return new ResponseEntity<APIResponse>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
+        return new ResponseEntity<>(APIResponse.newSimpleResponse(reset), HttpStatus.OK);
     }
 
 }

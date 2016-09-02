@@ -218,7 +218,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 	    assertEquals(val2.intValue(), 200);
 
 	    // read the previous value
-	    BigInteger valPrev = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, tx.getBlockNumber()-1)[0];
+	    BigInteger valPrev = (BigInteger) contractService.read(contractAddress, abi, null, "get", null, tx.getBlockNumber().longValue() -1 )[0];
 	    assertEquals(valPrev.intValue(), 100);
 	}
 

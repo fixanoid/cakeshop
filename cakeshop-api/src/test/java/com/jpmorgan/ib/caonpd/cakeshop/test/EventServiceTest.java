@@ -1,5 +1,7 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
@@ -13,6 +15,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -30,25 +34,38 @@ public class EventServiceTest extends BaseGethRpcTest {
 
 	@Test
 	public void testListForBlock() throws IOException, InterruptedException {
-		String addr = createContract();
-		TransactionResult tr = contractService.transact(addr, null, "set", new Object[]{ 100 });
-		Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
-
-		List<Event> events = eventService.listForBlock(tx.getBlockNumber());
-		assertNotNull(events);
-		assertFalse(events.isEmpty());
-		assertEquals(events.size(), 1);
-
-		testEvent(events.get(0));
-		testEvent(tx.getLogs().get(0));
+        try {
+            String addr = createContract();
+            TransactionResult tr = contractService.transact(addr, null, "set", new Object[]{ 100 });
+            Transaction tx = transactionService.waitForTx(tr, 50, TimeUnit.MILLISECONDS);
+            
+            List<Event> events = eventService.listForBlock(tx.getBlockNumber().longValue());
+            assertNotNull(events);
+            assertFalse(events.isEmpty());
+            assertEquals(events.size(), 1);
+            
+            testEvent(events.get(0));
+            testEvent(tx.getLogs().get(0));
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(EventServiceTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
 	}
 
-    private void testEvent(Event event) {
-        Object[] data = event.getData();
-		assertNotNull(data);
+    private void testEvent(Event event) throws IOException, ClassNotFoundException {
+        Object[] data = event.getData();       
+        assertNotNull(data);
 		assertEquals(data.length, 2);
 		assertEquals(data[0], "change val");
 		assertEquals(data[1], BigInteger.valueOf(100L));
+
+    }
+    
+    private void testCassEvent(com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event event) throws IOException, ClassNotFoundException {
+        List<String> data = event.getData();
+        assertNotNull(data);
+        assertEquals(data.size(), 2);
+        assertEquals(eventService.deserialize(data.get(0)), "change val");
+        assertEquals(eventService.deserialize(data.get(1)), BigInteger.valueOf(100L));
     }
 
 }

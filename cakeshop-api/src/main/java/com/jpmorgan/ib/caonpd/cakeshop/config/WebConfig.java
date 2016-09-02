@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import okhttp3.OkHttpClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+
 
 /**
  *
@@ -31,6 +35,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private RequestMappingHandlerAdapter adapter;
+    
+    @Autowired
+    private OkHttpClient okHttpClient;
 
     @PostConstruct
     public void prioritizeCustomArgumentMethodHandlers() {
@@ -56,6 +63,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Override
+    
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setTaskExecutor(createMvcAsyncExecutor());
     }
@@ -74,6 +82,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         // Enable DefaultServlet handler for static resources at /**
         configurer.enable();
     }
+    
+    @PreDestroy
+    public void shutdown() {
+        okHttpClient.connectionPool().evictAll();
+    }
 
     /**
      * Thread pool used by Spring WebMVC async 'Callable'
@@ -81,8 +94,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
      *
      * @return
      */
-    private AsyncTaskExecutor createMvcAsyncExecutor() {
+    @Bean(name="asyncTaskExecutor")
+    public AsyncTaskExecutor createMvcAsyncExecutor() {
         ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        exec.setBeanName("asyncTaskExecutor");
         exec.setCorePoolSize(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.threads.core")));
         exec.setMaxPoolSize(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.threads.max")));
         exec.setQueueCapacity(Integer.valueOf(env.getProperty("cakeshop.mvc.async.pool.queue.max")));
@@ -90,5 +105,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         exec.afterPropertiesSet();
         return exec;
     }
-
+    
+    
+    
 }

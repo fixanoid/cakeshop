@@ -130,9 +130,9 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         blockPerMinMeter.mark();
         if (block.getTransactions() != null && block.getTransactions().size() > 0)  {
             if (previousTxCount != null) {
-                long elapsedSec = block.getTimestamp() - previousBlockTime;
+                long elapsedSec = block.getTimestamp().longValue() - previousBlockTime.longValue();
                 currentTxRate = ((double) block.getTransactions().size()) / elapsedSec;
-                pushTxnPerSecRate(block.getTimestamp());
+                pushTxnPerSecRate(block.getTimestamp().longValue());
             }
             txnPerSecMeter.mark(block.getTransactions().size());
             txnPerMinMeter.mark(block.getTransactions().size());
@@ -146,12 +146,12 @@ public class MetricsBlockListener implements BlockListener, TickListener {
 
             if (previousTxCount != null) {
                 currentTxRate = 0.0;
-                pushTxnPerSecRate(block.getTimestamp());
+                pushTxnPerSecRate(block.getTimestamp().longValue());
             }
             previousTxCount = 0;
 
         }
-        previousBlockTime = block.getTimestamp();
+        previousBlockTime = block.getTimestamp().longValue();
     }
 
     @Override

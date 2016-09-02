@@ -50,7 +50,7 @@ public class WebSocketAsyncPushServiceImpl implements WebSocketAsyncPushService 
                 }
                 template.convertAndSend(TRANSACTION_TOPIC + transactionAddress, apiResponse);
 
-            } else if (transaction.getStatus() == Status.committed) {
+            } else if (transaction.getStatus() == null ? Status.committed.toString() == null : transaction.getStatus().equals(Status.committed.toString())) {
                 APIResponse apiResponse = new APIResponse();
                 apiResponse.setData(transaction.toAPIData());
                 if (null != transactions && !transactions.isEmpty()) {
