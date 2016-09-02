@@ -40,6 +40,8 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
     protected final String JDBC_BATCH_SIZE = "cakeshop.hibernate.jdbc.batch_size";
     protected final String HBM_2DDL_AUTO = "cakeshop.hibernate.hbm2ddl.auto";
     protected final String HIBERNATE_DIALECT = "cakeshop.hibernate.dialect";
+    public static final Integer BATCH_SIZE = StringUtils.isNotBlank(System.getProperty("cakeshop.hibernate.jdbc.batch_size")) 
+            ? Integer.valueOf(System.getProperty("cakeshop.hibernate.jdbc.batch_size")) : 20;
 
     @Autowired
     protected Environment env;

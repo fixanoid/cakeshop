@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.dao;
 
+import com.jpmorgan.ib.caonpd.cakeshop.config.rdbms.AbstractDataSourceConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Event;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 
@@ -76,7 +77,7 @@ public class TransactionDAO extends BaseDAO {
                 }
 
                 session.save(txn);
-                if (i % 20 == 0) {
+                if (i % AbstractDataSourceConfig.BATCH_SIZE == 0) {
                     session.flush();
                     session.clear();
                 }
