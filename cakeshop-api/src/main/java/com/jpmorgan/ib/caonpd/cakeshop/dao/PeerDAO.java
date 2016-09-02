@@ -1,6 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.dao;
 
-import com.jpmorgan.ib.caonpd.cakeshop.config.rdbms.AbstractDataSourceConfig;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Peer;
 import java.util.ArrayList;
 
@@ -43,7 +42,7 @@ public class PeerDAO extends BaseDAO {
             for (int i = 0; i < peers.size(); i++) {
                 Peer peer = peers.get(i);
                 session.save(peer);
-                if (i % AbstractDataSourceConfig.BATCH_SIZE == 0) {
+                if (i % BATCH_SIZE == 0) {
                     session.flush();
                     session.clear();
                 }
