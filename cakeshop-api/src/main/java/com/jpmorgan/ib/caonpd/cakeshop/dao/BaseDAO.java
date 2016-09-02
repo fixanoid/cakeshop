@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 public abstract class BaseDAO {
     
-    @Value(value = "${" + JDBC_BATCH_SIZE + "}")    
+    @Value(value = "${" + JDBC_BATCH_SIZE + "}:20")    
     private String batchSize;
     
     @Autowired(required=false)
