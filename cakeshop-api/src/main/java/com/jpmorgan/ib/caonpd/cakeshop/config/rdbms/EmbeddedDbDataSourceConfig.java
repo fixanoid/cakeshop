@@ -94,7 +94,7 @@ public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
                 setProperty("hibernate.hbm2ddl.auto", hibernateAuto);
                 setProperty("hibernate.dialect", hibernateDialect);
                 setProperty("hibernate.default_schema", "PUBLIC");
-                setProperty("hibernate.globally_quoted_identifiers", "true");
+//                setProperty("hibernate.globally_quoted_identifiers", "true");
             }
         };
     }
