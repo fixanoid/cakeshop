@@ -7,13 +7,17 @@ import java.util.List;
 import org.hibernate.Criteria;
 
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
 public class WalletDAO extends BaseDAO {
-
+ 
+    private static final Logger LOG = LoggerFactory.getLogger(WalletDAO.class);
+    
     public List<Account> list() {
         if (null != getCurrentSession()) {
             Criteria criteria = getCurrentSession().createCriteria(Account.class);
@@ -25,6 +29,8 @@ public class WalletDAO extends BaseDAO {
     public void save(Account account) {
         if (null != getCurrentSession()) {
             getCurrentSession().save(account);
+        } else {
+            LOG.info("DO NOT SAVE the account. Session is null");
         }
     }
 

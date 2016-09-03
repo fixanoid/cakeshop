@@ -105,6 +105,7 @@ public class BlockchainInitializerTask implements Runnable {
             List<Account> list = walletService.list();
             for (Account account : list) {
                 if (null != walletDAO) {
+                    LOG.info("Saving address");
                     walletDAO.save(account);
                 } else if (null != walletRepository) {
                     com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account cassAcc
