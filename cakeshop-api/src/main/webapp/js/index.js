@@ -32,7 +32,13 @@ window.Tower = {
 
 		// let everyone listening in know
 		Dashboard.Utils.emit('tower-control|ready|true');
-
+		
+		if(window.localStorage.getItem("tourEnded") === null) {
+			//first time, activate tour automatically
+			$(document).trigger('StartTour');
+			Tower.tour.start(true);
+		}
+		
 		return true;
 	},
 
@@ -279,7 +285,9 @@ $(function() {
 		if (id === 'sandbox') {
 			return;
 		} else if (id === 'help') {
-			Tower.tour.start(true);
+			
+			 $(document).trigger('StartTour');
+			 Tower.tour.start(true);
 			return;
 		}
 
@@ -293,6 +301,7 @@ $(function() {
 		Tower.section[Tower.current]();
 
 		$('.tower-page-title').html( $('<span>', { html: $(this).find('.tower-sidebar-item').html() }) );
+		
 	});
 
 
@@ -301,6 +310,7 @@ $(function() {
 
 	// ---------- INIT -----------
 	Tower.init();
+	
 
 	// add dispatcher listener
 	// $(document).on('WidgetInternalEvent', function(ev, action) {

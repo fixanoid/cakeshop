@@ -1,11 +1,18 @@
-(function () {
+import 'dashboard-framework/dashboard-core';
+import 'dashboard-framework/dashboard-util';
+import 'dashboard-framework/dashboard-template';
 
+(function () {
   var tour = new Tour({
     debug: false,
-    // storage: false,
+    //storage: false,
     backdrop: true,
     container: "body",
     backdropContainer: "body",
+    onEnd: function() {
+      //for autostart
+    	window.localStorage.setItem('tourEnded', true);
+    },
 
     steps: [].concat([
       {
@@ -118,6 +125,7 @@
         content: "Metadata for the selected contract, such as the ABI and the original source code",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-detail", ".widget-shell.contract-list tbody tr:first button.deets"),
+        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
       {
@@ -125,6 +133,7 @@
         content: "The paper tape shows the transaction history for the selected contract",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-paper-tape", ".widget-shell.contract-list tbody tr:first button.tape"),
+        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
       {
@@ -132,6 +141,7 @@
         content: "Here we can see the current state of the contract, as read from any exposed public variables (methods marked 'constant' in solidity)",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-current-state", ".widget-shell.contract-list tbody tr:first button.state"),
+        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
     ])
@@ -224,7 +234,7 @@
         onShow: showMenuStep("#api"),
         onHide: hideMenuStep,
       },
-    ])
+    ]) 
 
   });
 
@@ -269,15 +279,18 @@
 
   // Initialize the tour
   tour.init();
+  
 
   var loaded = false;
-  $(document).on("WidgetInternalEvent", function(e, action) {
-    if (action === "node-status|announce" && loaded === false) {
-      Tower.tour = tour;
-      window.localStorage.setItem("tour_current_step", 0); // always reset to 0
-      tour.start();
-      loaded = true;
-    }
+ // $(document).on("WidgetInternalEvent", function(e, action) {
+  $(document).on("StartTour", function(e, action) {
+   //if (action === "node-status|announce" && loaded === false) {
+	   Tower.tour = tour;
+	   window.localStorage.setItem("tour_current_step", 0); // always reset to 0 
+	   tour.start();
+	   loaded = true;
+ 
+    //}
   });
 
 })();
