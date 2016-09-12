@@ -304,6 +304,7 @@
 							<Cakeshop-Build-Date>${timestamp}</Cakeshop-Build-Date>
 						</manifestEntries>
 					</archive>
+					<warSourceExcludes>**/node_modules/</warSourceExcludes>
 				</configuration>
 			</plugin>
 			<plugin>
