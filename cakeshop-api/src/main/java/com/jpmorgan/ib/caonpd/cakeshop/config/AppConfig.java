@@ -6,8 +6,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -56,7 +60,13 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
             // FIXME only default to local based on a flag passed down from maven build?
             LOG.warn("spring.profiles.active is not set");
         }
-        return env.getActiveProfiles()[0];
+        List <String> profiles = ListUtils.selectRejected(Arrays.asList(env.getActiveProfiles()), new Predicate <String>() {
+            @Override
+            public boolean evaluate(String profile) {
+                return profile.equalsIgnoreCase("container") || profile.equalsIgnoreCase("spring-boot");
+            }
+        });
+        return profiles.get(0);
     }
 
     /**
@@ -103,7 +113,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
     }
 
     public  String getVendorConfigFile() {
-        return "config".concat(File.separator).concat("application-").concat(env.getActiveProfiles()[0]).concat(".properties");
+        return "config".concat(File.separator).concat("application-").concat(getEnv()).concat(".properties");
     }
 
     public  void initVendorConfig(File configFile) throws IOException {
