@@ -148,6 +148,7 @@ public class TransactionServiceImpl implements TransactionService {
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }  
         } 
+
         if (txData.get("logs") != null) {
             List<Map<String, Object>> logs = (List<Map<String, Object>>) txData.get("logs");
             if (!logs.isEmpty()) {

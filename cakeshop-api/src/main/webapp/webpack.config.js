@@ -1,11 +1,25 @@
 var path = require('path');
 var webpack = require('webpack');
 
+
 module.exports = {
-  entry: "./js/index.js",
+  entry: ["webpack/hot/dev-server", "./js/index.js"],
   output: {
     path: path.join(__dirname, 'js'),
     filename: "index-gen.js",
+    publicPath: '/js/'
+  },
+  devtool: 'source-map',
+  watchOptions: {
+	  aggregateTimeout: 300,
+	  poll: 1000
+  },
+  devServer: {
+	  historyApiFallback: true,
+	  hot: true,
+	  inline: true,
+	  stats: 'errors-only',
+	  port: 8081
   },
   plugins: [
     new webpack.ProvidePlugin({
@@ -18,6 +32,9 @@ module.exports = {
       SockJS: "sockjs-client",
       moment: "moment",
     }),
+    new webpack.HotModuleReplacementPlugin({
+    	multiStep: true
+    })
   ],
   module: {
     loaders: [
