@@ -11,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 public class FileUtils extends org.apache.commons.io.FileUtils {
+    
+    private final static String OS = System.getProperty("os.name").toLowerCase();
 
     /**
      * Join the given paths and expand any relative locations (. or ..) to their full canonical form
@@ -92,10 +94,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return null;
         }
         String filePath = url.getPath();
-        if (SystemUtils.IS_OS_WINDOWS && filePath.matches("/[A-Z]:.*")) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             // Fixes weird path handling on Windows
             // Caused by: java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/Java/bamboo-agent-home/xml-data/build-dir/ETE-WIN-JOB1/target/test-classes/
-            filePath = filePath.substring(1);
+            if (filePath.startsWith("file:/")) {
+                filePath = filePath.replaceFirst("file:/", "");
+            } else if (filePath.startsWith("/")) {
+                filePath = filePath.replaceFirst("/", "");
+            }
         }
         return Paths.get(filePath);
     }
@@ -112,6 +118,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @throws IOException
      */
     public static InputStream getClasspathStream(String path) throws IOException {
+        if (SystemUtils.IS_OS_WINDOWS) {
+    		// flip slashes so it doesn't get escaped in the resulting URL
+    		// like \test%5capplication.properties
+    		path = path.replace('\\', '/');
+    	}
     	URL url = AbiUtils.class.getClassLoader().getResource(path);
     	return url.openStream();
     }
