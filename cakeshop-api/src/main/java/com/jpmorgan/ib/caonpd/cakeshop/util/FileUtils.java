@@ -12,7 +12,6 @@ import org.apache.commons.lang3.SystemUtils;
 
 public class FileUtils extends org.apache.commons.io.FileUtils {
     
-    private final static String OS = System.getProperty("os.name").toLowerCase();
 
     /**
      * Join the given paths and expand any relative locations (. or ..) to their full canonical form
@@ -89,7 +88,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     		// like \test%5capplication.properties
     		path = path.replace('\\', '/');
     	}
-        URL url = AbiUtils.class.getClassLoader().getResource(path);
+        URL url = FileUtils.class.getClassLoader().getResource(path);
         if (url == null) {
             return null;
         }
@@ -123,7 +122,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     		// like \test%5capplication.properties
     		path = path.replace('\\', '/');
     	}
-    	URL url = AbiUtils.class.getClassLoader().getResource(path);
+    	URL url = FileUtils.class.getClassLoader().getResource(path);
     	return url.openStream();
     }
 

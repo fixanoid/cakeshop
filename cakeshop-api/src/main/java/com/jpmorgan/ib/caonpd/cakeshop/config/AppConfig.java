@@ -120,7 +120,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
     public  void initVendorConfig(File configFile) throws IOException {
         String path = FileUtils.getClasspathPath(getVendorConfigFile()).toString();
         LOG.info("Initializing new config from " + path);
-        FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(path), configFile);
+        FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(getVendorConfigFile()), configFile);
     }
 
     public  PropertySourcesPlaceholderConfigurer createPropConfigurer(Environment env,
