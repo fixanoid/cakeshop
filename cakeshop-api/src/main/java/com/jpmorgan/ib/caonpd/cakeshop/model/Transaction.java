@@ -278,14 +278,10 @@ public class Transaction implements Serializable {
             data = mapper.readValue(new String(Hex.decode(rawInput.replaceFirst("0x", ""))), Object[].class);
             decodedInput = new Input(method, data);
         } catch (IOException ex) {
-            try {
-                Object obj = mapper.readValue(new String(Hex.decode(rawInput.replaceFirst("0x", ""))), Object.class);
-                data = new Object[1];
-                data[0] = obj;
-                decodedInput = new Input(method, data);
-            } catch (IOException ex1) {
-                Logger.getLogger(Transaction.class.getName()).log(Level.SEVERE, null, ex1);
-            }
+            String decoded = new String(Hex.decode(rawInput.replaceFirst("0x", "")));
+            data = new Object[1];
+            data[0] = decoded;
+            decodedInput = new Input(method, data);
         }
     }
 
