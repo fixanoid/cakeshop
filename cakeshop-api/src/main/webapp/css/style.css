@@ -388,11 +388,16 @@ a:active {
 	left: 50px;
 }
 
-.panel-collapse {
-	height: 0px !important;
-	padding: 0;
-	opacity: 0;
-	overflow: hidden;
+.widget-collapse {
+    height: 45px !important;
+    margin-bottom: 18px;
+}
+
+.back-panel-collapse {
+    height: 45px !important;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26) !important;
+    overflow: hidden;
 }
 
 @media screen and (max-width: 450px) {
