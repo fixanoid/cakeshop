@@ -44,3 +44,26 @@ MInimum requirements for tomcat (conf/server.xml)
                maxConnections="10000" 
                redirectPort="8443" 
                connectionTimeout="20000"/>
+
+Currently Cakeshop APP supports Oracle, Postgres, MySQL, HSQL databases. Here are the options how to use external or embedded database(HSQL)
+
+LOCAL, DEV are by default running on embedded HSQL DB. UAT and Prod have Oracle as default database. If you'd like to overwrite it you need 
+to pass -Dcakeshop.database.vendor=oracle|hsqldb|mysql|postgres
+into app server startup script.  
+ 
+- For external database only:
+  If you have connection pool set up, add Java environment variable -Dcakeshop.jndi.name=your_connection_pool_jndi_name into app server startup script. 
+  This option is not for embedded database.
+
+  If you'd like to use direct JDBC connection then following Java environment variables have to be added 
+to start up script -Dcakeshop.jdbc.url=url -Dcakeshop.jdbc.user=db_user -Dcakeshop.jdbc.pass=db_password
+
+- For embedded database:
+  Just pass -Dcakeshop.database.vendor=hsqldb into app server start up script.
+
+- If you'd like to overwrite default hibernate settings, following properties have to be added to the app server startup script -Dcakeshop.hibernate.jdbc.batch_size=value -Dcakeshop.hibernate.hbm2ddl.auto=value   -Dcakeshop.hibernate.dialect=value
+
+  
+  
+
+

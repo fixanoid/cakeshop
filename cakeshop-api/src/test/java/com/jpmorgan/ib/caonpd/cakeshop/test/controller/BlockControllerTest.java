@@ -54,7 +54,7 @@ public class BlockControllerTest extends BaseControllerTest {
     @Test    
     public void testGetBlockByTag() throws Exception {
         Block block = blockService.get(null, null, "latest");
-        commonTest("{\"tag\":\"latest\"}", block.getNumber());
+        commonTest("{\"tag\":\"latest\"}", block.getNumber().longValue());
     }
 
     private void commonTest(String postBody, long blockNum) throws Exception {

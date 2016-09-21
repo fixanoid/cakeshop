@@ -1,5 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
+//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
@@ -43,14 +44,14 @@ public class BlockController extends BaseController {
 
         if (block != null) {
             res.setData(block.toAPIData());
-            return new ResponseEntity<APIResponse>(res, HttpStatus.OK);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
 
         APIError err = new APIError();
         err.setStatus("404");
         err.setTitle("Block not found");
         res.addError(err);
-        return new ResponseEntity<APIResponse>(res, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
 
 }

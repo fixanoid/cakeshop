@@ -16,7 +16,9 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,9 +26,12 @@ public class GethConfigBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(GethConfigBean.class);
 
-    public static final String startLinuxCommand = "bin/linux/geth";
-    public static final String startWinCommand = "bin/win/geth.exe";
-    public static final String startMacCommand = "bin/mac/geth";
+    public static final String START_LINUX_COMMAND = "bin/linux/geth";
+    public static final String START_WIN_COMMAND = "bin/win/geth.exe";
+    public static final String START_MAC_COMMAND = "bin/mac/geth";
+    
+    @Autowired
+    private Environment env;
 
     @Value("${config.path}")
     private String CONFIG_ROOT;
@@ -64,8 +69,9 @@ public class GethConfigBean {
     private final String GETH_START_TIMEOUT = "geth.start.timeout";
     private final String GETH_UNLOCK_TIMEOUT = "geth.unlock.timeout";
 
-    private final String GETH_DB_ENABLED = "geth.db.enabled";
-
+    //geth.db.enabled
+    private final String GETH_DB_ENABLED = "cakeshop.database.vendor";
+    
     // User-configurable settings
     private final String GETH_NETWORK_ID = "geth.networkid";
     private final String GETH_VERBOSITY = "geth.verbosity";
@@ -87,7 +93,15 @@ public class GethConfigBean {
     }
 
     @PostConstruct
-    private void initBean() throws IOException {
+    private void initBean() {
+        try {
+            initGethBean();
+        } catch (IOException ex) {
+            LOG.error(ex.getMessage());
+        }
+    }
+    
+    private void initGethBean() throws IOException {
 
         // load props
         configFile = FileUtils.expandPath(CONFIG_ROOT, "application.properties");
@@ -103,13 +117,13 @@ public class GethConfigBean {
         // Choose correct geth binary
         if (SystemUtils.IS_OS_WINDOWS) {
             LOG.info("Using geth for windows");
-            gethPath = expandPath(baseResourcePath, startWinCommand);
+            gethPath = expandPath(baseResourcePath, START_WIN_COMMAND);
         } else if (SystemUtils.IS_OS_LINUX) {
             LOG.info("Using geth for linux");
-            gethPath = expandPath(baseResourcePath, startLinuxCommand);
+            gethPath = expandPath(baseResourcePath, START_LINUX_COMMAND);
         } else if (SystemUtils.IS_OS_MAC_OSX) {
             LOG.info("Using geth for mac");
-            gethPath = expandPath(baseResourcePath, startMacCommand);
+            gethPath = expandPath(baseResourcePath, START_MAC_COMMAND);
         } else {
             LOG.error("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
             throw new IllegalArgumentException("Running on unsupported OS! Only Windows, Linux and Mac OS X are currently supported");
@@ -375,11 +389,11 @@ public class GethConfigBean {
     }
 
     public boolean isDbEnabled() {
-        return Boolean.valueOf(get(GETH_DB_ENABLED, "true"));
+        return StringUtils.isNotBlank(env.getProperty(GETH_DB_ENABLED)) || StringUtils.isNotBlank(System.getProperty(GETH_DB_ENABLED));
     }
 
-    public void setDbEnabled(Boolean enabled) {
-        props.setProperty(GETH_DB_ENABLED, enabled.toString());
+    public void setDbEnabled(String vendor) {
+        props.setProperty(GETH_DB_ENABLED, vendor);
     }
 
     public int getGethStartTimeout() {

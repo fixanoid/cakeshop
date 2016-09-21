@@ -18,22 +18,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransactionDAO extends BaseDAO {
 
     public Transaction getById(String id) {
-        return hibernateTemplate.get(Transaction.class, id);
+        if (null != getCurrentSession()) {
+            return getCurrentSession().get(Transaction.class, id);
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     private List<Transaction> getContractCreation(String id) {
-        Criteria c = getCurrentSession().createCriteria(Transaction.class);
-        c.add(Restrictions.eq("contractAddress", id));
-        return c.list();
+        if (null != getCurrentSession()) {
+            Criteria c = getCurrentSession().createCriteria(Transaction.class);
+            c.add(Restrictions.eq("contractAddress", id));
+            return c.list();
+        }
+        return new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
     private List<Transaction> getContractTransactions(String id) {
-        Criteria c = getCurrentSession().createCriteria(Transaction.class);
-        c.add(Restrictions.eq("to", id));
-        c.addOrder(Order.asc("blockNumber"));
-        return c.list();
+        if (null != getCurrentSession()) {
+            Criteria c = getCurrentSession().createCriteria(Transaction.class);
+            c.add(Restrictions.eq("to", id));
+            c.addOrder(Order.asc("blockNumber"));
+            return c.list();
+        }
+        return new ArrayList<>();
     }
 
     public List<Transaction> listForContractId(String id) {
@@ -41,7 +50,6 @@ public class TransactionDAO extends BaseDAO {
         List<Transaction> txList = getContractTransactions(id);
 
         // merge lists
-
         List<Transaction> allTx = new ArrayList<>();
 
         if (creationList != null && !creationList.isEmpty()) {
@@ -56,36 +64,42 @@ public class TransactionDAO extends BaseDAO {
     }
 
     public void save(List<Transaction> txns) {
-        Session session = getCurrentSession();
-        for (int i = 0; i < txns.size(); i++) {
-            Transaction txn = txns.get(i);
+        if (null != getCurrentSession()) {
+            Session session = getCurrentSession();
+            for (int i = 0; i < txns.size(); i++) {
+                Transaction txn = txns.get(i);
 
-            if (txn.getLogs() != null && !txn.getLogs().isEmpty()) {
-                for (Event event : txn.getLogs()) {
-                    session.save(event);
+                if (txn.getLogs() != null && !txn.getLogs().isEmpty()) {
+                    for (Event event : txn.getLogs()) {
+                        session.save(event);
+                    }
                 }
-            }
 
-            session.save(txn);
-            if (i % 20 == 0) {
-                session.flush();
-                session.clear();
+                session.save(txn);
+                if (i % BATCH_SIZE == 0) {
+                    session.flush();
+                    session.clear();
+                }
             }
         }
     }
 
     public void save(Transaction tx) {
-        hibernateTemplate.save(tx);
+        if (null != getCurrentSession()) {
+            getCurrentSession().save(tx);
+        }
     }
 
     @Override
     public void reset() {
-        Session session = getCurrentSession();
-        session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();
-        session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
-        session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
-        session.flush();
-        session.clear();
+        if (null != getCurrentSession()) {
+            Session session = getCurrentSession();
+            session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();
+            session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
+            session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
+            session.flush();
+            session.clear();
+        }
     }
 
 }
