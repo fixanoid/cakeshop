@@ -46,6 +46,59 @@ a:active {
 	text-shadow: none;
 }
 
+.settings {
+    right: 25px;
+    position: absolute;
+    bottom: 26px;
+    font-size: 20px;
+}
+
+.settings:hover {
+    cursor: pointer;
+}
+
+.settings hr {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.settings h4 {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.settings li {
+    margin: 12px;
+}
+
+.settings > .dropdown-toggle {
+    margin-right: 8px;
+}
+
+.dropdown-menu {
+    border-radius: 0px;
+    margin-top: 8px;
+}
+
+.dropdown-arrow {
+    height: 5px;
+    background-color: #333;
+    margin-top: -5px;
+    margin-bottom: 8px;
+}
+
+.arrow-up {
+    width: 0px;
+    height: 0px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #333;
+    position: absolute;
+    right: 8px;
+    top: -8px;
+}
+
 .tower-page-title {
 	margin-bottom: 20px;
 	text-shadow: 1px 4px 6px #c6c6c6, 0 0 0 #000, 1px 4px 6px #c6c6c6;

@@ -32,13 +32,13 @@ window.Tower = {
 
 		// let everyone listening in know
 		Dashboard.Utils.emit('tower-control|ready|true');
-		
+
 		if(window.localStorage.getItem("tourEnded") === null) {
 			//first time, activate tour automatically
 			$(document).trigger('StartTour');
 			Tower.tour.start(true);
 		}
-		
+
 		return true;
 	},
 
@@ -278,6 +278,9 @@ $(function() {
 		$('.tower-body-wrapper').toggleClass('tower-nav-min');
 	});
 
+	$('#reset').on('click', function() {
+		Dashboard.reset();
+	})
 
 	// Navigation menu handler
 	$('.tower-sidebar li').click(function(e) {
@@ -285,7 +288,7 @@ $(function() {
 		if (id === 'sandbox') {
 			return;
 		} else if (id === 'help') {
-			
+
 			 $(document).trigger('StartTour');
 			 Tower.tour.start(true);
 			return;
@@ -301,16 +304,15 @@ $(function() {
 		Tower.section[Tower.current]();
 
 		$('.tower-page-title').html( $('<span>', { html: $(this).find('.tower-sidebar-item').html() }) );
-		
-	});
 
+	});
 
 
 
 
 	// ---------- INIT -----------
 	Tower.init();
-	
+
 
 	// add dispatcher listener
 	// $(document).on('WidgetInternalEvent', function(ev, action) {
