@@ -129,7 +129,7 @@ public class ProcessUtils {
     }
 
     public static boolean killProcessWin(String pid, String exeName) throws InterruptedException, IOException {
-        Runtime.getRuntime().exec("taskkill /F /IM " + exeName).waitFor();
+        Runtime.getRuntime().exec("taskkill /F /PID " + pid).waitFor();
         return true;
     }
 
