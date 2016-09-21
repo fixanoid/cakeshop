@@ -114,7 +114,7 @@ public class ProcessUtils {
     }
 
     public static boolean killProcess(String pid, String exeName) throws InterruptedException, IOException {
-        boolean killed = SystemUtils.IS_OS_WINDOWS ? killProcessWin(pid, exeName) : killProcessNix(pid);
+        boolean killed = SystemUtils.IS_OS_WINDOWS ? killProcessWin(pid) : killProcessNix(pid);
         if (!killed) {
             return false;
         }
@@ -128,7 +128,7 @@ public class ProcessUtils {
         }
     }
 
-    public static boolean killProcessWin(String pid, String exeName) throws InterruptedException, IOException {
+    public static boolean killProcessWin(String pid) throws InterruptedException, IOException {
         Runtime.getRuntime().exec("taskkill /F /PID " + pid).waitFor();
         return true;
     }
