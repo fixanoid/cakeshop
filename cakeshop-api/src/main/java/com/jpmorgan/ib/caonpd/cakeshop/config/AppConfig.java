@@ -20,6 +20,7 @@ import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
@@ -117,7 +118,8 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
     }
 
     public  void initVendorConfig(File configFile) throws IOException {
-        LOG.info("Initializing new config from " + FileUtils.getClasspathPath(getVendorConfigFile()).toString());
+        String path = FileUtils.getClasspathPath(getVendorConfigFile()).toString();
+        LOG.info("Initializing new config from " + path);
         FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(getVendorConfigFile()), configFile);
     }
 

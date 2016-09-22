@@ -67,10 +67,10 @@ public class EventServiceImpl implements EventService {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> processEvents(List<Map<String, Object>> rawEvents) throws APIException {
+    public List<Event> processEvents(List<Map<String, Object>> directTxnEvents) throws APIException {
 
         List<Event> events = new ArrayList<>();
-        for (Map<String, Object> data : rawEvents) {
+        for (Map<String, Object> data : directTxnEvents) {
 
             Event event = new Event();
             event.setId(new BigInteger(String.valueOf(System.nanoTime())));

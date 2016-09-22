@@ -12,7 +12,7 @@ public interface EventService {
 
     public List<Event> listForBlock(Long blockNumber) throws APIException;
 
-    List<Event> processEvents(List<Map<String, Object>> rawEvents) throws APIException;
+    List<Event> processEvents(List<Map<String, Object>> directEvents) throws APIException;
     public String serialize(Object obj) throws IOException;
     public Object deserialize(String data) throws IOException, ClassNotFoundException;
 

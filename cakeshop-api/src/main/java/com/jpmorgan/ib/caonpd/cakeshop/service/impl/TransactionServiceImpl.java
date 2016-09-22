@@ -13,7 +13,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.RequestModel;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction.Status;
-import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
+import com.jpmorgan.ib.caonpd.cakeshop.model.DirectTransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.service.ContractService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.EventService;
 import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
@@ -144,7 +144,7 @@ public class TransactionServiceImpl implements TransactionService {
                         LOG.warn("Failed to load gemini payload: " + e.getMessage());
                     }
                 }
-                tx.decodeRawInput(tx.getInput());
+                tx.decodeDirectTxnInput(tx.getInput());
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }  
         } 
@@ -241,7 +241,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResult rawTransact(TransactionRawRequest request) throws APIException {
+    public TransactionResult directTransact(DirectTransactionRequest request) throws APIException {
         if (defaultFromAddress == null) {
             defaultFromAddress = walletService.list().get(0).getAddress();
         }
