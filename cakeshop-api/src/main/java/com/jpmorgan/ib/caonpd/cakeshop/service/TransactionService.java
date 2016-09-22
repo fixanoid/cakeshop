@@ -2,7 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
+import com.jpmorgan.ib.caonpd.cakeshop.model.DirectTransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 
 import java.util.List;
@@ -64,6 +64,6 @@ public interface TransactionService {
 	 * @return {@link TransactionResult}
      * @throws com.jpmorgan.ib.caonpd.cakeshop.error.APIException
 	 */
-    public TransactionResult rawTransact(TransactionRawRequest request) throws APIException;
+    public TransactionResult directTransact(DirectTransactionRequest request) throws APIException;
 
 }

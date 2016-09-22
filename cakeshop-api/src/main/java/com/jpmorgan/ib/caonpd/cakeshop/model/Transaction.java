@@ -270,15 +270,15 @@ public class Transaction implements Serializable {
         }
     }
     
-    public void decodeRawInput(String method) {
-        final String rawInput = getInput();
+    public void decodeDirectTxnInput(String method) {
+        final String directInput = getInput();
         ObjectMapper mapper = new ObjectMapper();
         Object[] data;
         try {
-            data = mapper.readValue(new String(Hex.decode(rawInput.replaceFirst("0x", ""))), Object[].class);
+            data = mapper.readValue(new String(Hex.decode(directInput.replaceFirst("0x", ""))), Object[].class);
             decodedInput = new Input(method, data);
         } catch (IOException ex) {
-            String decoded = new String(Hex.decode(rawInput.replaceFirst("0x", "")));
+            String decoded = new String(Hex.decode(directInput.replaceFirst("0x", "")));
             data = new Object[1];
             data[0] = decoded;
             decodedInput = new Input(method, data);

@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class TransactionRawRequest {
+public class DirectTransactionRequest {
 
     public static final String BLOCK_LATEST = "latest";
 
@@ -27,11 +27,11 @@ public class TransactionRawRequest {
 
     private final boolean isRead;
 
-    public TransactionRawRequest(String fromAddress, String toAddress, String data, boolean isRead) throws APIException {
+    public DirectTransactionRequest(String fromAddress, String toAddress, String data, boolean isRead) throws APIException {
         this(fromAddress, toAddress, data, isRead, null);
     }
 
-    public TransactionRawRequest(String fromAddress, String toAddress, String data, boolean isRead, Object blockNumber) throws APIException {
+    public DirectTransactionRequest(String fromAddress, String toAddress, String data, boolean isRead, Object blockNumber) throws APIException {
         this.fromAddress = fromAddress;
         this.toAddress = toAddress;
         this.isRead = isRead;

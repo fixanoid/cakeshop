@@ -5,7 +5,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
-import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionRawRequest;
+import com.jpmorgan.ib.caonpd.cakeshop.model.DirectTransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
 import java.util.List;
@@ -62,10 +62,10 @@ public class TransactionController extends BaseController {
         Callable<ResponseEntity<APIResponse>> callable = new Callable<ResponseEntity<APIResponse>>() {
             @Override
             public ResponseEntity<APIResponse> call() throws Exception {
-                TransactionRawRequest req =  new TransactionRawRequest(from, to, data, false);
+                DirectTransactionRequest req =  new DirectTransactionRequest(from, to, data, false);
                 req.setGeminiTo(geminiTo);
                 
-                TransactionResult result = transactionService.rawTransact(req);
+                TransactionResult result = transactionService.directTransact(req);
                 APIResponse res = new APIResponse();
                 res.setData(result.toAPIData());
                 ResponseEntity<APIResponse> response = new ResponseEntity<>(res, HttpStatus.OK);
