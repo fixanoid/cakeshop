@@ -14,9 +14,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Transactional
 public class TransactionDAO extends BaseDAO {
 
+    @Transactional
     public Transaction getById(String id) {
         if (null != getCurrentSession()) {
             return getCurrentSession().get(Transaction.class, id);
@@ -45,6 +45,7 @@ public class TransactionDAO extends BaseDAO {
         return new ArrayList<>();
     }
 
+    @Transactional
     public List<Transaction> listForContractId(String id) {
         List<Transaction> creationList = getContractCreation(id);
         List<Transaction> txList = getContractTransactions(id);
@@ -63,6 +64,7 @@ public class TransactionDAO extends BaseDAO {
         return allTx;
     }
 
+    @Transactional
     public void save(List<Transaction> txns) {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
@@ -84,6 +86,7 @@ public class TransactionDAO extends BaseDAO {
         }
     }
 
+    @Transactional
     public void save(Transaction tx) {
         if (null != getCurrentSession()) {
             getCurrentSession().save(tx);
@@ -91,12 +94,13 @@ public class TransactionDAO extends BaseDAO {
     }
 
     @Override
+    @Transactional
     public void reset() {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
-            session.createSQLQuery("DELETE FROM TRANSACTIONS_EVENTS").executeUpdate();
-            session.createSQLQuery("DELETE FROM EVENTS").executeUpdate();
-            session.createSQLQuery("DELETE FROM TRANSACTIONS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE TRANSACTIONS_EVENTS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE EVENTS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE TRANSACTIONS").executeUpdate();
             session.flush();
             session.clear();
         }

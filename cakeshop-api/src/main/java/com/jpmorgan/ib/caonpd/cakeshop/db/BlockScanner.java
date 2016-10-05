@@ -1,8 +1,6 @@
 package com.jpmorgan.ib.caonpd.cakeshop.db;
 
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
@@ -22,7 +20,6 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -42,14 +39,10 @@ public class BlockScanner extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockScanner.class);
 
-    //@Autowired(required = false)
-    private BlockRepository blockRepository;
-    @Autowired(required = false)
+    @Autowired
     private BlockDAO blockDAO;
 
-    //@Autowired(required = false)
-    private TransactionRepository txRepository;
-    @Autowired(required = false)
+    @Autowired
     private TransactionDAO txDAO;
 
     @Autowired
@@ -109,35 +102,24 @@ public class BlockScanner extends Thread {
     protected void backfillBlocks() {
 
         // get the max block at startup
-        Block largestSavedBlock = null;
-        if (null != blockDAO) {
-            largestSavedBlock = blockDAO.getLatest();
-        } else if (null != blockRepository) {
-            largestSavedBlock = new Block();
-            com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block block = blockRepository.getLatest();
-            BeanUtils.copyProperties(block, largestSavedBlock);
-        }
-        Block chainBlock;
+        Block largestSavedBlock = blockDAO.getLatest();
+        Block chainBlock = null;
         try {
             chainBlock = blockService.get(null, null, "latest");
         } catch (APIException e) {
             LOG.warn("Failed to read latest block: " + e.getMessage(), e);
             return;
         }
-        
-        
+
         if (largestSavedBlock == null) {
             fillBlockRange(0, chainBlock.getNumber().longValue());
 
         } else if (chainBlock.getNumber().longValue() > largestSavedBlock.getNumber().longValue()) {
-        	LOG.info("BLOCK NUMBERs " + largestSavedBlock.getNumber().longValue() + "   " + chainBlock.getNumber().longValue());
             fillBlockRange(largestSavedBlock.getNumber().longValue() + 1, chainBlock.getNumber().longValue());
 
         } else if (chainBlock.equals(largestSavedBlock)) {
             previousBlock = chainBlock;
         }
-        
-        
 
     }
 
@@ -210,14 +192,9 @@ public class BlockScanner extends Thread {
 
         // flush db
         LOG.info("Flushing DB");
-        if (null != blockDAO && txDAO != null) {
-            blockDAO.reset();
-            txDAO.reset();
-        }
-        if (null != blockRepository && txRepository != null) {
-            txRepository.reset();
-            blockRepository.reset();
-        }
+//        dbConfig.reset();
+        blockDAO.reset();
+        txDAO.reset();
 
         // fill
         LOG.info("Backfilling blocks with new chain");
@@ -229,7 +206,7 @@ public class BlockScanner extends Thread {
             gethConfig.setProperty("contract.registry.addr", addr);
             gethConfig.save();
         } catch (IOException e) {
-            LOG.warn("Unable to update application.properties", e);
+            LOG.warn("Unable to update env.properties", e);
             throw new APIException("Unable to update env.properties", e);
         }
     }

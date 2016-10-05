@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Transactional
 public class PeerDAO extends BaseDAO {
 
+    @Transactional
     public Peer getById(String id) {
         if (null != getCurrentSession()) {
             return getCurrentSession().get(Peer.class, id);
@@ -22,6 +22,7 @@ public class PeerDAO extends BaseDAO {
     }
 
     @SuppressWarnings("unchecked")
+    @Transactional
     public List<Peer> list() {
         if (null != getCurrentSession()) {
             Criteria c = getCurrentSession().createCriteria(Peer.class);
@@ -30,12 +31,14 @@ public class PeerDAO extends BaseDAO {
         return new ArrayList<>();
     }
 
+    @Transactional
     public void save(Peer peer) {
         if (null != getCurrentSession()) {
-            getCurrentSession().save(peer);
+            getCurrentSession().merge(peer);
         }
     }
 
+    @Transactional
     public void save(List<Peer> peers) {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
@@ -47,14 +50,17 @@ public class PeerDAO extends BaseDAO {
                     session.clear();
                 }
             }
+            session.flush();
+            session.clear();
         }
     }
 
     @Override
+    @Transactional
     public void reset() {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
-            session.createSQLQuery("DELETE FROM PEERS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE PEERS").executeUpdate();
             session.flush();
             session.clear();
         }

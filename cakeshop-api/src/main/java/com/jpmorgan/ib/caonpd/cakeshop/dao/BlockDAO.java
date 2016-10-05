@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Transactional
 public class BlockDAO extends BaseDAO {
 
     public Block getById(String id) {
@@ -25,6 +24,7 @@ public class BlockDAO extends BaseDAO {
     }
 
     @SuppressWarnings("rawtypes")
+    @Transactional
     public Block getByNumber(BigInteger number) {
         Block block = null;
         if (null != getCurrentSession()) {
@@ -46,6 +46,7 @@ public class BlockDAO extends BaseDAO {
     }
 
     @SuppressWarnings("rawtypes")
+    @Transactional
     public Block getLatest() {
         if (null != getCurrentSession()) {
             Criteria c = getCurrentSession().createCriteria(Block.class);
@@ -62,19 +63,23 @@ public class BlockDAO extends BaseDAO {
         }
     }
 
+    @Transactional
     public void save(Block block) {
         if (null != getCurrentSession()) {
-            getCurrentSession().save(block);
+            try {
+                getCurrentSession().merge(block);
+            } catch (Exception e) {}
         }
     }
 
     @Override
+    @Transactional
     public void reset() {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
-            session.createSQLQuery("DELETE FROM Block_transactions").executeUpdate();
-            session.createSQLQuery("DELETE FROM Block_uncles").executeUpdate();
-            session.createSQLQuery("DELETE FROM BLOCKS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE BLOCK_TRANSACTIONS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE BLOCK_UNCLES").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE BLOCKS").executeUpdate();
             session.flush();
             session.clear();
         }

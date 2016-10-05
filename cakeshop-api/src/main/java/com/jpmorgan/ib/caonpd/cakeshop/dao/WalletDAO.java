@@ -13,11 +13,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Transactional
 public class WalletDAO extends BaseDAO {
  
     private static final Logger LOG = LoggerFactory.getLogger(WalletDAO.class);
     
+    @Transactional
     public List<Account> list() {
         if (null != getCurrentSession()) {
             Criteria criteria = getCurrentSession().createCriteria(Account.class);
@@ -26,6 +26,7 @@ public class WalletDAO extends BaseDAO {
         return new ArrayList();
     }
 
+    @Transactional
     public void save(Account account) {
         if (null != getCurrentSession()) {
             getCurrentSession().save(account);
@@ -35,10 +36,11 @@ public class WalletDAO extends BaseDAO {
     }
 
     @Override
+    @Transactional
     public void reset() {
         if (null != getCurrentSession()) {
             Session session = getCurrentSession();
-            session.createSQLQuery("DELETE FROM ACCOUNTS").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE ACCOUNTS").executeUpdate();
             session.flush();
             session.clear();
         }
