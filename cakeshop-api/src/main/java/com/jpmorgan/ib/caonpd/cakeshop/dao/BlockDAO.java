@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class BlockDAO extends BaseDAO {
 
+    @Transactional
     public Block getById(String id) {
         if (null != getCurrentSession()) {
         return getCurrentSession().get(Block.class, id);
