@@ -2,12 +2,14 @@ package com.jpmorgan.ib.caonpd.cakeshop.controller;
 
 import com.jpmorgan.ib.caonpd.cakeshop.config.JsonMethodArgumentResolver.JsonBodyParam;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
+import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIError;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
 import com.jpmorgan.ib.caonpd.cakeshop.model.DirectTransactionRequest;
 import com.jpmorgan.ib.caonpd.cakeshop.model.TransactionResult;
 import com.jpmorgan.ib.caonpd.cakeshop.service.TransactionService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -52,16 +54,19 @@ public class TransactionController extends BaseController {
         return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
     
-    @RequestMapping("/get/list")
+    @RequestMapping("/list")
     public ResponseEntity<APIResponse> getTransactionList(
             @JsonBodyParam(required=true) List<String> ids) throws APIException {
 
         List <Transaction> txns = transactionService.get(ids);
-
+        List <APIData> data = new ArrayList<>();
         APIResponse res = new APIResponse();
 
         if (txns != null && !txns.isEmpty()) {
-            res.setData(txns);
+            for (Transaction txn : txns) {
+                data.add(txn.toAPIData());                
+            }
+            res.setData(data);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
 

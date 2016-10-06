@@ -5,6 +5,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
+import com.jpmorgan.ib.caonpd.cakeshop.model.APIData;
 import com.jpmorgan.ib.caonpd.cakeshop.model.APIResponse;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import com.jpmorgan.ib.caonpd.cakeshop.model.Transaction;
@@ -67,6 +68,8 @@ public class SavingBlockListener implements BlockListener {
     private final BlockSaverThread blockSaver;
 
     private static final String TOPIC = WebSocketPushService.TRANSACTION_TOPIC + "all";
+    private static final String TOPIC_BLOCK = WebSocketPushService.BLOCK_TOPIC + "/all";
+    
 
     @Autowired(required = false)
     private SimpMessagingTemplate stompTemplate;
@@ -98,19 +101,30 @@ public class SavingBlockListener implements BlockListener {
                 try {
                     List<Transaction> txns = txService.get(txnChunk);
                     txDAO.save(txns);
-                    pushTransactions(txns); // push to subscribers after saving
+                    pushBlockNumber(block.getNumber().longValue()); // push to subscribers after saving
+                    pushTransactions(txns);
                 } catch (APIException e) {
                     LOG.warn("Failed to load transaction details for tx", e);
                 }
             }
         }
     }
+    
+    private void pushBlockNumber(Long blockNumber) {
+        if (stompTemplate == null) {
+            return;
+        }
+        LOG.debug("Pushing block number " + blockNumber);
+        APIResponse res = new APIResponse();
+        res.setData(new APIData(blockNumber.toString(), "block_number", blockNumber));
+        stompTemplate.convertAndSend(TOPIC_BLOCK, res);
+    }
 
     private void pushTransactions(List<Transaction> txns) {
         if (stompTemplate == null) {
             return;
         }
-        LOG.info("Transaction lIst size " + txns.size());
+        LOG.debug("Transaction list size " + txns.size());
         for (Transaction txn : txns) {
             
             APIResponse res = new APIResponse();
