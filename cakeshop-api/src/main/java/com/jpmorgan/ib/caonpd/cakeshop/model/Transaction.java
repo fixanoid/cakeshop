@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
