@@ -9,6 +9,7 @@ import javax.inject.Named;
 
 import feign.Headers;
 import feign.RequestLine;
+import java.util.List;
 
 public interface TransactionApi extends ApiClient.Api {
 
@@ -22,5 +23,9 @@ public interface TransactionApi extends ApiClient.Api {
     @RequestLine("POST /transaction/get")
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
     APIResponse<APIData<Transaction>, Transaction> get(@Named("id") String id);
+    
+    @RequestLine("POST /transaction/get/list")
+    @Headers({ "Content-type: application/json", "Accepts: application/json", })
+    APIResponse<APIData<Transaction>, Transaction> get(@Named("id") List<String> id);
 
 }
