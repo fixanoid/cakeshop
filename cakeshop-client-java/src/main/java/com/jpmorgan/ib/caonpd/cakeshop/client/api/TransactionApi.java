@@ -24,8 +24,8 @@ public interface TransactionApi extends ApiClient.Api {
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
     APIResponse<APIData<Transaction>, Transaction> get(@Named("id") String id);
     
-    @RequestLine("POST /transaction/get/list")
+    @RequestLine("POST /transaction/list")
     @Headers({ "Content-type: application/json", "Accepts: application/json", })
-    APIResponse<APIData<Transaction>, Transaction> get(@Named("id") List<String> id);
+    APIResponse<List<APIData<Transaction>>, Transaction> get(@Named("ids") List<String> ids);
 
 }
