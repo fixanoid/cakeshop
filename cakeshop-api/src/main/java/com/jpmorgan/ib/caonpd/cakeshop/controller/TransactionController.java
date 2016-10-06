@@ -52,6 +52,27 @@ public class TransactionController extends BaseController {
         return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
     
+    @RequestMapping("/get/list")
+    public ResponseEntity<APIResponse> getTransactionList(
+            @JsonBodyParam(required=true) List<String> ids) throws APIException {
+
+        List <Transaction> txns = transactionService.get(ids);
+
+        APIResponse res = new APIResponse();
+
+        if (txns != null && !txns.isEmpty()) {
+            res.setData(txns);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+
+        APIError err = new APIError();
+        err.setStatus("404");
+        err.setTitle("Transaction not found");
+        res.addError(err);
+
+        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+    }
+    
     @RequestMapping("/save")
     public WebAsyncTask<ResponseEntity<APIResponse>> transact(
             @JsonBodyParam final String from,
