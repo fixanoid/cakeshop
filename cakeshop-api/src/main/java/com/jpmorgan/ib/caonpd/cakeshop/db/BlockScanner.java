@@ -203,12 +203,11 @@ public class BlockScanner extends Thread {
         // fill
         LOG.info("Backfilling blocks with new chain");
         Long maxBlock = backfillBlocks();
+        Long maxDBBlock = blockDAO.getLatest().getNumber().longValue();
         if (maxBlock >= 0) {
-            while (true) {
-                Long maxDBBlock = blockDAO.getLatest().getNumber().longValue();
-                if (maxDBBlock.longValue() == maxBlock.longValue()) {
-                    break;
-                }
+            while (maxDBBlock < maxBlock) {
+                maxDBBlock = blockDAO.getLatest().getNumber().longValue();
+                LOG.debug("Wait to sync up with database");
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
                 } catch (InterruptedException ex) {
@@ -229,6 +228,9 @@ public class BlockScanner extends Thread {
     }
 
     private void checkDbSync() throws APIException {
+        if (!gethConfig.isDbEnabled()) {
+            return;
+        }
         Block firstChainBlock = blockService.get(null, 1L, null);
         Block firstKnownBlock = blockDAO.getByNumber(new BigInteger("1"));
         if ((firstKnownBlock != null && firstChainBlock != null && !firstKnownBlock.equals(firstChainBlock))

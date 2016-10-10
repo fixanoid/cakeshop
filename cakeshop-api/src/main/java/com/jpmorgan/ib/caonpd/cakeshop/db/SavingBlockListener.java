@@ -15,9 +15,9 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.WebSocketPushService;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 
 import javax.annotation.PreDestroy;
-import org.hibernate.exception.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +77,14 @@ public class SavingBlockListener implements BlockListener {
 
     public SavingBlockListener() {
         blockQueue = new ArrayBlockingQueue<>(1000);
-        blockSaver = new BlockSaverThread();
-        blockSaver.start();
+        blockSaver = new BlockSaverThread();              
+    }
+    
+    @PostConstruct
+    protected void init() {
+       if (gethConfig.isDbEnabled()) {
+            blockSaver.start();
+        }   
     }
 
     @PreDestroy
@@ -89,10 +95,7 @@ public class SavingBlockListener implements BlockListener {
         blockSaver.interrupt();
     }
 
-    protected void saveBlock(Block block) {
-        if (!gethConfig.isDbEnabled()) {
-            return;
-        }
+    protected void saveBlock(Block block) {        
         LOG.debug("Persisting block #" + block.getNumber());
         blockDAO.save(block);
         if (!block.getTransactions().isEmpty()) {
@@ -136,6 +139,9 @@ public class SavingBlockListener implements BlockListener {
 
     @Override
     public void blockCreated(Block block) {
+        if (!gethConfig.isDbEnabled()) {
+            return;
+        }
         try {
             blockQueue.put(block);
         } catch (InterruptedException e) {
