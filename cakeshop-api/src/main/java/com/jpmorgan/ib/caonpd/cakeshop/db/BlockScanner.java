@@ -207,7 +207,6 @@ public class BlockScanner extends Thread {
             while (true) {
                 Long maxDBBlock = blockDAO.getLatest().getNumber().longValue();
                 if (maxDBBlock.longValue() == maxBlock.longValue()) {
-                    LOG.debug("Waiting to sync with database");
                     break;
                 }
                 try {
