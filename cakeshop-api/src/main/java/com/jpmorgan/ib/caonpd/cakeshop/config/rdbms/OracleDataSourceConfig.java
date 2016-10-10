@@ -55,6 +55,7 @@ public class OracleDataSourceConfig extends AbstractDataSourceConfig {
     @Override
     protected DataSource getSimpleDataSource() throws ClassNotFoundException {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
+        dataSource.setDriverClass(oracle.jdbc.OracleDriver.class);
         dataSource.setUrl(StringUtils.isNotBlank(System.getProperty(JDBC_URL)) 
                 ? System.getProperty(JDBC_URL)  : env.getProperty(JDBC_URL));
         dataSource.setUsername(StringUtils.isNotBlank(System.getProperty(JDBC_USER)) 
