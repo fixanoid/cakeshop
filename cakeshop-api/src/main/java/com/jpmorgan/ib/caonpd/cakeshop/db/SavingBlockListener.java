@@ -17,6 +17,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
+import org.hibernate.exception.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class SavingBlockListener implements BlockListener {
         public boolean running = true;
 
         public BlockSaverThread() {
-            setName("BlockSaver");
+            setName("BlockSaver-" + getId());
         }
 
         @Override
@@ -102,7 +103,7 @@ public class SavingBlockListener implements BlockListener {
                     List<Transaction> txns = txService.get(txnChunk);
                     txDAO.save(txns);
                     pushBlockNumber(block.getNumber().longValue()); // push to subscribers after saving
-                    pushTransactions(txns);
+
                 } catch (APIException e) {
                     LOG.warn("Failed to load transaction details for tx", e);
                 }

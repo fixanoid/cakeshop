@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 
@@ -71,7 +72,7 @@ public class BlockScanner extends Thread {
 
     public BlockScanner() {
         this.stopped = false;
-        this.setName("BlockScanner");
+        this.setName("BlockScanner-" + getId());
     }
 
     @PostConstruct
@@ -99,7 +100,7 @@ public class BlockScanner extends Thread {
     /**
      * Lookup the latest block in our DB and fill in missing blocks from the chain
      */
-    protected void backfillBlocks() {
+    protected Long backfillBlocks() {
 
         // get the max block at startup
         Block largestSavedBlock = blockDAO.getLatest();
@@ -108,18 +109,21 @@ public class BlockScanner extends Thread {
             chainBlock = blockService.get(null, null, "latest");
         } catch (APIException e) {
             LOG.warn("Failed to read latest block: " + e.getMessage(), e);
-            return;
+            return -1L;
         }
 
         if (largestSavedBlock == null) {
             fillBlockRange(0, chainBlock.getNumber().longValue());
+            return chainBlock.getNumber().longValue();
 
         } else if (chainBlock.getNumber().longValue() > largestSavedBlock.getNumber().longValue()) {
             fillBlockRange(largestSavedBlock.getNumber().longValue() + 1, chainBlock.getNumber().longValue());
+            chainBlock.getNumber().longValue();
 
         } else if (chainBlock.equals(largestSavedBlock)) {
             previousBlock = chainBlock;
         }
+        return -1L;
 
     }
 
@@ -198,7 +202,21 @@ public class BlockScanner extends Thread {
 
         // fill
         LOG.info("Backfilling blocks with new chain");
-        backfillBlocks();
+        Long maxBlock = backfillBlocks();
+        if (maxBlock >= 0) {
+            while (true) {
+                Long maxDBBlock = blockDAO.getLatest().getNumber().longValue();
+                if (maxDBBlock.longValue() == maxBlock.longValue()) {
+                    LOG.debug("Waiting to sync with database");
+                    break;
+                }
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException ex) {
+                    LOG.info(ex.getMessage());
+                }
+            }
+        }
     }
 
     private void saveContractRegistryAddress(String addr) throws APIException {
