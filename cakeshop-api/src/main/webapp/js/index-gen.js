@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "dfc156d571f78b9e89ba"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "726d638d0372788b6a87"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -717,11 +717,11 @@
 	
 	__webpack_require__(219);
 	
-	__webpack_require__(308);
+	__webpack_require__(332);
 	
-	__webpack_require__(309);
+	__webpack_require__(333);
 	
-	__webpack_require__(310);
+	__webpack_require__(330);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -754,26 +754,26 @@
 		},
 	
 		init: function init() {
-			Dashboard.registerWidgets({
-				'accounts': __webpack_require__(311),
-				'block-detail': __webpack_require__(312),
-				'block-list': __webpack_require__(313),
-				'block-view': __webpack_require__(314),
-				'contract-current-state': __webpack_require__(315),
-				'contract-detail': __webpack_require__(316),
-				'contract-list': __webpack_require__(317),
-				'contract-paper-tape': __webpack_require__(318),
-				'doc-frame': __webpack_require__(319),
-				'metrix-blocks-min': __webpack_require__(320),
-				'metrix-txn-min': __webpack_require__(323),
-				'metrix-txn-sec': __webpack_require__(324),
-				'node-control': __webpack_require__(325),
-				'node-info': __webpack_require__(326),
-				'node-settings': __webpack_require__(327),
-				'peers-add': __webpack_require__(328),
-				'peers-list': __webpack_require__(329),
-				'peers-neighborhood': __webpack_require__(330),
-				'txn-detail': __webpack_require__(331)
+			Dashboard.preregisterWidgets({
+				'accounts': __webpack_require__(309),
+				'block-detail': __webpack_require__(310),
+				'block-list': __webpack_require__(311),
+				'block-view': __webpack_require__(312),
+				'contract-current-state': __webpack_require__(313),
+				'contract-detail': __webpack_require__(314),
+				'contract-list': __webpack_require__(315),
+				'contract-paper-tape': __webpack_require__(316),
+				'doc-frame': __webpack_require__(317),
+				'metrix-blocks-min': __webpack_require__(318),
+				'metrix-txn-min': __webpack_require__(321),
+				'metrix-txn-sec': __webpack_require__(322),
+				'node-control': __webpack_require__(323),
+				'node-info': __webpack_require__(324),
+				'node-settings': __webpack_require__(325),
+				'peers-add': __webpack_require__(326),
+				'peers-list': __webpack_require__(327),
+				'peers-neighborhood': __webpack_require__(328),
+				'txn-detail': __webpack_require__(329)
 			});
 	
 			Dashboard.setGrounds($('#grounds'));
@@ -61551,9 +61551,9 @@
 	
 	__webpack_require__(219);
 	
-	__webpack_require__(308);
+	__webpack_require__(332);
 	
-	__webpack_require__(309);
+	__webpack_require__(333);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -62163,8 +62163,14 @@
 		setOptions: function setOptions(options) {
 			$.extend(this.settings, options);
 		},
-		registerWidgets: function registerWidgets(defns) {
+		preregisterWidgets: function preregisterWidgets(defns) {
 			(0, _assign2.default)(this.widgetDefns, defns);
+		},
+		registerWidget: function registerWidget(widgetId) {
+			var widget = {};
+			widget[widgetId] = __webpack_require__(308)("./" + widgetId);
+	
+			(0, _assign2.default)(this.widgetDefns, widget);
 		},
 	
 	
@@ -62306,6 +62312,7 @@
 						$('#widget-shell-' + widget.shell.id).height($('#widget-shell-' + widget.shell.id + ' > .panel').height() + 20);
 						$('#widget-shell-' + widget.shell.id).width($('#widget-shell-' + widget.shell.id + ' > .panel').width());
 	
+						widget.refresh();
 						Dashboard.refresh();
 					},
 					stop: function stop(event, ui) {
@@ -62403,7 +62410,11 @@
 	
 		show: function show(opts) {
 			var widgetId = opts.widgetId;
-			var widgetDefn = this.widgetDefns[widgetId];
+	
+	
+			if (!(widgetId in this.widgetDefns)) {
+				this.registerWidget(widgetId);
+			}
 	
 			if (this.loaded[widgetId]) {
 				var $shell = $('#widget-shell-' + this.loaded[widgetId].shell.id);
@@ -62448,7 +62459,7 @@
 				// drop placement stub
 				Dashboard.render.stub(widgetId);
 	
-				widgetDefn();
+				this.widgetDefns[widgetId]();
 			}
 		},
 	
@@ -62553,7 +62564,7 @@
 	
 		// misc hallo
 		try {
-			console.log(' _______ __________________	 \n' + ' \\			\\\\______	 \\______ \\	\n' + ' /	 |	 \\|		 ___/|		|	\\ \n' + '/		|		\\		|		|		`	 \\ \n' + '\\____|__	/____|	 /_______	/ \n' + '				\\/								 \\/ \n' + 'This app is a product of NPD. \n' + 'Interested? Ping R556615. Bye! ');
+			console.log(' _______ __________________   \n' + ' \\      \\\\______   \\______ \\  \n' + ' /   |   \\|     ___/|    |  \\ \n' + '/    |    \\    |    |    `   \\ \n' + '\\____|__  /____|   /_______  / \n' + '        \\/                 \\/ \n' + 'This app is a product of NPD. \n' + 'Interested? Ping R556615. Bye! ');
 		} catch (e) {}
 	});
 	
@@ -73326,184 +73337,66 @@
 /* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function($) {'use strict';
-	
-	var Utils = {
-	  debug: function debug(message) {
-	    var _ref;
-	    return typeof window !== 'undefined' && window !== null ? (_ref = window.console) != null ? _ref.log(message) : void 0 : void 0;
-	  },
-	
-	  demoFuzz: function demoFuzz() {
-	    return window.demo ? Math.ceil(Math.random() * 10) : 0;
-	  },
-	
-	  emit: function emit(e) {
-	    this.debug('Emitting ' + e);
-	
-	    if (e) {
-	      $(document).trigger('WidgetInternalEvent', [e]);
-	    }
-	  },
-	
-	  on: function on(callback) {
-	    $(document).on('WidgetInternalEvent', callback);
-	  }
+	var map = {
+		"./accounts": 309,
+		"./accounts.js": 309,
+		"./block-detail": 310,
+		"./block-detail.js": 310,
+		"./block-list": 311,
+		"./block-list.js": 311,
+		"./block-view": 312,
+		"./block-view.js": 312,
+		"./contract-current-state": 313,
+		"./contract-current-state.js": 313,
+		"./contract-detail": 314,
+		"./contract-detail.js": 314,
+		"./contract-list": 315,
+		"./contract-list.js": 315,
+		"./contract-paper-tape": 316,
+		"./contract-paper-tape.js": 316,
+		"./doc-frame": 317,
+		"./doc-frame.js": 317,
+		"./metrix-blocks-min": 318,
+		"./metrix-blocks-min.js": 318,
+		"./metrix-txn-min": 321,
+		"./metrix-txn-min.js": 321,
+		"./metrix-txn-sec": 322,
+		"./metrix-txn-sec.js": 322,
+		"./node-control": 323,
+		"./node-control.js": 323,
+		"./node-info": 324,
+		"./node-info.js": 324,
+		"./node-settings": 325,
+		"./node-settings.js": 325,
+		"./peers-add": 326,
+		"./peers-add.js": 326,
+		"./peers-list": 327,
+		"./peers-list.js": 327,
+		"./peers-neighborhood": 328,
+		"./peers-neighborhood.js": 328,
+		"./txn-detail": 329,
+		"./txn-detail.js": 329,
+		"./widget-root": 330,
+		"./widget-root.js": 330,
+		"./widget-template": 331,
+		"./widget-template.js": 331
 	};
-	
-	window.Dashboard.Utils = Utils;
-	
-	// Adding event for sleep / wake
-	$(document).on('visibilitychange', function (e) {
-	  Dashboard.Utils.emit('tower-control|sleep|' + document.hidden);
-	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(220)))
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 308;
+
 
 /***/ },
 /* 309 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(_) {'use strict';
-	
-	window.Dashboard.TEMPLATES = {
-		_widget: function _widget(opts) {
-			return '<div class="widget-shell col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + ' ' + opts.name + '" id="widget-shell-' + opts.id + '">\n' + '	<div class="panel panel-default">\n' + '		<div class="panel-heading">\n' + '			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n' + '			<ul class="panel-action">\n' + (opts.customButtons ? opts.customButtons : '') + (opts.hideLink === true ? '' : '				<li><i data-toggle="tooltip" data-title="Copied!" class="fa fa-link"></i></li>\n') + '				<li><i class="fa fa-chevron-down"></i></li>\n' + (opts.hideRefresh === true ? '' : '				<li><i class="fa fa-rotate-right"></i></li>\n') + '				<li><i class="fa fa-close"></i></li>\n' + '			</ul>\n' + '		</div>\n' + '		<div class="panel-body" id="widget-' + opts.id + '">\n' + '		</div>\n' + '	</div>\n' + '</div>';
-		},
-	
-		widget: function widget(o) {
-			var opts = _.extend({
-				id: Math.ceil(Math.random() * 100000000),
-	
-				largeColumn: 3,
-				mediumColumn: 4,
-				smallColumn: 12
-			}, o);
-	
-			switch (opts.size) {
-				case 'medium':
-					opts.largeColumn = 6;
-					opts.mediumColumn = 12;
-					opts.smallColumn = 12;
-	
-					break;
-	
-				case 'large':
-					opts.largeColumn = 12;
-					opts.mediumColumn = 6;
-					opts.smallColumn = 12;
-	
-					break;
-	
-				case 'third':
-					opts.largeColumn = 4;
-					opts.mediumColumn = 6;
-					opts.smallColumn = 12;
-	
-					break;
-			}
-	
-			return {
-				id: opts.id,
-				tpl: Dashboard.TEMPLATES._widget(opts)
-			};
-		}
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(278)))
-
-/***/ },
-/* 310 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function($) {'use strict';
-	
-	/**
-	 *	Widget template.
-	 *
-	 *	Loading flow:
-	 *		1. Register in a section for displaying
-	 *		2. Widget is pulled down
-	 *		3. addWidget called on screenManager
-	 *		4. screenManager calls widget.init
-	 *			5. widget.setData is called by widget.init
-	 *			6. widget.initialized is toggled
-	 *			7. widget.ready is called by widget.init
-	 *				8. widget.render is called by widget.init
-	 *					9. widget.fetch is called by widget.render
-	 *					10. widget.postRender is called by widget.render
-	 *			11. widget.subscribe is called by widget.init
-	 */
-	
-	window.widgetRoot = {
-		hideLink: false,
-		hideRefresh: false,
-	
-		initialized: false,
-	
-		ready: function ready() {
-			this.render();
-		},
-	
-		setData: function setData(data) {
-			this.data = data;
-		},
-	
-		fetch: function fetch() {
-			this.postFetch();
-		},
-	
-		postFetch: function postFetch() {},
-	
-		subscribe: function subscribe() {},
-	
-		init: function init(data) {
-			Dashboard.Utils.emit('widget|init|' + this.name);
-	
-			if (data) {
-				this.setData(data);
-			}
-	
-			this.shell = Dashboard.TEMPLATES.widget({
-				name: this.name,
-				title: this.title,
-				size: this.size,
-				hideLink: this.hideLink,
-				hideRefresh: this.hideRefresh,
-				customButtons: this.customButtons
-			});
-	
-			this.initialized = true;
-	
-			Dashboard.Utils.emit('widget|ready|' + this.name);
-	
-			this.ready();
-	
-			Dashboard.Utils.emit('widget|render|' + this.name);
-	
-			this.subscribe();
-		},
-	
-		render: function render() {
-			Dashboard.render.widget(this.name, this.shell.tpl);
-	
-			this.fetch();
-	
-			$('#widget-' + this.shell.id).css({
-				'height': '240px',
-				'margin-bottom': '10px',
-				'overflow-x': 'hidden',
-				'width': '100%'
-			});
-	
-			this.postRender();
-			$(document).trigger("WidgetInternalEvent", ["widget|rendered|" + this.name]);
-		},
-	
-		postRender: function postRender() {}
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
-
-/***/ },
-/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -73571,7 +73464,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 312 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $, moment) {'use strict';
@@ -73674,7 +73567,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4), __webpack_require__(23)))
 
 /***/ },
-/* 313 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -73795,7 +73688,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 314 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -73842,7 +73735,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 315 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -73903,7 +73796,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 316 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $, moment) {'use strict';
@@ -73984,7 +73877,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4), __webpack_require__(23)))
 
 /***/ },
-/* 317 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, moment, $) {'use strict';
@@ -74041,7 +73934,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(23), __webpack_require__(4)))
 
 /***/ },
-/* 318 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -74134,7 +74027,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 319 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -74171,7 +74064,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 320 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function($, _) {'use strict';
@@ -74180,7 +74073,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	__webpack_require__(321);
+	__webpack_require__(319);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -74234,7 +74127,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)))
 
 /***/ },
-/* 321 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(d3, __webpack_provided_window_dot_jQuery, jQuery) {var base, base1, base2, base3;
@@ -75161,7 +75054,7 @@
 	  };
 	
 	  QueryCSS.getStyles = function(selector, container) {
-	    var cache, cacheKey, el, element, i, j, k, len, len1, len2, name, parent, parentNode, parents, ref, ref1, ref2, root, sel, selectorList, styles, subSelector;
+	    var cache, cacheKey, el, element, error, error1, i, j, k, len, len1, len2, name, parent, parentNode, parents, ref, ref1, ref2, ref3, root, sel, selectorList, styles, subSelector;
 	    cacheKey = QueryCSS.hash(selector, container);
 	    cache = QueryCSS.cache[cacheKey];
 	    if (cache != null) {
@@ -75195,10 +75088,14 @@
 	    if (logging) {
 	      console.log(selectorList);
 	    }
+	    sel = 'WTF-' + selector.replace(/(\.|\#| )/g, '__');
 	    parent = root = put(selectorList.shift());
 	    while (selectorList.length) {
 	      el = put(selectorList.shift());
 	      parent.appendChild(el);
+	      if (!selectorList.length && !el.id) {
+	        el.id = sel;
+	      }
 	      parent = el;
 	    }
 	    if (logging) {
@@ -75207,10 +75104,16 @@
 	    QueryCSS.getContainer().node().appendChild(root);
 	    ref = d3.select('#' + REFERENCE_CONTAINER_ID + ' ' + selector);
 	    styles = {};
-	    ref2 = QueryCSS.styleList;
-	    for (k = 0, len2 = ref2.length; k < len2; k++) {
-	      name = ref2[k];
-	      styles[name] = ref.style(name);
+	    ref3 = QueryCSS.styleList;
+	    for (k = 0, len2 = ref3.length; k < len2; k++) {
+	      name = ref3[k];
+	      try {
+	        styles[name] = ref.style(name);
+	      } catch (error1) {
+	        error = error1;
+	        ref2 = Epoch.Util.getComputedStyle(document.getElementById(sel), null);
+	        styles[name] = ref2[name];
+	      }
 	    }
 	    QueryCSS.cache[cacheKey] = styles;
 	    QueryCSS.getContainer().html('');
@@ -78162,10 +78065,10 @@
 	  zeptoModule(Zepto);
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(322), __webpack_require__(4), __webpack_require__(4)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(320), __webpack_require__(4), __webpack_require__(4)))
 
 /***/ },
-/* 322 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;!function() {
@@ -87724,7 +87627,7 @@
 	}();
 
 /***/ },
-/* 323 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function($, _) {'use strict';
@@ -87733,7 +87636,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	__webpack_require__(321);
+	__webpack_require__(319);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -87788,7 +87691,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)))
 
 /***/ },
-/* 324 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function($, _) {'use strict';
@@ -87797,7 +87700,7 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	__webpack_require__(321);
+	__webpack_require__(319);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -87852,7 +87755,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)))
 
 /***/ },
-/* 325 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -87905,7 +87808,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 326 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -87992,7 +87895,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 327 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -88077,7 +87980,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 328 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -88142,7 +88045,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 329 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -88207,7 +88110,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
 
 /***/ },
-/* 330 */
+/* 328 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $, SockJS) {'use strict';
@@ -88352,7 +88255,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4), __webpack_require__(130)))
 
 /***/ },
-/* 331 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
@@ -88462,6 +88365,239 @@
 		Dashboard.addWidget(widget);
 	};
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
+
+/***/ },
+/* 330 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function($, _) {'use strict';
+	
+	/**
+	 *	Widget template.
+	 *
+	 *	Loading flow:
+	 *		1. Register in a section for displaying
+	 *		2. Widget is pulled down
+	 *		3. addWidget called on screenManager
+	 *		4. screenManager calls widget.init
+	 *			5. widget.setData is called by widget.init
+	 *			6. widget.initialized is toggled
+	 *			7. widget.ready is called by widget.init
+	 *				8. widget.render is called by widget.init
+	 *					9. widget.fetch is called by widget.render
+	 *					10. widget.postRender is called by widget.render
+	 *			11. widget.subscribe is called by widget.init
+	 */
+	
+	window.widgetRoot = {
+		hideLink: false,
+		hideRefresh: false,
+	
+		initialized: false,
+	
+		ready: function ready() {
+			this.render();
+		},
+	
+		setData: function setData(data) {
+			this.data = data;
+		},
+	
+		fetch: function fetch() {
+			this.postFetch();
+		},
+	
+		postFetch: function postFetch() {},
+	
+		subscribe: function subscribe() {},
+	
+		init: function init(data) {
+			Dashboard.Utils.emit('widget|init|' + this.name);
+	
+			if (data) {
+				this.setData(data);
+			}
+	
+			this.shell = Dashboard.TEMPLATES.widget({
+				name: this.name,
+				title: this.title,
+				size: this.size,
+				hideLink: this.hideLink,
+				hideRefresh: this.hideRefresh,
+				customButtons: this.customButtons
+			});
+	
+			this.initialized = true;
+	
+			Dashboard.Utils.emit('widget|ready|' + this.name);
+	
+			this.ready();
+	
+			Dashboard.Utils.emit('widget|render|' + this.name);
+	
+			this.subscribe();
+		},
+	
+		render: function render() {
+			Dashboard.render.widget(this.name, this.shell.tpl);
+	
+			this.fetch();
+	
+			$('#widget-' + this.shell.id).css({
+				'height': '240px',
+				'margin-bottom': '10px',
+				'overflow-x': 'hidden',
+				'width': '100%'
+			});
+	
+			this.postRender();
+			$(document).trigger("WidgetInternalEvent", ["widget|rendered|" + this.name]);
+		},
+	
+		postRender: function postRender() {},
+	
+		refresh: _.debounce(function () {
+			this.fetch();
+		}, 100)
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)))
+
+/***/ },
+/* 331 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(_, $) {'use strict';
+	
+	/**
+	 *	Widget template.
+	 *
+	 *	Loading flow:
+	 *		1. Register in a section for displaying
+	 *		2. Widget is pulled down
+	 *		3. addWidget called on screenManager
+	 *		4. screenManager calls widget.init
+	 *			5. widget.setData is called by widget.init
+	 *			6. widget.initialized is toggled
+	 *			7. widget.ready is called by widget.init
+	 *				8. widget.render is called by widget.init
+	 *					9. widget.fetch is called by widget.render
+	 *					10. widget.postRender is called by widget.render
+	 *			11. widget.subscribe is called by widget.init
+	 */
+	(function () {
+		var extended = {
+			name: 'widget-id',
+			title: 'Widget Name That Appears on it',
+			size: 'medium', // 'small', 'medium', 'large', 'third'
+	
+			// url: 'TBD', // fill if needed
+	
+			template: _.template('<ul class="widget-node-control">' + // internal template
+			'<li>List item 1</li>' + '<li>List item 2</li>' + '<li>List item 2</li>' + '<li>List item 2</li>' + '</ul>'),
+	
+			postRender: function postRender() {
+				// executed when placing on screen
+				$('#widget-' + this.shell.id).html(this.template({}));
+				$('#widget-' + this.shell.id + ' button').click(this._handler);
+			},
+	
+			_handler: function _handler(ev) {}
+		};
+	
+		var widget = _.extend({}, widgetRoot, extended);
+	
+		// register presence with screen manager
+		Dashboard.addWidget(widget);
+	})();
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(4)))
+
+/***/ },
+/* 332 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function($) {'use strict';
+	
+	var Utils = {
+	  debug: function debug(message) {
+	    var _ref;
+	    return typeof window !== 'undefined' && window !== null ? (_ref = window.console) != null ? _ref.log(message) : void 0 : void 0;
+	  },
+	
+	  demoFuzz: function demoFuzz() {
+	    return window.demo ? Math.ceil(Math.random() * 10) : 0;
+	  },
+	
+	  emit: function emit(e) {
+	    this.debug('Emitting ' + e);
+	
+	    if (e) {
+	      $(document).trigger('WidgetInternalEvent', [e]);
+	    }
+	  },
+	
+	  on: function on(callback) {
+	    $(document).on('WidgetInternalEvent', callback);
+	  }
+	};
+	
+	window.Dashboard.Utils = Utils;
+	
+	// Adding event for sleep / wake
+	$(document).on('visibilitychange', function (e) {
+	  Dashboard.Utils.emit('tower-control|sleep|' + document.hidden);
+	});
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(220)))
+
+/***/ },
+/* 333 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(_) {'use strict';
+	
+	window.Dashboard.TEMPLATES = {
+		_widget: function _widget(opts) {
+			return '<div class="widget-shell col-lg-' + opts.largeColumn + ' col-md-' + opts.mediumColumn + ' col-xs-' + opts.smallColumn + ' ' + opts.name + '" id="widget-shell-' + opts.id + '">\n' + '	<div class="panel panel-default">\n' + '		<div class="panel-heading">\n' + '			<h3 class="panel-title"><span>' + opts.title + '</span></h3>\n' + '			<ul class="panel-action">\n' + (opts.customButtons ? opts.customButtons : '') + (opts.hideLink === true ? '' : '				<li><i data-toggle="tooltip" data-title="Copied!" class="fa fa-link"></i></li>\n') + '				<li><i class="fa fa-chevron-down"></i></li>\n' + (opts.hideRefresh === true ? '' : '				<li><i class="fa fa-rotate-right"></i></li>\n') + '				<li><i class="fa fa-close"></i></li>\n' + '			</ul>\n' + '		</div>\n' + '		<div class="panel-body" id="widget-' + opts.id + '">\n' + '		</div>\n' + '	</div>\n' + '</div>';
+		},
+	
+		widget: function widget(o) {
+			var opts = _.extend({
+				id: Math.ceil(Math.random() * 100000000),
+	
+				largeColumn: 3,
+				mediumColumn: 4,
+				smallColumn: 12
+			}, o);
+	
+			switch (opts.size) {
+				case 'medium':
+					opts.largeColumn = 6;
+					opts.mediumColumn = 12;
+					opts.smallColumn = 12;
+	
+					break;
+	
+				case 'large':
+					opts.largeColumn = 12;
+					opts.mediumColumn = 6;
+					opts.smallColumn = 12;
+	
+					break;
+	
+				case 'third':
+					opts.largeColumn = 4;
+					opts.mediumColumn = 6;
+					opts.smallColumn = 12;
+	
+					break;
+			}
+	
+			return {
+				id: opts.id,
+				tpl: Dashboard.TEMPLATES._widget(opts)
+			};
+		}
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(278)))
 
 /***/ }
 /******/ ]);
