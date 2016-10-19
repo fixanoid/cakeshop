@@ -44,7 +44,7 @@ window.Tower = {
 
 
 	init: function() {
-    Dashboard.registerWidgets({
+    Dashboard.preregisterWidgets({
       'accounts'               : require('./widgets/accounts'),
       'block-detail'           : require('./widgets/block-detail'),
       'block-list'             : require('./widgets/block-list'),
@@ -64,7 +64,7 @@ window.Tower = {
       'peers-list'             : require('./widgets/peers-list'),
       'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
       'txn-detail'             : require('./widgets/txn-detail'),
-    });
+  });
 
 		Dashboard.setGrounds($('#grounds'));
 
