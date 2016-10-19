@@ -11,15 +11,6 @@ import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-
-import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.cassandra.core.CachedPreparedStatementCreator;
-//import org.springframework.cassandra.core.PreparedStatementBinder;
-//import org.springframework.cassandra.core.ResultSetExtractor;
-//import org.springframework.dao.DataAccessException;
-//import org.springframework.data.cassandra.core.CassandraOperations;
-import org.springframework.stereotype.Repository;
 
 /**
  *

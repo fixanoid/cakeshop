@@ -1,11 +1,12 @@
 package com.jpmorgan.ib.caonpd.cakeshop.config.rdbms;
 
 
+import com.jpmorgan.ib.caonpd.cakeshop.util.StringUtils;
+
 import java.util.Properties;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import org.apache.commons.lang.StringUtils;
 
 import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
@@ -29,11 +30,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = {"com.jpmorgan.ib.caonpd.cakeshop.model"},
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.*"))
 public abstract class AbstractDataSourceConfig implements ApplicationContextAware {
-    
+
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractDataSourceConfig.class);
     private final String JNDI_NAME_PROP = "cakeshop.jndi.name";
     private final String JNDI_NAME = System.getProperty(JNDI_NAME_PROP);
-    
+
     protected final String JDBC_URL = "cakeshop.jdbc.url";
     protected final String JDBC_USER = "cakeshop.jdbc.user";
     protected final String JDBC_PASS =  "cakeshop.jdbc.pass";
@@ -45,7 +46,7 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
     protected Environment env;
 
     @Value("${config.path}")
-    protected String CONFIG_ROOT; 
+    protected String CONFIG_ROOT;
 
     protected ApplicationContext applicationContext;
 
@@ -54,7 +55,7 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
     public HibernateTemplate hibernateTemplate(SessionFactory sessionFactory) {
         return new HibernateTemplate(sessionFactory);
     }
-    
+
     @Bean
     public LocalSessionFactoryBean sessionFactory() throws ClassNotFoundException, NamingException {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
@@ -75,17 +76,17 @@ public abstract class AbstractDataSourceConfig implements ApplicationContextAwar
 
     protected abstract Properties hibernateProperties();
     protected abstract DataSource getSimpleDataSource() throws ClassNotFoundException;
-    
+
     @Bean
-    public DataSource dataSource() throws ClassNotFoundException, NamingException { 
+    public DataSource dataSource() throws ClassNotFoundException, NamingException {
         String jndiName = StringUtils.isNotBlank(JNDI_NAME) ? JNDI_NAME : env.getProperty(JNDI_NAME_PROP);
         if (StringUtils.isNotBlank(jndiName)) {
             final JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
             dataSourceLookup.setResourceRef(true);
-            DataSource dataSource = (DataSource) dataSourceLookup.getDataSource(jndiName);
+            DataSource dataSource = dataSourceLookup.getDataSource(jndiName);
             return dataSource;
         } else {
             return  getSimpleDataSource();
-        } 
+        }
     }
 }
