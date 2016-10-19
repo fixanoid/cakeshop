@@ -82,9 +82,7 @@ public class SavingBlockListener implements BlockListener {
     
     @PostConstruct
     protected void init() {
-       if (gethConfig.isDbEnabled()) {
-            blockSaver.start();
-        }   
+        blockSaver.start();
     }
 
     @PreDestroy
@@ -95,7 +93,11 @@ public class SavingBlockListener implements BlockListener {
         blockSaver.interrupt();
     }
 
-    protected void saveBlock(Block block) {        
+    protected void saveBlock(Block block) {
+        if (!gethConfig.isDbEnabled()) {
+            return;
+        }
+
         LOG.debug("Persisting block #" + block.getNumber());
         blockDAO.save(block);
         if (!block.getTransactions().isEmpty()) {
