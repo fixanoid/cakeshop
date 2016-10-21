@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -30,6 +31,13 @@ public class SpringBootApplication {
         WebAppInit.setLoggingPath(true);
         String configDir = FileUtils.expandPath(SystemUtils.USER_DIR, "data");
         System.setProperty("eth.config.dir", configDir);
+
+        // default to 'local' spring profile
+        // this determines which application-${profile}.properties file to load
+        if (StringUtils.isBlank(System.getProperty("spring.profiles.active"))) {
+            System.out.println("Defaulting to spring profile: local");
+            System.setProperty("spring.profiles.active", "local");
+        }
 
         // extract geth from WAR (if necessary)
         try {
