@@ -8,12 +8,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
-
 import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
@@ -326,7 +324,12 @@ public class GethHttpServiceImpl implements GethHttpService {
 
     @Override
     public Boolean isRunning() {
-        return running;
+        if (gethConfig.isAutoStart()) {
+            return running;
+        }
+        // always return true if we are not managing geth status
+        // TODO add a healthcheck for external geth
+        return true;
     }
 
     @Override
