@@ -107,12 +107,11 @@ public class SavingBlockListener implements BlockListener {
                 try {
                     List<Transaction> txns = txService.get(txnChunk);
                     txDAO.save(txns);
-                    pushBlockNumber(block.getNumber().longValue()); // push to subscribers after saving
-
                 } catch (APIException e) {
                     LOG.warn("Failed to load transaction details for tx", e);
                 }
             }
+            pushBlockNumber(block.getNumber().longValue()); // push to subscribers after saving
         }
     }
     
