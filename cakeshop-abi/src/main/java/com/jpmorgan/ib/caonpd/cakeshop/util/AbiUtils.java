@@ -24,6 +24,17 @@ public class AbiUtils {
 		}
 		return Long.decode(str);
 	}
+    
+    public static BigInteger toBigInt(String key, Map<String, Object> blockData) {
+		String str = (String)blockData.get(key);
+		if (str == null) {
+			return null;
+		}
+        if (str.startsWith("0x")) {
+            str = str.replaceFirst("0x", "");
+        }
+		return new BigInteger(str,16);
+	}
 
 	public static byte[] sha3(String input) {
 	    return sha3(input.getBytes());
