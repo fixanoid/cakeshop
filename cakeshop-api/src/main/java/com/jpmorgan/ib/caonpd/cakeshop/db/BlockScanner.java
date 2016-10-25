@@ -262,20 +262,23 @@ public class BlockScanner extends Thread {
     @Override
     public void run() {
 
-        this.wakeup = new Object();
-
-        if (!sleep(5)) { // delayed startup
-            return;
-        }
-
         try {
+            this.wakeup = new Object();
+
+            if (!sleep(5)) { // delayed startup
+                return;
+            }
             checkDbSync();
-        } catch (APIException e) {
-            LOG.warn("Failed to check sync status", e);
+
+            backfillBlocks();
+            
+            runLoop();
+        } catch (Throwable ex) {
+            LOG.error("BlockScanner exception", ex);
         }
-
-        backfillBlocks();
-
+    }
+    
+    private void runLoop () {
         while (true) {
 
             if (this.stopped) {
@@ -322,7 +325,9 @@ public class BlockScanner extends Thread {
                 return;
             }
 
-        }
     }
+    }
+    
+    
 
 }

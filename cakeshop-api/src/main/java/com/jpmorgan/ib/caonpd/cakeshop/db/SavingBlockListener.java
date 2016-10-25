@@ -45,6 +45,8 @@ public class SavingBlockListener implements BlockListener {
                     }
                 } catch (InterruptedException e) {
                     return;
+                } catch (Throwable ex) {
+                    LOG.error("BlockSaverThread died", ex);
                 }
             }
         }
