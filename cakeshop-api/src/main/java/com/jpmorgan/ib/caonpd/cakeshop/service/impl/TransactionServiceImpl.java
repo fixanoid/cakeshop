@@ -92,12 +92,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         tx.setGasPrice(toBigInt("gasPrice", txData));
 
-        tx.setTransactionIndex(null != toBigInt("transactionIndex", txData) ? toBigInt("transactionIndex", txData): null);
-        tx.setBlockNumber(null != toBigInt("blockNumber", txData) ? toBigInt("blockNumber", txData) : null);
-        tx.setValue(null != toBigInt("blockNumber", txData) ? toBigInt("value", txData): null);
-        tx.setGas(null != toBigInt("gas", txData) ? toBigInt("gas", txData): null);
-        tx.setCumulativeGasUsed(null !=  toBigInt("cumulativeGasUsed", txData) ? toBigInt("cumulativeGasUsed", txData): null);
-        tx.setGasUsed(null != toBigInt("gasUsed", txData) ? toBigInt("gasUsed", txData) : null);
+        tx.setTransactionIndex(toBigInt("transactionIndex", txData));
+        tx.setBlockNumber(toBigInt("blockNumber", txData));
+        tx.setValue(toBigInt("blockNumber", txData));
+        tx.setGas(toBigInt("gas", txData));
+        tx.setCumulativeGasUsed(toBigInt("cumulativeGasUsed", txData));
+        tx.setGasUsed(toBigInt("gasUsed", txData));
 
         if (tx.getBlockId() == null || tx.getBlockNumber() == null
                 || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
