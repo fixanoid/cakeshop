@@ -75,9 +75,9 @@ public class EventServiceImpl implements EventService {
             Event event = new Event();
             event.setId(new BigInteger(String.valueOf(System.nanoTime())));
             event.setBlockId((String) data.get("blockHash"));
-            event.setBlockNumber(new BigInteger(String.valueOf(toLong("blockNumber", data))));
+            event.setBlockNumber(toBigInt("blockNumber", data));
 
-            event.setLogIndex(new BigInteger(String.valueOf(toLong("logIndex", data))));
+            event.setLogIndex(toBigInt("logIndex", data));
             event.setTransactionId((String) data.get("transactionHash"));
             event.setContractId((String) data.get("address"));
 

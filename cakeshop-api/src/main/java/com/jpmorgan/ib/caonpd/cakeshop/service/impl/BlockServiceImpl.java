@@ -72,12 +72,12 @@ public class BlockServiceImpl implements BlockService {
         block.setUncles((List<String>) blockData.get("uncles"));
 
         // convert longs
-        block.setNumber(new BigInteger(String.valueOf(toLong("number", blockData))));
-        block.setDifficulty(new BigInteger(String.valueOf(toLong("difficulty", blockData))));
-        block.setTotalDifficulty(new BigInteger(String.valueOf(toLong("totalDifficulty", blockData))));
-        block.setGasLimit(new BigInteger(String.valueOf(toLong("gasLimit", blockData))));
-        block.setGasUsed(new BigInteger(String.valueOf(toLong("gasUsed", blockData))));
-        block.setTimestamp(new BigInteger(String.valueOf(toLong("timestamp", blockData))));
+        block.setNumber(toBigInt("number", blockData));
+        block.setDifficulty(toBigInt("difficulty", blockData));
+        block.setTotalDifficulty(toBigInt("totalDifficulty", blockData));
+        block.setGasLimit(toBigInt("gasLimit", blockData));
+        block.setGasUsed(toBigInt("gasUsed", blockData));
+        block.setTimestamp(toBigInt("timestamp", blockData));
 
         return block;
     }

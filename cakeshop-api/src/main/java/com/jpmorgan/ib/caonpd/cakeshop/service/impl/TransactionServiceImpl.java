@@ -90,14 +90,14 @@ public class TransactionServiceImpl implements TransactionService {
         tx.setInput((String) txData.get("input"));
         tx.setFrom((String) txData.get("from"));
 
-        tx.setGasPrice(new BigInteger(String.valueOf(toLong("gasPrice", txData))));
+        tx.setGasPrice(toBigInt("gasPrice", txData));
 
-        tx.setTransactionIndex(null != toLong("transactionIndex", txData) ? new BigInteger(String.valueOf(toLong("transactionIndex", txData))): null);
-        tx.setBlockNumber(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("blockNumber", txData))) : null);
-        tx.setValue(null != toLong("blockNumber", txData) ? new BigInteger(String.valueOf(toLong("value", txData))): null);
-        tx.setGas(null != toLong("gas", txData) ? new BigInteger(String.valueOf(toLong("gas", txData))): null);
-        tx.setCumulativeGasUsed(null !=  toLong("cumulativeGasUsed", txData) ? new BigInteger(String.valueOf(toLong("cumulativeGasUsed", txData))): null);
-        tx.setGasUsed(null != toLong("gasUsed", txData) ? new BigInteger(String.valueOf(toLong("gasUsed", txData))) : null);
+        tx.setTransactionIndex(null != toBigInt("transactionIndex", txData) ? toBigInt("transactionIndex", txData): null);
+        tx.setBlockNumber(null != toBigInt("blockNumber", txData) ? toBigInt("blockNumber", txData) : null);
+        tx.setValue(null != toBigInt("blockNumber", txData) ? toBigInt("value", txData): null);
+        tx.setGas(null != toBigInt("gas", txData) ? toBigInt("gas", txData): null);
+        tx.setCumulativeGasUsed(null !=  toBigInt("cumulativeGasUsed", txData) ? toBigInt("cumulativeGasUsed", txData): null);
+        tx.setGasUsed(null != toBigInt("gasUsed", txData) ? toBigInt("gasUsed", txData) : null);
 
         if (tx.getBlockId() == null || tx.getBlockNumber() == null
                 || tx.getBlockId().contentEquals("0x0000000000000000000000000000000000000000000000000000000000000000")) {
