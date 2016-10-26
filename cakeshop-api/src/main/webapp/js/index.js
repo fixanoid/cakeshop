@@ -44,29 +44,29 @@ window.Tower = {
 
 
 	init: function() {
-    Dashboard.preregisterWidgets({
-      'accounts'               : require('./widgets/accounts'),
-      'block-detail'           : require('./widgets/block-detail'),
-      'block-list'             : require('./widgets/block-list'),
-      'block-view'             : require('./widgets/block-view'),
-      'contract-current-state' : require('./widgets/contract-current-state'),
-      'contract-detail'        : require('./widgets/contract-detail'),
-      'contract-list'          : require('./widgets/contract-list'),
-      'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
-      'doc-frame'              : require('./widgets/doc-frame'),
-      'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
-      'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
-      'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
-      'node-control'           : require('./widgets/node-control'),
-      'node-info'              : require('./widgets/node-info'),
-      'node-settings'          : require('./widgets/node-settings'),
-      'peers-add'              : require('./widgets/peers-add'),
-      'peers-list'             : require('./widgets/peers-list'),
-      'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
-      'txn-detail'             : require('./widgets/txn-detail'),
-  });
+	    Dashboard.preregisterWidgets({
+	      'accounts'               : require('./widgets/accounts'),
+	      'block-detail'           : require('./widgets/block-detail'),
+	      'block-list'             : require('./widgets/block-list'),
+	      'block-view'             : require('./widgets/block-view'),
+	      'contract-current-state' : require('./widgets/contract-current-state'),
+	      'contract-detail'        : require('./widgets/contract-detail'),
+	      'contract-list'          : require('./widgets/contract-list'),
+	      'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
+	      'doc-frame'              : require('./widgets/doc-frame'),
+	      'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
+	      'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
+	      'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
+	      'node-control'           : require('./widgets/node-control'),
+	      'node-info'              : require('./widgets/node-info'),
+	      'node-settings'          : require('./widgets/node-settings'),
+	      'peers-add'              : require('./widgets/peers-add'),
+	      'peers-list'             : require('./widgets/peers-list'),
+	      'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
+	      'txn-detail'             : require('./widgets/txn-detail'),
+	  });
 
-		Dashboard.setGrounds($('#grounds'));
+		Dashboard.init();
 
 		// Adding event for hash changes
 		$(window).on('hashchange', this.processHash);
