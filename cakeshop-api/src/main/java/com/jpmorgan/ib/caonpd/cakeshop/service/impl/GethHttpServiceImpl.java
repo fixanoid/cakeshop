@@ -9,9 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.BlockRepository;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.BlockDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
@@ -82,16 +79,6 @@ public class GethHttpServiceImpl implements GethHttpService {
     @Autowired(required=false)
     private WalletDAO walletDAO;
 
-    //cassandra repos
-    //@Autowired(required=false)
-    private TransactionRepository txnRepository;
-
-    //@Autowired(required=false)
-    private BlockRepository blockRepository;
-
-    //@Autowired(required=false)
-    private WalletRepository walletRepository;
-
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -104,7 +91,7 @@ public class GethHttpServiceImpl implements GethHttpService {
     private StreamLogAdapter stdoutLogger;
     private StreamLogAdapter stderrLogger;
 
-    private List<ErrorLog> startupErrors;
+    private final List<ErrorLog> startupErrors;
 
     @Autowired
     @Qualifier("asyncExecutor")
@@ -281,16 +268,6 @@ public class GethHttpServiceImpl implements GethHttpService {
         if (null != walletDAO) {
             walletDAO.reset();
         }
-        //delete cassandra db
-        if (null != blockRepository) {
-            blockRepository.reset();
-        }
-        if (null != txnRepository) {
-            txnRepository.reset();
-        }
-        if (null != walletRepository) {
-            walletRepository.reset();
-        }
 
         return this.start();
     }
@@ -437,12 +414,7 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         // Figure out how many accounts need unlocking
         String accountsToUnlock = "";
-        int numAccounts = 0;
-        if (null != walletDAO) {
-            numAccounts = walletDAO.list().size();
-        } else if (null != walletRepository) {
-            numAccounts = walletRepository.list().size();
-        }
+        int numAccounts = walletDAO.list().size();
         if (numAccounts == 0) {
             accountsToUnlock = "0,1,2"; // default to accounts we ship
 

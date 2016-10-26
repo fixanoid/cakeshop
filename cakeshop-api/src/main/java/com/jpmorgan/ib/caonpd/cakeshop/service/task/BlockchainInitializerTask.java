@@ -1,8 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.task;
 
-//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account;
-//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Block;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 //import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
@@ -25,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -54,11 +50,9 @@ public class BlockchainInitializerTask implements Runnable {
     @Autowired
     private WalletService walletService;
 
-//    @Autowired(required = false)
-    private WalletRepository walletRepository;
-    @Autowired(required = false)
+    @Autowired
     private WalletDAO walletDAO;
-    
+
 
     @Override
     public void run() {
@@ -104,14 +98,7 @@ public class BlockchainInitializerTask implements Runnable {
         try {
             List<Account> list = walletService.list();
             for (Account account : list) {
-                if (null != walletDAO) {
-                    LOG.info("Saving address");
-                    walletDAO.save(account);
-                } else if (null != walletRepository) {
-                    com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account cassAcc
-                            = new com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Account();
-                    BeanUtils.copyProperties(account, cassAcc);
-                }
+                walletDAO.save(account);
             }
         } catch (APIException e) {
             LOG.error("Error reading local wallet", e);

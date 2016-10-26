@@ -3,7 +3,6 @@ package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jpmorgan.ib.caonpd.cakeshop.bean.GethConfigBean;
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.TransactionRepository;
 import com.jpmorgan.ib.caonpd.cakeshop.dao.TransactionDAO;
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 import com.jpmorgan.ib.caonpd.cakeshop.error.CompilerException;
@@ -32,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,8 +56,6 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private ContractRegistryService contractRegistry;
 
-    //@Autowired(required = false)
-    private TransactionRepository transactionRepository;
     @Autowired(required = false)
     private TransactionDAO transactionDAO;
 
@@ -303,20 +299,7 @@ public class ContractServiceImpl implements ContractService {
         Contract contract = get(contractId);
         ContractABI abi = ContractABI.fromJson(contract.getABI());
 
-        List<Transaction> txns = new ArrayList();
-        if (null != transactionDAO) {
-            txns = transactionDAO.listForContractId(contractId);
-        } else if (null != transactionRepository) {
-            List<com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction> cassTxns
-                    = transactionRepository.listForContractId(contractId);
-            if (null != cassTxns) {
-                for (com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Transaction cassTxn : cassTxns) {
-                    Transaction txn = new Transaction();
-                    BeanUtils.copyProperties(cassTxn, txn);
-                    txns.add(txn);
-                }
-            }
-        } 
+        List<Transaction> txns = transactionDAO.listForContractId(contractId);
 
         for (Transaction tx : txns) {
 

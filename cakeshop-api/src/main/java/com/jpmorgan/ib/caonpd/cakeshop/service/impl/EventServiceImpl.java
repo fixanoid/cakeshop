@@ -1,6 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.service.impl;
 
-//import com.jpmorgan.ib.caonpd.cakeshop.cassandra.entity.Event;
 import static com.jpmorgan.ib.caonpd.cakeshop.util.AbiUtils.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
@@ -111,8 +110,8 @@ public class EventServiceImpl implements EventService {
         }
         return events;
     }
-    
-    
+
+
 
     @Override
     public String serialize(Object obj) throws IOException {

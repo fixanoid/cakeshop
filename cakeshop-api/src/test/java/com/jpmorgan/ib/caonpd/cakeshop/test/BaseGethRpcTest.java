@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.sql.DataSource;
 
-//import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,7 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private GethConfigBean gethConfig;
-   
+
 
     @Autowired
     @Qualifier("hsql")
@@ -108,15 +107,6 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         } catch (IOException e) {
         }
     }
-    
-    @AfterClass(alwaysRun = true)
-    public void shutdownCassandra() {
-        String db = System.getProperty("cakeshop.database.vendor");
-        if (db.equalsIgnoreCase("cassandra")) {
-            LOG.info("CLEANING CASSANDRA IN AFTER CLASS");
-//            EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
-        }
-    }
 
     @BeforeClass
     public void startGeth() throws IOException {
@@ -129,14 +119,14 @@ public abstract class BaseGethRpcTest extends AbstractTestNGSpringContextTests {
         LOG.info("Starting Ethereum at test startup");
         assertTrue(_startGeth());
     }
-    
+
     private boolean _startGeth() throws IOException {
         gethConfig.setGenesisBlockFilename(FileUtils.getClasspathPath("genesis_block.json").toAbsolutePath().toString());
         gethConfig.setKeystorePath(FileUtils.getClasspathPath("keystore").toAbsolutePath().toString());
         gethConfig.setExtraParams("--blocktime 500 --nokdf");
         return geth.start();
     }
-    
+
 
     /**
      * Stop geth & delete data dir

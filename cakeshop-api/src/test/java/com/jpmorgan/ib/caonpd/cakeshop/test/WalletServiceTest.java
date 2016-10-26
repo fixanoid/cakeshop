@@ -1,6 +1,5 @@
 package com.jpmorgan.ib.caonpd.cakeshop.test;
 
-import com.jpmorgan.ib.caonpd.cakeshop.cassandra.repository.WalletRepository;
 import static org.testng.Assert.*;
 
 import com.jpmorgan.ib.caonpd.cakeshop.dao.WalletDAO;
@@ -20,8 +19,6 @@ public class WalletServiceTest extends BaseGethRpcTest {
     @Autowired
     private WalletService wallet;
 
-//    @Autowired
-//    private WalletRepository walletRepository;
     @Autowired
     private WalletDAO walletDAO;
 
@@ -32,7 +29,6 @@ public class WalletServiceTest extends BaseGethRpcTest {
         assertEquals(accounts.size(), 3);
         assertTrue(StringUtils.isNotBlank(accounts.get(0).getAddress()));
         assertEquals(walletDAO.list().size(), 3);
-//        assertEquals(walletRepository.list().size(), 3);
     }
 
     @Test(priority=3)
@@ -51,7 +47,6 @@ public class WalletServiceTest extends BaseGethRpcTest {
         assertEquals(accounts.size(), 4);
 
         assertEquals(walletDAO.list().size(), 4);
-//        assertEquals(walletRepository.list().size(), 4);
     }
 
 }

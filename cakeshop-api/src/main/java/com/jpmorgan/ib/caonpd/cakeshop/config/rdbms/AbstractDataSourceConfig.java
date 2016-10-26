@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -27,8 +26,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan(basePackages = {"com.jpmorgan.ib.caonpd.cakeshop.model"},
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.jpmorgan.ib.caonpd.cakeshop.cassandra.*"))
+@ComponentScan(basePackages = {"com.jpmorgan.ib.caonpd.cakeshop.model"})
 public abstract class AbstractDataSourceConfig implements ApplicationContextAware {
 
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractDataSourceConfig.class);
