@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public class SessionListener implements HttpSessionListener {
     

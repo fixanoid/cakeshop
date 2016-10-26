@@ -4,7 +4,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.error.APIException;
 
 /**
  *
- * @author i629630
+ * @author Michael Kazansky
  */
 public interface WebSocketPushService {
 

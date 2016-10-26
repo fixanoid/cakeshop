@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 @Component
 public class ShutdownExecutors  implements DisposableBean {

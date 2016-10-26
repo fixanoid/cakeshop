@@ -6,7 +6,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public class PostgresDataSourceConditon extends BaseCondition {
 

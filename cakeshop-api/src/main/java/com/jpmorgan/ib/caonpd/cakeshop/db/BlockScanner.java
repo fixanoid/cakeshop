@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * Service which tracks the Blockchain in a local database. As blocks are added
  * to the chain, they are added to our database in near-realtime.
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 @Service

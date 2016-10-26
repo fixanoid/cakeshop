@@ -5,7 +5,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.service.GethHttpService;
 /**
  * Geth JSON-RPC request model
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public class RequestModel {
 

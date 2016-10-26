@@ -5,7 +5,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.client.model.res;
  *
  * {"result":true}
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 public class SimpleResult {

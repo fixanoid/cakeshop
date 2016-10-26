@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author i629630
+ * @author Michael Kazansky
  */
 @Component
 public class WebSocketAsyncPushServiceImpl implements WebSocketAsyncPushService {

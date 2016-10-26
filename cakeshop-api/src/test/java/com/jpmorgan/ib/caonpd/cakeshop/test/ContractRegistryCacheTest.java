@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 
 

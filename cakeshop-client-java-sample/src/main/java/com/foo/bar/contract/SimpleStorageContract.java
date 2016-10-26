@@ -18,7 +18,7 @@ import java.util.List;
  * are made and handled. For example, if data needs to be transformed in some way before being sent
  * to the chain.
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 public class SimpleStorageContract extends ContractProxy<SimpleStorageContract> {

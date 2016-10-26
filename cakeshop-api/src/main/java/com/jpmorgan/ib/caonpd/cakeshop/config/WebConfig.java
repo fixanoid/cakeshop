@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 @Configuration
 @EnableScheduling

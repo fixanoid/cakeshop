@@ -33,7 +33,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 /**
  *
- * @author i629630
+ * @author Michael Kazansky
  */
 @Component
 public class WebSocketPushServiceImpl implements WebSocketPushService {

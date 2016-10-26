@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 /**
  * Load stored peers and try to reconnect to them
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 @Component

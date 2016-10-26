@@ -18,7 +18,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 @Configuration
 @Conditional(OracleDataSourceConditon.class)

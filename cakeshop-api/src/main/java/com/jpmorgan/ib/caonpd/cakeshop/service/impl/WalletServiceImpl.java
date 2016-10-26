@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * @author sam
+ * @author Samer Falah
  */
 @Service
 public class WalletServiceImpl implements WalletService, GethRpcConstants {

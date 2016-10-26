@@ -5,7 +5,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 /**
  *
- * @author i629630
+ * @author Michael Kazansky
  */
 public interface WebSocketAsyncPushService {
 

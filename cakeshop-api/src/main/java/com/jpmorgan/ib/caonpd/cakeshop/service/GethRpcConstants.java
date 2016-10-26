@@ -2,7 +2,7 @@ package com.jpmorgan.ib.caonpd.cakeshop.service;
 
 /**
  *
- * @author n631539
+ * @author Samer Falah
  */
 public interface GethRpcConstants {
 

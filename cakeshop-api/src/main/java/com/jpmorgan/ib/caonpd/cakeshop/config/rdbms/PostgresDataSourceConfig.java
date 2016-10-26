@@ -16,7 +16,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 @Conditional(PostgresDataSourceConditon.class)
 @Configuration

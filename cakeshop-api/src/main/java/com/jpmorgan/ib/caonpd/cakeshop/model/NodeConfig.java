@@ -4,7 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public class NodeConfig {
 

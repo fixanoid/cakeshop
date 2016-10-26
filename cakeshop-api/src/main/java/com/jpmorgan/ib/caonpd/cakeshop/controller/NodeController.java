@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author N631539
+ * @author Samer Falah
  */
 @RestController
 @RequestMapping(value = "/api/node",

@@ -4,7 +4,7 @@ import org.springframework.context.annotation.ConfigurationCondition;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public abstract class BaseCondition implements ConfigurationCondition {
 

@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 public interface GethHttpService {
 

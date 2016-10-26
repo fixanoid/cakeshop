@@ -14,7 +14,7 @@ import com.jpmorgan.ib.caonpd.cakeshop.test.BaseGethRpcTest;
 /**
  * Base class for Controller testing. Simply subclass and implement getController() method
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 @WebAppConfiguration

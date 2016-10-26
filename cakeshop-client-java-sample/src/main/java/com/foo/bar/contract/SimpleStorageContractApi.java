@@ -12,7 +12,7 @@ import java.util.List;
  * an implementation at runtime. The returned implementation instance is fully thread-safe and
  * should be cached and reused.
  *
- * @author chetan
+ * @author Chetan Sarva
  *
  */
 public interface SimpleStorageContractApi {

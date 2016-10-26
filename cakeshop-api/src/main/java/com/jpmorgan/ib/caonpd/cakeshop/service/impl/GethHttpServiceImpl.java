@@ -56,7 +56,7 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  *
- * @author I629630
+ * @author Michael Kazansky
  */
 @Service
 public class GethHttpServiceImpl implements GethHttpService {
