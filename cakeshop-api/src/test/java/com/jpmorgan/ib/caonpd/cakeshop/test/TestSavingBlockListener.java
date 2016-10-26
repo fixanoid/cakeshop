@@ -19,7 +19,6 @@ public class TestSavingBlockListener extends SavingBlockListener {
 
     @Override
     public void blockCreated(Block block) {
-        System.out.println("SAVING BLOCK!!!!");
         saveBlock(block);
     }
 

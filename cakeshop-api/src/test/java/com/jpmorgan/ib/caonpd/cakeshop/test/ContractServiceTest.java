@@ -241,8 +241,6 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 	    List<Transaction> txns = contractService.listTransactions(contractAddress);
 
-	    System.out.println(txns);
-
 	    assertNotNull(txns);
 	    assertTrue(!txns.isEmpty());
 	    assertEquals(txns.size(), 2);

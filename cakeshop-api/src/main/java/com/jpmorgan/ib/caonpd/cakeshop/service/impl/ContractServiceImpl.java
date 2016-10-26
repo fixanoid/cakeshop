@@ -96,8 +96,6 @@ public class ContractServiceImpl implements ContractService {
                     "--ipc");
 
             ProcessBuilder builder = ProcessUtils.createProcessBuilder(gethConfig, args);
-
-            //StringUtils.puts(builder);
             Process proc = builder.start();
 
             StreamGobbler stdout = StreamGobbler.create(proc.getInputStream());
@@ -112,7 +110,6 @@ public class ContractServiceImpl implements ContractService {
                 throw new APIException("Failed to compile contract (solc exited with code " + proc.exitValue() + ")\n" + stderr.getString());
             }
 
-            //System.out.println(stdout.getString());
             res = objectMapper.readValue(stdout.getString(), Map.class);
 
         } catch (IOException | InterruptedException e) {
@@ -133,7 +130,6 @@ public class ContractServiceImpl implements ContractService {
             contract.setCodeType(codeType);
 
             Map<String, Object> compiled = (Map<String, Object>) contractRes.getValue();
-            //System.out.println(compiled);
 
             contract.setBinary((String) compiled.get("bin"));
             contract.setABI((String) compiled.get("abi"));

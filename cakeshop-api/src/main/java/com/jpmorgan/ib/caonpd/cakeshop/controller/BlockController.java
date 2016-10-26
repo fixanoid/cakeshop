@@ -37,7 +37,6 @@ public class BlockController extends BaseController {
         }
 
         Block block = blockService.get(id, number, tag);
-        //System.out.println(block);
 
         APIResponse res = new APIResponse();
 

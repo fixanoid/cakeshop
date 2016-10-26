@@ -25,7 +25,7 @@ import org.testng.collections.Lists;
 public class TransactionServiceTest extends BaseGethRpcTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionServiceTest.class);
-    
+
 	@Autowired
 	private ContractService contractService;
 
@@ -43,7 +43,6 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		assertTrue(!result.getId().isEmpty());
 
 		Transaction tx = transactionService.get(result.getId());
-		System.out.println(tx.getId());
 		assertNotNull(tx);
 		assertNotNull(tx.getId());
 		assertEquals(tx.getId(), result.getId());
@@ -88,7 +87,7 @@ public class TransactionServiceTest extends BaseGethRpcTest {
 		assertNotNull(result);
 		assertNotNull(result.getId());
 
-         LOG.info("EXECUTING testGetPendingTx 2");         
+         LOG.info("EXECUTING testGetPendingTx 2");
 		Transaction createTx = transactionService.waitForTx(result, 20, TimeUnit.MILLISECONDS);
 
 		// stop mining and submit tx

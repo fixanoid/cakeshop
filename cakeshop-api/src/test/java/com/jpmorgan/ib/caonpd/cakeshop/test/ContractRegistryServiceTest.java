@@ -89,10 +89,6 @@ public class ContractRegistryServiceTest extends BaseGethRpcTest {
 	    registerContract(addr, abi, code, createdDate);
 
 	    List<Contract> list = contractRegistry.list();
-	    //System.out.println(list);
-
-//	    StringUtils.puts(list.size());
-//	    StringUtils.puts(list);
 
 	    assertNotNull(list);
 	    assertTrue(!list.isEmpty());
