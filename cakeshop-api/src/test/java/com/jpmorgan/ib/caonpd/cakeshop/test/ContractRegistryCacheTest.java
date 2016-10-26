@@ -18,8 +18,6 @@ import org.testng.annotations.Test;
  *
  * @author Michael Kazansky
  */
-
-
 public class ContractRegistryCacheTest extends BaseGethRpcTest {
 
 	@Autowired
