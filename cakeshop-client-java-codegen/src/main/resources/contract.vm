@@ -1,13 +1,13 @@
 package $packageName;
 
-import static com.jpmorgan.ib.caonpd.cakeshop.client.ContractUtil.*;
+import static com.jpmorgan.cakeshop.client.ContractUtil.*;
 
-import com.jpmorgan.ib.caonpd.cakeshop.client.ContractProxy;
-import com.jpmorgan.ib.caonpd.cakeshop.client.api.ContractApi;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIData;
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.res.APIResponse;
-import com.jpmorgan.ib.caonpd.cakeshop.model.ContractABI;
+import com.jpmorgan.cakeshop.client.ContractProxy;
+import com.jpmorgan.cakeshop.client.api.ContractApi;
+import com.jpmorgan.cakeshop.client.model.TransactionResult;
+import com.jpmorgan.cakeshop.client.model.res.APIData;
+import com.jpmorgan.cakeshop.client.model.res.APIResponse;
+import com.jpmorgan.cakeshop.model.ContractABI;
 
 import java.io.IOException;
 import java.math.BigInteger;

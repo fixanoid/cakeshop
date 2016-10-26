@@ -24,7 +24,7 @@ After the client library is installed/deployed, you can use it in your Maven pro
 
 ```xml
 <dependency>
-    <groupId>com.jpmorgan.ib.caonpd</groupId>
+    <groupId>com.jpmorgan</groupId>
     <artifactId>cakeshop-client</artifactId>
     <version>0.1.0</version>
     <scope>compile</scope>
@@ -37,7 +37,3 @@ After the client library is installed/deployed, you can use it in your Maven pro
 It's recommended to create an instance of `ApiClient` per thread in a multithreaded environment to avoid any potential issue.
 
 ## Author
-
-
-
-

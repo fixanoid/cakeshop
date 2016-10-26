@@ -1,9 +1,9 @@
 package com.foo.bar.contract;
 
-import com.jpmorgan.ib.caonpd.cakeshop.client.model.TransactionResult;
-import com.jpmorgan.ib.caonpd.cakeshop.client.proxy.ContractProxyBuilder;
-import com.jpmorgan.ib.caonpd.cakeshop.client.proxy.annotation.Read;
-import com.jpmorgan.ib.caonpd.cakeshop.client.proxy.annotation.Transact;
+import com.jpmorgan.cakeshop.client.model.TransactionResult;
+import com.jpmorgan.cakeshop.client.proxy.ContractProxyBuilder;
+import com.jpmorgan.cakeshop.client.proxy.annotation.Read;
+import com.jpmorgan.cakeshop.client.proxy.annotation.Transact;
 
 import java.util.List;
 
