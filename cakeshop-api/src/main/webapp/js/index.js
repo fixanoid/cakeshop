@@ -279,8 +279,12 @@ $(function() {
 	});
 
 	$('#reset').on('click', function() {
+		Dashboard.reset(true);
+	});
+
+	$('#reset-all').on('click', function() {
 		Dashboard.reset();
-	})
+	});
 
 	// Navigation menu handler
 	$('.tower-sidebar li').click(function(e) {
