@@ -67,7 +67,6 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
         healthy = testSystemHealth();
         if (healthy) {
-            printWelcomeMessage();
             if (gethConfig.isAutoStart()) {
                 healthy = autoStartGeth();
                 if (!healthy) {
@@ -79,16 +78,15 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         if (!healthy) {
             System.out.println(event.getApplicationContext());
             printErrorReport();
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("PRINTING DEBUG INFO");
-                LOG.debug("\n" + getDebugInfo(null));
-            }
+            return;
         }
 
-        LOG.info("Cakeshop version: " + AppVersion.BUILD_VERSION);
-        LOG.info("Cakeshop build id: " + AppVersion.BUILD_ID);
-        LOG.info("Cakeshop build date: " + AppVersion.BUILD_DATE);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("PRINTING DEBUG INFO");
+            LOG.debug("\n" + getDebugInfo(null));
+        }
+
+        printWelcomeMessage();
     }
 
     private void printErrorReport() {
@@ -117,6 +115,34 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     private void printWelcomeMessage() {
+        System.out.println();
+        System.out.println();
+
+        try {
+            System.out.println(FileUtils.readClasspathFile("banner.txt"));
+        } catch (IOException e) {
+        }
+
+//        System.out.println("                  ,%%%%%%%%,\n" +
+//                "                ,%%/\\%%%%/\\%%\n" +
+//                "               ,%%%\\c \"\" J/%%%    ,,,,,,, \n" +
+//                "      %.       %%%%/ 6  6 \\%%%    |||||||\n" +
+//                "      `%%.     %%%%    _  |%%%  @@@@@@@@@@@\n" +
+//                "       `%%     `%%%%(__Y__)%%'  {~*~*~*~*~}\n" +
+//                "       //       ;%%%%`\\-/%%%' @@@@@@@@@@@@@@@@\n" +
+//                "      ((       /  `%%%%%%%'   {~* CAKESHOP *~}\n" +
+//                "       \\\\    .'          |    {     OPEN     }\n" +
+//                "        \\\\  /       \\  | |    {~~*~~*~~*~~*~~}\n" +
+//                "         \\\\/         ) | |    @@@@@@@@@@@@@@@\n" +
+//                "          \\         /_ | |__      __) (__\n" +
+//                "          (___________)))))))    /_______\\");
+
+        System.out.println();
+        System.out.println("          CAKESHOP");
+        System.out.println("          version:     " + AppVersion.BUILD_VERSION);
+        System.out.println("          build id:    " + AppVersion.BUILD_ID);
+        System.out.println("          build date:  " + AppVersion.BUILD_DATE);
+        System.out.println();
     }
 
     public boolean autoStartGeth() {
@@ -138,6 +164,11 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
            out.append(servletContext.getServerInfo());
         }
         out.append("\n\n");
+
+        out.append("cakeshop.version: " + AppVersion.BUILD_VERSION + "\n");
+        out.append("cakeshop.build.id: " + AppVersion.BUILD_ID + "\n");
+        out.append("cakeshop.build.date: " + AppVersion.BUILD_DATE + "\n");
+        out.append("\n");
 
         out.append("os.name: " + SystemUtils.OS_NAME + "\n");
         out.append("os.version: " + SystemUtils.OS_VERSION + "\n");
