@@ -22,10 +22,12 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Scope("prototype")
 public class SavingBlockListener implements BlockListener {
 
     private class BlockSaverThread extends Thread {
@@ -84,13 +86,14 @@ public class SavingBlockListener implements BlockListener {
     
     @PostConstruct
     protected void init() {
+        LOG.info("starting " + blockSaver.getId());
         blockSaver.start();
     }
 
     @PreDestroy
     @Override
     public void shutdown() {
-        LOG.info("shutdown");
+        LOG.info("shutdown " + blockSaver.getId());
         blockSaver.running = false;
         blockSaver.interrupt();
     }
