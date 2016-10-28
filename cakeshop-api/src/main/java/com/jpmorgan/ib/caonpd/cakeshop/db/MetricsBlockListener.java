@@ -9,12 +9,10 @@ import com.jpmorgan.ib.caonpd.cakeshop.model.Block;
 import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@Scope("prototype")
 public class MetricsBlockListener implements BlockListener, TickListener {
 
     public class Metric {
