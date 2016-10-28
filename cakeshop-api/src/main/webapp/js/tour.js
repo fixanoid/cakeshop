@@ -234,7 +234,7 @@ import 'dashboard-framework/dashboard-template';
         onShow: showMenuStep("#api"),
         onHide: hideMenuStep,
       },
-    ]) 
+    ])
 
   });
 
@@ -279,17 +279,17 @@ import 'dashboard-framework/dashboard-template';
 
   // Initialize the tour
   tour.init();
-  
+
 
   var loaded = false;
  // $(document).on("WidgetInternalEvent", function(e, action) {
   $(document).on("StartTour", function(e, action) {
    //if (action === "node-status|announce" && loaded === false) {
 	   Tower.tour = tour;
-	   window.localStorage.setItem("tour_current_step", 0); // always reset to 0 
+	   window.localStorage.setItem("tour_current_step", 0); // always reset to 0
 	   tour.start();
 	   loaded = true;
- 
+
     //}
   });
 
