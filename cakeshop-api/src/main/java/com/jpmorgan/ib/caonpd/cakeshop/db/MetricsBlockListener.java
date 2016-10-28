@@ -91,10 +91,10 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         startThread();
     }
 
-    private void startThread() {
-        LOG.info("starting " + metricCollector.getId());
+    private void startThread() {        
         this.metricCollector = new MetricCollector();
         this.metricCollector.start();
+        LOG.info("starting " + metricCollector.getId());
     }
 
     @PreDestroy
