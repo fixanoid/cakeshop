@@ -33,6 +33,8 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/jquery-ui.min.css">
 
+		<link rel="stylesheet" href="css/vendor/bootstrap-tour.min.css">
+
 		<link rel="stylesheet" href="css/sandbox.css">
 		<link rel="stylesheet" href="css/pygment_trac.css">
 
@@ -77,20 +79,20 @@
 						<nav class="navbar navbar-default sidenav">
 							<div class="container-fluid">
 								<ul class="nav navbar-nav navbar-left sidenav">
-									<li role="presentation" class="active txView"><a title="Transaction Playground"><i class="fa fa-send"></i></a></li>
+									<li role="presentation" id="tx-icon" class="active txView"><a title="Transaction Playground"><i class="fa fa-send"></i></a></li>
 									<li role="presentation" class="libView"><a title="Contract Library"><i class="fa fa-bank"></i></a></li>
 									<li role="presentation" class="compilerView"><a title="Compiler Output"><i class="fa fa-code"></i></a></li>
 									<li role="presentation" class="settingsView"><a title="Settings"><i class="fa fa-gear"></i></a></li>
+									<li role="presentation" class="startHelp" id="help"><a title="Help"><i class="fa fa-question"></i></a></li>
 								</ul>
 
 								<!-- block number & mining status widgets -->
 								<ul class="nav navbar-nav navbar-right">
-									<li class="block_number"><a title="Current block number">n/a</a></li>
-									<li class="mining_status"><a title="Click to toggle mining"><i class="fa fa-pause"></i></a></li>
+									<li id="block_num" class="block_number"><a title="Current block number">n/a</a></li>
+									<li id="mining_status" class="mining_status"><a title="Click to toggle mining"><i class="fa fa-pause"></i></a></li>
 								</ul>
 							</div>
 						</nav>
-
 
 						<div id="txView" class="tab">
 							<div class="container-fluid">
@@ -250,6 +252,8 @@
 		<script src="js/vendor/mode-solidity.js"></script>
 
 		<script src="js/vendor/bootstrap.min.js" charset="utf-8"></script>
+
+		<script src="js/vendor/bootstrap-tour.min.js"></script>
 
 		<script src="js/vendor/moment.min.js" charset="utf-8"></script>
 		<script src="js/vendor/underscore.min.js" charset="utf-8"></script>

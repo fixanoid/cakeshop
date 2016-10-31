@@ -174,16 +174,16 @@
     	}
     };
 
-    var gethDeploy = function(contractName, interface, bytecode){
-        var abi = _.isString(interface) ? JSON.parse(interface) : interface;
-    	var funABI = getConstructorInterface(interface);
+    var gethDeploy = function(contractName, Interface, bytecode){
+        var abi = _.isString(Interface) ? JSON.parse(Interface) : Interface;
+    	var funABI = getConstructorInterface(Interface);
 
     	var code = "";
     	$.each(funABI.inputs, function(i, inp) {
     		code += "var " + inp.name + " = /* var of type " + inp.type + " here */ ;\n";
     	});
 
-    	code += "var " + contractName + "Contract = web3.eth.contract(" + interface.replace("\n","") + ");" +
+    	code += "var " + contractName + "Contract = web3.eth.contract(" + Interface.replace("\n","") + ");" +
             "\nvar " + contractName + " = " + contractName + "Contract.new(";
 
     	$.each(funABI.inputs, function(i, inp) {
@@ -205,8 +205,8 @@
     	return code;
     };
 
-    var combined = function(contractName, interface, bytecode){
-    	return JSON.stringify([{name: contractName, interface: interface, bytecode: bytecode}]);
+    var combined = function(contractName, Interface, bytecode){
+    	return JSON.stringify([{name: contractName, interface: Interface, bytecode: bytecode}]);
     };
 
     var renderContracts = function(contracts, source) {
@@ -345,5 +345,91 @@
 
     Sandbox.compile = compile;
     Sandbox.getEditorSource = getEditorSource;
+
+	// ----------------- tour -------------------
+
+	var sandboxTour = new Tour({
+		debug: false,
+		backdrop: true,
+		steps: [
+			{
+				element: '#help',
+				title: 'Welcome to the Sandbox',
+				content: 'The Sandbox is a place to write, edit, and compile code for your contracts.',
+			},
+			{
+				element: '#editor',
+				content: 'The editor is where you write and edit code. It functions similarly to any general text editor.',
+			},
+			{
+				element: '#sidebar',
+				content: 'Use this sidebar to quickly access all the controls and view information',
+				placement: 'bottom'
+			},
+			{
+				element: '#block_num',
+				content: 'The current block number.',
+				placement: 'left',
+			},
+			{
+				element: '#mining_status',
+				content: 'Click this to turn mining on and off.',
+				placement: 'left',
+				onNext: function() {
+					$('#tx-icon a').click();
+				},
+			},
+			{
+				element: '#txView',
+				content: 'This is the transactions control panel.',
+				placement: 'left',
+				onNext: function() {
+					$('.libView a').click();
+				}
+			},
+			{
+				element: '#libView',
+				content: 'This is the contracts library. You will find example contracts here.',
+				placement: 'left',
+				onNext: function() {
+					$('.compilerView a').click();
+				},
+				onPrev: function() {
+					$('#tx-icon a').click();
+				}
+			},
+			{
+				element: '#compilerView',
+				content: 'This is where the output of the compiler is displayed',
+				placement: 'left',
+				onNext: function() {
+					$('.settingsView a').click();
+				},
+				onPrev: function() {
+					$('.libView a').click();
+				}
+			},
+			{
+				element: '#settingsView',
+				content: 'You may change settings here',
+				placement: 'left',
+				onPrev: function() {
+					$('.compilerView a').click();
+				}
+			}
+		]
+	}).init()
+
+	if( !window.localStorage.getItem('tour_end')) {
+		sandboxTour.start(true);
+	}
+
+	$('#help').click(function() {
+		window.localStorage.removeItem('tour_current_step');
+		window.localStorage.removeItem('tour_end');
+
+		sandboxTour.start(true);
+	})
+
 
 })();
