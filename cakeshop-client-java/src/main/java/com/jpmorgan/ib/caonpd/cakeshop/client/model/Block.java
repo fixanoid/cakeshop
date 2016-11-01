@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.math.BigInteger;
 
 
 
@@ -27,8 +28,8 @@ public class Block   {
     private String transactionsRoot = null;
     private String stateRoot = null;
     private String miner = null;
-    private Long difficulty = null;
-    private Long totalDifficulty = null;
+    private BigInteger difficulty = null;
+    private BigInteger totalDifficulty = null;
     private String extraData = null;
     private Integer gasLimit = null;
     private Integer gasUsed = null;
@@ -202,17 +203,17 @@ public class Block   {
     /**
      * integer of the difficulty of this block
      **/
-    public Block difficulty(Long difficulty) {
+    public Block difficulty(BigInteger difficulty) {
         this.difficulty = difficulty;
         return this;
     }
 
     @ApiModelProperty(example = "null", value = "integer of the difficulty of this block")
     @JsonProperty("difficulty")
-    public Long getDifficulty() {
+    public BigInteger getDifficulty() {
         return difficulty;
     }
-    public void setDifficulty(Long difficulty) {
+    public void setDifficulty(BigInteger difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -220,17 +221,17 @@ public class Block   {
     /**
      * integer of the total difficulty of the chain until this block
      **/
-    public Block totalDifficulty(Long totalDifficulty) {
+    public Block totalDifficulty(BigInteger totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
         return this;
     }
 
     @ApiModelProperty(example = "null", value = "integer of the total difficulty of the chain until this block")
     @JsonProperty("totalDifficulty")
-    public Long getTotalDifficulty() {
+    public BigInteger getTotalDifficulty() {
         return totalDifficulty;
     }
-    public void setTotalDifficulty(Long totalDifficulty) {
+    public void setTotalDifficulty(BigInteger totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
 
