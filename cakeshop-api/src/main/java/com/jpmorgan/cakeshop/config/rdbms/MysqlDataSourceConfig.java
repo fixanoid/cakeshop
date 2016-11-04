@@ -29,12 +29,12 @@ public class MysqlDataSourceConfig extends AbstractDataSourceConfig {
 
     @Override
     protected Properties hibernateProperties() {
-        LOG.info("USING MYSQL HIBERNATE DIALECT");
+        LOG.debug("USING MYSQL HIBERNATE DIALECT");
         return new Properties() {
             {
-                setProperty("hibernate.jdbc.batch_size", StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE)) 
+                setProperty("hibernate.jdbc.batch_size", StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE))
                         ? System.getProperty(JDBC_BATCH_SIZE) : env.getProperty(JDBC_BATCH_SIZE, "20"));
-                setProperty("hibernate.hbm2ddl.auto", StringUtils.isNotBlank(System.getProperty(HBM_2DDL_AUTO)) 
+                setProperty("hibernate.hbm2ddl.auto", StringUtils.isNotBlank(System.getProperty(HBM_2DDL_AUTO))
                         ? System.getProperty(HBM_2DDL_AUTO) : env.getProperty(HBM_2DDL_AUTO, "update"));
                 setProperty("hibernate.dialect", StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT))
                         ? System.getProperty(HIBERNATE_DIALECT) : env.getProperty(HIBERNATE_DIALECT, "org.hibernate.dialect.MySQLDialect"));
@@ -52,11 +52,11 @@ public class MysqlDataSourceConfig extends AbstractDataSourceConfig {
     protected DataSource getSimpleDataSource() throws ClassNotFoundException {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(com.mysql.jdbc.Driver.class);
-        dataSource.setUrl(StringUtils.isNotBlank(System.getProperty(JDBC_URL)) 
+        dataSource.setUrl(StringUtils.isNotBlank(System.getProperty(JDBC_URL))
                 ? System.getProperty(JDBC_URL)  : env.getProperty(JDBC_URL));
-        dataSource.setUsername(StringUtils.isNotBlank(System.getProperty(JDBC_USER)) 
+        dataSource.setUsername(StringUtils.isNotBlank(System.getProperty(JDBC_USER))
                 ? System.getProperty(JDBC_USER) : env.getProperty(JDBC_USER));
-        dataSource.setPassword(StringUtils.isNotBlank(System.getProperty(JDBC_PASS)) 
+        dataSource.setPassword(StringUtils.isNotBlank(System.getProperty(JDBC_PASS))
                 ? System.getProperty(JDBC_PASS) : env.getProperty(JDBC_PASS));
         return dataSource;
     }

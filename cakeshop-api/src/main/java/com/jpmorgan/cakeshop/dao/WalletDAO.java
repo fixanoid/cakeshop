@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class WalletDAO extends BaseDAO {
- 
+
     private static final Logger LOG = LoggerFactory.getLogger(WalletDAO.class);
-    
+
     @Transactional
     public List<Account> list() {
         if (null != getCurrentSession()) {
@@ -32,7 +32,7 @@ public class WalletDAO extends BaseDAO {
         if (null != getCurrentSession()) {
             getCurrentSession().save(account);
         } else {
-            LOG.info("DO NOT SAVE the account. Session is null");
+            LOG.warn("DO NOT SAVE the account. Session is null");
         }
     }
 

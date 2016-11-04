@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ComponentScan({ "com.jpmorgan.cakeshop.model" })
 public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
-    
+
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(EmbeddedDbDataSourceConfig.class);
 
     @Value("${config.path}")
@@ -110,7 +110,7 @@ public class EmbeddedDbDataSourceConfig implements ApplicationContextAware {
     @Bean(name="hsql")
     @Order(0)
     public DataSource startDb() {
-        LOG.info("USING Embedded HSQL DB");
+        LOG.debug("USING Embedded HSQL DB");
         DataSourceFactory dataSourceFactory = new DataSourceFactory() {
             @Override
             public DataSource getDataSource() {

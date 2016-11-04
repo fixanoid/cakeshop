@@ -33,7 +33,7 @@ public class OracleDataSourceConfig extends AbstractDataSourceConfig {
 
     @Override
     protected Properties hibernateProperties() {
-        LOG.info("USING ORACLE HIBERNATE DIALECT");
+        LOG.debug("USING ORACLE HIBERNATE DIALECT");
         return new Properties() {
             {
                 setProperty("hibernate.jdbc.batch_size", StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE))

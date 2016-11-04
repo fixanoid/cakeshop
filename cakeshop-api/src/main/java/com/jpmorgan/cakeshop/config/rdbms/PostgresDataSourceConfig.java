@@ -22,7 +22,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 @Conditional(PostgresDataSourceConditon.class)
 @Configuration
 public class PostgresDataSourceConfig extends AbstractDataSourceConfig {
-    
+
 
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
@@ -31,17 +31,17 @@ public class PostgresDataSourceConfig extends AbstractDataSourceConfig {
 
     @Override
     protected Properties hibernateProperties() {
-        LOG.info("USING POSTGRES HIBERNATE DIALECT");
+        LOG.debug("USING POSTGRES HIBERNATE DIALECT");
         return new Properties() {
             {
-                setProperty("hibernate.jdbc.batch_size", 
-                        StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE)) 
+                setProperty("hibernate.jdbc.batch_size",
+                        StringUtils.isNotBlank(System.getProperty(JDBC_BATCH_SIZE))
                                 ? System.getProperty(JDBC_BATCH_SIZE) : env.getProperty(JDBC_BATCH_SIZE, "20"));
-                setProperty("hibernate.hbm2ddl.auto", 
-                        StringUtils.isNotBlank(System.getProperty(HBM_2DDL_AUTO)) 
+                setProperty("hibernate.hbm2ddl.auto",
+                        StringUtils.isNotBlank(System.getProperty(HBM_2DDL_AUTO))
                                 ? System.getProperty(HBM_2DDL_AUTO) : env.getProperty(HBM_2DDL_AUTO, "update"));
-                setProperty("hibernate.dialect", 
-                        StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT)) 
+                setProperty("hibernate.dialect",
+                        StringUtils.isNotBlank(System.getProperty(HIBERNATE_DIALECT))
                                 ? System.getProperty(HIBERNATE_DIALECT) : env.getProperty(HIBERNATE_DIALECT, "org.hibernate.dialect.PostgreSQL82Dialect"));
             }
         };

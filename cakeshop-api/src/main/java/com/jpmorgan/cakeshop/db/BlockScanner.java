@@ -76,12 +76,12 @@ public class BlockScanner extends Thread {
 
     @PostConstruct
     public void init() {
-        LOG.info("starting " + getId());
+        LOG.debug("starting " + getId());
         this.blockListeners = appContext.getBeansOfType(BlockListener.class).values();
     }
 
     public void shutdown() {
-        LOG.info("shutdown " + getId());
+        LOG.debug("shutdown " + getId());
         this.stopped = true;
         synchronized(wakeup) {
             this.wakeup.notify();
@@ -273,13 +273,13 @@ public class BlockScanner extends Thread {
             checkDbSync();
 
             backfillBlocks();
-            
+
             runLoop();
         } catch (Throwable ex) {
             LOG.error("BlockScanner exception", ex);
         }
     }
-    
+
     private void runLoop () {
         while (true) {
 
@@ -329,7 +329,7 @@ public class BlockScanner extends Thread {
 
     }
     }
-    
-    
+
+
 
 }

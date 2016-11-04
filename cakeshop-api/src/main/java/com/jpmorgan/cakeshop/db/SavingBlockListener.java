@@ -74,26 +74,26 @@ public class SavingBlockListener implements BlockListener {
 
     private static final String TOPIC = WebSocketPushService.TRANSACTION_TOPIC + "all";
     private static final String TOPIC_BLOCK = WebSocketPushService.BLOCK_TOPIC + "/all";
-    
+
 
     @Autowired(required = false)
     private SimpMessagingTemplate stompTemplate;
 
     public SavingBlockListener() {
         blockQueue = new ArrayBlockingQueue<>(1000);
-        blockSaver = new BlockSaverThread();              
+        blockSaver = new BlockSaverThread();
     }
-    
+
     @PostConstruct
     protected void init() {
-        LOG.info("starting " + blockSaver.getId());
+        LOG.debug("starting " + blockSaver.getId());
         blockSaver.start();
     }
 
     @PreDestroy
     @Override
     public void shutdown() {
-        LOG.info("shutdown " + blockSaver.getId());
+        LOG.debug("shutdown " + blockSaver.getId());
         blockSaver.running = false;
         blockSaver.interrupt();
     }
@@ -119,7 +119,7 @@ public class SavingBlockListener implements BlockListener {
             pushBlockNumber(block.getNumber().longValue()); // push to subscribers after saving
         }
     }
-    
+
     private void pushBlockNumber(Long blockNumber) {
         if (stompTemplate == null) {
             return;
@@ -136,7 +136,7 @@ public class SavingBlockListener implements BlockListener {
         }
         LOG.debug("Transaction list size " + txns.size());
         for (Transaction txn : txns) {
-            
+
             APIResponse res = new APIResponse();
             res.setData(txn.toAPIData());
             stompTemplate.convertAndSend(TOPIC, res);

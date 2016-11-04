@@ -91,16 +91,16 @@ public class MetricsBlockListener implements BlockListener, TickListener {
         startThread();
     }
 
-    private void startThread() {        
+    private void startThread() {
         this.metricCollector = new MetricCollector();
         this.metricCollector.start();
-        LOG.info("starting " + metricCollector.getId());
+        LOG.debug("starting " + metricCollector.getId());
     }
 
     @PreDestroy
     @Override
     public void shutdown() {
-        LOG.info("shutdown" + metricCollector.getId());
+        LOG.debug("shutdown" + metricCollector.getId());
         if (this.metricCollector != null && this.metricCollector.isAlive()) {
             this.metricCollector.running = false;
             this.metricCollector.interrupt();
