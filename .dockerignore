@@ -12,8 +12,6 @@ nb-configuration.xml
 # temp build files
 data
 target
-*.war
-*.jar
 test-output
 /test.json
 logs/
@@ -36,8 +34,10 @@ dist/
 node/
 
 # local testing
-FooTest.java
-SandboxTest.java
+*/**/FooTest.java
+*/**/SandboxTest.java
+cakeshop-client-java/src/test/java/SimpleStorageContract.java
+testing/
 
 # bundle testing
 .otto*
