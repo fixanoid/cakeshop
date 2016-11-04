@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -20,7 +20,6 @@ import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
@@ -36,9 +35,9 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AppConfig.class);
 
     public static final String CONFIG_FILE = "application.properties";
-    
+
     private Environment env;
-    
+
     @Override
     public  void setEnvironment(Environment e) {
         this.env = e;
@@ -114,13 +113,23 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
     }
 
     public  String getVendorConfigFile() {
+        return "config".concat(File.separator).concat("application.properties");
+    }
+
+    public  String getVendorEnvConfigFile() {
         return "config".concat(File.separator).concat("application-").concat(getEnv()).concat(".properties");
     }
 
     public  void initVendorConfig(File configFile) throws IOException {
-        String path = FileUtils.getClasspathPath(getVendorConfigFile()).toString();
+        // copy default file
+        String path = FileUtils.getClasspathPath(getVendorEnvConfigFile()).toString();
         LOG.info("Initializing new config from " + path);
-        FileUtils.copyInputStreamToFile(FileUtils.getClasspathStream(getVendorConfigFile()), configFile);
+
+        // defaults + env defaults
+        Properties mergedProps = new Properties();
+        mergedProps.load(FileUtils.getClasspathStream(getVendorConfigFile()));
+        mergedProps.load(FileUtils.getClasspathStream(getVendorEnvConfigFile()));
+        mergedProps.store(new FileOutputStream(configFile), null);
     }
 
     public  PropertySourcesPlaceholderConfigurer createPropConfigurer(Environment env,
@@ -148,7 +157,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
 
         } else {
             Properties mergedProps = new Properties();
-            mergedProps.load(FileUtils.getClasspathStream(getVendorConfigFile()));
+            mergedProps.load(FileUtils.getClasspathStream(getVendorEnvConfigFile()));
             mergedProps.load(new FileInputStream(configFile)); // overwrite vendor props with our configs
             mergedProps.store(new FileOutputStream(configFile), null);
         }
@@ -160,7 +169,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
         PropertySourcesPlaceholderConfigurer propConfig = new PropertySourcesPlaceholderConfigurer();
         propConfig.setLocation(new FileSystemResource(configFile));
         propConfig.setProperties(localProps);
-       
+
         return propConfig;
     }
 
@@ -171,11 +180,11 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
         exec.setCorePoolSize(10);
         exec.setMaxPoolSize(500);
         exec.setQueueCapacity(2000);
-        exec.setThreadNamePrefix("EE-SDK-");
+        exec.setThreadNamePrefix("cake-");
         exec.afterPropertiesSet();
         return exec;
     }
-    
+
     @Bean
     public AnnotationMBeanExporter annotationMBeanExporter() {
         AnnotationMBeanExporter annotationMBeanExporter = new AnnotationMBeanExporter();
