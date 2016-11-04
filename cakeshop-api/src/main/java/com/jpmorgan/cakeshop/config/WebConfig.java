@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import okhttp3.OkHttpClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +20,8 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
+import okhttp3.OkHttpClient;
+
 
 /**
  *
@@ -29,13 +30,13 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Configuration
 @EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter {
-    
+
     @Autowired
     private Environment env;
 
     @Autowired
     private RequestMappingHandlerAdapter adapter;
-    
+
     @Autowired
     private OkHttpClient okHttpClient;
 
@@ -63,7 +64,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Override
-    
+
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setTaskExecutor(createMvcAsyncExecutor());
     }
@@ -72,7 +73,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void addCorsMappings(CorsRegistry registry) {
         if (Boolean.valueOf(env.getProperty("geth.cors.enabled:true"))) {
             registry.addMapping("/**")
-                    .allowedOrigins(env.getProperty("geth.apistore.url"))
+                    .allowedOrigins(env.getProperty("geth.cors.url"))
                     .allowedMethods("POST");
         }
     }
@@ -82,7 +83,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         // Enable DefaultServlet handler for static resources at /**
         configurer.enable();
     }
-    
+
     @PreDestroy
     public void shutdown() {
         okHttpClient.connectionPool().evictAll();
@@ -105,7 +106,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         exec.afterPropertiesSet();
         return exec;
     }
-    
-    
-    
+
+
+
 }
