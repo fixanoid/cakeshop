@@ -1,6 +1,6 @@
 package com.jpmorgan.cakeshop.model;
 
-import com.jpmorgan.cakeshop.model.ContractABI;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jpmorgan.cakeshop.service.ContractService.CodeType;
 
 import java.util.Map;
@@ -67,6 +67,7 @@ public class Contract {
      */
     private Map<String, String> functionHashes;
 
+    @JsonIgnore
     private ContractABI contractAbi;
 
 
