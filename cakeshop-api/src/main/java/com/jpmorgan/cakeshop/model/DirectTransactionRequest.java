@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -21,7 +22,9 @@ public class DirectTransactionRequest {
 
     private final String data;
 
-    private List<String> geminiTo;
+    private String privateFrom;
+
+    private List<String> privateFor;
 
     private Object blockNumber;
 
@@ -37,6 +40,9 @@ public class DirectTransactionRequest {
         this.isRead = isRead;
         this.blockNumber = blockNumber;
         this.data = data;
+
+        this.privateFrom = null;
+        this.privateFor = null;
     }
 
     public Object[] toGethArgs() {
@@ -47,8 +53,12 @@ public class DirectTransactionRequest {
 	    req.put("gas", DEFAULT_GAS);
         req.put("data", data);
 
-	    if (geminiTo != null && !geminiTo.isEmpty()) {
-            req.put("geminiTo", geminiTo);
+	    if (StringUtils.isNotBlank(privateFrom)) {
+	        req.put("privateFrom", privateFrom);
+	    }
+
+	    if (privateFor != null && !privateFor.isEmpty()) {
+            req.put("privateFor", privateFor);
 	    }
 
         if (isRead) {
@@ -91,12 +101,20 @@ public class DirectTransactionRequest {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    public List<String> getGeminiTo() {
-        return geminiTo;
+    public String getPrivateFrom() {
+        return privateFrom;
     }
 
-    public void setGeminiTo(List<String> geminiTo) {
-        this.geminiTo = geminiTo;
+    public void setPrivateFrom(String privateFrom) {
+        this.privateFrom = privateFrom;
+    }
+
+    public List<String> getPrivateFor() {
+        return privateFor;
+    }
+
+    public void setPrivateFor(List<String> privateFor) {
+        this.privateFor = privateFor;
     }
 
 }

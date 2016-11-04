@@ -9,7 +9,9 @@ public class ContractMethodCallCommand {
     private String method;
     private Object[] args;
     private Object blockNumber;
-    private List<String> geminiTo;
+
+    private String privateFrom;
+    private List<String> privateFor;
 
 
     /**
@@ -67,8 +69,13 @@ public class ContractMethodCallCommand {
         return this;
     }
 
-    public ContractMethodCallCommand geminiTo(List<String> geminiTo) {
-        this.geminiTo = geminiTo;
+    public ContractMethodCallCommand privateFrom(String privateFrom) {
+        this.privateFrom = privateFrom;
+        return this;
+    }
+
+    public ContractMethodCallCommand privateFor(List<String> privateFor) {
+        this.privateFor = privateFor;
         return this;
     }
 
@@ -113,12 +120,20 @@ public class ContractMethodCallCommand {
         this.blockNumber = blockNumber;
     }
 
-    public List<String> getGeminiTo() {
-        return geminiTo;
+    public String getPrivateFrom() {
+        return privateFrom;
     }
 
-    public void setGeminiTo(List<String> geminiTo) {
-        this.geminiTo = geminiTo;
+    public void setPrivateFrom(String privateFrom) {
+        this.privateFrom = privateFrom;
+    }
+
+    public List<String> getPrivateFor() {
+        return privateFor;
+    }
+
+    public void setPrivateFor(List<String> privateFor) {
+        this.privateFor = privateFor;
     }
 
 }

@@ -32,7 +32,7 @@ public class TransactionController extends BaseController {
 
     @Autowired
     private TransactionService transactionService;
-    
+
 
     @RequestMapping("/get")
     public ResponseEntity<APIResponse> getTransaction(
@@ -54,7 +54,7 @@ public class TransactionController extends BaseController {
 
         return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
-    
+
     @RequestMapping("/list")
     public ResponseEntity<APIResponse> getTransactionList(
             @JsonBodyParam(required=true) List<String> ids) throws APIException {
@@ -65,7 +65,7 @@ public class TransactionController extends BaseController {
 
         if (txns != null && !txns.isEmpty()) {
             for (Transaction txn : txns) {
-                data.add(txn.toAPIData());                
+                data.add(txn.toAPIData());
             }
             res.setData(data);
             return new ResponseEntity<>(res, HttpStatus.OK);
@@ -78,20 +78,22 @@ public class TransactionController extends BaseController {
 
         return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
-    
+
     @RequestMapping("/save")
     public WebAsyncTask<ResponseEntity<APIResponse>> transact(
             @JsonBodyParam final String from,
             @JsonBodyParam final String to,
             @JsonBodyParam final String data,
-            @JsonBodyParam final List<String> geminiTo) throws APIException {
+            @JsonBodyParam final String privateFrom,
+            @JsonBodyParam final List<String> privateFor) throws APIException {
 
         Callable<ResponseEntity<APIResponse>> callable = new Callable<ResponseEntity<APIResponse>>() {
             @Override
             public ResponseEntity<APIResponse> call() throws Exception {
                 DirectTransactionRequest req =  new DirectTransactionRequest(from, to, data, false);
-                req.setGeminiTo(geminiTo);
-                
+                req.setPrivateFrom(privateFrom);
+                req.setPrivateFor(privateFor);
+
                 TransactionResult result = transactionService.directTransact(req);
                 APIResponse res = new APIResponse();
                 res.setData(result.toAPIData());
@@ -102,6 +104,6 @@ public class TransactionController extends BaseController {
         WebAsyncTask asyncTask = new WebAsyncTask(callable);
         return asyncTask;
     }
-    
+
 
 }

@@ -1,13 +1,13 @@
 package com.jpmorgan.cakeshop.model;
 
 import com.jpmorgan.cakeshop.error.APIException;
-import com.jpmorgan.cakeshop.model.ContractABI;
 import com.jpmorgan.cakeshop.model.ContractABI.Function;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -27,7 +27,9 @@ public class TransactionRequest {
 
     private final Object[] args;
 
-    private List<String> geminiTo;
+    private String privateFrom;
+
+    private List<String> privateFor;
 
     private Object blockNumber;
 
@@ -45,6 +47,9 @@ public class TransactionRequest {
         this.blockNumber = blockNumber;
         this.args = args;
 
+        this.privateFrom = null;
+        this.privateFor = null;
+
 	    this.function = abi.getFunction(method);
 	    if (this.function == null) {
 	        throw new APIException("Invalid method '" + method + "'");
@@ -59,8 +64,12 @@ public class TransactionRequest {
 	    req.put("gas", DEFAULT_GAS);
 	    req.put("data", function.encodeAsHex(args));
 
-	    if (geminiTo != null && !geminiTo.isEmpty()) {
-            req.put("geminiTo", geminiTo);
+	    if (StringUtils.isNotBlank(privateFrom)) {
+	        req.put("privateFrom", privateFrom);
+	    }
+
+	    if (privateFor != null && !privateFor.isEmpty()) {
+            req.put("privateFor", privateFor);
 	    }
 
         if (isRead) {
@@ -119,12 +128,20 @@ public class TransactionRequest {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    public List<String> getGeminiTo() {
-        return geminiTo;
+    public String getPrivateFrom() {
+        return privateFrom;
     }
 
-    public void setGeminiTo(List<String> geminiTo) {
-        this.geminiTo = geminiTo;
+    public void setPrivateFrom(String privateFrom) {
+        this.privateFrom = privateFrom;
+    }
+
+    public List<String> getPrivateFor() {
+        return privateFor;
+    }
+
+    public void setPrivateFor(List<String> privateFor) {
+        this.privateFor = privateFor;
     }
 
 }

@@ -7,12 +7,12 @@ import com.jpmorgan.cakeshop.model.APIError;
 import com.jpmorgan.cakeshop.model.APIResponse;
 import com.jpmorgan.cakeshop.model.Contract;
 import com.jpmorgan.cakeshop.model.ContractABI;
+import com.jpmorgan.cakeshop.model.ContractABI.Entry.Param;
+import com.jpmorgan.cakeshop.model.ContractABI.Function;
+import com.jpmorgan.cakeshop.model.SolidityType.Bytes32Type;
 import com.jpmorgan.cakeshop.model.Transaction;
 import com.jpmorgan.cakeshop.model.TransactionRequest;
 import com.jpmorgan.cakeshop.model.TransactionResult;
-import com.jpmorgan.cakeshop.model.ContractABI.Function;
-import com.jpmorgan.cakeshop.model.ContractABI.Entry.Param;
-import com.jpmorgan.cakeshop.model.SolidityType.Bytes32Type;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
 import com.jpmorgan.cakeshop.service.ContractService.CodeType;
@@ -185,13 +185,15 @@ public class ContractController extends BaseController {
             @JsonBodyParam final String address,
             @JsonBodyParam final String method,
             @JsonBodyParam final Object[] args,
-            @JsonBodyParam final List<String> geminiTo) throws APIException {
+            @JsonBodyParam final String privateFrom,
+            @JsonBodyParam final List<String> privateFor) throws APIException {
 
         Callable<ResponseEntity<APIResponse>> callable = new Callable<ResponseEntity<APIResponse>>() {
             @Override
             public ResponseEntity<APIResponse> call() throws Exception {
                 TransactionRequest req = createTransactionRequest(from, address, method, args, false, null);
-                req.setGeminiTo(geminiTo);
+                req.setPrivateFrom(privateFrom);
+                req.setPrivateFor(privateFor);
 
                 TransactionResult tr = contractService.transact(req);
                 APIResponse res = new APIResponse();
