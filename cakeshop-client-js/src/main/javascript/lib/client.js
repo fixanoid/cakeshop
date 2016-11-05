@@ -46,21 +46,21 @@
     Client.connected = false;
     Client.connect = function() {
 
-      // try to derive the websocket location from the current location
-      var pathname = window.location.pathname;
-      var wsUrl;
-      if (/^\/[\w-.]*\/$/.test(pathname)) {
-        // e.g. '/cakeshop/' -> '/cakeshop/ws'
-        wsUrl = pathname + 'ws';
-      } else if (/^\/[\w-.]*$/.test(pathname)) {
-        // e.g. '/cakeshop' -> '/cakeshop/ws'
-        wsUrl = pathname + '/ws';
-      } else {
-        // otherwise just fall back to a safe value
-        wsUrl = '/cakeshop/ws';
-      }
+        // try to derive the websocket location from the current location
+        var pathname = window.location.pathname;
+        var wsUrl;
+        if (/^\/[\w-.]*\/$/.test(pathname)) {
+          // e.g. '/cakeshop/' -> '/cakeshop/ws'
+          wsUrl = pathname + 'ws';
+        } else if (/^\/[\w-.]*$/.test(pathname)) {
+          // e.g. '/cakeshop' -> '/cakeshop/ws'
+          wsUrl = pathname + '/ws';
+        } else {
+          // otherwise just fall back to a safe value
+          wsUrl = '/cakeshop/ws';
+        }
 
-      var stomp = Client.stomp = Stomp.over(new SockJS(wsUrl));
+        var stomp = Client.stomp = Stomp.over(new SockJS(wsUrl));
 
         stomp.debug = null;
         stomp.connect({},

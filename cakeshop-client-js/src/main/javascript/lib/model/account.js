@@ -14,7 +14,7 @@
 
         humanBalance: function() {
             var b = parseInt(this.get("balance"), 10) / 1000000000000000000;
-			return (b > 1000000000) ? '∞' : b.toFixed(2);
+            return (b > 1000000000) ? '∞' : b.toFixed(2);
         },
 
     });
