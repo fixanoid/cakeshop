@@ -145,7 +145,9 @@
                         from: options.from,
                         address: contract.id,
                         method: options.method,
-                        args: options.args
+                        args: options.args,
+                        privateFrom: options.privateFrom,
+                        privateFor: options.privateFor,
                     }
                 ).done(function(res, status, xhr) {
                     resolve(res.data.id); // return tx id

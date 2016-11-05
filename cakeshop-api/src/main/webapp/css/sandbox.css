@@ -177,6 +177,15 @@ nav.sidenav ul.navbar-right li.mining_status a {
     background-color: rgba(190, 255, 190, 0.54);
 }
 
+.transact tr.private_from, .transact tr.private_for {
+  background-color: rgba(190, 255, 190, 0.54);
+}
+
+.transact tr.private_from textarea,
+.transact tr.private_for textarea {
+  width: 100%;
+}
+
 .method-inputs {
     padding-bottom: 5px;
 }

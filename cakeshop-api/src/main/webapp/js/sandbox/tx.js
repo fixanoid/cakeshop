@@ -135,6 +135,19 @@
         return s;
     }
 
+    function quorumFields() {
+        var s = '';
+        s += '<tr class="private_from">';
+        s += '<td colspan="2" class="from_address"><label for="private_from">Private From</label>';
+        s += '<textarea id="private_from"></textarea></label>';
+        s += '</td></tr>';
+        s += '<tr class="private_for">';
+        s += '<td colspan="2" class="from_address"><label for="private_for" title="One key per line">Private For</label>';
+        s += '<textarea id="private_for"></textarea>';
+        s += '</td></tr>';
+        return s;
+    }
+
     function showTransactForm() {
         $(".transact .method").off("click");
         $(".transact .send").off("click");
@@ -149,6 +162,7 @@
         var s = '<div class="panel-overflow"><table class="table">';
 
         s += accountsDropDown();
+        s += quorumFields();
 
         abi.forEach(function(method) {
             if (method.type !== "function") {
@@ -166,11 +180,17 @@
             e.preventDefault();
             var tr = $(e.target).parents("tr.method");
             var fromAddr = $(".transact select.accounts").val();
+            var privateFrom = $(".transact textarea#private_from").val();
+            var privateFor = $(".transact textarea#private_for").val();
             var method = activeContract.getMethod(tr.attr("data-method"));
             highlightMethod(method);
 
+            if (!_.isEmpty(privateFor)) {
+              privateFor = privateFor.split("\n"); // one key per line
+            }
+
             var params = collectInputVals(method, tr);
-            doMethodCall(activeContract, fromAddr, method, params);
+            doMethodCall(activeContract, fromAddr, method, params, privateFrom, privateFor);
             return false;
         });
 
@@ -264,13 +284,15 @@
         }
     }
 
-    function doMethodCall(contract, from, method, params) {
+    function doMethodCall(contract, from, method, params, privateFrom, privateFor) {
         var _params = _.map(params, function(v, k) { return v; });
         var _sig_params = _.map(params, function(v, k) { return JSON.stringify(v); }).join(", ");
         var method_sig = method.name + "(" + _sig_params + ")";
+        var method_args = {from: from, args: _params};
 
         if (method.constant === true) {
-            activeContract.proxy[method.name]({from: from, args: _params}).then(function(res) {
+            // read
+            activeContract.proxy[method.name](method_args).then(function(res) {
                 addTx("[read] " + method_sig + " => " + JSON.stringify(res), null);
             }, function(errors) {
                 var err = "[read] " + method_sig + " => [ERROR] ";
@@ -287,7 +309,11 @@
             });
 
         } else {
-            activeContract.proxy[method.name]({from: from, args: _params}).then(function(txId) {
+            // txn
+            method_args.privateFrom = privateFrom;
+            method_args.privateFor = privateFor;
+
+            activeContract.proxy[method.name](method_args).then(function(txId) {
                 addTx("[txn] " + method_sig + " => created tx " + wrapTx(txId));
                 Transaction.waitForTx(txId).then(function(tx) {
                     addTx("[txn] " + wrapTx(txId) + " was committed in block " + wrapBlock(tx.get("blockNumber")));

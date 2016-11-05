@@ -18,57 +18,50 @@
 
     Client._stomp_subscriptions = {};
     Client.subscribe = function(topic, handler) {
-        Client._stomp_subscriptions[topic] = {
-			topic: topic,
-			handler: handler
-		};
-
+        Client._stomp_subscriptions[topic] = {topic: topic, handler: handler};
         if (Client.stomp && Client.stomp.connected === true) {
             console.log('STOMP subscribing to ' + topic);
 
             var sub = Client.stomp.subscribe(topic, function(res) {
                 handler(JSON.parse(res.body));
             });
-
             Client._stomp_subscriptions[topic].fh = sub;
-
             return sub;
         }
-
         return false;
     };
 
-	$(window).on('beforeunload', function() {
+	$(window).on("beforeunload", function() {
 		if (!(Client.stomp && Client.stomp.connected === true)) {
 			return;
 		}
-
 		_.values(Client._stomp_subscriptions).forEach(function(sub) {
 			if (sub && sub.fh) {
 				sub.fh.unsubscribe();
 			}
 		});
-
 		Client.stomp.disconnect();
 	});
 
     Client.connected = false;
     Client.connect = function() {
-        // try to derive the websocket location from the current location
-        var pathname = window.location.pathname;
-        var wsUrl;
-        // e.g. '/cakeshop/' -> '/cakeshop/ws'
-        if (/^\/[\w-.]*\/$/.test(pathname)) {
-          wsUrl = pathname + 'ws';
-        // e.g. '/cakeshop' -> '/cakeshop/ws'
-        } else if (/^\/[\w-.]*$/.test(pathname)) {
-          wsUrl = pathname + '/ws';
-        // otherwise just fall back to a safe value
-        } else {
-          wsUrl = '/cakeshop/ws';
-        }
 
-        var stomp = Client.stomp = Stomp.over(new SockJS(wsUrl));
+      // try to derive the websocket location from the current location
+      var pathname = window.location.pathname;
+      var wsUrl;
+      if (/^\/[\w-.]*\/$/.test(pathname)) {
+        // e.g. '/cakeshop/' -> '/cakeshop/ws'
+        wsUrl = pathname + 'ws';
+      } else if (/^\/[\w-.]*$/.test(pathname)) {
+        // e.g. '/cakeshop' -> '/cakeshop/ws'
+        wsUrl = pathname + '/ws';
+      } else {
+        // otherwise just fall back to a safe value
+        wsUrl = '/cakeshop/ws';
+      }
+
+      var stomp = Client.stomp = Stomp.over(new SockJS(wsUrl));
+
         stomp.debug = null;
         stomp.connect({},
             function(frame) {
@@ -279,7 +272,9 @@
                         from: options.from,
                         address: contract.id,
                         method: options.method,
-                        args: options.args
+                        args: options.args,
+                        privateFrom: options.privateFrom,
+                        privateFor: options.privateFor,
                     }
                 ).done(function(res, status, xhr) {
                     resolve(res.data.id); // return tx id
