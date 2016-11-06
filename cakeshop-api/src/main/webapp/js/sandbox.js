@@ -346,10 +346,4 @@
     Sandbox.compile = compile;
     Sandbox.getEditorSource = getEditorSource;
 
-    $('#help').click(function() {
-      window.localStorage.removeItem('tour_current_step');
-      window.localStorage.removeItem('tour_end');
-      Sandbox.tour.start(true);
-    });
-
 })();
