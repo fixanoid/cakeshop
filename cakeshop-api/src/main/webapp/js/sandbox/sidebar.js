@@ -18,6 +18,10 @@
     $("ul.sidenav li a").click(function(e) {
         var tab = getTabName($(e.target).parents("li"));
 
+        if (tab === "help") {
+          return;
+        }
+
         $("ul.sidenav li").removeClass("active");
         $("ul.sidenav li."+tab).addClass("active");
         $(".sidebar .tab").hide();

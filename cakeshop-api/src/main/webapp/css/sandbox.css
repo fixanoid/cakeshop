@@ -43,6 +43,10 @@ nav.sidenav ul.navbar-right a {
     font-size: 2em;
 }
 
+nav ul {
+  cursor: pointer;
+}
+
 nav.sidenav ul.navbar-right li.block_number a {
     font-weight: bold;
 }
