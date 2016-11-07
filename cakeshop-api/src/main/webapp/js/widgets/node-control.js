@@ -14,15 +14,34 @@ module.exports = function() {
 		},
 
 		template: _.template('<ul class="widget-node-control">'+
-				'<li><button type="button" class="btn btn-default" id="restart">Restart Node</button></li>'+
-				'<li><button type="button" class="btn btn-default" id="stop">Stop Node</button></li>'+
-				'<li><button type="button" class="btn btn-default" id="start">Start Node</button></li>'+
-				'<li><button type="button" class="btn btn-default" id="reset">Create New Chain</button></li>'+
-			'</ul>'),
+				'<li><button type="button" class="btn btn-default ctrls" id="restart">Restart Node</button></li>'+
+				'<li><button type="button" class="btn btn-default ctrls" id="stop">Stop Node</button></li>'+
+				'<li><button type="button" class="btn btn-default ctrls" id="start">Start Node</button></li>'+
+				'<li><button type="button" class="btn btn-default" id="confirm" data-toggle="modal" data-target="#newchainconfirm">Create New Chain</button></li>'+
+			'</ul>' +
+
+			'<div class="modal fade" id="newchainconfirm" tabindex="-1" role="dialog">'+
+			  '<div class="modal-dialog" role="document">'+
+			    '<div class="modal-content">'+
+			      '<div class="modal-header">'+
+			        '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+			        '<h4 class="modal-title">Create New Chain</h4>'+
+			      '</div>'+
+			      '<div class="modal-body">'+
+			        '<p>Creating a new chain will delete the existing chain.</p>' +
+					'<p>Are you sure you wish to continue?</p>'+
+			      '</div>'+
+			      '<div class="modal-footer">'+
+			        '<button type="button" class="btn btn-default" data-dismiss="modal">No</button>'+
+			        '<button type="button" class="btn btn-primary ctrls" id="reset" data-dismiss="modal">Yes, Create</button>'+
+			      '</div>'+
+			    '</div>'+
+			  '</div>'+
+			'</div>'),
 
 		postRender: function() {
 			$('#widget-' + this.shell.id).html(widget.template({}));
-			$('#widget-' + this.shell.id + ' button').click(widget._handler);
+			$('#widget-' + this.shell.id + ' .ctrls').click(widget._handler);
 		},
 
 		_handler: function(ev) {
