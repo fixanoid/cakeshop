@@ -11,22 +11,18 @@
     },
     steps: [
       {
-        element: '#help',
-        title: 'Welcome to the Sandbox',
-        content: 'The Sandbox is a place to write, edit, and compile code for your contracts, as well as run transactions.',
-      },
-      {
         element: '#editor',
-        content: 'The editor is where you write and edit code. It functions similarly to any general text editor.',
+        title: 'Welcome to the Sandbox',
+        content: 'The Sandbox is a place to write, deploy, and test smart contract code. The editor will compile solidity in realtime.',
       },
       {
         element: '#block_num',
-        content: 'The current block number.',
+        content: 'The current block number',
         placement: 'left',
       },
       {
         element: '#mining_status',
-        content: 'Click this to turn mining on and off.',
+        content: 'Current mining status. Click to toggle mining on and off.',
         placement: 'left',
         onNext: function() {
           $('#tx-icon a').click();
@@ -34,7 +30,7 @@
       },
       {
         element: '#txView',
-        content: 'This is the transactions control panel.',
+        content: 'This is the transactions panel where you\'ll spend most of your time',
         placement: 'left',
         onShow: function() {
           $('#tx-icon').css({'z-index': '10000'});
@@ -42,7 +38,8 @@
       },
       {
         element: '#select-contract',
-        content: 'You can select a contract to use here, from deployed contracts, editor, or a custom address.',
+        title: 'Step 1: Choose Contract',
+        content: 'Choose from previously deployed contracts, deploy a new contract, or directly enter the address of a contract.',
         placement: 'left',
         onShow: function() {
           $('#tx-icon').css({'z-index': '10000'});
