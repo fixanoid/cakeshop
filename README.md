@@ -1,13 +1,13 @@
 
-# Enterprise Blockchain SDK
+# Cakeshop: The Enterprise Blockchain SDK
 
 All the tools you need to build apps on blockchain
 
-![screenshot](https://stash-prod6.us.jpmchase.net:8443/projects/NPD/repos/ethereum-enterprise/browse/src/main/webapp/img/readme/sdk.png?raw "screenshot")
+![screenshot](https://github.com/noirqs/cakeshop/blob/opensource/doc/screenshot.png?raw=true "screenshot")
 
 ## What is it?
 
-The _SDK_ is a set of tools and APIs for working with the
+_Cakeshop_ is a set of tools and APIs for working with the
 [Ethereum](https://ethereum.org/) blockchain, packaged as a Java web application
 archive (WAR) that can be dropped into any application server and gets you up
 and running in under 60 seconds.
