@@ -28,7 +28,7 @@ module.exports = function() {
 			        '<h4 class="modal-title">Create New Chain</h4>'+
 			      '</div>'+
 			      '<div class="modal-body">'+
-			        '<p>Creating a new chain will delete the existing chain.</p>' +
+			        '<p>WARNING: Creating a new chain will delete the existing one. <span class="text-danger">ALL existing contracts and data will be lost!<span></p>' +
 					'<p>Are you sure you wish to continue?</p>'+
 			      '</div>'+
 			      '<div class="modal-footer">'+
