@@ -7,6 +7,7 @@ module.exports = function() {
 		size: 'small',
 
 		url: 'api/contract/transactions/list',
+		topic: 'topic/transaction',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed; background-color: #fcf8e3;" class="table"><%= rows %></table>'),
 		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td><%= text %></td></tr>'),

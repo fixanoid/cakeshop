@@ -1,6 +1,6 @@
 
 (function() {
-
+	window.newTransaction();
     var Sandbox = window.Sandbox = window.Sandbox || {};
 
     // ----------------- editor ----------------------

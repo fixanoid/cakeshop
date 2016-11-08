@@ -5,6 +5,7 @@ module.exports = function() {
 		size: 'medium',
 
 		hideLink: true,
+		topic: 'topic/transaction',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 		 '<thead style="font-weight: bold;"><tr><td style="width: 90px;">ID</td><td>Contract</td><td>Deploy Date</td><td style="width: 210px;">Actions</td></tr></thead>' +

@@ -6,6 +6,8 @@ module.exports = function() {
 		title: 'Contract State',
 		size: 'small',
 
+		topic: 'topic/transaction',
+
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 			'<thead style="font-weight: bold;"><tr><td>Method</td><td>Result</td></tr></thead>' +
 			'<%= rows %></table>'),
@@ -14,6 +16,15 @@ module.exports = function() {
 		setData: function(data) {
 			this.data = data;
 			this.contractId = data.id;
+		},
+
+		subscribe: function(data) {
+			// subscribe to get updated states
+			utils.subscribe(this.topic, this.onUpdatedState);
+		},
+
+		onUpdatedState: function(data) {
+			this.fetch();
 		},
 
 		fetch: function() {
