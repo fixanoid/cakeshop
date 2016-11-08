@@ -13,7 +13,7 @@ module.exports = function() {
 			'</div>'),
 
 		render: function() {
-			Dashboard.grounds.append(this.shell.tpl);
+			$('#grounds').append(this.shell.tpl);
 
 			$('#widget-' + this.shell.id)
 				.css({
