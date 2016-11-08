@@ -314,6 +314,7 @@
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -325,6 +326,7 @@
 					</compilerArguments>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -343,6 +345,7 @@
 					<warSourceExcludes>**/node_modules/</warSourceExcludes>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -354,6 +357,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -373,6 +377,7 @@
 					<timestampFormat>{0,date,yyyy-MM-dd'T'HH:mm:ss.SSSZ}</timestampFormat>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -380,7 +385,51 @@
 					<skipTests>${skipTests}</skipTests>
 				</configuration>
 			</plugin>
+
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.2</version>
+
+        <configuration>
+          <workingDirectory>src/main/webapp</workingDirectory>
+          <installDirectory>target</installDirectory>
+          <nodeVersion>v6.9.1</nodeVersion>
+          <npmVersion>3.10.9</npmVersion>
+        </configuration>
+
+        <executions>
+
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>webpack build</id>
+            <goals>
+              <goal>webpack</goal>
+            </goals>
+            <configuration>
+              <arguments>-p</arguments>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+
+
 		</plugins>
+
 		<pluginManagement>
 			<plugins>
 
