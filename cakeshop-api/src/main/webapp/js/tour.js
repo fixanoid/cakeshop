@@ -125,7 +125,6 @@ import 'dashboard-framework/dashboard-template';
         content: "Metadata for the selected contract, such as the ABI and the original source code",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-detail", ".widget-shell.contract-list tbody tr:first button.deets"),
-        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
       {
@@ -133,7 +132,6 @@ import 'dashboard-framework/dashboard-template';
         content: "The paper tape shows the transaction history for the selected contract",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-paper-tape", ".widget-shell.contract-list tbody tr:first button.tape"),
-        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
       {
@@ -141,7 +139,6 @@ import 'dashboard-framework/dashboard-template';
         content: "Here we can see the current state of the contract, as read from any exposed public variables (methods marked 'constant' in solidity)",
         placement: "bottom",
         onShow: loadWidget("#contracts", "contract-current-state", ".widget-shell.contract-list tbody tr:first button.state"),
-        onShow: showMenuStep("#contracts"),
         onHide: hideMenuStep,
       },
     ])
