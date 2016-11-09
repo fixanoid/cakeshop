@@ -60,12 +60,12 @@
     </distributionManagement>
 
     <modules>
+        <module>cakeshop-client-js</module>
         <module>cakeshop-api</module>
         <module>cakeshop-abi</module>
         <module>cakeshop-client-java</module>
         <module>cakeshop-client-java-codegen</module>
         <module>cakeshop-client-java-sample</module>
-        <module>cakeshop-client-js</module>
     </modules>
 
     <build>
