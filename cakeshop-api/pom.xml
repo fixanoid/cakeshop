@@ -477,7 +477,7 @@
       <executions>
         <execution>
           <id>install-geth</id>
-          <phase>validate</phase>
+          <phase>generate-resources</phase>
           <goals>
             <goal>wget</goal>
           </goals>
@@ -486,6 +486,33 @@
             <unpack>true</unpack>
             <outputDirectory>${project.build.directory}/classes/geth/bin/${geth.dir}/</outputDirectory>
             <sha512>${geth.sha512}</sha512>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+    <plugin>
+      <artifactId>maven-resources-plugin</artifactId>
+      <version>3.0.1</version>
+      <executions>
+        <execution>
+          <id>copy-nodejs</id>
+          <phase>generate-resources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/classes/geth/bin/${geth.dir}/</outputDirectory>
+            <resources>
+              <resource>
+                <directory>${project.build.directory}/node/</directory>
+                <filtering>true</filtering>
+                <includes>
+                  <include>node</include>
+                  <include>node.exe</include>
+                </includes>
+              </resource>
+            </resources>
           </configuration>
         </execution>
       </executions>
