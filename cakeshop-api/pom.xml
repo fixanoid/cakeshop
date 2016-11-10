@@ -506,7 +506,6 @@
             <resources>
               <resource>
                 <directory>${project.build.directory}/node/</directory>
-                <filtering>true</filtering>
                 <includes>
                   <include>node</include>
                   <include>node.exe</include>
