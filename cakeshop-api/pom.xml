@@ -467,6 +467,16 @@
           </configuration>
         </execution>
 
+        <execution>
+          <id>npm-install-solc</id>
+          <goals>
+            <goal>npm</goal>
+          </goals>
+          <configuration>
+            <workingDirectory>src/main/resources/geth/solc</workingDirectory>
+          </configuration>
+        </execution>
+
       </executions>
     </plugin>
 
