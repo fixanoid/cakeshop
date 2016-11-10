@@ -1,466 +1,566 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.jpmorgan</groupId>
-		<artifactId>cakeshop-parent</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>com.jpmorgan</groupId>
+    <artifactId>cakeshop-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
 
-	<artifactId>cakeshop</artifactId>
-	<packaging>war</packaging>
+  <artifactId>cakeshop</artifactId>
+  <packaging>war</packaging>
 
-	<name>Cakeshop API</name>
+  <name>Cakeshop API</name>
 
-	<properties>
-	</properties>
+  <properties>
+    <geth.url.base>http://com.noirqs.cakeshop.s3-website-us-east-1.amazonaws.com</geth.url.base>
+  </properties>
 
-	<dependencies>
+  <profiles>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <geth.file>geth-1.4.6-stable-5422cbbd-gemini-windows.zip</geth.file>
+        <geth.sha512>73645e6c55d36b3e782c0036624c1889060a8595db47e98790ad1f09f61e0b591ce829bab95a02b3e86e84a57e54d2db73a1aae629df0282b93f04a49a50e87b</geth.sha512>
+        <geth.dir>win</geth.dir>
+      </properties>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <geth.file>geth-1.4.6-stable-088d30da-gemini-mac.zip</geth.file>
+        <geth.sha512>b393fb50edea45daa131c94702f249f06cbee7a3196874a816a84c760064a16a1abf0cfa4f020d5081d3fafeae3e09c086d8824daa275cf0a28c09a7599b6325</geth.sha512>
+        <geth.dir>mac</geth.dir>
+      </properties>
+    </profile>
+    <profile>
+      <id>linux</id>
+      <activation>
+        <os>
+          <name>linux</name>
+        </os>
+      </activation>
+      <properties>
+        <geth.file>geth-1.4.6-stable-088d30da-gemini-linux.zip</geth.file>
+        <geth.sha512>85d8bbe7d200f20b10662b57d616da97b70eee48b056c8c79bac4ad3e58d525e3acfb9fea30b239cc59320e04171e667ab551bc3f5bd0d8ab25ded719f63f26f</geth.sha512>
+        <geth.dir>linux</geth.dir>
+      </properties>
+    </profile>
+  </profiles>
 
-		<dependency>
-			<groupId>com.jpmorgan</groupId>
-			<artifactId>cakeshop-abi</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
+  <dependencies>
 
-		<!-- SPRING & SPRING BOOT -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-logging</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-tomcat</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.hateoas</groupId>
-			<artifactId>spring-hateoas</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.plugin</groupId>
-			<artifactId>spring-plugin-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>com.jpmorgan</groupId>
+      <artifactId>cakeshop-abi</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
 
-		<!-- Replace starter-jetty with explicit deps since 1.3.3 is not in FRS -->
-		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-jetty</artifactId>
-			<scope>provided</scope> </dependency> -->
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlets</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-webapp</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-server</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>javax-websocket-server-impl</artifactId>
-			<scope>provided</scope>
-		</dependency>
+    <!-- SPRING & SPRING BOOT -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.hateoas</groupId>
+      <artifactId>spring-hateoas</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.plugin</groupId>
+      <artifactId>spring-plugin-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+    </dependency>
 
-		<!-- Template lib for /unhealthy page -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-		</dependency>
+    <!-- Replace starter-jetty with explicit deps since 1.3.3 is not in FRS -->
+    <!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-jetty</artifactId>
+    <scope>provided</scope> </dependency> -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlets</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>websocket-server</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>javax-websocket-server-impl</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-		<!-- SPRING WEBSOCKET -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-messaging</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-websocket</artifactId>
-		</dependency>
+    <!-- Template lib for /unhealthy page -->
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+    </dependency>
 
-		<!-- SPRING DB, HIBERNATE, HSQL -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgres.version}</version>
-        </dependency>
+    <!-- SPRING WEBSOCKET -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-messaging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
+    </dependency>
 
-		<!-- UNCOMMENT IF USING ORACLE JDBC
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>${oracle.version}</version>
-        </dependency>
-		-->
+    <!-- SPRING DB, HIBERNATE, HSQL -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgres.version}</version>
+    </dependency>
 
-		<!-- JSON -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-		</dependency>
+    <!-- UNCOMMENT IF USING ORACLE JDBC
+    <dependency>
+    <groupId>com.oracle</groupId>
+    <artifactId>ojdbc6</artifactId>
+    <version>${oracle.version}</version>
+  </dependency>
+-->
 
-		<!-- LOGGING -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
+<!-- JSON -->
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-annotations</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.google.guava</groupId>
+  <artifactId>guava</artifactId>
+  <version>${guava.version}</version>
+</dependency>
 
-		<dependency>
-			<groupId>io.dropwizard.metrics</groupId>
-			<artifactId>metrics-core</artifactId>
-		</dependency>
+<!-- LOGGING -->
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-api</artifactId>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-log4j12</artifactId>
+</dependency>
 
-		<!-- COMMONS / UTILS -->
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-			<version>4.1</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.6</version>
-		</dependency>
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>3.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.jcabi</groupId>
-			<artifactId>jcabi-manifests</artifactId>
-			<version>1.1</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.jcabi</groupId>
-					<artifactId>jcabi-log</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+<dependency>
+  <groupId>io.dropwizard.metrics</groupId>
+  <artifactId>metrics-core</artifactId>
+</dependency>
 
-		<!-- CRYPTO -->
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.52</version>
-		</dependency>
+<!-- COMMONS / UTILS -->
+<dependency>
+  <groupId>commons-io</groupId>
+  <artifactId>commons-io</artifactId>
+  <version>2.4</version>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-collections4</artifactId>
+  <version>4.1</version>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-lang3</artifactId>
+  <version>3.3.2</version>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-math3</artifactId>
+  <version>3.6</version>
+</dependency>
+<dependency>
+  <groupId>com.squareup.okhttp3</groupId>
+  <artifactId>okhttp</artifactId>
+  <version>3.2.0</version>
+</dependency>
+<dependency>
+  <groupId>com.jcabi</groupId>
+  <artifactId>jcabi-manifests</artifactId>
+  <version>1.1</version>
+  <exclusions>
+    <exclusion>
+      <groupId>com.jcabi</groupId>
+      <artifactId>jcabi-log</artifactId>
+    </exclusion>
+  </exclusions>
+</dependency>
 
-
-		<!-- MISC -->
-		<!-- JNA is required for Windows platform PID handling -->
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
-            <version>4.1.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
+<!-- CRYPTO -->
+<dependency>
+  <groupId>org.bouncycastle</groupId>
+  <artifactId>bcprov-jdk15on</artifactId>
+  <version>1.52</version>
+</dependency>
 
 
+<!-- MISC -->
+<!-- JNA is required for Windows platform PID handling -->
+<dependency>
+  <groupId>net.java.dev.jna</groupId>
+  <artifactId>jna-platform</artifactId>
+  <version>4.1.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+<dependency>
+  <groupId>org.aspectj</groupId>
+  <artifactId>aspectjweaver</artifactId>
+</dependency>
 
 
 
-		<!-- ############################################# -->
-		<!-- # TEST # -->
-		<!-- ############################################# -->
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>provided</scope>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.9.6</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- junit included for extended matchers -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<scope>test</scope>
-		</dependency>
 
-		<!-- bean validator api impl -->
-		<dependency>
-			<groupId>org.apache.bval</groupId>
-			<artifactId>org.apache.bval.bundle</artifactId>
-			<version>0.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-validation_1.0_spec</artifactId>
-			<version>1.1</version>
-			<scope>test</scope>
-		</dependency>
+<!-- ############################################# -->
+<!-- # TEST # -->
+<!-- ############################################# -->
 
-		<!-- must be last (not sure why) -->
-	 <dependency>
-	  <groupId>org.springframework.data</groupId>
-	  <artifactId>spring-data-jpa</artifactId>
-	  <version>1.9.4.RELEASE</version>
-	  <scope>test</scope>
-	  <type>jar</type>
-	 </dependency>
-	 <dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>6.0</version>
-			<scope>test</scope>
-		</dependency>
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-test</artifactId>
+  <scope>provided</scope>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-test</artifactId>
+  <scope>test</scope>
+  <exclusions>
+    <exclusion>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-logging</artifactId>
+    </exclusion>
+  </exclusions>
+</dependency>
+<dependency>
+  <groupId>org.testng</groupId>
+  <artifactId>testng</artifactId>
+  <version>6.9.6</version>
+  <scope>test</scope>
+</dependency>
+<!-- junit included for extended matchers -->
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+  <type>jar</type>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>com.google.code.gson</groupId>
+  <artifactId>gson</artifactId>
+  <scope>test</scope>
+</dependency>
 
-	</dependencies>
+<!-- bean validator api impl -->
+<dependency>
+  <groupId>org.apache.bval</groupId>
+  <artifactId>org.apache.bval.bundle</artifactId>
+  <version>0.5</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>org.apache.geronimo.specs</groupId>
+  <artifactId>geronimo-validation_1.0_spec</artifactId>
+  <version>1.1</version>
+  <scope>test</scope>
+</dependency>
 
-	<build>
-		<plugins>
+<!-- must be last (not sure why) -->
+<dependency>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-jpa</artifactId>
+  <version>1.9.4.RELEASE</version>
+  <scope>test</scope>
+  <type>jar</type>
+</dependency>
+<dependency>
+  <groupId>javax</groupId>
+  <artifactId>javaee-api</artifactId>
+  <version>6.0</version>
+  <scope>test</scope>
+</dependency>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<compilerArguments>
-						<endorseddirs>${endorsed.dir}</endorseddirs>
-					</compilerArguments>
-				</configuration>
-			</plugin>
+</dependencies>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-						<manifestEntries>
-							<Cakeshop-Version>${project.version}</Cakeshop-Version>
-							<Cakeshop-Build>${buildNumber}</Cakeshop-Build>
-							<Cakeshop-Build-Date>${timestamp}</Cakeshop-Build-Date>
-						</manifestEntries>
-					</archive>
-					<warSourceExcludes>**/node_modules/</warSourceExcludes>
-				</configuration>
-			</plugin>
+<build>
+  <plugins>
 
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <configuration>
+        <source>${java.version}</source>
+        <target>${java.version}</target>
+        <compilerArguments>
+          <endorseddirs>${endorsed.dir}</endorseddirs>
+        </compilerArguments>
+      </configuration>
+    </plugin>
 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-							<goal>create-timestamp</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<doCheck>false</doCheck>
-					<doUpdate>false</doUpdate>
-					<timestampFormat>{0,date,yyyy-MM-dd'T'HH:mm:ss.SSSZ}</timestampFormat>
-				</configuration>
-			</plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-war-plugin</artifactId>
+      <configuration>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <archive>
+          <manifest>
+            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+          </manifest>
+          <manifestEntries>
+            <Cakeshop-Version>${project.version}</Cakeshop-Version>
+            <Cakeshop-Build>${buildNumber}</Cakeshop-Build>
+            <Cakeshop-Build-Date>${timestamp}</Cakeshop-Build-Date>
+          </manifestEntries>
+        </archive>
+        <warSourceExcludes>**/node_modules/</warSourceExcludes>
+      </configuration>
+    </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>${skipTests}</skipTests>
-				</configuration>
-			</plugin>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+      <executions>
+        <execution>
+          <goals>
+            <goal>repackage</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
 
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>buildnumber-maven-plugin</artifactId>
+      <version>1.3</version>
+      <executions>
+        <execution>
+          <phase>validate</phase>
+          <goals>
+            <goal>create</goal>
+            <goal>create-timestamp</goal>
+          </goals>
+        </execution>
+      </executions>
+      <configuration>
+        <doCheck>false</doCheck>
+        <doUpdate>false</doUpdate>
+        <timestampFormat>{0,date,yyyy-MM-dd'T'HH:mm:ss.SSSZ}</timestampFormat>
+      </configuration>
+    </plugin>
+
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <configuration>
+        <skipTests>${skipTests}</skipTests>
+      </configuration>
+    </plugin>
+
+    <plugin>
+      <groupId>com.github.eirslett</groupId>
+      <artifactId>frontend-maven-plugin</artifactId>
+      <version>1.2</version>
+
+      <configuration>
+        <workingDirectory>src/main/webapp</workingDirectory>
+        <installDirectory>target</installDirectory>
+        <nodeVersion>v6.9.1</nodeVersion>
+        <npmVersion>3.10.9</npmVersion>
+      </configuration>
+
+      <executions>
+
+        <execution>
+          <id>install node and npm</id>
+          <goals>
+            <goal>install-node-and-npm</goal>
+          </goals>
+        </execution>
+
+        <execution>
+          <id>npm install</id>
+          <goals>
+            <goal>npm</goal>
+          </goals>
+        </execution>
+
+        <execution>
+          <id>webpack build</id>
+          <goals>
+            <goal>webpack</goal>
+          </goals>
+          <configuration>
+            <arguments>-p</arguments>
+          </configuration>
+        </execution>
+
+        <execution>
+          <id>npm-install-solc</id>
+          <goals>
+            <goal>npm</goal>
+          </goals>
+          <configuration>
+            <workingDirectory>src/main/resources/geth/solc</workingDirectory>
+          </configuration>
+        </execution>
+
+      </executions>
+    </plugin>
+
+    <plugin>
+      <groupId>com.googlecode.maven-download-plugin</groupId>
+      <artifactId>download-maven-plugin</artifactId>
+      <version>1.3.0</version>
+      <executions>
+        <execution>
+          <id>install-geth</id>
+          <phase>generate-resources</phase>
+          <goals>
+            <goal>wget</goal>
+          </goals>
+          <configuration>
+            <url>${geth.url.base}/${geth.file}</url>
+            <unpack>true</unpack>
+            <outputDirectory>${project.build.directory}/classes/geth/bin/${geth.dir}/</outputDirectory>
+            <sha512>${geth.sha512}</sha512>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+    <plugin>
+      <artifactId>maven-resources-plugin</artifactId>
+      <version>3.0.1</version>
+      <executions>
+        <execution>
+          <id>copy-nodejs</id>
+          <phase>generate-resources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/classes/geth/bin/${geth.dir}/</outputDirectory>
+            <resources>
+              <resource>
+                <directory>${project.build.directory}/node/</directory>
+                <includes>
+                  <include>node</include>
+                  <include>node.exe</include>
+                </includes>
+              </resource>
+            </resources>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+  </plugins>
+
+  <pluginManagement>
+    <plugins>
+
+      <!--This plugin's configuration is used to store Eclipse m2e settings
+      only. It has no influence on the Maven build itself. -->
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>1.2</version>
-
+        <groupId>org.eclipse.m2e</groupId>
+        <artifactId>lifecycle-mapping</artifactId>
+        <version>1.0.0</version>
         <configuration>
-          <workingDirectory>src/main/webapp</workingDirectory>
-          <installDirectory>target</installDirectory>
-          <nodeVersion>v6.9.1</nodeVersion>
-          <npmVersion>3.10.9</npmVersion>
+          <lifecycleMappingMetadata>
+            <pluginExecutions>
+              <pluginExecution>
+                <pluginExecutionFilter>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>buildnumber-maven-plugin</artifactId>
+                  <versionRange>[1.3,)</versionRange>
+                  <goals>
+                    <goal>create-timestamp</goal>
+                  </goals>
+                </pluginExecutionFilter>
+                <action>
+                  <ignore></ignore>
+                </action>
+              </pluginExecution>
+            </pluginExecutions>
+          </lifecycleMappingMetadata>
         </configuration>
-
-        <executions>
-
-          <execution>
-            <id>install node and npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-          </execution>
-
-          <execution>
-            <id>npm install</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-          </execution>
-
-          <execution>
-            <id>webpack build</id>
-            <goals>
-              <goal>webpack</goal>
-            </goals>
-            <configuration>
-              <arguments>-p</arguments>
-            </configuration>
-          </execution>
-
-        </executions>
       </plugin>
+    </plugins>
+  </pluginManagement>
 
-
-		</plugins>
-
-		<pluginManagement>
-			<plugins>
-
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>buildnumber-maven-plugin</artifactId>
-										<versionRange>[1.3,)</versionRange>
-										<goals>
-											<goal>create-timestamp</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+</build>
 
 </project>
