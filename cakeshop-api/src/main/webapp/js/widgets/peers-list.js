@@ -28,6 +28,7 @@ module.exports = function() {
 				utils.load({ url: this.url })
 			).done(function(info) {
 				var rows = [];
+				this.numPeers = info.data.length;
 
 				if (info.data.length > 0) {
 					_.each(info.data, function(peer) {
@@ -45,7 +46,7 @@ module.exports = function() {
 				}
 
 				_this.postFetch();
-			});
+			}.bind(this));
 		},
 
 		subscribe: function() {
@@ -54,7 +55,6 @@ module.exports = function() {
 
 		updatePeers: function(response) {
 			if (response.data.attributes.peerCount != this.numPeers) {
-				this.numPeers = response.data.attributes.peerCount;
 				this.fetch();
 			}
 		}
