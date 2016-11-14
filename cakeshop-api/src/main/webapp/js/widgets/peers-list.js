@@ -9,6 +9,7 @@ module.exports = function() {
 		hideLink: true,
 
 		url: 'api/node/peers',
+		topic: '/topic/node/status',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 10px;">' +
@@ -27,8 +28,6 @@ module.exports = function() {
 			).done(function(info) {
 				var rows = [];
 
-				console.log(info);
-
 				if (info.data.length > 0) {
 					_.each(info.data, function(peer) {
 						rows.push( _this.templateRow({ o: peer.attributes }) );
@@ -45,7 +44,17 @@ module.exports = function() {
 
 				_this.postFetch();
 			});
+		},
+
+		subscribe: function() {
+			utils.subscribe(this.topic, this.updatePeers);
+		},
+
+		updatePeers: function(response) {
+			var status = response.data.attributes;
+			utils.prettyUpdate(Tower.status.peerCount, status.peerCount, $('#default-peers'));
 		}
+
 	};
 
 
