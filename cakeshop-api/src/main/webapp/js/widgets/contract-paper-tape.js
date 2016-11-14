@@ -7,6 +7,7 @@ module.exports = function() {
 		size: 'small',
 
 		url: 'api/contract/transactions/list',
+		topic: 'topic/block',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed; background-color: #fcf8e3;" class="table"><%= rows %></table>'),
 		templateRow: _.template('<tr style="border-bottom: 2px dotted #faebcc;"><td><%= text %></td></tr>'),
@@ -14,6 +15,17 @@ module.exports = function() {
 
 		header: function(txn) {
 			return this.templateHeader({txn: txn});
+		},
+
+		subscribe: function(data) {
+			// subscribe to get updated states
+			utils.subscribe(this.topic, this.onUpdatedState.bind(this));
+		},
+
+		onUpdatedState: function(data) {
+			if (data.data.attributes.transactions.length > 0) {
+				this.fetch();
+			}
 		},
 
 		setData: function(data) {
