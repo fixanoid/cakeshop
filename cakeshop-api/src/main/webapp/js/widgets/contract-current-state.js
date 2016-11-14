@@ -20,11 +20,13 @@ module.exports = function() {
 
 		subscribe: function(data) {
 			// subscribe to get updated states
-			utils.subscribe(this.topic, this.onUpdatedState);
+			utils.subscribe(this.topic, this.onUpdatedState.bind(this));
 		},
 
 		onUpdatedState: function(data) {
-			this.fetch();
+			if (data.data.attributes.transactions.length > 0) {
+				this.fetch();
+			}
 		},
 
 		fetch: function() {

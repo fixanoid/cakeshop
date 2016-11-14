@@ -6,6 +6,8 @@ module.exports = function() {
 		title: 'Contract Detail',
 		size: 'medium',
 
+		topic: 'topic/block',
+
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="width: 100px;"><%= key %></td><td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= value %></td></tr>'),
 
@@ -15,6 +17,17 @@ module.exports = function() {
 			this.data = data;
 
 			this.contractId = data.id;
+		},
+
+		subscribe: function(data) {
+			// subscribe to get updated states
+			utils.subscribe(this.topic, this.onUpdatedState.bind(this));
+		},
+
+		onUpdatedState: function(data) {
+			if (data.data.attributes.transactions.length > 0) {
+				this.fetch();
+			}
 		},
 
 		fetch: function() {
