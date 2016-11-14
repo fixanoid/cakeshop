@@ -51,8 +51,9 @@ module.exports = function() {
 		},
 
 		updatePeers: function(response) {
-			var status = response.data.attributes;
-			utils.prettyUpdate(Tower.status.peerCount, status.peerCount, $('#default-peers'));
+			if (response.data.attributes.peerCount != Tower.status.peerCount) {
+				this.fetch();
+			}
 		}
 
 	};
