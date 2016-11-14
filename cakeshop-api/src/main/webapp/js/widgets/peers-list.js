@@ -5,6 +5,7 @@ module.exports = function() {
 		name: 'peers-list',
 		title: 'Peer List',
 		size: 'medium',
+		numPeers: 0,
 
 		hideLink: true,
 
@@ -47,11 +48,12 @@ module.exports = function() {
 		},
 
 		subscribe: function() {
-			utils.subscribe(this.topic, this.updatePeers);
+			utils.subscribe(this.topic, this.updatePeers.bind(this));
 		},
 
 		updatePeers: function(response) {
-			if (response.data.attributes.peerCount != Tower.status.peerCount) {
+			if (response.data.attributes.peerCount != this.numPeers) {
+				this.numPeers = response.data.attributes.peerCount;
 				this.fetch();
 			}
 		}
