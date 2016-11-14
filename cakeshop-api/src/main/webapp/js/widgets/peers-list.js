@@ -41,6 +41,7 @@ module.exports = function() {
 					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 				} else {
 					// no peers
+					$('#widget-' + _this.shell.id).html('');
 				}
 
 				_this.postFetch();
