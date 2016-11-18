@@ -1073,6 +1073,19 @@
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {
   color: #6fa5d2;
 }
+
+.swagger-ui-wrap li.topic span.http_method a{
+	background-color: #cc2a84;
+}
+.swagger-ui-wrap li.topic div.heading {
+	background-color: #ffe8e8;
+	border-color: #ffcbd4;
+}
+
+#swagger-ui-socket-container {
+	margin-top: 30px;
+}
+
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,

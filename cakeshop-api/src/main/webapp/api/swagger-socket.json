@@ -1,7 +1,8 @@
 {
 	"swagger": "2.0",
 	"info": {
-		"title": "Cakeshop Web Sockets",
+		"title": "Cakeshop Sockets",
+		"description": "Implemented with <a href='https://github.com/jmesnil/stomp-websocket'>STOMP</a>",
 		"version": "1.0.0",
 		"contact": {}
 	},
@@ -9,27 +10,27 @@
 	"schemes": [
 		"http"
 	],
-	"basePath": "/cakeshop/ws/topic",
+	"basePath": "/cakeshop/ws",
 	"tags": [
 		{
-			"name": "ws node"
+			"name": "node "
 		},
 		{
-			"name": "ws block"
+			"name": "block "
 		},
 		{
-			"name": "ws transaction"
+			"name": "transaction "
 		},
 		{
-			"name": "ws contract"
+			"name": "contract "
 		},
 		{
-			"name": "ws metrics"
+			"metrics": "metrics "
 		}
 	],
 	"paths": {
 		"/contract": {
-            "post": {
+            "topic": {
                 "description": "Gives updates when contracts change",
                 "consumes": [
                     "application/json"
@@ -38,7 +39,7 @@
                     "application/json"
                 ],
 				"tags": [
-					"ws contract"
+					"contract "
 				],
                 "responses": {
                     "4xx": {
@@ -81,9 +82,9 @@
             }
         },
 		"/node/status": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws node"
+                    "node "
                 ],
                 "description": "Gives updates on node status",
                 "consumes": [
@@ -162,9 +163,9 @@
             }
         },
 		"/block": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws block"
+                    "block "
                 ],
                 "description": "Gives updates when new blocks are added",
                 "consumes": [
@@ -243,9 +244,9 @@
             }
         },
         "/pending/transactions": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws transaction"
+                    "transaction "
                 ],
                 "description": "Gives updates for pending transactions",
                 "consumes": [
@@ -295,9 +296,9 @@
             }
         },
         "/transaction": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws transaction"
+                    "transaction "
                 ],
                 "description": "Gives updates for transactions",
                 "consumes": [
@@ -347,9 +348,9 @@
             }
         },
         "/metrics/txnPerSec": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws metrics"
+                    "metrics "
                 ],
                 "description": "Gives updates for transactions",
                 "consumes": [
@@ -416,9 +417,9 @@
             }
         },
         "/metrics/txnPerMin": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws metrics"
+                    "metrics "
                 ],
                 "description": "Gives updates for transactions",
                 "consumes": [
@@ -485,9 +486,9 @@
             }
         },
         "/metrics/blocksPerMin": {
-            "post": {
+            "topic": {
                 "tags": [
-                    "ws metrics"
+                    "metrics "
                 ],
                 "description": "Gives updates for transactions",
                 "consumes": [
