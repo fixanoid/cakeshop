@@ -35,7 +35,9 @@
     $(function () {
       var url = window.location.pathname;
       url = url.substring(0, url.lastIndexOf("/"));
-      url += "/api/swagger.json";
+
+	  rest_url = url + "/api/swagger.json";
+	  socket_url = url + "/api/swagger-socket.json";
 
       hljs.configure({
         highlightSizeThreshold: 5000
@@ -46,7 +48,7 @@
         window.SwaggerTranslator.translate();
       }
       window.swaggerUi = new SwaggerUi({
-        url: url,
+        url: rest_url,
         dom_id: "swagger-ui-container",
         supportedSubmitMethods: ['post'],
         onComplete: function(swaggerApi, swaggerUi){
@@ -64,7 +66,27 @@
         showRequestHeaders: true
       });
 
+	  window.swaggerUiSocket = new SwaggerUi({
+        url: socket_url,
+        dom_id: "swagger-ui-socket-container",
+        supportedSubmitMethods: [],
+        onComplete: function(swaggerApi, swaggerUi){
+          if(window.SwaggerTranslator) {
+            window.SwaggerTranslator.translate();
+          }
+        },
+        onFailure: function(data) {
+          log("Unable to Load SwaggerUI");
+        },
+        docExpansion: "none",
+        //jsonEditor: true,
+        apisSorter: "alpha",
+        defaultModelRendering: 'schema',
+        showRequestHeaders: true
+      });
+
       window.swaggerUi.load();
+	  window.swaggerUiSocket.load();
 
       function log() {
         if ('console' in window) {
@@ -79,6 +101,8 @@
 
   <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
   <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+  <br>
+  <div id="swagger-ui-socket-container" class="swagger-ui-wrap"></div>
 
 </body>
 </html>
