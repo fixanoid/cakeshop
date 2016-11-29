@@ -480,6 +480,32 @@
       </executions>
     </plugin>
 
+
+    <plugin>
+      <artifactId>maven-clean-plugin</artifactId>
+      <configuration>
+        <filesets>
+          <fileset>
+            <directory>src/main/webapp/node_modules</directory>
+            <followSymlinks>false</followSymlinks>
+          </fileset>
+          <fileset>
+            <directory>src/main/resources/geth/solc/node_modules</directory>
+            <followSymlinks>false</followSymlinks>
+          </fileset>
+          <fileset>
+            <directory>src/main/webapp/js</directory>
+            <includes>
+              <include>index-gen.js*</include>
+              <include>vendor/cakeshop.js</include>
+            </includes>
+            <followSymlinks>false</followSymlinks>
+          </fileset>
+        </filesets>
+      </configuration>
+    </plugin>
+
+
     <plugin>
       <groupId>com.googlecode.maven-download-plugin</groupId>
       <artifactId>download-maven-plugin</artifactId>
@@ -519,6 +545,24 @@
                 <includes>
                   <include>node</include>
                   <include>node.exe</include>
+                </includes>
+              </resource>
+            </resources>
+          </configuration>
+        </execution>
+        <execution>
+          <id>copy-cakeshop-js</id>
+          <phase>generate-sources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>src/main/webapp/js/vendor/</outputDirectory>
+            <resources>
+              <resource>
+                <directory>../cakeshop-client-js/target/dist/</directory>
+                <includes>
+                  <include>cakeshop.js</include>
                 </includes>
               </resource>
             </resources>
