@@ -1,7 +1,12 @@
 import 'bootstrap';
 import 'd3';
 import 'bootstrap-tour';
-import 'jquery-ui';
+
+import 'jquery';
+
+// importing here to be used by metrix widgets
+import 'epoch-charting';
+
 import moment from 'moment';
 
 import './vendor/stomp.min';
@@ -15,7 +20,6 @@ import 'dashboard-framework/dashboard-template';
 
 // import this first because it sets a global all the rest of the widgets need
 import './widgets/widget-root';
-
 
 // HACK(joel): workaround since some templates require utils and moment globals
 window.utils = utils;
@@ -33,7 +37,7 @@ window.Tower = {
 		// let everyone listening in know
 		Dashboard.Utils.emit('tower-control|ready|true');
 
-		if(window.localStorage.getItem("tourEnded") === null) {
+		if (window.localStorage.getItem('tourEnded') === null) {
 			//first time, activate tour automatically
 			$(document).trigger('StartTour');
 			Tower.tour.start(true);
@@ -44,27 +48,27 @@ window.Tower = {
 
 
 	init: function() {
-	    Dashboard.preregisterWidgets({
-	      'accounts'               : require('./widgets/accounts'),
-	      'block-detail'           : require('./widgets/block-detail'),
-	      'block-list'             : require('./widgets/block-list'),
-	      'block-view'             : require('./widgets/block-view'),
-	      'contract-current-state' : require('./widgets/contract-current-state'),
-	      'contract-detail'        : require('./widgets/contract-detail'),
-	      'contract-list'          : require('./widgets/contract-list'),
-	      'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
-	      'doc-frame'              : require('./widgets/doc-frame'),
-	      'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
-	      'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
-	      'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
-	      'node-control'           : require('./widgets/node-control'),
-	      'node-info'              : require('./widgets/node-info'),
-	      'node-settings'          : require('./widgets/node-settings'),
-	      'peers-add'              : require('./widgets/peers-add'),
-	      'peers-list'             : require('./widgets/peers-list'),
-	      'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
-	      'txn-detail'             : require('./widgets/txn-detail'),
-	  });
+		Dashboard.preregisterWidgets({
+			'accounts'               : require('./widgets/accounts'),
+			'block-detail'           : require('./widgets/block-detail'),
+			'block-list'             : require('./widgets/block-list'),
+			'block-view'             : require('./widgets/block-view'),
+			'contract-current-state' : require('./widgets/contract-current-state'),
+			'contract-detail'        : require('./widgets/contract-detail'),
+			'contract-list'          : require('./widgets/contract-list'),
+			'contract-paper-tape'    : require('./widgets/contract-paper-tape'),
+			'doc-frame'              : require('./widgets/doc-frame'),
+			'metrix-blocks-min'      : require('./widgets/metrix-blocks-min'),
+			'metrix-txn-min'         : require('./widgets/metrix-txn-min'),
+			'metrix-txn-sec'         : require('./widgets/metrix-txn-sec'),
+			'node-control'           : require('./widgets/node-control'),
+			'node-info'              : require('./widgets/node-info'),
+			'node-settings'          : require('./widgets/node-settings'),
+			'peers-add'              : require('./widgets/peers-add'),
+			'peers-list'             : require('./widgets/peers-list'),
+			'peers-neighborhood'     : require('./widgets/peers-neighborhood'),
+			'txn-detail'             : require('./widgets/txn-detail'),
+		});
 
 		Dashboard.init();
 
@@ -90,7 +94,7 @@ window.Tower = {
 		// http://localhost:8080/cakeshop/index.html#section=explorer&widgetId=block-detail&data=2
 		if (window.location.hash) {
 			const params = {};
-      const hash = window.location.hash.substring(1, window.location.hash.length);
+			const hash = window.location.hash.substring(1, window.location.hash.length);
 
 			_.each(hash.split('&'), function(pair) {
 				pair = pair.split('=');
@@ -110,10 +114,10 @@ window.Tower = {
 
 				if (params.widgetId) {
 					Dashboard.show({
-            widgetId: params.widgetId,
-            section: params.section ? params.section : Tower.current,
-            data: params.data, refetch: true,
-          });
+						widgetId: params.widgetId,
+						section: params.section ? params.section : Tower.current,
+						data: params.data, refetch: true,
+					});
 				}
 			};
 
@@ -134,12 +138,14 @@ window.Tower = {
 		'default': function() {
 			var statusUpdate = function(response) {
 
-				if (!Tower._set_ver && response.meta && response.meta["cakeshop-version"]) {
+				if (!Tower._set_ver && response.meta && response.meta['cakeshop-version']) {
 					Tower._set_ver = true;
-					$("aside nav").append('<div class="version-info">Cakeshop ' + response.meta["cakeshop-version"] + '</div>');
-					var build = response.meta["cakeshop-build-id"];
+
+					$('aside nav').append('<div class="version-info">Cakeshop ' + response.meta["cakeshop-version"] + '</div>');
+
+					var build = response.meta['cakeshop-build-id'];
 					if (build && build.length > 0) {
-						$("aside nav").append('<div class="version-info" title="' + build + ' built on ' + response.meta["cakeshop-build-date"] + '">Build ' + build.substring(0, 8) + '</div>');
+						$('aside nav').append('<div class="version-info" title="' + build + ' built on ' + response.meta['cakeshop-build-date'] + '">Build ' + build.substring(0, 8) + '</div>');
 					}
 				}
 
@@ -266,9 +272,9 @@ $(function() {
 	});
 
 	// logo handler
-	$("a.tower-logo").click(function(e) {
+	$('a.tower-logo').click(function(e) {
 		e.preventDefault();
-		$("#console").click();
+		$('#console').click();
 	});
 
 	// Menu (burger) handler
@@ -308,7 +314,6 @@ $(function() {
 		Tower.section[Tower.current]();
 
 		$('.tower-page-title').html( $('<span>', { html: $(this).find('.tower-sidebar-item').html() }) );
-
 	});
 
 
