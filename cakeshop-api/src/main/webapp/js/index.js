@@ -1,8 +1,8 @@
+import $ from 'jquery';
+
 import 'bootstrap';
 import 'd3';
 import 'bootstrap-tour';
-
-import 'jquery';
 
 // importing here to be used by metrix widgets
 import 'epoch-charting';
