@@ -22,7 +22,6 @@ module.exports = function() {
 			'  <div id="notification">' +
 			'  </div>'),
 
-
 		postRender: function() {
 			$('#widget-' + this.shell.id).html( this.template({}) );
 
@@ -41,6 +40,7 @@ module.exports = function() {
 			$.when(
 				utils.load({ url: widget.url, data: { "address": input.val() } })
 			).done(function(r) {
+				console.log('peers',r)
 				notif.show();
 
 				if ( (r) && (r.error) ) {
