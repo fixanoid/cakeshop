@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +80,20 @@ public class EventServiceImpl implements EventService {
             event.setTransactionId((String) data.get("transactionHash"));
             event.setContractId((String) data.get("address"));
 
-            Contract contract = contractService.get(event.getContractId());
+            // Fetch the associated contract by it's ID so we can decode the log data (requires registry)
+            Contract contract = null;
+            try {
+                contract = contractService.get(event.getContractId());
+            } catch (APIException e) {
+                if (e.getMessage().contains("eth_call failed (returned 0 bytes)")) {
+                    // contract registry likely doesn't exist on this chain
+                    // TODO deploy registry to external chains
+                    events.add(event);
+                    continue;
+                }
+                throw e;
+            }
+
             if (contract == null || contract.getABI() == null) {
                 // TODO can't process this event
                 // this will occur when loading a transaction related to a contract deploy

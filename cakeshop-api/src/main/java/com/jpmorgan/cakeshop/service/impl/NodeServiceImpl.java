@@ -95,9 +95,15 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             }
 
             // check if mining
-            data = gethService.executeGethCall(ADMIN_MINER_MINING);
-            Boolean mining = (Boolean) data.get(SIMPLE_RESULT);
-            node.setMining(mining == null ? false : mining);
+            try {
+                data = gethService.executeGethCall(ADMIN_MINER_MINING);
+                Boolean mining = (Boolean) data.get(SIMPLE_RESULT);
+                node.setMining(mining == null ? false : mining);
+            } catch (APIException e) {
+                if (e.getMessage().contains("The method eth_mining does not exist/is not available")) {
+                    node.setMining(true); // TODO assuming the equivalent of mining = true (temp workaround for quorum)
+                }
+            }
 
             // peer count
             data = gethService.executeGethCall(ADMIN_NET_PEER_COUNT);
