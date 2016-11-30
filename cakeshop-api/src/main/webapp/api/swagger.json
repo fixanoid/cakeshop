@@ -1,9 +1,8 @@
 {
 	"swagger": "2.0",
 	"info": {
-		"description": "Ethereum Enterprise API",
+		"title": "Cakeshop REST API",
 		"version": "1.0.0",
-		"title": "Ethereum Enterprise",
 		"contact": {}
 	},
 	"host": "localhost:8080",
