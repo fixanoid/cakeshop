@@ -5,10 +5,12 @@ module.exports = function() {
 		name: 'peers-list',
 		title: 'Peer List',
 		size: 'medium',
+		numPeers: 0,
 
 		hideLink: true,
 
 		url: 'api/node/peers',
+		topic: '/topic/node/status',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped"><%= rows %></table>'),
 		templateRow: _.template('<tr><td style="padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 10px;">' +
@@ -26,8 +28,7 @@ module.exports = function() {
 				utils.load({ url: this.url })
 			).done(function(info) {
 				var rows = [];
-
-				console.log(info);
+				this.numPeers = info.data.length;
 
 				if (info.data.length > 0) {
 					_.each(info.data, function(peer) {
@@ -41,11 +42,23 @@ module.exports = function() {
 					utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 				} else {
 					// no peers
+					$('#widget-' + _this.shell.id).html('');
 				}
 
 				_this.postFetch();
-			});
+			}.bind(this));
+		},
+
+		subscribe: function() {
+			utils.subscribe(this.topic, this.updatePeers.bind(this));
+		},
+
+		updatePeers: function(response) {
+			if (response.data.attributes.peerCount != this.numPeers) {
+				this.fetch();
+			}
 		}
+
 	};
 
 
