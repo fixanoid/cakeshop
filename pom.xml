@@ -18,8 +18,8 @@
     <name>cakeshop</name>
 
     <scm>
-        <url>https://stash-prod6.us.jpmchase.net:8443/projects/NPD/repos/ethereum-enterprise</url>
-        <connection>scm:git:https://stash-prod6.us.jpmchase.net:8443/scm/npd/ethereum-enterprise.git</connection>
+        <url>https://github.com/noirqs/cakeshop</url>
+        <connection>scm:git:https://github.com/noirqs/cakeshop.git</connection>
     </scm>
 
     <properties>
@@ -47,22 +47,10 @@
         <junit.version>4.11</junit.version>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>caonpd-releases</id>
-            <url>https://repo.jpmchase.net/maven/content/repositories/CAONPD</url>
-        </repository>
-        <snapshotRepository>
-            <id>caonpd-snapshots</id>
-            <uniqueVersion>false</uniqueVersion>
-            <url>https://repo.jpmchase.net/maven/content/repositories/CAONPD-SNAPSHOT</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <modules>
         <module>cakeshop-client-js</module>
-        <module>cakeshop-api</module>
         <module>cakeshop-abi</module>
+        <module>cakeshop-api</module>
         <module>cakeshop-client-java</module>
         <module>cakeshop-client-java-codegen</module>
         <module>cakeshop-client-java-sample</module>
