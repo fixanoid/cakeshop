@@ -10,6 +10,7 @@ module.exports = function() {
 
 		topic: '/topic/metrics/blocksPerMin',
 
+		refreshOnStart: true,
 
 		subscribe: function() {
 			utils.subscribe(this.topic, this.onData);
