@@ -8,10 +8,10 @@ import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.BlockService;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
+import com.jpmorgan.cakeshop.service.ContractService.CodeType;
 import com.jpmorgan.cakeshop.service.NodeService;
 import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.service.WalletService;
-import com.jpmorgan.cakeshop.service.ContractService.CodeType;
 import com.jpmorgan.cakeshop.util.FileUtils;
 
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class BlockchainInitializerTask implements Runnable {
         LOG.info("Deploying sample contract (SimpleStorage) to chain");
         try {
             String code = FileUtils.readClasspathFile("contracts/SimpleStorage.sol");
-            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null);
+            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null, null, null);
             transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
 
         } catch (IOException | InterruptedException e) {

@@ -8,12 +8,12 @@ import com.jpmorgan.cakeshop.error.APIException;
 import com.jpmorgan.cakeshop.model.Contract;
 import com.jpmorgan.cakeshop.model.ContractABI;
 import com.jpmorgan.cakeshop.model.Transaction;
-import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.model.Transaction.Input;
+import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.ContractService;
+import com.jpmorgan.cakeshop.service.ContractService.CodeType;
 import com.jpmorgan.cakeshop.service.GethHttpService;
 import com.jpmorgan.cakeshop.service.TransactionService;
-import com.jpmorgan.cakeshop.service.ContractService.CodeType;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -76,7 +76,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
     public void testCreate() throws IOException {
         String code = readTestFile("contracts/simplestorage.sol");
 
-        TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null);
+        TransactionResult result = contractService.create(null, code, ContractService.CodeType.solidity, null, null, null, null);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());
@@ -90,7 +90,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
         Contract c = contracts.get(0);
         assertNotNull(c);
 
-        TransactionResult result = contractService.create(null, code, CodeType.solidity, null, c.getBinary());
+        TransactionResult result = contractService.create(null, code, CodeType.solidity, null, c.getBinary(), null, null);
         assertNotNull(result);
         assertNotNull(result.getId());
         assertTrue(!result.getId().isEmpty());

@@ -8,8 +8,8 @@ import com.jpmorgan.cakeshop.model.Transaction;
 import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
-import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.service.ContractService.CodeType;
+import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.util.FileUtils;
 import com.jpmorgan.cakeshop.util.StringUtils;
 
@@ -60,7 +60,7 @@ public class ContractRegistryServiceImpl implements ContractRegistryService {
 
         try {
             String code = FileUtils.readClasspathFile("contracts/ContractRegistry.sol");
-            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null);
+            TransactionResult txr = contractService.create(null, code, CodeType.solidity, null, null, null, null);
             Transaction tx = transactionService.waitForTx(txr, 200, TimeUnit.MILLISECONDS);
             this.contractRegistryAddress = tx.getContractAddress();
             saveContractRegistryAddress(this.contractRegistryAddress);

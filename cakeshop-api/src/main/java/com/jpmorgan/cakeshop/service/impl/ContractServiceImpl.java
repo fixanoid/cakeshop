@@ -8,10 +8,10 @@ import com.jpmorgan.cakeshop.error.APIException;
 import com.jpmorgan.cakeshop.error.CompilerException;
 import com.jpmorgan.cakeshop.model.Contract;
 import com.jpmorgan.cakeshop.model.ContractABI;
+import com.jpmorgan.cakeshop.model.ContractABI.Constructor;
 import com.jpmorgan.cakeshop.model.Transaction;
 import com.jpmorgan.cakeshop.model.TransactionRequest;
 import com.jpmorgan.cakeshop.model.TransactionResult;
-import com.jpmorgan.cakeshop.model.ContractABI.Constructor;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
 import com.jpmorgan.cakeshop.service.GethHttpService;
@@ -144,7 +144,8 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary) throws APIException {
+    public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary,
+            String privateFrom, List<String> privateFor) throws APIException {
 
         List<Contract> contracts = compile(code, codeType, true); // always deploy optimized contracts
 
@@ -184,6 +185,14 @@ public class ContractServiceImpl implements ContractService {
         contractArgs.put("from", getAddress(from));
         contractArgs.put("data", data);
         contractArgs.put("gas", TransactionRequest.DEFAULT_GAS);
+
+        // add quorum args
+        if (StringUtils.isNotBlank(privateFrom)) {
+            contractArgs.put("privateFrom", privateFrom);
+        }
+        if (privateFor != null && privateFor.size() > 0) {
+            contractArgs.put("privateFor",  privateFor);
+        }
 
         Map<String, Object> contractRes = geth.executeGethCall("eth_sendTransaction", new Object[]{contractArgs});
 

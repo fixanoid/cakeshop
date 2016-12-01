@@ -161,7 +161,7 @@
         },
     });
 
-    Contract.deploy = function(code, optimize, args, binary) {
+    Contract.deploy = function(code, optimize, args, binary, privateFrom, privateFor) {
         return new Promise(function(resolve, reject) {
             Client.post(Contract.prototype.url('create'),
                 {
@@ -169,7 +169,9 @@
                     code_type: 'solidity',
                     optimize: optimize,
                     args: args,
-                    binary: binary
+                    binary: binary,
+                    privateFrom: privateFrom,
+                    privateFor: privateFor,
                 }
             ).done(function(res, status, xhr) {
                 var txid = res.data.id;

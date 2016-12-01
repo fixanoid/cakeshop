@@ -42,11 +42,13 @@ public interface ContractService {
 	 * @param codeType
 	 * @param args         Optional constructor arguments (if needed)
 	 * @param binary       If multiple contracts are specified in the source code, a specific binary to deploy can be passed here (Optional)
+	 * @param privateFrom  Base64-encoded public key of the sender (optional)
+	 * @param privateFor   List of Base64-encoded public keys of recipients (optional)
 	 *
 	 * @return
 	 * @throws APIException
 	 */
-	public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary) throws APIException;
+	public TransactionResult create(String from, String code, CodeType codeType, Object[] args, String binary, String privateFrom, List<String> privateFor) throws APIException;
 
 	/**
 	 * Delete the given contract. Not yet implemented.

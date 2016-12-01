@@ -135,6 +135,21 @@
         return s;
     }
 
+    function readQuorumVals(container) {
+      var privateFrom = $(container + " textarea#private_from").val();
+      var privateFor = $(container + " textarea#private_for").val();
+
+      if (_.isString(privateFrom)) {
+        privateFrom = privateFrom.trim();
+      }
+
+      if (_.isString(privateFor) && !_.isEmpty(privateFor)) {
+        privateFor = privateFor.split("\n");
+      }
+
+      return { privateFrom: privateFrom, privateFor: privateFor };
+    }
+
     function quorumFields() {
         var s = '';
         s += '<tr class="private_from">';
@@ -180,17 +195,12 @@
             e.preventDefault();
             var tr = $(e.target).parents("tr.method");
             var fromAddr = $(".transact select.accounts").val();
-            var privateFrom = $(".transact textarea#private_from").val();
-            var privateFor = $(".transact textarea#private_for").val();
+            var quorum = readQuorumVals(".transact");
             var method = activeContract.getMethod(tr.attr("data-method"));
             highlightMethod(method);
 
-            if (!_.isEmpty(privateFor)) {
-              privateFor = privateFor.split("\n"); // one key per line
-            }
-
             var params = collectInputVals(method, tr);
-            doMethodCall(activeContract, fromAddr, method, params, privateFrom, privateFor);
+            doMethodCall(activeContract, fromAddr, method, params, quorum.privateFrom, quorum.privateFor);
             return false;
         });
 
@@ -431,8 +441,8 @@
         date = date ? moment(date) : moment();
         var timestamp = '<span class="time pull-right">' + date.format("hh:mm:ss A") + '</span>';
         var div = '<div class="tx">' + timestamp + message + '</div>';
-		$(".papertape .panel-body").append(div);
-		// $(".papertape .panel-body div.tx:last")[0].scrollIntoView();
+  $(".papertape .panel-body").append(div);
+  // $(".papertape .panel-body div.tx:last")[0].scrollIntoView();
         var t = $(".papertape .panel-body")[0];
         t.scrollTop = t.scrollTopMax;
     }
@@ -494,10 +504,11 @@
             con.find(".method-inputs a").click(function(e) {
                 addRemoveInputs(con, e);
             });
-
         }
 
-		con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');
+        con.append(quorumFields());
+
+        con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');
         con.show();
 
         // Deploy selected contract
@@ -509,10 +520,12 @@
                 return false;
             }
 
-        	var editorSource = Contract.preprocess(Sandbox.getEditorSource());
-        	var optimize = document.querySelector('#optimize').checked;
+            var editorSource = Contract.preprocess(Sandbox.getEditorSource());
+            var optimize = document.querySelector('#optimize').checked;
             Contract.compile(editorSource, optimize).then(function(compiler_output) {
                 var contract = _.find(compiler_output, function(c) { return c.get("name") === sel; });
+
+                var quorum = readQuorumVals(".constructor");
 
                 var params = collectInputVals(conMethod, $(".select_contract .constructor"));
                 var _params = _.map(params, function(v, k) { return v; });
@@ -523,7 +536,11 @@
                 }
                 addTx("[deploy] Contract '" + contract.get("name") + "'" + _args);
 
-                Contract.deploy(contract.get("code"), optimize, _params, contract.get("binary")).then(function(addr) {
+                Contract.deploy(contract.get("code"), optimize, _params,
+                  contract.get("binary"),
+                  quorum.privateFrom,
+                  quorum.privateFor).then(function(addr) {
+
                     addTx("Contract '" + contract.get("name") + "' deployed at " + wrapAddr(addr));
                     $(".select_contract .address input").val(addr);
 
@@ -579,7 +596,7 @@
     }
 
     $(".trash").click(function(e) {
-		$(".papertape .panel-body").empty();
+      $(".papertape .panel-body").empty();
     });
 
     shrinkify(".select_contract");
