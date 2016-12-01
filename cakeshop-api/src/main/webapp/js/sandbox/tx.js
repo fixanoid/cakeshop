@@ -152,14 +152,23 @@
 
     function quorumFields() {
         var s = '';
-        s += '<tr class="private_from">';
-        s += '<td colspan="2" class="from_address"><label for="private_from">Private From</label>';
-        s += '<textarea id="private_from"></textarea></label>';
-        s += '</td></tr>';
+        // s += '<tr class="private_from">';
+        // s += '<td colspan="2" class="from_address"><label for="private_from">Private From</label>';
+        // s += '<textarea id="private_from"></textarea></label>';
+        // s += '</td></tr>';
         s += '<tr class="private_for">';
         s += '<td colspan="2" class="from_address"><label for="private_for" title="One key per line">Private For</label>';
         s += '<textarea id="private_for"></textarea>';
         s += '</td></tr>';
+        return s;
+    }
+
+    function quorumFieldsDiv() {
+        var s = '';
+        s += '<div class="input-group method-inputs private_for">';
+        s += '<textarea id="private_for" class="form-control" placeholder="private for" title="One base64-encoded key per line"></textarea>';
+        // s += '<td colspan="2" class="from_address"><label for="private_for">Private For</label>';
+        s += '</div>';
         return s;
     }
 
@@ -506,7 +515,7 @@
             });
         }
 
-        con.append(quorumFields());
+        con.append(quorumFieldsDiv());
 
         con.append('<br/><button class="btn btn-default deploy" type="submit">Deploy</button>');
         con.show();
