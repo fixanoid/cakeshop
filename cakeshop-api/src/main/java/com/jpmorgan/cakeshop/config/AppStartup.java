@@ -76,10 +76,16 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
             }
 
             if (gethConfig.isAutoStart()) {
-                healthy = autoStartGeth();
+                LOG.info("Autostarting geth node");
+                healthy =  geth.start();
                 if (!healthy) {
                     addError("GETH FAILED TO START");
                 }
+
+            } else {
+                // run startup tasks only
+                geth.runPostStartupTasks();
+
             }
         }
 
@@ -137,11 +143,6 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         System.out.println("          build id:    " + AppVersion.BUILD_ID);
         System.out.println("          build date:  " + AppVersion.BUILD_DATE);
         System.out.println();
-    }
-
-    public boolean autoStartGeth() {
-        LOG.info("Autostarting geth node");
-        return geth.start();
     }
 
     public String getDebugInfo(ServletContext servletContext) {

@@ -1,13 +1,11 @@
 package com.jpmorgan.cakeshop.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpmorgan.cakeshop.model.ContractABI;
 import com.jpmorgan.cakeshop.model.ContractABI.Function;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-
 import java.util.List;
 
 import javax.persistence.Column;
@@ -106,6 +104,11 @@ public class Transaction implements Serializable {
 
 	@ElementCollection(fetch=FetchType.EAGER)
 	private List<Event> logs;
+
+	// signature fields (avail in quorum)
+    private String r;
+    private String s;
+    private String v;
 
 
 	public String getId() {
@@ -236,7 +239,31 @@ public class Transaction implements Serializable {
 		this.status = status;
 	}
 
-	@Override
+	public String getR() {
+        return r;
+    }
+
+    public void setR(String r) {
+        this.r = r;
+    }
+
+    public String getS() {
+        return s;
+    }
+
+    public void setS(String s) {
+        this.s = s;
+    }
+
+    public String getV() {
+        return v;
+    }
+
+    public void setV(String v) {
+        this.v = v;
+    }
+
+    @Override
 	public String toString() {
 	    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
@@ -269,7 +296,7 @@ public class Transaction implements Serializable {
             decodedInput = new Input(func.name, func.decodeHex(inputStr).toArray());
         }
     }
-    
+
     public void decodeDirectTxnInput(String method) {
         final String directInput = getInput();
         ObjectMapper mapper = new ObjectMapper();

@@ -192,7 +192,7 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             throw new APIException("Failed to update genesis block", e);
         }
 
-        if (mining != null && mining != gethConfig.isMining()) {
+        if (!gethConfig.isQuorum() && mining != null && mining != gethConfig.isMining()) {
             gethConfig.setMining(mining);
 
             if (!restart) {
@@ -287,6 +287,7 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             peer.setNodeIP(uri.getHost());
             peer.setNodeUrl(address);
             peerDAO.save(peer);
+            // TODO if db is not enabled, save peers somewhere else? props file?
         }
 
         return added;

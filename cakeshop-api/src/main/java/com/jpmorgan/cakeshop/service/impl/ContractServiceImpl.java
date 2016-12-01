@@ -221,7 +221,7 @@ public class ContractServiceImpl implements ContractService {
 
         String bin = (String) contractRes.get("_result");
         if (bin.contentEquals("0x")) {
-            throw new APIException("Contract not in registry " + address);
+            throw new APIException("Contract does not exist at " + address);
         }
 
         Contract contract = contractRegistry.getById(address);

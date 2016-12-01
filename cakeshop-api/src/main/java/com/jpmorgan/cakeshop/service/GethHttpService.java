@@ -48,6 +48,8 @@ public interface GethHttpService {
      */
     public Boolean start(String... additionalParams);
 
+    public void runPostStartupTasks();
+
     /**
      * Stop the Geth node, if already running
      *

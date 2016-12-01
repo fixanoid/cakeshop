@@ -61,6 +61,9 @@ public class GethConfigBean {
 
     private static final String DEFAULT_NODE_PORT = "30303";
 
+    // quorum
+    private final String QUORUM = "quorum";
+
     private final String GETH_DATA_DIR = "geth.datadir";
     private final String GETH_LOG_DIR = "geth.log";
     private final String GETH_RPC_URL = "geth.url";
@@ -414,6 +417,15 @@ public class GethConfigBean {
     public void setGethUnlockTimeout(int timeout) {
         props.setProperty(GETH_UNLOCK_TIMEOUT, Integer.toString(timeout));
     }
+
+    public boolean isQuorum() {
+        return Boolean.valueOf(get(QUORUM, "false"));
+    }
+
+    public void setQuorum(boolean isQuorum) {
+        props.setProperty(QUORUM, Boolean.toString(isQuorum));
+    }
+
 
 
     /**

@@ -9,22 +9,21 @@ import com.jpmorgan.cakeshop.model.DirectTransactionRequest;
 import com.jpmorgan.cakeshop.model.Event;
 import com.jpmorgan.cakeshop.model.RequestModel;
 import com.jpmorgan.cakeshop.model.Transaction;
-import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.model.Transaction.Status;
+import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.ContractService;
 import com.jpmorgan.cakeshop.service.EventService;
 import com.jpmorgan.cakeshop.service.GethHttpService;
 import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.service.WalletService;
+import com.jpmorgan.cakeshop.util.StringUtils;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +81,13 @@ public class TransactionServiceImpl implements TransactionService {
         tx.setNonce((String) txData.get("nonce"));
         tx.setInput((String) txData.get("input"));
         tx.setFrom((String) txData.get("from"));
+
+        // add signature
+        if (txData.get("r") != null) {
+            tx.setR((String) txData.get("r"));
+            tx.setS((String) txData.get("s"));
+            tx.setV((String) txData.get("v"));
+        }
 
         tx.setGasPrice(toBigInt("gasPrice", txData));
 

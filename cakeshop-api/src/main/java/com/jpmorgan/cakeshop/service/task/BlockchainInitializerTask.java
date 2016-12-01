@@ -1,26 +1,30 @@
 package com.jpmorgan.cakeshop.service.task;
 
+import com.jpmorgan.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.cakeshop.dao.WalletDAO;
 import com.jpmorgan.cakeshop.error.APIException;
 import com.jpmorgan.cakeshop.model.Account;
-import com.jpmorgan.cakeshop.model.Block;
 import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.BlockService;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
 import com.jpmorgan.cakeshop.service.ContractService.CodeType;
+import com.jpmorgan.cakeshop.service.GethHttpService;
 import com.jpmorgan.cakeshop.service.NodeService;
 import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.service.WalletService;
 import com.jpmorgan.cakeshop.util.FileUtils;
+import com.jpmorgan.cakeshop.util.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +36,9 @@ public class BlockchainInitializerTask implements Runnable {
 
     @Autowired
     private BlockService blockService;
+
+    @Autowired
+    private GethHttpService geth;
 
     @Autowired
     private ContractRegistryService contractRegistry;
@@ -51,23 +58,31 @@ public class BlockchainInitializerTask implements Runnable {
     @Autowired
     private WalletDAO walletDAO;
 
+    @Value("${contract.registry.addr:}")
+    private String contractRegistryAddress;
+
+    @Autowired
+    private GethConfigBean gethConfig;
 
     @Override
     public void run() {
 
-        try {
-            Block block = blockService.get(null, null, "latest");
-            if (block.getNumber().longValue() > 0) {
-                LOG.warn("Blockchain not on block zero (on #" + block.getNumber() + "); not initializing");
+        if (StringUtils.isNotBlank(contractRegistryAddress)) {
+            Map<String, Object> contractRes;
+            try {
+                contractRes = geth.executeGethCall("eth_getCode", new Object[]{contractRegistryAddress, "latest"});
+            } catch (APIException e) {
+                LOG.error("Failed to verify contract " + contractRegistryAddress, e);
                 return;
             }
 
-        } catch (APIException e) {
-            LOG.error("Error reading block number: " + e.getMessage());
-            LOG.error("Unable to initialize");
-            return;
-        }
+            String binaryCode = (String) contractRes.get("_result");
+            if (!binaryCode.contentEquals("0x")) {
+                return; // already exists on chain
+            }
 
+            // continue to deploy
+        }
 
         LOG.info("Initializing empty blockchain");
         try {
@@ -92,15 +107,18 @@ public class BlockchainInitializerTask implements Runnable {
         }
 
 
-        LOG.info("Storing existing wallet accounts");
-        try {
-            List<Account> list = walletService.list();
-            for (Account account : list) {
-                walletDAO.save(account);
+        if (gethConfig.isDbEnabled()) {
+            LOG.info("Storing existing wallet accounts");
+            try {
+                List<Account> list = walletService.list();
+                for (Account account : list) {
+                    walletDAO.save(account);
+                }
+            } catch (APIException e) {
+                LOG.error("Error reading local wallet", e);
             }
-        } catch (APIException e) {
-            LOG.error("Error reading local wallet", e);
         }
+
     }
 
 }

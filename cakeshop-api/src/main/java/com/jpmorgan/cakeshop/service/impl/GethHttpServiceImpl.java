@@ -321,7 +321,6 @@ public class GethHttpServiceImpl implements GethHttpService {
 
         try {
             String dataDir = gethConfig.getDataDirPath();
-            boolean newGethInstall = false;
 
             File chainDataDir = new File(FileUtils.expandPath(dataDir, "chaindata"));
             if (!chainDataDir.exists()) {
@@ -336,7 +335,6 @@ public class GethHttpServiceImpl implements GethHttpService {
                     LOG.debug("Initializing keystore");
                     FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
                 }
-                newGethInstall = true;
             }
 
             ProcessBuilder builder = createProcessBuilder(gethConfig, createGethCommand(additionalParams));
@@ -355,25 +353,31 @@ public class GethHttpServiceImpl implements GethHttpService {
                 return this.running = false;
             }
 
-            if (newGethInstall) {
-                BlockchainInitializerTask init = applicationContext.getBean(BlockchainInitializerTask.class);
-                init.run();
-            }
+            // TODO add a watcher thread to make sure it doesn't die..
 
-            // Reconnect peers on startup
-            executor.execute(applicationContext.getBean(LoadPeersTask.class));
-
-            // FIXME add a watcher thread to make sure it doesn't die..
         } catch (IOException ex) {
             logError("Cannot start process: " + ex.getMessage());
             return this.running = false;
         }
 
-        this.blockScanner = applicationContext.getBean(BlockScanner.class);
-        blockScanner.start();
+        runPostStartupTasks();
 
         LOG.info("Ethereum started successfully");
         return this.running = true;
+    }
+
+    @Override
+    public void runPostStartupTasks() {
+        // run chain init task
+        BlockchainInitializerTask chainInitTask = applicationContext.getBean(BlockchainInitializerTask.class);
+        chainInitTask.run(); // run in same thread
+
+        // Reconnect peers on startup
+        executor.execute(applicationContext.getBean(LoadPeersTask.class));
+
+        // run scanner thread
+        this.blockScanner = applicationContext.getBean(BlockScanner.class);
+        blockScanner.start();
     }
 
     /**
