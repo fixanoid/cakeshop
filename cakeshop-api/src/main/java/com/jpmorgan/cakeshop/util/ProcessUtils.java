@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -97,8 +96,7 @@ public class ProcessUtils {
     public static boolean isProcessRunningWin(String pid) {
         try {
             Process proc = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "tasklist /FI \"PID eq " + pid + "\""});
-            try (InputStream stream = proc.getInputStream()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
                 //Parsing the input stream.
                 String line;
                 while ((line = reader.readLine()) != null) {
