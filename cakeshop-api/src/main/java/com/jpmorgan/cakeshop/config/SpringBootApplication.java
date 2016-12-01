@@ -2,6 +2,7 @@ package com.jpmorgan.cakeshop.config;
 
 import com.jpmorgan.cakeshop.bean.GethConfigBean;
 import com.jpmorgan.cakeshop.util.FileUtils;
+import com.jpmorgan.cakeshop.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +10,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -47,6 +47,11 @@ public class SpringBootApplication {
             System.err.println(e.getMessage());
             e.printStackTrace();
             System.exit(1);
+        }
+
+        if (args.length > 0 && StringUtils.isNotBlank(args[0]) && args[0].equalsIgnoreCase("init")) {
+            // yep, it's a global. dealwithit.jpg
+            System.setProperty("geth.init.only", "true");
         }
 
         // boot app

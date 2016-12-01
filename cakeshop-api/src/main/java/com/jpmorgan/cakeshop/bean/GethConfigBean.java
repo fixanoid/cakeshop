@@ -2,8 +2,10 @@ package com.jpmorgan.cakeshop.bean;
 
 import static com.jpmorgan.cakeshop.util.FileUtils.*;
 import static com.jpmorgan.cakeshop.util.ProcessUtils.*;
+import static org.apache.commons.io.FileUtils.*;
 
 import com.jpmorgan.cakeshop.util.FileUtils;
+import com.jpmorgan.cakeshop.util.SortedProperties;
 import com.jpmorgan.cakeshop.util.StringUtils;
 
 import java.io.File;
@@ -30,7 +32,7 @@ public class GethConfigBean {
     public static final String START_LINUX_COMMAND = "bin/linux/geth";
     public static final String START_WIN_COMMAND = "bin/win/geth.exe";
     public static final String START_MAC_COMMAND = "bin/mac/geth";
-    
+
     @Autowired
     private Environment env;
 
@@ -72,7 +74,7 @@ public class GethConfigBean {
 
     //geth.db.enabled
     private final String GETH_DB_ENABLED = "cakeshop.database.vendor";
-    
+
     // User-configurable settings
     private final String GETH_NETWORK_ID = "geth.networkid";
     private final String GETH_VERBOSITY = "geth.verbosity";
@@ -101,7 +103,7 @@ public class GethConfigBean {
             LOG.error(ex.getMessage());
         }
     }
-    
+
     private void initGethBean() throws IOException {
 
         // load props
@@ -419,7 +421,7 @@ public class GethConfigBean {
      * @throws IOException
      */
     public void save() throws IOException {
-        props.store(new FileOutputStream(configFile), null);
+        SortedProperties.store(props, new FileOutputStream(configFile));
     }
 
     /**

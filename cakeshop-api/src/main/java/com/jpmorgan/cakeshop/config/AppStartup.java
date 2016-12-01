@@ -67,6 +67,14 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
 
         healthy = testSystemHealth();
         if (healthy) {
+
+            boolean initOnly = Boolean.valueOf(System.getProperty("geth.init.only"));
+            if (initOnly) {
+                // Exit after all system initialization has completed
+                System.out.println("initialization complete. exiting.");
+                System.exit(0);
+            }
+
             if (gethConfig.isAutoStart()) {
                 healthy = autoStartGeth();
                 if (!healthy) {
@@ -122,20 +130,6 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
             System.out.println(FileUtils.readClasspathFile("banner.txt"));
         } catch (IOException e) {
         }
-
-//        System.out.println("                  ,%%%%%%%%,\n" +
-//                "                ,%%/\\%%%%/\\%%\n" +
-//                "               ,%%%\\c \"\" J/%%%    ,,,,,,, \n" +
-//                "      %.       %%%%/ 6  6 \\%%%    |||||||\n" +
-//                "      `%%.     %%%%    _  |%%%  @@@@@@@@@@@\n" +
-//                "       `%%     `%%%%(__Y__)%%'  {~*~*~*~*~}\n" +
-//                "       //       ;%%%%`\\-/%%%' @@@@@@@@@@@@@@@@\n" +
-//                "      ((       /  `%%%%%%%'   {~* CAKESHOP *~}\n" +
-//                "       \\\\    .'          |    {     OPEN     }\n" +
-//                "        \\\\  /       \\  | |    {~~*~~*~~*~~*~~}\n" +
-//                "         \\\\/         ) | |    @@@@@@@@@@@@@@@\n" +
-//                "          \\         /_ | |__      __) (__\n" +
-//                "          (___________)))))))    /_______\\");
 
         System.out.println();
         System.out.println("          CAKESHOP");

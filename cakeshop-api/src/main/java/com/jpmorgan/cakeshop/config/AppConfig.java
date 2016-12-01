@@ -1,6 +1,7 @@
 package com.jpmorgan.cakeshop.config;
 
 import com.jpmorgan.cakeshop.util.FileUtils;
+import com.jpmorgan.cakeshop.util.SortedProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -129,7 +130,8 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
         Properties mergedProps = new Properties();
         mergedProps.load(FileUtils.getClasspathStream(getVendorConfigFile()));
         mergedProps.load(FileUtils.getClasspathStream(getVendorEnvConfigFile()));
-        mergedProps.store(new FileOutputStream(configFile), null);
+
+        SortedProperties.store(mergedProps, new FileOutputStream(configFile));
     }
 
     public  PropertySourcesPlaceholderConfigurer createPropConfigurer(Environment env,
@@ -159,7 +161,7 @@ public class AppConfig implements AsyncConfigurer, EnvironmentAware {
             Properties mergedProps = new Properties();
             mergedProps.load(FileUtils.getClasspathStream(getVendorEnvConfigFile()));
             mergedProps.load(new FileInputStream(configFile)); // overwrite vendor props with our configs
-            mergedProps.store(new FileOutputStream(configFile), null);
+            SortedProperties.store(mergedProps, new FileOutputStream(configFile));
         }
 
         // Finally create the configurer and return it
