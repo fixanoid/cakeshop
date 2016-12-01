@@ -336,6 +336,7 @@ public class Transaction   {
         this.logs = logs;
     }
 
+    @JsonProperty("r")
     public String getR() {
         return r;
     }
@@ -344,6 +345,7 @@ public class Transaction   {
         this.r = r;
     }
 
+    @JsonProperty("s")
     public String getS() {
         return s;
     }
@@ -352,6 +354,7 @@ public class Transaction   {
         this.s = s;
     }
 
+    @JsonProperty("v")
     public String getV() {
         return v;
     }
