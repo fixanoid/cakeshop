@@ -32,21 +32,21 @@ module.exports = function() {
 				_this.postFetch();
 			}).done(function(res) {
 				var mainTable = ['id', 'status', 'blockId', 'blockNumber', 'contractAddress', 'transactionIndex', 'gasUsed', 'cumulativeGasUsed'],
-				secTable = ['from', 'to', 'value', 'input', 'decodedInput', 'logs', 'gas', 'gasPrice', 'nonce'],
+				secTable = ["from", "to", "value", "input", "decodedInput", "gas", "gasPrice", "nonce"],
 				keyOrder = _.reduce(mainTable.concat(secTable), function(m, v, i) { m[v] = i; return m; }, {}),
 				mainRows = [],
 				secRows = [],
 				keys = _.keys(res.data.attributes).sort(function(a, b) {
-					// custom reorder of the returned keys
-					if (keyOrder[a] === keyOrder[b]) {
-						return 0;
-					} else if (keyOrder[a] < keyOrder[b]) {
-						return -1;
-					} else if (keyOrder[a] > keyOrder[b]) {
-						return 1;
-					}
-					return 0;
-				});
+				   // custom reorder of the returned keys
+				   if (keyOrder[a] === keyOrder[b]) {
+					   return 0;
+				   } else if (keyOrder[a] < keyOrder[b]) {
+					   return -1;
+				   } else if (keyOrder[a] > keyOrder[b]) {
+					   return 1;
+				   }
+				   return 0;
+			  	});
 
 				keys = utils.idAlwaysFirst(keys);
 				_.each(keys, function(val, key) {
@@ -58,7 +58,7 @@ module.exports = function() {
 
 					if (val == 'blockNumber') {
 						template = _this.templateBlockRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
-					} else if ( (val === 'decodedInput') || (val === 'logs') ) {
+					} else if (val === 'decodedInput') {
 						template = _this.templateRow({ key: utils.camelToRegularForm(val), value: JSON.stringify(res.data.attributes[val]) });
 					} else {
 						template = _this.templateRow({ key: utils.camelToRegularForm(val), value: res.data.attributes[val] });
