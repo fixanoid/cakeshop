@@ -1,7 +1,9 @@
 package com.jpmorgan.cakeshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmorgan.cakeshop.model.ContractABI.Function;
+import com.jpmorgan.cakeshop.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,6 +36,9 @@ import org.bouncycastle.util.encoders.Hex;
 )
 
 public class Transaction implements Serializable {
+
+    public static final String PRIVATE_TXN_V1 = "0x25";
+    public static final String PRIVATE_TXN_V2 = "0x26";
 
     public class Input {
         private String method;
@@ -318,6 +323,20 @@ public class Transaction implements Serializable {
 
     public void setDecodedInput(Input decodedInput) {
         this.decodedInput = decodedInput;
+    }
+
+    /**
+     * Whether or not the transaction is a public one
+     *
+     * @return
+     */
+    @JsonIgnore
+    public boolean isPublic() {
+        return !isPrivate();
+    }
+
+    public boolean isPrivate() {
+        return (StringUtils.isNotBlank(v) && (v.equals(PRIVATE_TXN_V1) || v.equals(PRIVATE_TXN_V2)));
     }
 
 }

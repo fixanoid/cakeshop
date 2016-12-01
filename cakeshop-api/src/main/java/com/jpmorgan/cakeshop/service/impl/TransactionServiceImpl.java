@@ -114,35 +114,18 @@ public class TransactionServiceImpl implements TransactionService {
             try {
                 contract = contractService.get(tx.getTo());
             } catch (APIException e) {}
+
             String origInput = tx.getInput();
             if (contract != null && contract.getABI() != null && !contract.getABI().isEmpty()) {
                 ContractABI abi = ContractABI.fromJson(contract.getABI());
-                if (origInput != null && origInput.startsWith("0xfa")) {
-                    // handle gemini payloads
-                    try {
-                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
-                        if (res.get("_result") != null) {
-                            tx.setInput((String) res.get("_result"));
-                        }
-                    } catch (APIException e) {
-                        LOG.warn("Failed to load gemini payload: " + e.getMessage());
-                    }
-                }
-
+                loadPrivatePayload(tx);
                 tx.decodeContractInput(abi);
                 tx.setInput(origInput); // restore original input after [gemini] decode
+
             } else if (contract == null) {
-                if (tx.getInput() != null && tx.getInput().startsWith("0xfa")) {
-                    // handle gemini payloads
-                    try {
-                        Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
-                        if (res.get("_result") != null) {
-                            tx.setInput((String) res.get("_result"));
-                        }
-                    } catch (APIException e) {
-                        LOG.warn("Failed to load gemini payload: " + e.getMessage());
-                    }
-                }
+                // if contract doesn't exist, assume it was a 'direct' txn, e.g., a raw payload
+                // TODO add a better check
+                loadPrivatePayload(tx);
                 tx.decodeDirectTxnInput(tx.getInput());
                 tx.setInput(origInput); // restore original input after [gemini] decode
             }
@@ -157,6 +140,27 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         return tx;
+    }
+
+    /**
+     * Load private payloads
+     *
+     * @param tx
+     */
+    private void loadPrivatePayload(Transaction tx) {
+        if (tx.isPublic()) {
+            return;
+        }
+
+        try {
+            // TODO use txn manager
+            Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+            if (res.get("_result") != null) {
+                tx.setInput((String) res.get("_result")); // replace input with private payload
+            }
+        } catch (APIException e) {
+            LOG.warn("Failed to load gemini payload: " + e.getMessage());
+        }
     }
 
     @Override

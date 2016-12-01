@@ -34,7 +34,11 @@ public class Transaction   {
     private Long cumulativeGasUsed = null;
     private Long gasUsed = null;
     private String contractAddress = null;
-    private List<Event> logs = new ArrayList<Event>();
+    private List<Event> logs = new ArrayList<>();
+
+    private String r;
+    private String s;
+    private String v;
 
 
     /**
@@ -332,7 +336,29 @@ public class Transaction   {
         this.logs = logs;
     }
 
+    public String getR() {
+        return r;
+    }
 
+    public void setR(String r) {
+        this.r = r;
+    }
+
+    public String getS() {
+        return s;
+    }
+
+    public void setS(String s) {
+        this.s = s;
+    }
+
+    public String getV() {
+        return v;
+    }
+
+    public void setV(String v) {
+        this.v = v;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {
