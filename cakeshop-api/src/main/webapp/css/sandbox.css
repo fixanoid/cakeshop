@@ -327,3 +327,11 @@ input[readonly] {
 #libView a.contract {
     cursor: pointer;
 }
+
+.refresh {
+	float: right;
+}
+
+.compiled_contracts .form-control {
+	margin-top: 6px;
+}
