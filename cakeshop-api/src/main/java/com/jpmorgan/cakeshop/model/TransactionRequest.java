@@ -15,7 +15,7 @@ public class TransactionRequest {
 
     public static final String BLOCK_LATEST = "latest";
 
-    public static final int DEFAULT_GAS = 10_000_000;
+    public static final int DEFAULT_GAS = 3_149_000;
 
     private String fromAddress;
 

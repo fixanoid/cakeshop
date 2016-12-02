@@ -15,6 +15,7 @@ import com.jpmorgan.cakeshop.model.TransactionResult;
 import com.jpmorgan.cakeshop.service.ContractRegistryService;
 import com.jpmorgan.cakeshop.service.ContractService;
 import com.jpmorgan.cakeshop.service.GethHttpService;
+import com.jpmorgan.cakeshop.service.TransactionService;
 import com.jpmorgan.cakeshop.service.WalletService;
 import com.jpmorgan.cakeshop.service.task.ContractRegistrationTask;
 import com.jpmorgan.cakeshop.util.ProcessUtils;
@@ -58,6 +59,9 @@ public class ContractServiceImpl implements ContractService {
 
     @Autowired(required = false)
     private TransactionDAO transactionDAO;
+
+    @Autowired
+    private TransactionService txnService;
 
     @Autowired
     private WalletService walletService;
@@ -307,20 +311,7 @@ public class ContractServiceImpl implements ContractService {
         List<Transaction> txns = transactionDAO.listForContractId(contractId);
 
         for (Transaction tx : txns) {
-
-            if (tx.getInput().startsWith("0xfa")) {
-                // handle gemini payloads
-                try {
-                    Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[]{tx.getInput()});
-                    if (res.get("_result") != null) {
-                        tx.setInput((String) res.get("_result"));
-                    }
-                } catch (APIException e) {
-                    LOG.warn("Failed to load gemini payload: " + e.getMessage());
-                    continue;
-                }
-            }
-
+            txnService.loadPrivatePayload(tx);
             tx.decodeContractInput(abi);
         }
 

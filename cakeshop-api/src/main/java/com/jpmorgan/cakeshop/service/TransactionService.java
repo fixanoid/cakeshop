@@ -57,13 +57,22 @@ public interface TransactionService {
 	 * @throws InterruptedException
 	 */
     public Transaction waitForTx(TransactionResult result, long pollDelay, TimeUnit pollDelayUnit) throws APIException, InterruptedException;
-    
-    
+
+
     /**
 	 * @param request
 	 * @return {@link TransactionResult}
      * @throws com.jpmorgan.cakeshop.error.APIException
 	 */
     public TransactionResult directTransact(DirectTransactionRequest request) throws APIException;
+
+    /**
+     * Load the private payload, if the Transaction is a private one.
+     *
+     * NOTE: Replaces tx.input with the private version. If you want to preserve the original, hash, you must do so yourself.
+     *
+     * @param tx
+     */
+    void loadPrivatePayload(Transaction tx);
 
 }

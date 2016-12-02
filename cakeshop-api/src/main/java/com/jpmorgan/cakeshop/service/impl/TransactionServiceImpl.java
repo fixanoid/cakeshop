@@ -147,19 +147,20 @@ public class TransactionServiceImpl implements TransactionService {
      *
      * @param tx
      */
-    private void loadPrivatePayload(Transaction tx) {
+    @Override
+    public void loadPrivatePayload(Transaction tx) {
         if (tx.isPublic()) {
             return;
         }
 
         try {
             // TODO use txn manager
-            Map<String, Object> res = geth.executeGethCall("eth_getGeminiPayload", new Object[] { tx.getInput() });
+            Map<String, Object> res = geth.executeGethCall("eth_getQuorumPayload", new Object[] { tx.getInput().substring(2) });
             if (res.get("_result") != null) {
                 tx.setInput((String) res.get("_result")); // replace input with private payload
             }
         } catch (APIException e) {
-            LOG.warn("Failed to load gemini payload: " + e.getMessage());
+            LOG.warn("Failed to load private payload: " + e.getMessage());
         }
     }
 
