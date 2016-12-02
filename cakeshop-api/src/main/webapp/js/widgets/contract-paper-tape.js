@@ -56,15 +56,21 @@ module.exports = function() {
 					var txn = val.attributes,
 					 text = '';
 
-					if (!txn.decodedInput) {
+					if (!_.isEmpty(txn.contractAddress)) {
 						// Contract creation
-						text = _this.header(txn) + ' Contract \'<a href="#" data-widget="contract-detail" data-id="' + txn.contractAddress +'">' + _this.contractName + '</a>\' created';
-					} else {
+						text = _this.header(txn) + ' Contract \'<a href="#" data-widget="contract-detail" data-id="' + txn.contractAddress +'">' + _this.contractName + '</a>\' created by TXN ' +
+							'<a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' + utils.truncAddress(txn.id) + '</a>';
+
+					} else if (txn.decodedInput) {
 						text = _this.header(txn) + ' TXN <a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' +
 									utils.truncAddress(txn.id) + '</a>: <span style="font-weight: bold; color: #375067;">' +
 									txn.decodedInput.method +'</span>(<span style="font-weight: bold; color: #375067;">' +
 									txn.decodedInput.args.join('</span>, <span style="font-weight: bold; color: #375067;">') +
 									'</span>)';
+
+					} else {
+						text = _this.header(txn) + ' TXN <a href="#" data-widget="txn-detail" data-id="' + txn.id + '">' +
+									utils.truncAddress(txn.id) + '</a>';
 					}
 
 					rows.push( _this.templateRow({ text: text }) );
