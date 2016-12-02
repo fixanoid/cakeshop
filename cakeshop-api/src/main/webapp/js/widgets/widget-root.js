@@ -81,4 +81,8 @@ window.widgetRoot = {
 	},
 
 	postRender: function() { },
+
+	refresh: _.debounce(function() {
+		this.fetch();
+	}, 100),
 };
