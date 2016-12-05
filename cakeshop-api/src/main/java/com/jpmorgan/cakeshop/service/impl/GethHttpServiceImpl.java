@@ -322,18 +322,22 @@ public class GethHttpServiceImpl implements GethHttpService {
         try {
             String dataDir = gethConfig.getDataDirPath();
 
+            // copy keystore if necessary
+            File keystoreDir = new File(FileUtils.expandPath(dataDir, "keystore"));
+            if (!keystoreDir.exists()) {
+                LOG.debug("Initializing keystore");
+                FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
+            }
+
+            // run geth init
             File chainDataDir = new File(FileUtils.expandPath(dataDir, "chaindata"));
-            if (!chainDataDir.exists()) {
-                chainDataDir.mkdirs();
+            File newChainDataDir = new File(FileUtils.expandPath(dataDir, "geth", "chaindata"));
+            if (!(chainDataDir.exists() || newChainDataDir.exists())) {
+                //chainDataDir.mkdirs();
+                LOG.debug("Running geth init");
                 if (!initGeth()) {
                     logError("Geth datadir failed to initialize");
                     return this.running = false;
-                }
-
-                File keystoreDir = new File(FileUtils.expandPath(dataDir, "keystore"));
-                if (!keystoreDir.exists()) {
-                    LOG.debug("Initializing keystore");
-                    FileUtils.copyDirectory(new File(gethConfig.getKeystorePath()), keystoreDir);
                 }
             }
 
