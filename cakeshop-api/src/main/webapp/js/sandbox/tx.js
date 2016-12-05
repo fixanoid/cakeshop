@@ -114,8 +114,7 @@
 
     function wrapFunction(method) {
         var s = '<tr class="method" data-method="' + method.name + '">';
-        s += '<td><label>' + method.name + '<br/>' + wrapInputs(method) + '</label><button class="btn btn-default send" type="submit"></td>';
-        //s += '<td class="send"><button class="btn btn-default send" type="submit">';
+        s += '<td><label>' + method.name + '<br/>' + wrapInputs(method) + '</label><button class="btn btn-default send" type="submit">';
         s += (method.constant === true ? "Read" : "Transact");
         s += '</button></td>';
         s += '</tr>';
