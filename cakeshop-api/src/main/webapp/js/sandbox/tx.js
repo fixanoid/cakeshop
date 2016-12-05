@@ -98,7 +98,7 @@
     }
 
     function wrapInputs(method) {
-        var s = "";
+        var s = '<div class="transact-inputs">';
         method.inputs.forEach(function(input) {
             s += '<div class="input-group method-inputs" data-param="' + input.name + '">';
             s += '<input type="text" class="form-control" data-param="' + input.name + '" data-type="' + input.type + '" placeholder="' + input.name + '(' + input.type + ')"> ';
@@ -109,13 +109,13 @@
             }
             s += '</div>';
         });
-        return s;
+        return s += '</div>';
     }
 
     function wrapFunction(method) {
         var s = '<tr class="method" data-method="' + method.name + '">';
-        s += '<td><label>' + method.name + '<br/>' + wrapInputs(method) + '</label></td>';
-        s += '<td class="send"><button class="btn btn-default send" type="submit">';
+        s += '<td><label>' + method.name + '<br/>' + wrapInputs(method) + '</label><button class="btn btn-default send" type="submit"></td>';
+        //s += '<td class="send"><button class="btn btn-default send" type="submit">';
         s += (method.constant === true ? "Read" : "Transact");
         s += '</button></td>';
         s += '</tr>';
