@@ -40,7 +40,7 @@ import org.testng.annotations.BeforeClass;
 @ActiveProfiles("test")
 @Order(1)
 @EnableAsync
-public class TestAppConfig implements  EnvironmentAware{
+public class TestAppConfig implements EnvironmentAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestAppConfig.class);
     private Environment env;
