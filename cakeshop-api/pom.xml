@@ -15,7 +15,7 @@
   <name>Cakeshop API</name>
 
   <properties>
-    <geth.url.base>http://com.noirqs.cakeshop.s3-website-us-east-1.amazonaws.com</geth.url.base>
+    <geth.url.base>https://s3.amazonaws.com/com.jpmchase.cakeshop/</geth.url.base>
   </properties>
 
   <profiles>
@@ -27,8 +27,8 @@
         </os>
       </activation>
       <properties>
-        <geth.file>geth-1.4.6-stable-5422cbbd-gemini-windows.zip</geth.file>
-        <geth.sha512>73645e6c55d36b3e782c0036624c1889060a8595db47e98790ad1f09f61e0b591ce829bab95a02b3e86e84a57e54d2db73a1aae629df0282b93f04a49a50e87b</geth.sha512>
+        <geth.file>geth-1.5.4-b70acf3c-windows.zip</geth.file>
+        <geth.sha512>a09e9dbc72c27ad7f5c2ae91138baf6f512f7367851e21b29077b04a606d20a5ed1413f02e5c5069ed05d42b87527ef53feaa7492c797619c5a122b51e2d4593</geth.sha512>
         <geth.dir>win</geth.dir>
       </properties>
     </profile>
@@ -40,8 +40,8 @@
         </os>
       </activation>
       <properties>
-        <geth.file>geth-1.4.6-stable-088d30da-gemini-mac.zip</geth.file>
-        <geth.sha512>b393fb50edea45daa131c94702f249f06cbee7a3196874a816a84c760064a16a1abf0cfa4f020d5081d3fafeae3e09c086d8824daa275cf0a28c09a7599b6325</geth.sha512>
+        <geth.file>geth-1.5.4-b70acf3c-mac.zip</geth.file>
+        <geth.sha512>0b7ee396d03c557764ea777e55282049bd308809067eea0e2b5e9f35b557f696c1662f400934e72f5cb183d0321545fd28057f7c62df76c7ae19dd6e21007e9d</geth.sha512>
         <geth.dir>mac</geth.dir>
       </properties>
     </profile>
@@ -53,8 +53,8 @@
         </os>
       </activation>
       <properties>
-        <geth.file>geth-1.4.6-stable-088d30da-gemini-linux.zip</geth.file>
-        <geth.sha512>85d8bbe7d200f20b10662b57d616da97b70eee48b056c8c79bac4ad3e58d525e3acfb9fea30b239cc59320e04171e667ab551bc3f5bd0d8ab25ded719f63f26f</geth.sha512>
+        <geth.file>geth-1.5.4-b70acf3c-linux.zip</geth.file>
+        <geth.sha512>966bb9b476c13f557d33c474ca63ab46146775cc7ed6dfef7b3bae64281a39cccfd2f6647d30d1dbdde39f460771daf11a90d0c1f1cae7f8f5d8fac15232807a</geth.sha512>
         <geth.dir>linux</geth.dir>
       </properties>
     </profile>
