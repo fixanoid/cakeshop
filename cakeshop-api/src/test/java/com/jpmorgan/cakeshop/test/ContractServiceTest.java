@@ -157,7 +157,7 @@ public class ContractServiceTest extends BaseGethRpcTest {
 
 
 	    String owner = (String) contractService.read(contractAddress, abi, null, "owner", null, null)[0];
-	    assertEquals(owner, "0xce731fb824c1dd64d79359e1cfdc5fc742157d3c");
+	    assertEquals(owner, "0x2e219248f44546d966808cdd20cb6c36df6efa82");
 	}
 
 	@Test

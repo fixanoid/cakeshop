@@ -18,7 +18,7 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Autowired
     BlockController blockController;
-    
+
     @Autowired
     BlockService blockService;
 
@@ -39,7 +39,7 @@ public class BlockControllerTest extends BaseControllerTest {
 
     @Test
     public void testGetBlockByHash() throws Exception {
-        commonTest("{\"hash\":\"0x4c5dc2805d90a33fa4e5358346d5335d4f6aeefd7e839952ef4e070e3a8412d2\"}", 0L);
+        commonTest("{\"hash\":\"0xd93b8da4c2f48c98e2cb76bef403ec22cada28331946218487b0fd1335e52bdd\"}", 0L);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class BlockControllerTest extends BaseControllerTest {
             .andExpect(content().string(containsString("\"errors\":")));
     }
 
-    @Test    
+    @Test
     public void testGetBlockByTag() throws Exception {
         Block block = blockService.get(null, null, "latest");
         commonTest("{\"tag\":\"latest\"}", block.getNumber().longValue());

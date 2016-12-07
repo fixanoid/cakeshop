@@ -202,7 +202,7 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             throw new APIException("Failed to update genesis block", e);
         }
 
-        if (!gethConfig.isQuorum() && mining != null && mining != gethConfig.isMining()) {
+        if (!quorumService.isQuorum() && mining != null && mining != gethConfig.isMining()) {
             gethConfig.setMining(mining);
 
             if (!restart) {

@@ -12,6 +12,7 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+@Test(enabled=false)
 public class Util extends BaseGethRpcTest {
 
 	@Autowired
@@ -45,11 +46,6 @@ public class Util extends BaseGethRpcTest {
 
 		System.out.println("BINARY CODE:");
 		System.out.println(contract.getBinary());
-	}
-
-	@Test
-	public void testPlaceholder() {
-
 	}
 
 }
