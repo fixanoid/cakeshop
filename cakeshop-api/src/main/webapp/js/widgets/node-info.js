@@ -27,27 +27,39 @@ module.exports = function() {
 
 		// TODO: renders after every fetch. May need to re-render only when needed
 		onData: function(status) {
+
+			var customOrder = _.reduce([
+				'nodeUrl',
+				'rpcUrl',
+				'nodeName',
+				'nodeIP',
+				'nodePort',
+				'nodeRpcPort',
+				'latestBlock',
+				'peerCount',
+				'pendingTxn',
+				'status',
+				'mining',
+				'quorum',
+				'quorumInfo'
+			], function(memo, v, i) {
+				memo[v] = i; return memo;
+			}, {});
+
+			if (status.quorumInfo === null) {
+				delete status.quorumInfo;
+				status.quroum = false;
+			} else {
+				status.quroum = true;
+			}
+
 			var rows = [],
 			 keys = _.sortBy(_.keys(status), function(key) {
-				 // custom reorder of the returned keys
-				var customOrder = {
-					'nodeUrl': 1,
-					'nodeName': 2,
-					'nodeIP': 3,
-					'nodePort': 4,
-					'nodeRpcPort': 5,
-					'peerCount': 6,
-					'pendingTxn': 7,
-					'status': 8,
-					'mining': 9,
-					'latestBlock': 'a'
-				};
-
+				// custom reorder of the returned keys
 				if (key in customOrder) {
-					return '' + customOrder[key];
+					return customOrder[key];
 				}
-
-				return ('zzz' + key);
+				return (99999);
 			});
 
 			keys = utils.idAlwaysFirst(keys);
@@ -55,9 +67,15 @@ module.exports = function() {
 			// objects not shown in this widget
 			keys = _.without(keys, 'config', 'peers');
 
-
 			_.each(keys, function(val, key) {
-				rows.push( this.templateRow({ key: utils.camelToRegularForm(val), value: status[val] }) );
+				if (val === 'quorumInfo') {
+					// filter out nulls for the case when we have a quorum node but didn't get all status
+					var qinfo = _.reduce(status[val], function(memo, v, k) { if (v !== null) { memo[k] = v; } return memo; }, {});
+					rows.push( this.templateRow({ key: utils.camelToRegularForm(val), value: JSON.stringify(qinfo) }) );
+				} else {
+					rows.push( this.templateRow({ key: utils.camelToRegularForm(val), value: status[val] }) );
+
+				}
 			}.bind(this));
 
 			$('#widget-' + this.shell.id).html( this.template({ rows: rows.join('') }) );

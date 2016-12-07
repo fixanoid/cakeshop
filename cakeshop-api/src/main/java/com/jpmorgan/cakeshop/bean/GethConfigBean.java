@@ -58,12 +58,14 @@ public class GethConfigBean {
 
     private String solcPath;
 
+    /**
+     * Whether or not this is a quorum node
+     */
+    private Boolean isQuorum;
+
     private Properties props;
 
     private static final String DEFAULT_NODE_PORT = "30303";
-
-    // quorum
-    private final String QUORUM = "quorum";
 
     private final String GETH_DATA_DIR = "geth.datadir";
     private final String GETH_LOG_DIR = "geth.log";
@@ -419,12 +421,12 @@ public class GethConfigBean {
         props.setProperty(GETH_UNLOCK_TIMEOUT, Integer.toString(timeout));
     }
 
-    public boolean isQuorum() {
-        return Boolean.valueOf(get(QUORUM, "false"));
+    public Boolean isQuorum() {
+        return isQuorum;
     }
 
-    public void setQuorum(boolean isQuorum) {
-        props.setProperty(QUORUM, Boolean.toString(isQuorum));
+    public void setQuorum(Boolean isQuorum) {
+        this.isQuorum = isQuorum;
     }
 
 

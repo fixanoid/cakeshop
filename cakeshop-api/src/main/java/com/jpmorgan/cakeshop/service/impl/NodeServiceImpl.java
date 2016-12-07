@@ -12,6 +12,7 @@ import com.jpmorgan.cakeshop.model.Peer;
 import com.jpmorgan.cakeshop.service.GethHttpService;
 import com.jpmorgan.cakeshop.service.GethRpcConstants;
 import com.jpmorgan.cakeshop.service.NodeService;
+import com.jpmorgan.cakeshop.service.QuorumService;
 import com.jpmorgan.cakeshop.util.AbiUtils;
 import com.jpmorgan.cakeshop.util.EEUtils;
 import com.jpmorgan.cakeshop.util.EEUtils.IP;
@@ -47,6 +48,9 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
     @Autowired
     private PeerDAO peerDAO;
 
+    @Autowired
+    private QuorumService quorumService;
+
     @Override
     public Node get() throws APIException {
 
@@ -65,6 +69,7 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             node.setStatus(StringUtils.isEmpty((String) data.get("id")) ? NODE_NOT_RUNNING_STATUS : NODE_RUNNING_STATUS);
             node.setNodeName((String) data.get("name"));
 
+            // populate enode and url/ip
             String nodeURI = (String) data.get("enode");
             if (StringUtils.isNotEmpty(nodeURI)) {
                 try {
@@ -95,14 +100,14 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             }
 
             // check if mining
-            try {
+            if (!quorumService.isQuorum()) {
                 data = gethService.executeGethCall(ADMIN_MINER_MINING);
                 Boolean mining = (Boolean) data.get(SIMPLE_RESULT);
                 node.setMining(mining == null ? false : mining);
-            } catch (APIException e) {
-                if (e.getMessage().contains("The method eth_mining does not exist/is not available")) {
-                    node.setMining(true); // TODO assuming the equivalent of mining = true (temp workaround for quorum)
-                }
+
+            } else {
+                // TODO assuming the equivalent of mining = true (temp workaround for quorum)
+                node.setMining(true);
             }
 
             // peer count
@@ -127,6 +132,11 @@ public class NodeServiceImpl implements NodeService, GethRpcConstants {
             }
 
             node.setPeers(peers());
+
+            if (quorumService.isQuorum()) {
+                // add quorum info
+                node.setQuorumInfo(quorumService.getQuorumInfo());
+            }
 
         } catch (APIException ex) {
             Throwable cause = ex.getCause();

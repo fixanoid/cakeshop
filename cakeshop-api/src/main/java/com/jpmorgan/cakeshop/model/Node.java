@@ -70,6 +70,11 @@ public class Node  {
     private NodeConfig config;
 
     /**
+     * Quorum configuration, if available
+     */
+    private QuorumInfo quorumInfo;
+
+    /**
      * Connected peer list
      */
     private List<Peer> peers;
@@ -177,6 +182,14 @@ public class Node  {
 
     public void setDataDirectory(String dataDirectory) {
         this.dataDirectory = dataDirectory;
+    }
+
+    public QuorumInfo getQuorumInfo() {
+        return quorumInfo;
+    }
+
+    public void setQuorumInfo(QuorumInfo quorumInfo) {
+        this.quorumInfo = quorumInfo;
     }
 
     @Override
