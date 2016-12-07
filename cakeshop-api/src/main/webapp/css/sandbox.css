@@ -192,6 +192,7 @@ nav.sidenav ul.navbar-right li.mining_status a {
 
 .method-inputs {
     padding-bottom: 5px;
+	width: 100%;
 }
 
 .method-inputs a {
@@ -326,4 +327,37 @@ input[readonly] {
 
 #libView a.contract {
     cursor: pointer;
+}
+
+.refresh {
+	float: right;
+	margin-bottom: 5px;
+}
+
+.compiled_contracts .form-control {
+	margin-top: 6px;
+}
+
+.withRefreshLabel {
+	padding-top: 6px;
+    margin-bottom: 0px;
+}
+
+button.send {
+    float: right;
+    width: 75px;
+}
+
+.transact-inputs {
+    padding-top: 13px;
+}
+
+button.deploy {
+    float: right;
+    margin-top: -20px;
+    width: 75px;
+}
+
+div.contracts .withRefreshLabel {
+	margin-bottom: 7px;
 }
