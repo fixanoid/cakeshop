@@ -54,6 +54,10 @@ public class SpringBootApplication {
             System.setProperty("geth.init.only", "true");
         }
 
+        if (args.length > 0 && StringUtils.isNotBlank(args[0]) && args[0].equalsIgnoreCase("example")) {
+            System.setProperty("geth.init.example", "true");
+        }
+
         // boot app
         new SpringApplicationBuilder(SpringBootApplication.class)
             .profiles("container", "spring-boot")

@@ -68,10 +68,24 @@ public class AppStartup implements ApplicationListener<ContextRefreshedEvent> {
         healthy = testSystemHealth();
         if (healthy) {
 
-            boolean initOnly = Boolean.valueOf(System.getProperty("geth.init.only"));
-            if (initOnly) {
+            if (Boolean.valueOf(System.getProperty("geth.init.only"))) {
                 // Exit after all system initialization has completed
                 System.out.println("initialization complete. exiting.");
+                System.exit(0);
+            }
+
+            if (Boolean.valueOf(System.getProperty("geth.init.example"))) {
+                // Exit after all system initialization has completed
+                gethConfig.setAutoStart(false);
+                gethConfig.setAutoStop(false);
+                gethConfig.setRpcUrl("http://localhost:22000");
+                try {
+                  gethConfig.save();
+                } catch (IOException e) {
+                  LOG.error("Error writing application.properties: " + e.getMessage());
+                  System.exit(1);
+                }
+                System.out.println("initialization complete. wrote quorum-example config. exiting.");
                 System.exit(0);
             }
 
