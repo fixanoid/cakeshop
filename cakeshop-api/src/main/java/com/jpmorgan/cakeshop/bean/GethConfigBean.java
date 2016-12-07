@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -67,7 +68,6 @@ public class GethConfigBean {
     private final String GETH_DATA_DIR = "geth.datadir";
     private final String GETH_LOG_DIR = "geth.log";
     private final String GETH_RPC_URL = "geth.url";
-    private final String GETH_RPC_PORT = "geth.rpcport";
     private final String GETH_RPCAPI_LIST = "geth.rpcapi.list";
     private final String GETH_NODE_PORT = "geth.node.port";
     private final String GETH_AUTO_START = "geth.auto.start";
@@ -267,11 +267,12 @@ public class GethConfigBean {
     }
 
     public String getRpcPort() {
-        return props.getProperty(GETH_RPC_PORT);
-    }
-
-    public void setRpcPort(String rpcPort) {
-        props.setProperty(GETH_RPC_PORT, rpcPort);
+      String url = getRpcUrl();
+      if (StringUtils.isBlank(url)) {
+        return null;
+      }
+      URI uri = URI.create(url);
+      return Integer.toString(uri.getPort());
     }
 
     public String getRpcApiList() {
