@@ -1,91 +1,92 @@
 
-# Cakeshop: The Enterprise Blockchain SDK
+# Cakeshop
 
-All the tools you need to build apps on blockchain
+An integrated development environment and SDK for Ethereum-like ledgers
 
-![screenshot](https://github.com/noirqs/cakeshop/blob/opensource/doc/screenshot.png?raw=true "screenshot")
+![screenshot](docs/images/screenshot.png "screenshot")
 
 ## What is it?
 
-_Cakeshop_ is a set of tools and APIs for working with the
-[Ethereum](https://ethereum.org/) blockchain, packaged as a Java web application
-archive (WAR) that can be dropped into any application server and gets you up
-and running in under 60 seconds.
+_Cakeshop_ is a set of tools and APIs for working with [Ethereum](https://ethereum.org/)-like ledgers, packaged as a Java web application archive (WAR) that gets you up and running in under 60 seconds.
 
 Included in the package is the [geth](https://github.com/ethereum/go-ethereum)
 Ethereum server, a [Solidity](https://solidity.readthedocs.org/en/latest/)
 compiler and all dependencies.
 
 It provides tools for managing a local blockchain node, setting up clusters,
-exploring the state of the chain, and working with contracts. There are also
-APIs for directly integrating applications with the chain.
+exploring the state of the chain, and working with contracts.
 
 ## Quickstart
 
 ### Requirements
 
 * Java 7+
-* Java app server (Tomcat, Jetty, etc)
+* Java app server (Tomcat, Jetty, etc) [Optional]
 
-### Installation
+### Running via Spring Boot
+
+* Download WAR file
+* Run `java -jar cakeshop.war`
+* Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/)
+
+### Running via App Server
 
 * Download WAR file
 * Put in `/webapps` folder of your app server
-* Add Java environment variable -Dspring.profiles.active=local|dev|uat|prod to startup script
+* Add Java environment variable -Dspring.profiles.active=local|dev|uat|prod to startup script (`setenv.sh` for tomcat)
 * Start app server
-* Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/)
-
-That's it!
+* Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/) (default port is usually 8080)
 
 ### Running via Docker
 
 ```
-docker run -it -e JAVA_OPTS="-Dspring.profiles.active=local" cakeshop
+docker run -it cakeshop
 ```
 
-### Building a Docker Image
-
-```
-# builder image
-docker build -t cakeshop-build docker/build/
-
-# build cakeshop.war
-docker run -v ~/.m2:/root/.m2 -v $(pwd):/usr/src -w /usr/src cakeshop-build mvn -DskipTests clean package
-
-# cakeshop image
-mv cakeshop-api/target/cakeshop*.war docker/cakeshop/
-docker build -t cakeshop docker/cakeshop/
-
-docker run -it -e JAVA_OPTS="-Dspring.profiles.active=local" cakeshop
-```
-
+Running under a specific environment
 ```
 docker run -it -e JAVA_OPTS="-Dspring.profiles.active=local" cakeshop
 ```
 
-Minimum requirements for tomcat (conf/server.xml)
+### Running with Quorum
 
-    <Connector port="8080" protocol="HTTP/1.1"
-               enableLookups="false"
-               maxKeepAliveRequests="-1"
-               maxConnections="10000"
-               redirectPort="8443"
-               connectionTimeout="20000"/>
+(requires [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and [Vagrant](https://www.vagrantup.com/downloads.html))
 
-Currently Cakeshop APP supports Oracle, Postgres, MySQL, HSQL databases. Here are the options how to use external or embedded database(HSQL)
+```
+git clone https://github.com/jpmorganchase/quorum-examples.git
+cd quorum-examples
+vagrant up
+vagrant ssh
 
-LOCAL, DEV are by default running on embedded HSQL DB. UAT and Prod have Oracle as default database. If you'd like to overwrite it you need
-to pass -Dcakeshop.database.vendor=oracle|hsqldb|mysql|postgres
-into app server startup script.
+(in vagrant shell)
+vagrant$ cd quorum-examples/7nodes
+vagrant$ ./init.sh && ./start.sh
 
-- For external database only:
-  If you have connection pool set up, add Java environment variable -Dcakeshop.jndi.name=your_connection_pool_jndi_name into app server startup script.
-  This option is not for embedded database.
+(in host shell)
+java -jar cakeshop.war example
+java -jar cakeshop.war
+```
 
-  If you'd like to use direct JDBC connection then following Java environment variables have to be added
-to start up script -Dcakeshop.jdbc.url=url -Dcakeshop.jdbc.user=db_user -Dcakeshop.jdbc.pass=db_password
+At this point you should have Cakeshop running and connected to node 1 in the Quorum cluster (dd1 on RPC port 22000).
 
-- For embedded database:
-  Just pass -Dcakeshop.database.vendor=hsqldb into app server start up script.
+You can change the node you're connected to by running the last two commands again from another directory and modifying the properties file at `data/local/application.properties` to point to a different RPC port in the range `22000-22006` before starting Cakeshop.
 
-- If you'd like to overwrite default hibernate settings, following properties have to be added to the app server startup script -Dcakeshop.hibernate.jdbc.batch_size=value -Dcakeshop.hibernate.hbm2ddl.auto=value   -Dcakeshop.hibernate.dialect=value
+## Further Reading
+
+Further documentation can be found on the [wiki](https://github.com/jpmorganchase/cakeshop/wiki/) and in the [docs](docs/) folder.
+
+## License
+
+Copyright (c) 2016 JPMorgan Chase and/or applicable contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
