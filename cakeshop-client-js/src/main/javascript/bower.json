@@ -3,7 +3,7 @@
   "description": "Blockchain SDK Client",
   "main": "lib/client.js",
   "authors": [
-    "Chetan Sarva <chetan.sarva@jpmchase.com>"
+    "Chetan Sarva"
   ],
   "license": "MIT",
   "homepage": "",
