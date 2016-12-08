@@ -33,7 +33,7 @@ exploring the state of the chain, and working with contracts.
 
 * Download WAR file
 * Put in `/webapps` folder of your app server
-* Add Java environment variable -Dspring.profiles.active=local|dev|uat|prod to startup script (`setenv.sh` for tomcat)
+* Add Java system property `-Dspring.profiles.active=local` to startup script (`setenv.sh` for tomcat)
 * Start app server
 * Navigate to [http://localhost:8080/cakeshop/](http://localhost:8080/cakeshop/) (default port is usually 8080)
 
