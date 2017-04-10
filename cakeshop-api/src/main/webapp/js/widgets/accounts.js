@@ -19,7 +19,7 @@ module.exports = function() {
 					'<tr>' +
 						'<td>Account</td>' +
 						'<td style="width: 200px;">Balance</td>' +
-						'<td class="unlocked-col"> <i class="fa fa-lock" aria-hidden="true"></i> </td>' +
+						'<td class="unlocked-col locked"> <i class="fa fa-lock" aria-hidden="true"></i> </td>' +
 					'</tr>' +
 				'</thead>' +
 		 		'<tbody> <%= rows %> </tbody>' +
@@ -28,9 +28,9 @@ module.exports = function() {
 		templateRow: _.template('<tr>' +
 				'<td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.get("address") %></td>' +
 				'<td style="width: 200px;"><%= o.balance %></td>' +
-				'<td class="unlocked-col <% if( !o.get("unlocked") ){ %> locked  <% } else { %> unlocked <% } %> ">' +
-					'<i class="fa fa-lock locked-icon" aria-hidden="true" data-account="<%= o.get("address") %>"></i>' +
-					'<i class="fa fa-unlock unlocked-icon" aria-hidden="true" data-account="<%= o.get("address") %>"></i>' +
+				'<td class="unlocked-col <% if( !o.get("unlocked") ){ %>locked<% } else { %>unlocked<% } %> " data-account="<%= o.get("address") %>" >' +
+					'<i class="fa fa-lock locked-icon" aria-hidden="true" "></i>' +
+					//'<i class="fa fa-unlock unlocked-icon" aria-hidden="true" data-account="<%= o.get("address") %>"></i>' +
 				'</td>' +
 			'</tr>'),
 
@@ -70,29 +70,40 @@ module.exports = function() {
 			console.log(_this)
 			$('#widget-' + _this.shell.id).on('click', '.locked-icon', function(e) {
 				console.log('clicked', e);
-				var account = $(e.target).data("account");
+				var account = $(e.target.parentElement).data("account"),
+				 url = _this.url_lock;
+
+				if ($(e.target.parentElement).hasClass('locked')) {
+					url = _this.url_unlock;
+				}
+
 				$.when(
 					utils.load({
-						url: _this.url_unlock,
+						url: url,
 						data: {
-							"account": account
+							"account": account,
+							"accountPassword": "",
+							"fromAccount": "",
+							"newBalance": ""
 						}
 					})
 				).done(function () {
-					console.log('unlocked now')
-				}).fail( function() {
-					console.log('error')
+					console.log('unlocking/locking done')
+				}).fail( function(err) {
+					console.log('error', err)
 				})
 			});
 
 			$('#widget-' + _this.shell.id).on("mouseenter", '.locked-icon', function(e) {
 				// hover starts code here
-				console.log('hovered over lock')
+				console.log('hovered over lock', e)
+				$(e).removeClass('fa-lock').addClass('fa-unlock');
 			});
 
 			$('#widget-' + _this.shell.id).on("mouseleave", '.locked-icon', function(e) {
 				// hover ends code here
 				console.log('moved hover over lock')
+				$(e).removeClass('fa-unlock').addClass('fa-lock');
 			});
 		}
 	};

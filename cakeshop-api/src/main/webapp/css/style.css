@@ -713,24 +713,26 @@ pre {
 	font-size: 11px;
 }
 
-.unlocked-col i.fa-lock,
- .unlocked-col i.fa-unlock {
+.unlocked-col i.fa-lock {
 	float: right;
+	opacity: 0;
+	transition: opacity 0.15s ease-in-out;
 }
-
-.locked-icon,
- .unlocked-icon {
-	 display: none;
- }
 
 .unlocked-col {
 	width: 20%;
+	font-size: 20px;
 }
 
-.unlocked-col.locked .locked-icon {
-	display: inline-block;
+td.locked i.fa-lock {
+	opacity: 1;
 }
 
 .unlocked-col i:hover {
 	cursor: pointer;
+	opacity: 1;
+}
+
+.fund-accounts-form input {
+	margin-bottom: 8px;
 }
