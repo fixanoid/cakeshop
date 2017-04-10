@@ -712,3 +712,25 @@ pre {
 	height: 100%;
 	font-size: 11px;
 }
+
+.unlocked-col i.fa-lock,
+ .unlocked-col i.fa-unlock {
+	float: right;
+}
+
+.locked-icon,
+ .unlocked-icon {
+	 display: none;
+ }
+
+.unlocked-col {
+	width: 20%;
+}
+
+.unlocked-col.locked .locked-icon {
+	display: inline-block;
+}
+
+.unlocked-col i:hover {
+	cursor: pointer;
+}
