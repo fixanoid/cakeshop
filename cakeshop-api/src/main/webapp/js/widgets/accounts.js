@@ -89,6 +89,11 @@ module.exports = function() {
 					})
 				).done(function () {
 					console.log('unlocking/locking done')
+					if($(e.target.parentElement).hasClass('locked') ) {
+						$(e.target.parentElement).removeClass('locked');
+					} else {
+						$(e.target.parentElement).addClass('locked');
+					}
 				}).fail( function(err) {
 					console.log('error', err)
 				})
