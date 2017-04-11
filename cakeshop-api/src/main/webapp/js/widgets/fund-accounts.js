@@ -7,14 +7,15 @@ module.exports = function() {
 		size: 'small',
 
 		url: 'api/wallet/fund',
+		accountList: [],
 
 		hideLink: true,
 
-		template: _.template('<div class="form-group fund-accounts-form">' +
+		template: _.template( '	<div class="form-group fund-accounts-form">' +
 		'		<label for="transfer-from">From Account</label>' +
-		'		<input type="text" class="form-control" id="transfer-from">' +
+		'		<select id="transfer-from" class="form-control" style="transition: none;"> </select>' +
 		'		<label for="transfer-to">To Account</label>' +
-		'		<input type="text" class="form-control" id="transfer-to">' +
+		'		<select id="transfer-to" class="form-control" style="transition: none;"> </select>' +
 		'		<label for="amount">Amount</label>' +
 		'		<input type="text" class="form-control" id="amount">' +
 		'	</div>'+
@@ -35,30 +36,56 @@ module.exports = function() {
 
 		modalConfirmation: _.template( '<div class="modal-body"> <%=message %> </div>'),
 
+		subscribe: function() {
+			console.log('subscribed')
+			//repopulate account list when new account is added
+			// or, if accounts are locked /unlocked
+			Dashboard.Utils.on(function(e, action) {
+				if (action[0] == 'accountUpdate') {
+					console.log('update list');
+					this.fetch();
+				}
+			}.bind(this));
+		},
+
+		fetch: function() {
+			Account.list().then(function(accounts) {
+				var rows = ['<option>Choose Account</option>'];
+
+				accounts.forEach(function(acct) {
+					if (acct.get('unlocked')) {
+						//only add unlocked accounts
+						rows.push( '<option>' + acct.get('address') + '</option>' );
+					}
+				});
+
+				this._$('#transfer-from')
+					.html( rows.join('') );
+
+				this._$('#transfer-to')
+					.html( rows.join('') );
+
+			}.bind(this));
+		},
+
 		postRender: function() {
 			var _this = this;
 			$('#widget-' + this.shell.id).html( this.template({}) );
 
+			//populate account dropdowns
+			this.fetch();
+
 			$('#widget-' + this.shell.id + ' #transfer-btn').click( function() {
 				var from = $('#widget-' + _this.shell.id + ' #transfer-from').val(),
 					to = $('#widget-' + _this.shell.id + ' #transfer-to').val(),
-					amount = $('#widget-' + _this.shell.id + ' #amount').val(),
-					from_locked = false,
-					to_locked = false;
+					amount = $('#widget-' + _this.shell.id + ' #amount').val();
 
-				//fetch list of accounts
-				Account.list().then(function(accounts) {
-					console.log(accounts);
-				});
-
-				//verify that everything is filled out and accounts are not locked
+				console.log('*', from, to, amount)
+				//verify that everything is filled out
 				if (from == '' || to == '' || amount == '') {
 					//error
 					$('#widget-' + _this.shell.id + ' .error-msg').html('All fields required.');
 					//TODO locked accounts & passwords
-				} else if (from_locked && to_locked){
-					//locked
-					$('#widget-' + _this.shell.id + ' .error-msg').html('Unlock accounts first.');
 				} else {
 					//empty error fields just in case
 					$('#widget-' + _this.shell.id + ' .error-msg').html('');

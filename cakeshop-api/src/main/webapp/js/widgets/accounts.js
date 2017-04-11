@@ -6,7 +6,7 @@ module.exports = function() {
 		title: 'Accounts',
 		size: 'medium',
 
-		url: 'api/wallet/list',
+		url_list: 'api/wallet/list',
 		url_create: 'api/wallet/create',
 		url_lock: 'api/wallet/lock',
 		url_unlock: 'api/wallet/unlock',
@@ -31,12 +31,12 @@ module.exports = function() {
 
 		templateRow: _.template('<tr>' +
 				'<td class="unlocked-col" >' +
-					'<% if( !o.get("unlocked") ){ %><i class="fa fa-lock locked-icon" aria-hidden="true"><% } %></i>' +
+					'<% if( !o.unlocked ){ %><i class="fa fa-lock locked-icon" aria-hidden="true"><% } %></i>' +
 				'</td>' +
-				'<td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.get("address") %></td>' +
-				'<td style="width: 200px;"><%= o.balance %></td>' +
-				'<td data-account="<%= o.get("address") %>" class="locking-col">' +
-					'<button class="btn btn-default locking-btn <% if( o.get("unlocked") ){ %>">Lock<% } else { %>locked">Unlock<% } %>' +
+				'<td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.address %></td>' +
+				'<td><%= o.balance %></td>' +
+				'<td data-account="<%= o.address %>" class="locking-col">' +
+					'<button class="btn btn-default locking-btn <% if( o.unlocked ){ %>">Lock<% } else { %>locked">Unlock<% } %>' +
 					'</button>' +
 				'</td>' +
 			'</tr>'),
@@ -61,9 +61,33 @@ module.exports = function() {
 
 		fetch: function() {
 			var _this = this;
+			$.when(
+				utils.load({ url: _this.url_list })
+			).done(function(accounts) {
+				console.log('hi', accounts)
+				var rows = [];
+				_.each(accounts.data, function(acct) {
+					console.log(acct)
+					acct = acct.attributes;
+					var b = parseInt(acct.balance, 10);
+
+					if (b > 1000000000) {
+						b = 'Unlimited';
+					} else {
+						b = b.toFixed(2);
+					}
+
+					acct.balance = b + ' ETH';
+					rows.push( _this.templateRow({ o: acct }) );
+				});
+				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
+				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
+			});
+/*
 			Account.list().then(function(accounts) {
 				var rows = [];
 				accounts.forEach(function(acct) {
+					console.log(acct)
 					var b = parseInt(acct.get('balance'), 10) / 1000000000000000000;
 
 					if (b > 1000000000) {
@@ -78,7 +102,7 @@ module.exports = function() {
 
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
-			});
+			});*/
 		},
 
 		postRender: function() {
@@ -87,6 +111,7 @@ module.exports = function() {
 				$.when(
 					utils.load({ url: _this.url_create })
 				).done(function() {
+					Dashboard.Utils.emit(['accountUpdate'], true)
 					_this.fetch();
 				});
 
@@ -133,6 +158,7 @@ module.exports = function() {
 						}
 						$('#myModal').modal('hide');
 
+						Dashboard.Utils.emit(['accountUpdate'], true)
 						_this.fetch();
 
 					}).fail(function() {
