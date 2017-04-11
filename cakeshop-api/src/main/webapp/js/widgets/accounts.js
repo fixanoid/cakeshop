@@ -15,24 +15,49 @@ module.exports = function() {
 		customButtons: '<li><i class="add-account fa fa-plus-circle"></i></li>',
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
-		 		'<thead style="font-weight: bold;">' +
+		 	'	<thead style="font-weight: bold;">' +
 					'<tr>' +
+						'<td class="unlocked-col locked"></td>' +
 						'<td>Account</td>' +
 						'<td style="width: 200px;">Balance</td>' +
-						'<td class="unlocked-col locked"> <i class="fa fa-lock" aria-hidden="true"></i> </td>' +
-					'</tr>' +
-				'</thead>' +
-		 		'<tbody> <%= rows %> </tbody>' +
-		 	'</table>'),
+			'			<td class="locking-col"></td>'+ //for buttons
+			'		</tr>' +
+			'	</thead>' +
+		 	'	<tbody> <%= rows %> </tbody>' +
+		 	'</table>' +
+			'<div class="form-group pull-right">' +
+			'	<button class="btn btn-primary add-account">New Account</button>' +
+			'</div>'),
 
 		templateRow: _.template('<tr>' +
+				'<td class="unlocked-col" >' +
+					'<% if( !o.get("unlocked") ){ %><i class="fa fa-lock locked-icon" aria-hidden="true"><% } %></i>' +
+				'</td>' +
 				'<td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.get("address") %></td>' +
 				'<td style="width: 200px;"><%= o.balance %></td>' +
-				'<td class="unlocked-col <% if( !o.get("unlocked") ){ %>locked<% } else { %>unlocked<% } %> " data-account="<%= o.get("address") %>" >' +
-					'<i class="fa fa-lock locked-icon" aria-hidden="true" "></i>' +
-					//'<i class="fa fa-unlock unlocked-icon" aria-hidden="true" data-account="<%= o.get("address") %>"></i>' +
+				'<td data-account="<%= o.get("address") %>" class="locking-col">' +
+					'<button class="btn btn-default locking-btn <% if( o.get("unlocked") ){ %>">Lock<% } else { %>locked">Unlock<% } %>' +
+					'</button>' +
 				'</td>' +
 			'</tr>'),
+
+		modalTemplate: _.template( '<div class="modal-header">' +
+			'	<%=lock%>' +
+			'</div>' +
+			'<div class="modal-body">' +
+			'	<div class="form-group lock-accounts-form">' +
+			'		<label for="account-label">Account</label>' +
+			'		<input type="text" class="form-control" id="account-label" readonly="readonly" placeholder="<%=account%>">' +
+			'		<label for="account-pwd">Password</label>' +
+			'		<input type="password" class="form-control" id="account-pwd">' +
+			'	</div>' +
+			'</div>' +
+			'<div class="modal-footer">' +
+			'	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>' +
+			'	<button type="button" id="locking-btn-final" class="btn btn-primary">Yes, <%=lock%>.</button>' +
+			'</div>'),
+
+		modalConfirmation: _.template('<div class="modal-body"><%=message%></div>'),
 
 		fetch: function() {
 			var _this = this;
@@ -58,57 +83,65 @@ module.exports = function() {
 
 		postRender: function() {
 			var _this = this;
-			$('#widget-shell-' + _this.shell.id + ' i.add-account').click(function(e) {
+			$('#widget-shell-' + _this.shell.id + ' .add-account').click(function(e) {
 				$.when(
 					utils.load({ url: _this.url_create })
 				).done(function() {
-					$(e.target).parent().parent().find('.fa-rotate-right').click();
+					_this.fetch();
 				});
 
 			});
 
-			console.log(_this)
-			$('#widget-' + _this.shell.id).on('click', '.locked-icon', function(e) {
-				console.log('clicked', e);
+			$('#widget-' + _this.shell.id).on('click', '.locking-btn', function(e) {
 				var account = $(e.target.parentElement).data("account"),
-				 url = _this.url_lock;
+				 url = _this.url_lock,
+				 lock = 'lock';
 
-				if ($(e.target.parentElement).hasClass('locked')) {
+				if ($(e.target).hasClass('locked')) {
 					url = _this.url_unlock;
+					lock = 'unlock';
 				}
 
-				$.when(
-					utils.load({
-						url: url,
-						data: {
-							"account": account,
-							"accountPassword": "",
-							"fromAccount": "",
-							"newBalance": ""
+				// set the modal text
+				$('#myModal .modal-content').html(_this.modalTemplate({
+					account: account,
+					lock: lock
+				}) );
+
+				//open modal
+				$('#myModal').modal('show');
+
+				$('#locking-btn-final').click( function() {
+					var pwd = $('#account-pwd').val();
+					console.log('clicked lock final')
+
+					$.when(
+						utils.load({
+							url: url,
+							data: {
+								"account": account,
+								"accountPassword": pwd,
+								"fromAccount": "",
+								"newBalance": ""
+							}
+						})
+					).done(function () {
+						if($(e.target).hasClass('locked') ) {
+							$(e.target).removeClass('locked');
+						} else {
+							$(e.target).addClass('locked');
 						}
-					})
-				).done(function () {
-					console.log('unlocking/locking done')
-					if($(e.target.parentElement).hasClass('locked') ) {
-						$(e.target.parentElement).removeClass('locked');
-					} else {
-						$(e.target.parentElement).addClass('locked');
-					}
-				}).fail( function(err) {
-					console.log('error', err)
-				})
-			});
+						$('#myModal').modal('hide');
 
-			$('#widget-' + _this.shell.id).on("mouseenter", '.locked-icon', function(e) {
-				// hover starts code here
-				console.log('hovered over lock', e)
-				$(e).removeClass('fa-lock').addClass('fa-unlock');
-			});
+						_this.fetch();
 
-			$('#widget-' + _this.shell.id).on("mouseleave", '.locked-icon', function(e) {
-				// hover ends code here
-				console.log('moved hover over lock')
-				$(e).removeClass('fa-unlock').addClass('fa-lock');
+					}).fail(function() {
+						$('#myModal .modal-content').html(_this.modalConfirmation({
+							message: 'Sorry, could not ' + lock + ' account. Please try again.'
+						}) );
+					});
+				});
+
 			});
 		}
 	};

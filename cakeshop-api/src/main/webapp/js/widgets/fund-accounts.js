@@ -3,7 +3,7 @@ import utils from '../utils';
 module.exports = function() {
 	var extended = {
 		name: 'fund-accounts',
-		title: 'Transfer Funds',
+		title: 'Fund Accounts',
 		size: 'small',
 
 		url: 'api/wallet/fund',
@@ -40,16 +40,25 @@ module.exports = function() {
 			$('#widget-' + this.shell.id).html( this.template({}) );
 
 			$('#widget-' + this.shell.id + ' #transfer-btn').click( function() {
-				console.log('clicked transfer');
-				//prompt for are you sure??
 				var from = $('#widget-' + _this.shell.id + ' #transfer-from').val(),
 					to = $('#widget-' + _this.shell.id + ' #transfer-to').val(),
-					amount = $('#widget-' + _this.shell.id + ' #amount').val();
+					amount = $('#widget-' + _this.shell.id + ' #amount').val(),
+					from_locked = false,
+					to_locked = false;
+
+				//fetch list of accounts
+				Account.list().then(function(accounts) {
+					console.log(accounts);
+				});
 
 				//verify that everything is filled out and accounts are not locked
 				if (from == '' || to == '' || amount == '') {
 					//error
 					$('#widget-' + _this.shell.id + ' .error-msg').html('All fields required.');
+					//TODO locked accounts & passwords
+				} else if (from_locked && to_locked){
+					//locked
+					$('#widget-' + _this.shell.id + ' .error-msg').html('Unlock accounts first.');
 				} else {
 					//empty error fields just in case
 					$('#widget-' + _this.shell.id + ' .error-msg').html('');
@@ -65,11 +74,8 @@ module.exports = function() {
 					$('#myModal').modal('show');
 				}
 
-				console.log(from, to, amount)
-
 				// send transfer request to backend
 				$('#transfer-btn-final').click(function() {
-					console.log('*', from, to, amount)
 					$.when(
 						utils.load({
 							url: _this.url,
@@ -81,12 +87,10 @@ module.exports = function() {
 							}
 						})
 					).done(function(m) {
-						console.log('successful transfer', m)
 						$('#myModal .modal-content').html(_this.modalConfirmation({
 							message: 'Successfully transferred funds!'
 						}) );
 					}).fail(function(err) {
-						console.log('error transfer', err)
 						$('#myModal .modal-content').html(_this.modalConfirmation({
 							message: 'Sorry, transaction did not complete. Please try again.'
 						}) );

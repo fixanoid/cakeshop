@@ -713,15 +713,13 @@ pre {
 	font-size: 11px;
 }
 
-.unlocked-col i.fa-lock {
+td.locking-col {
 	float: right;
-	opacity: 0;
-	transition: opacity 0.15s ease-in-out;
 }
 
 .unlocked-col {
-	width: 20%;
-	font-size: 20px;
+	width: 30px;
+	font-size: 18px;
 }
 
 td.locked i.fa-lock {
