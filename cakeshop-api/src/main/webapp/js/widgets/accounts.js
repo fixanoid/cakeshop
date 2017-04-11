@@ -18,8 +18,8 @@ module.exports = function() {
 		 	'	<thead style="font-weight: bold;">' +
 					'<tr>' +
 						'<td class="unlocked-col locked"></td>' +
-						'<td>Account</td>' +
-						'<td style="width: 200px;">Balance</td>' +
+						'<td class="account-name">Account</td>' +
+						'<td class="account-balance">Balance</td>' +
 			'			<td class="locking-col"></td>'+ //for buttons
 			'		</tr>' +
 			'	</thead>' +
@@ -33,8 +33,8 @@ module.exports = function() {
 				'<td class="unlocked-col" >' +
 					'<% if( !o.unlocked ){ %><i class="fa fa-lock locked-icon" aria-hidden="true"><% } %></i>' +
 				'</td>' +
-				'<td class="value" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.address %></td>' +
-				'<td><%= o.balance %></td>' +
+				'<td class="value account-name" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.address %></td>' +
+				'<td class="account-balance"><%= o.balance %></td>' +
 				'<td data-account="<%= o.address %>" class="locking-col">' +
 					'<button class="btn btn-default locking-btn <% if( o.unlocked ){ %>">Lock<% } else { %>locked">Unlock<% } %>' +
 					'</button>' +
