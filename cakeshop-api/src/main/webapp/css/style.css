@@ -713,7 +713,8 @@ pre {
 	font-size: 11px;
 }
 
-td.locking-col {
+td.locking-col,
+ th.locking-col {
 	float: right;
 	width: 100%;
 }
@@ -727,7 +728,8 @@ td.locking-col {
 	font-size: 17px;
 }
 
-td.locked i.fa-lock {
+td.locked i.fa-lock,
+ td.locked i.fa-lock {
 	opacity: 1;
 }
 
@@ -738,4 +740,12 @@ td.locked i.fa-lock {
 .error-msg {
 	color: #c51616;
 	padding-right: 5px;
+}
+
+.form-group.fund-accounts-form label {
+	padding-top: 8px;
+}
+
+.account-balance span {
+	float: right;
 }

@@ -16,10 +16,10 @@ module.exports = function() {
 
 		template: _.template('<table style="width: 100%; table-layout: fixed;" class="table table-striped">' +
 		 	'	<thead style="font-weight: bold;">' +
-					'<tr>' +
-						'<td class="unlocked-col locked"></td>' +
-						'<td class="account-name">Account</td>' +
-						'<td class="account-balance">Balance</td>' +
+			'		<tr>' +
+			'			<td class="unlocked-col locked"></td>' +
+			'			<td class="account-name">Account</td>' +
+			'			<td class="account-balance"><span>Balance</span></td>' +
 			'			<td class="locking-col"></td>'+ //for buttons
 			'		</tr>' +
 			'	</thead>' +
@@ -34,7 +34,7 @@ module.exports = function() {
 					'<% if( !o.unlocked ){ %><i class="fa fa-lock locked-icon" aria-hidden="true"><% } %></i>' +
 				'</td>' +
 				'<td class="value account-name" contentEditable="false" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"><%= o.address %></td>' +
-				'<td class="account-balance"><%= o.balance %></td>' +
+				'<td class="account-balance"><span><%= o.balance %></span></td>' +
 				'<td data-account="<%= o.address %>" class="locking-col">' +
 					'<button class="btn btn-default locking-btn <% if( o.unlocked ){ %>">Lock<% } else { %>locked">Unlock<% } %>' +
 					'</button>' +
@@ -64,10 +64,8 @@ module.exports = function() {
 			$.when(
 				utils.load({ url: _this.url_list })
 			).done(function(accounts) {
-				console.log('hi', accounts)
 				var rows = [];
 				_.each(accounts.data, function(acct) {
-					console.log(acct)
 					acct = acct.attributes;
 					var b = parseInt(acct.balance, 10);
 
@@ -83,26 +81,15 @@ module.exports = function() {
 				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
 				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
 			});
-/*
-			Account.list().then(function(accounts) {
-				var rows = [];
-				accounts.forEach(function(acct) {
-					console.log(acct)
-					var b = parseInt(acct.get('balance'), 10) / 1000000000000000000;
+		},
 
-					if (b > 1000000000) {
-						b = 'Unlimited';
-					} else {
-						b = b.toFixed(2);
-					}
-
-					acct.balance = b + ' ETH';
-					rows.push( _this.templateRow({ o: acct }) );
-				});
-
-				$('#widget-' + _this.shell.id).html( _this.template({ rows: rows.join('') }) );
-				utils.makeAreaEditable('#widget-' + _this.shell.id + ' .value');
-			});*/
+		subscribe: function() {
+			//fetch when account funds are transferred
+			Dashboard.Utils.on(function(e, action) {
+				if (action[0] == 'fundTransfer') {
+					this.fetch();
+				}
+			}.bind(this));
 		},
 
 		postRender: function() {
@@ -111,7 +98,7 @@ module.exports = function() {
 				$.when(
 					utils.load({ url: _this.url_create })
 				).done(function() {
-					Dashboard.Utils.emit(['accountUpdate'], true)
+					Dashboard.Utils.emit(['accountUpdate'], true);
 					_this.fetch();
 				});
 
@@ -138,7 +125,6 @@ module.exports = function() {
 
 				$('#locking-btn-final').click( function() {
 					var pwd = $('#account-pwd').val();
-					console.log('clicked lock final')
 
 					$.when(
 						utils.load({

@@ -37,12 +37,10 @@ module.exports = function() {
 		modalConfirmation: _.template( '<div class="modal-body"> <%=message %> </div>'),
 
 		subscribe: function() {
-			console.log('subscribed')
 			//repopulate account list when new account is added
 			// or, if accounts are locked /unlocked
 			Dashboard.Utils.on(function(e, action) {
 				if (action[0] == 'accountUpdate') {
-					console.log('update list');
 					this.fetch();
 				}
 			}.bind(this));
@@ -80,12 +78,10 @@ module.exports = function() {
 					to = $('#widget-' + _this.shell.id + ' #transfer-to').val(),
 					amount = $('#widget-' + _this.shell.id + ' #amount').val();
 
-				console.log('*', from, to, amount)
 				//verify that everything is filled out
 				if (from == '' || to == '' || amount == '') {
 					//error
 					$('#widget-' + _this.shell.id + ' .error-msg').html('All fields required.');
-					//TODO locked accounts & passwords
 				} else {
 					//empty error fields just in case
 					$('#widget-' + _this.shell.id + ' .error-msg').html('');
@@ -115,8 +111,11 @@ module.exports = function() {
 						})
 					).done(function(m) {
 						$('#myModal .modal-content').html(_this.modalConfirmation({
-							message: 'Successfully transferred funds!'
+							message: 'Successfully transferred funds! You may have to wait a moment for the changes to reflect on the balance.'
 						}) );
+						setTimeout( function(){
+								Dashboard.Utils.emit(['fundTransfer'], true)
+							}, 6000);
 					}).fail(function(err) {
 						$('#myModal .modal-content').html(_this.modalConfirmation({
 							message: 'Sorry, transaction did not complete. Please try again.'
